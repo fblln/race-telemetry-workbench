@@ -26,3 +26,18 @@ The project license was changed from MIT to GNU General Public License version 3
 GPLv3 is a copyleft free-software license. It permits use, copying,
 modification, distribution, and commercial use under the license terms, while
 requiring distributed derivative works to preserve the same freedoms.
+
+## 2026-06-06 - TimescaleDB Primary Storage
+
+TimescaleDB is the primary storage target for the product because the expected
+scope includes multiple years, multiple sessions, replay queries, lap
+comparison, weather/context overlays, and in-database analytics for MCP-backed
+questions.
+
+Use ordinary PostgreSQL tables for bounded relational/event metadata, and
+Timescale hypertables for high-volume or time-windowed sample data such as
+telemetry, position, and weather samples.
+
+DuckDB, ClickHouse, QuestDB, and plain PostgreSQL are not the primary
+implementation path. They may be reconsidered later for export/offline analysis
+or scale-specific secondary analytics.

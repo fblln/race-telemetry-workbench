@@ -35,6 +35,16 @@
   - `session_status_events`
   - `race_control_messages`
 - [ ] Add required indexes for telemetry, position, and replay queries.
+- [ ] Make TimescaleDB the primary storage target for multi-year, multi-session analytics.
+- [ ] Use relational PostgreSQL tables for session, driver, lap, circuit, status, and race-control metadata.
+- [ ] Use Timescale hypertables for telemetry, position, and weather samples.
+- [ ] Add analytical views/materialized-view candidates:
+  - `lap_summaries`
+  - `driver_stint_summaries`
+  - `session_weather_summary`
+  - `track_status_periods`
+  - `race_control_event_index`
+  - `telemetry_event_candidates`
 - [ ] Add `scripts/import_session.py`.
 - [ ] Add `scripts/requirements.txt`.
 - [x] Add `scripts/download_session.py` as the database-free FastF1 fetch and validation slice.
@@ -181,6 +191,7 @@
 - [ ] Implement `get_replay_context`.
 - [ ] Implement `find_telemetry_events`.
 - [ ] Support weather and race-control questions through Query API-backed tools.
+- [ ] Prefer bounded summary/context endpoints over raw sample responses for MCP analytics.
 - [ ] Return compact, bounded, model-friendly JSON.
 - [ ] Emit one trace span per tool call.
 - [ ] Add focused MCP server tests.

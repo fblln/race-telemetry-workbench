@@ -427,7 +427,7 @@ Importer mapping:
 
 | FastF1 column | Database field |
 |---|---|
-| `Time` | `weather_samples.sample_time_ms` |
+| `Time` | `weather_samples.session_time_ms`, plus calculated `sample_time_utc` from session start |
 | `AirTemp` | `air_temp_c` |
 | `TrackTemp` | `track_temp_c` |
 | `Humidity` | `humidity_pct` |

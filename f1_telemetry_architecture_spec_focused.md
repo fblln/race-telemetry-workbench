@@ -52,6 +52,31 @@ The implementation must prioritize a small set of capabilities that demonstrate 
 
 The initial runtime requires one Docker container: TimescaleDB.
 
+### 2.2 Database Requirements
+
+TimescaleDB is the primary database target.
+
+Use PostgreSQL relational tables for bounded metadata and event data:
+
+- `sessions`
+- `session_drivers`
+- `laps`
+- `circuit_metadata`
+- `circuit_markers`
+- `track_status_events`
+- `session_status_events`
+- `race_control_messages`
+
+Use Timescale hypertables for high-volume or time-windowed sample data:
+
+- `telemetry_samples`
+- `position_samples`
+- `weather_samples`
+
+Keep the application API and MCP server database-agnostic at their boundary:
+they must read through Query API contracts and raw SQL query services, not
+through direct FastF1 access.
+
 ---
 
 ## 3. Import Script
@@ -60,9 +85,9 @@ The initial runtime requires one Docker container: TimescaleDB.
 
 The import script loads one real Formula 1 race session into TimescaleDB by default. After import, the rest of the system reads only from the database.
 
-The first implementation should use FastF1 as the data source because it provides historical timing, lap, telemetry, and position data.
+The import script uses FastF1 as the source for historical timing, lap, telemetry, position, weather, circuit, and race-control data.
 
-Race data is the default project scope. Practice, qualifying, sprint qualifying, and sprint sessions may be supported as explicit opt-ins, but they should not be downloaded or imported unless the user passes a non-race `--session` value.
+Race data is the default import scope. Practice, qualifying, sprint qualifying, and sprint sessions are explicit opt-ins through non-race `--session` values.
 
 ### 3.2 Location
 
@@ -326,7 +351,8 @@ Circuit markers come from FastF1 `session.get_circuit_info()`. The desktop track
 ```sql
 CREATE TABLE IF NOT EXISTS weather_samples (
     session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
-    sample_time_ms BIGINT NOT NULL,
+    sample_time_utc TIMESTAMPTZ NOT NULL,
+    session_time_ms BIGINT NOT NULL,
     air_temp_c DOUBLE PRECISION NULL,
     track_temp_c DOUBLE PRECISION NULL,
     humidity_pct DOUBLE PRECISION NULL,
@@ -335,11 +361,13 @@ CREATE TABLE IF NOT EXISTS weather_samples (
     wind_direction_deg INT NULL,
     wind_speed_mps DOUBLE PRECISION NULL,
     metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
-    PRIMARY KEY (session_id, sample_time_ms)
+    PRIMARY KEY (sample_time_utc, session_id)
 );
 
 CREATE INDEX IF NOT EXISTS ix_weather_samples_session_time
-ON weather_samples (session_id, sample_time_ms);
+ON weather_samples (session_id, session_time_ms);
+
+SELECT create_hypertable('weather_samples', 'sample_time_utc', if_not_exists => TRUE);
 ```
 
 FastF1 weather samples are low-frequency session samples, often around one row per minute. They are useful for context, overlays, search, and race narrative, but they are not high-frequency telemetry.
@@ -405,7 +433,37 @@ ON race_control_messages (session_id, lap_number);
 
 Race-control messages are more verbose than `track_status_events` and may include DRS, pit-exit, investigation, flag, sector, lap, or driver-specific messages.
 
-### 4.12 Supported Channels
+### 4.12 Analytical Views And Summaries
+
+The database must expose bounded analytical views/materialized views for Query
+API and MCP use. MCP questions must not be answered by returning unbounded raw
+samples.
+
+Initial planned views:
+
+- `lap_summaries`
+  - one row per session, driver, lap;
+  - lap time, sector times, tyre compound/life, max/average speed, throttle and
+    brake summary values, deleted/accurate flags.
+- `driver_stint_summaries`
+  - grouped by session, driver, stint, compound;
+  - lap range, stint length, lap-time trend, tyre-life range.
+- `session_weather_summary`
+  - min/max/average air temperature, track temperature, humidity, pressure,
+    wind speed, and rainfall observed flag.
+- `track_status_periods`
+  - normalized periods with start/end session time for clear, yellow, safety
+    car, VSC, red flag, and related states.
+- `race_control_event_index`
+  - searchable race-control messages with normalized category, flag, lap,
+    sector, and driver/racing-number context.
+- `telemetry_event_candidates`
+  - bounded helper view for common MCP/event searches such as hard braking,
+    high speed, DRS usage, and throttle lift events.
+
+Views may be materialized when repeated analytics require lower latency.
+
+### 4.13 Supported Channels
 
 | Database column | API field | Unit | Notes |
 |---|---|---:|---|
@@ -1111,6 +1169,7 @@ The MCP server must:
 - Validate inputs before calling the Query API.
 - Call the Query API for all data access.
 - Return compact, bounded, model-friendly JSON.
+- Prefer summary/context endpoints for analytical questions over raw sample retrieval.
 - Emit one trace span per tool call.
 
 The MCP server must not:
@@ -1119,6 +1178,10 @@ The MCP server must not:
 - Execute arbitrary SQL.
 - Write data.
 - Return unbounded telemetry samples.
+
+MCP-backed analytics must be answered from Query API endpoints that use
+TimescaleDB SQL, indexes, and analytical views/materialized views. The MCP
+server is an adapter over those capabilities, not an analytical database client.
 
 ### 9.3 Tools
 
