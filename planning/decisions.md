@@ -1,14 +1,12 @@
 # Decisions
 
-## 2026-06-06 - Keep Local Spec Out of Git
+## 2026-06-06 - Track Architecture Spec In Git
 
-The local architecture spec file is ignored with an exact `.gitignore` entry:
+The architecture spec is tracked in git so product, data, database, API, replay,
+MCP, and licensing decisions can be reviewed directly on GitHub.
 
-```text
-f1_telemetry_architecture_spec_focused.md
-```
-
-Planning files in this folder should capture the actionable implementation state that belongs in the repository.
+Planning files in this folder should continue to capture actionable
+implementation state derived from the spec.
 
 ## 2026-06-06 - Initial Work Order
 
