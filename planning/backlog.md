@@ -28,13 +28,27 @@
   - `laps`
   - `telemetry_samples`
   - `position_samples`
+  - `circuit_metadata`
+  - `circuit_markers`
+  - `weather_samples`
+  - `track_status_events`
+  - `session_status_events`
+  - `race_control_messages`
 - [ ] Add required indexes for telemetry, position, and replay queries.
 - [ ] Add `scripts/import_session.py`.
 - [ ] Add `scripts/requirements.txt`.
+- [x] Add `scripts/download_session.py` as the database-free FastF1 fetch and validation slice.
+- [x] Document the data download workflow.
+- [x] Document raw FastF1 session, lap, car telemetry, position, and cache shapes.
+- [x] Add a raw-cache storage estimator for full-year planning.
+- [x] Set race sessions (`R`) as the default download/import scope.
 - [ ] Implement FastF1 session resolution.
+- [ ] Keep non-race session downloads/imports opt-in via explicit `--session`.
 - [ ] Import all available drivers by default.
 - [ ] Import lap metadata.
 - [ ] Import telemetry channels:
+  - `session_time_ms`
+  - `lap_time_ms`
   - `speed_kmh`
   - `throttle_pct`
   - `brake_pct`
@@ -42,10 +56,42 @@
   - `rpm`
   - `drs`
   - `distance_m`
+  - `relative_distance`
+  - `driver_ahead`
+  - `distance_to_driver_ahead_m`
+  - `track_status`
+  - `sample_source`
 - [ ] Import position channels:
   - `x`
   - `y`
   - `z`
+  - `track_status`
+  - `sample_source`
+- [ ] Import FastF1 circuit metadata:
+  - `rotation_degrees`
+  - corner markers
+  - marshal light markers
+  - marshal sector markers
+- [ ] Import FastF1 weather samples:
+  - `air_temp_c`
+  - `track_temp_c`
+  - `humidity_pct`
+  - `pressure_mbar`
+  - `rainfall`
+  - `wind_direction_deg`
+  - `wind_speed_mps`
+- [ ] Import FastF1 track and race-control events:
+  - track status events
+  - session status events
+  - race-control messages
+  - safety car and virtual safety car periods
+  - yellow/red/green flag periods
+- [ ] Use FastF1 `lap.get_telemetry()` as the composed telemetry source for database telemetry rows.
+- [ ] Use FastF1 `lap.get_pos_data()` as the raw position source for database position rows.
+- [ ] Use FastF1 `session.get_circuit_info()` as the circuit annotation source when available.
+- [ ] Use FastF1 `session.weather_data` as the weather source when available.
+- [ ] Use FastF1 `session.track_status`, `session.session_status`, and `session.race_control_messages` as event timeline sources when available.
+- [ ] Derive the desktop track outline from imported `position_samples`, not external track assets.
 - [ ] Implement stable `session_id` and `lap_id` generation.
 - [ ] Implement `fail`, `upsert`, and `replace` modes.
 - [ ] Preserve missing telemetry values as `NULL`.
@@ -74,7 +120,9 @@
 - [ ] Implement `GET /api/sessions/{sessionId}/compare/laps`.
 - [ ] Implement `GET /api/sessions/{sessionId}/replay/metadata`.
 - [ ] Implement `GET /api/sessions/{sessionId}/replay/chunk`.
+- [ ] Implement `GET /api/sessions/{sessionId}/replay/context`.
 - [ ] Implement `POST /api/sessions/{sessionId}/telemetry-events/search`.
+- [ ] Add replay context tests for weather, track-status, and race-control timeline windows.
 - [ ] Emit structured logs, traces, and metrics visible in Aspire Dashboard.
 - [ ] Add focused Query API tests.
 
@@ -96,10 +144,15 @@
   - channel selector
 - [ ] Load replay metadata when opening a session.
 - [ ] Load first replay chunk before playback.
+- [ ] Load replay context windows for weather, flags, safety car, VSC, red flags, DRS messages, and race-control messages.
 - [ ] Keep at least one future chunk buffered.
 - [ ] Cancel in-flight chunk requests on seek.
 - [ ] Downsample chart data when needed.
 - [ ] Preserve backend `null` values.
+- [ ] Show current weather at the replay timestamp.
+- [ ] Shade timeline/charts for yellow, safety car, VSC, and red-flag periods.
+- [ ] Show race-control messages as inspectable timeline markers.
+- [ ] Mark rainfall periods when weather data reports rain.
 - [ ] Verify playback at `1x` and switching to `5x`.
 
 ## Phase 4 - Lap Comparison
@@ -125,7 +178,9 @@
 - [ ] Implement `get_driver_laps`.
 - [ ] Implement `compare_laps`.
 - [ ] Implement `get_replay_metadata`.
+- [ ] Implement `get_replay_context`.
 - [ ] Implement `find_telemetry_events`.
+- [ ] Support weather and race-control questions through Query API-backed tools.
 - [ ] Return compact, bounded, model-friendly JSON.
 - [ ] Emit one trace span per tool call.
 - [ ] Add focused MCP server tests.
@@ -146,4 +201,3 @@
 - [ ] Make validation errors explicit and actionable.
 - [ ] Track performance targets for core operations.
 - [ ] Add Aspire observability for .NET services.
-

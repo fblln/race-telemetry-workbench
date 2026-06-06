@@ -21,3 +21,10 @@ Follow the implementation phases from the spec:
 5. MCP query server.
 6. Optional AI assistant panel.
 
+## 2026-06-06 - GNU GPLv3 License
+
+The project license was changed from MIT to GNU General Public License version 3.
+
+GPLv3 is a copyleft free-software license. It permits use, copying,
+modification, distribution, and commercial use under the license terms, while
+requiring distributed derivative works to preserve the same freedoms.
