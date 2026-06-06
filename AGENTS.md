@@ -37,16 +37,21 @@ Implemented:
   - Avoids overwriting canonical full-session manifests for driver/lap subsets.
 - `scripts/estimate_storage.py`
   - Estimates raw FastF1 cache storage from canonical manifests.
+- `db/migrations`
+  - Initial PostgreSQL/TimescaleDB schema.
+  - Hypertable and index setup.
+  - Analytical summary views for Query API and MCP use.
 - Docs:
   - `docs/data-download.md`
   - `docs/fastf1-raw-data.md`
   - `docs/storage-estimates.md`
+  - `db/README.md`
 - Unit tests:
   - `tests/test_download_session.py`
+  - `tests/test_database_migrations.py`
 
 Not implemented yet:
 
-- Database migrations.
 - TimescaleDB/Aspire setup.
 - `scripts/import_session.py`.
 - .NET solution/projects.
@@ -137,25 +142,16 @@ schedule revalidation but can fall back to cached responses.
 
 ## Recommended Next Work
 
-The best next implementation slice is the database foundation:
+The best next implementation slice is validating the database foundation in a
+real TimescaleDB runtime:
 
-1. Create `db/migrations/001_initial_schema.sql`.
-2. Create `db/migrations/002_timescale_hypertables.sql`.
-3. Include tables from the spec:
-   - `sessions`
-   - `session_drivers`
-   - `laps`
-   - `telemetry_samples`
-   - `position_samples`
-   - `circuit_metadata`
-   - `circuit_markers`
-   - `weather_samples`
-   - `track_status_events`
-   - `session_status_events`
-   - `race_control_messages`
-4. Add indexes for replay, lap comparison, track map, context timeline, and
-   session listing queries.
-5. Then build `scripts/import_session.py` to write one race into the database.
+1. Start TimescaleDB locally, preferably through the planned Aspire host once
+   the .NET solution exists.
+2. Apply `db/migrations/001_initial_schema.sql`,
+   `db/migrations/002_timescale_hypertables.sql`, and
+   `db/migrations/003_analytical_views.sql` in order.
+3. Verify that hypertables, indexes, and analytical views are created.
+4. Build `scripts/import_session.py` to write one race into the database.
 
 This should happen before Query API, desktop replay, or MCP work because those
 components all depend on imported database data.

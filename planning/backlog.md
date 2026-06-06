@@ -20,9 +20,9 @@
 ## Phase 1 - Database and Import
 
 - [ ] Start TimescaleDB through Aspire.
-- [ ] Add `db/migrations/001_initial_schema.sql`.
-- [ ] Add `db/migrations/002_timescale_hypertables.sql`.
-- [ ] Create tables:
+- [x] Add `db/migrations/001_initial_schema.sql`.
+- [x] Add `db/migrations/002_timescale_hypertables.sql`.
+- [x] Create tables:
   - `sessions`
   - `session_drivers`
   - `laps`
@@ -34,11 +34,11 @@
   - `track_status_events`
   - `session_status_events`
   - `race_control_messages`
-- [ ] Add required indexes for telemetry, position, and replay queries.
-- [ ] Make TimescaleDB the primary storage target for multi-year, multi-session analytics.
-- [ ] Use relational PostgreSQL tables for session, driver, lap, circuit, status, and race-control metadata.
-- [ ] Use Timescale hypertables for telemetry, position, and weather samples.
-- [ ] Add analytical views/materialized-view candidates:
+- [x] Add required indexes for telemetry, position, and replay queries.
+- [x] Make TimescaleDB the primary storage target for multi-year, multi-session analytics.
+- [x] Use relational PostgreSQL tables for session, driver, lap, circuit, status, and race-control metadata.
+- [x] Use Timescale hypertables for telemetry, position, and weather samples.
+- [x] Add analytical views/materialized-view candidates:
   - `lap_summaries`
   - `driver_stint_summaries`
   - `session_weather_summary`
