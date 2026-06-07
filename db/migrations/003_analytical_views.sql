@@ -130,12 +130,10 @@ SELECT
     lap_number,
     session_time_ms,
     lap_time_ms,
-    distance_m,
     speed_kmh,
     throttle_pct,
     brake_pct,
     drs,
-    track_status,
     CASE
         WHEN brake_pct >= 80 THEN 'hard_braking'
         WHEN speed_kmh >= 300 THEN 'high_speed'
@@ -149,3 +147,24 @@ WHERE
     OR speed_kmh >= 300
     OR (drs IS NOT NULL AND drs > 0)
     OR (throttle_pct <= 10 AND speed_kmh >= 150);
+
+COMMENT ON VIEW lap_summaries IS
+'One row per session, driver, and lap. Joins laps to telemetry_samples to expose lap timing plus aggregate speed, throttle, brake, and sample counts. Laps with no telemetry remain visible because this view uses a LEFT JOIN.';
+
+COMMENT ON VIEW driver_stint_summaries IS
+'One row per session, driver, stint, and compound. Groups laps by stint_number to summarize stint lap range, tyre-life range, and lap-time distribution.';
+
+COMMENT ON VIEW session_weather_summary IS
+'One row per session. Aggregates low-frequency weather samples into min, max, and average weather values plus a rainfall_observed flag.';
+
+COMMENT ON VIEW track_status_periods IS
+'Turns point-in-time track status events into periods by using lead(event_time_ms) per session. The final period has NULL end_time_ms until an importer or query layer bounds it with the session end.';
+
+COMMENT ON VIEW race_control_event_index IS
+'Search-friendly race-control projection. Combines category, flag, status, scope, sector, and message into lowercase search_text for bounded event lookup.';
+
+COMMENT ON COLUMN race_control_event_index.search_text IS
+'Lowercase text built from category, flag, status, scope, sector, and message. Intended for bounded event lookup.';
+
+COMMENT ON VIEW telemetry_event_candidates IS
+'Bounded event helper over telemetry_samples. Emits candidate hard braking, high speed, DRS active, and throttle lift events using simple thresholds intended for MCP and Query API filtering.';

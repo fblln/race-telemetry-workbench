@@ -1,0 +1,21 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:2.27.2-pg18
+    container_name: race-telemetry-timescaledb
+    environment:
+      POSTGRES_DB: race_telemetry
+      POSTGRES_USER: race_telemetry
+      POSTGRES_PASSWORD: race_telemetry
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb-data:/var/lib/postgresql
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U race_telemetry -d race_telemetry"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  timescaledb-data:

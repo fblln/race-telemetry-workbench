@@ -17,8 +17,8 @@ CREATE INDEX IF NOT EXISTS ix_laps_session_driver_stint
 ON laps (session_id, driver_code, stint_number)
 WHERE stint_number IS NOT NULL;
 
-CREATE INDEX IF NOT EXISTS ix_telemetry_session_driver_lap_distance
-ON telemetry_samples (session_id, driver_code, lap_number, distance_m);
+CREATE INDEX IF NOT EXISTS ix_telemetry_session_driver_lap_time
+ON telemetry_samples (session_id, driver_code, lap_number, lap_time_ms);
 
 CREATE INDEX IF NOT EXISTS ix_telemetry_session_time
 ON telemetry_samples (session_id, sample_time_utc);

@@ -14,7 +14,7 @@ The implementation must prioritize a small set of capabilities that demonstrate 
 
 1. Import one real race session for all available drivers.
 2. Replay the race in the desktop app at multiple speeds.
-3. Compare two laps by distance using core telemetry channels.
+3. Compare two laps by lap-relative time using core telemetry channels.
 4. Ask natural-language questions through a read-only MCP server.
 5. Observe local .NET services through Aspire Dashboard.
 
@@ -105,7 +105,7 @@ The script must import:
 - Non-race session types `FP1`, `FP2`, `FP3`, `Q`, `SQ`, and `S` are opt-in only.
 - All available drivers by default.
 - Lap metadata for every available driver.
-- Composed telemetry samples from FastF1 lap telemetry: speed, throttle, brake, gear, RPM, DRS, distance, relative distance, session-relative time, lap-relative time, driver-ahead context, source, and interpolated track status where available.
+- Raw car telemetry samples from FastF1 `lap.get_car_data()`: speed, throttle, brake, gear, RPM, DRS, session-relative time, lap-relative time, and source.
 - Position samples: x, y, z, track status, and source.
 - Circuit metadata from FastF1 `session.get_circuit_info()`: map rotation, corners, marshal lights, and marshal sectors when available.
 - Weather samples from FastF1 `session.weather_data`: air temperature, track temperature, humidity, pressure, rainfall, wind direction, and wind speed.
@@ -148,7 +148,7 @@ The script must:
 1. Resolve the requested event and session, defaulting to race (`R`).
 2. Fetch all available drivers unless `--drivers` is specified.
 3. Normalize source data into the database schema.
-   - Use FastF1 `lap.get_telemetry()` for telemetry rows so `distance_m`, `relative_distance`, `driver_ahead`, and `distance_to_driver_ahead_m` are available.
+   - Use FastF1 `lap.get_car_data()` for raw car telemetry rows.
    - Use FastF1 `lap.get_pos_data()` for raw position rows used by track-map replay.
    - Use FastF1 `session.get_circuit_info()` for circuit annotations. Import should continue if circuit metadata is unavailable, but the summary must report that it was skipped.
    - Use FastF1 `session.weather_data` for session weather samples. Import should continue if weather is unavailable, but the summary must report that it was skipped.
@@ -158,7 +158,7 @@ The script must:
    - `lap_id`: `{session_id}-{driver_code_lower}-{lap_number}`
 5. Store missing telemetry values as `NULL`.
 6. Convert boolean brake values to `0` or `100`.
-7. Bulk insert telemetry and position samples.
+7. Bulk insert raw telemetry and position samples.
 8. Be idempotent when `--if-exists upsert` is used.
 9. Delete and reload the selected session when `--if-exists replace` is used.
 10. Exit with a non-zero status on validation or database errors.
@@ -251,17 +251,12 @@ CREATE TABLE IF NOT EXISTS telemetry_samples (
     lap_number INT NULL,
     session_time_ms BIGINT NULL,
     lap_time_ms BIGINT NULL,
-    distance_m DOUBLE PRECISION NULL,
-    relative_distance DOUBLE PRECISION NULL,
     speed_kmh DOUBLE PRECISION NULL,
     throttle_pct DOUBLE PRECISION NULL,
     brake_pct DOUBLE PRECISION NULL,
     gear INT NULL,
     rpm DOUBLE PRECISION NULL,
     drs INT NULL,
-    driver_ahead TEXT NULL,
-    distance_to_driver_ahead_m DOUBLE PRECISION NULL,
-    track_status TEXT NULL,
     sample_source TEXT NULL,
     source_sample_index BIGINT NULL,
     metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -273,8 +268,8 @@ CREATE TABLE IF NOT EXISTS telemetry_samples (
 
 SELECT create_hypertable('telemetry_samples', 'sample_time_utc', if_not_exists => TRUE);
 
-CREATE INDEX IF NOT EXISTS ix_telemetry_session_driver_lap_distance
-ON telemetry_samples (session_id, driver_code, lap_number, distance_m);
+CREATE INDEX IF NOT EXISTS ix_telemetry_session_driver_lap_time
+ON telemetry_samples (session_id, driver_code, lap_number, lap_time_ms);
 
 CREATE INDEX IF NOT EXISTS ix_telemetry_session_time
 ON telemetry_samples (session_id, sample_time_utc);
@@ -473,14 +468,10 @@ Views may be materialized when repeated analytics require lower latency.
 | `gear` | `gear` | integer | 1-8, neutral may be 0 |
 | `rpm` | `rpm` | rpm | Engine speed |
 | `drs` | `drs` | integer | Preserve source DRS state |
-| `distance_m` | `distanceM` | metres | Distance along lap/session |
-| `relative_distance` | `relativeDistance` | ratio | 0-1 lap progress where available |
 | `session_time_ms` | `sessionTimeMs` | ms | Milliseconds from FastF1 session start |
 | `lap_time_ms` | `lapTimeMs` | ms | Milliseconds from lap start |
-| `driver_ahead` | `driverAhead` | driver code/string | FastF1 driver-ahead value where available |
-| `distance_to_driver_ahead_m` | `distanceToDriverAheadM` | metres | Gap to driver ahead from composed telemetry |
-| `track_status` | `trackStatus` | text | Position/status value such as `OnTrack` |
-| `sample_source` | `sampleSource` | text | FastF1 sample source, for example `car`, `pos`, or `interpolation` |
+| `sample_source` | `sampleSource` | text | FastF1 sample source, for example `car` or `pos` |
+| `track_status` | `trackStatus` | text | Position/status value such as `OnTrack` from position data |
 | `x` | `x` | source units | Track-map coordinate |
 | `y` | `y` | source units | Track-map coordinate |
 | `z` | `z` | source units | Track-map coordinate |
@@ -683,7 +674,7 @@ Validation:
 
 ### 6.5 `GET /api/sessions/{sessionId}/compare/laps`
 
-Compares two laps by distance. This is the main analytical endpoint.
+Compares two laps by lap-relative time. This is the main analytical endpoint.
 
 Query parameters:
 
@@ -694,12 +685,12 @@ Query parameters:
 | `driverB` | Yes | `HAM` |
 | `lapB` | Yes | `14` |
 | `channels` | No | `speed_kmh,throttle_pct,brake_pct` |
-| `distanceStepM` | No | `10` |
+| `timeStepMs` | No | `100` |
 
 Example:
 
 ```http
-GET /api/sessions/2024-monza-r/compare/laps?driverA=LEC&lapA=12&driverB=HAM&lapB=14&channels=speed_kmh,throttle_pct,brake_pct&distanceStepM=10
+GET /api/sessions/2024-monza-r/compare/laps?driverA=LEC&lapA=12&driverB=HAM&lapB=14&channels=speed_kmh,throttle_pct,brake_pct&timeStepMs=100
 ```
 
 Response:
@@ -711,10 +702,10 @@ Response:
   "lapA": 12,
   "driverB": "HAM",
   "lapB": 14,
-  "distanceStepM": 10,
+  "timeStepMs": 100,
   "items": [
     {
-      "distanceM": 0,
+      "lapTimeMs": 0,
       "a": { "speedKmh": 282.4, "throttlePct": 100.0, "brakePct": 0.0 },
       "b": { "speedKmh": 279.1, "throttlePct": 100.0, "brakePct": 0.0 },
       "delta": { "speedKmh": 3.3, "throttlePct": 0.0, "brakePct": 0.0 }
@@ -733,10 +724,10 @@ Delta convention: `driverA - driverB`. Negative lap or sector deltas mean driver
 
 Acceptance criteria:
 
-- Aligns samples by distance, not timestamp.
-- Uses interpolation or bucket aggregation when exact distance matches are unavailable.
+- Aligns samples by lap-relative time, not derived distance.
+- Uses interpolation or bucket aggregation when exact time matches are unavailable.
 - Includes sector deltas in the summary.
-- Returns `400` for invalid lap numbers or invalid `distanceStepM`.
+- Returns `400` for invalid lap numbers or invalid `timeStepMs`.
 - Returns `404` for missing session, driver, or lap.
 
 ### 6.6 `GET /api/sessions/{sessionId}/replay/metadata`
@@ -754,7 +745,7 @@ GET /api/sessions/2024-monza-r/replay/metadata
   "endTimeUtc": "2024-09-01T14:27:45Z",
   "durationMs": 5265000,
   "drivers": ["VER", "NOR", "LEC", "HAM"],
-  "availableChannels": ["speed_kmh", "throttle_pct", "brake_pct", "gear", "rpm", "drs", "distance_m", "relative_distance", "session_time_ms", "lap_time_ms", "driver_ahead", "distance_to_driver_ahead_m", "track_status", "sample_source", "x", "y", "z"],
+  "availableChannels": ["speed_kmh", "throttle_pct", "brake_pct", "gear", "rpm", "drs", "session_time_ms", "lap_time_ms", "track_status", "sample_source", "x", "y", "z"],
   "trackMap": {
     "rotationDegrees": 95.0,
     "outlineSource": "position_samples",
@@ -1293,7 +1284,7 @@ Output:
   "sessionId": "2024-monza-r",
   "durationMs": 5265000,
   "drivers": ["VER", "NOR", "LEC", "HAM"],
-  "availableChannels": ["speed_kmh", "throttle_pct", "brake_pct", "gear", "rpm", "drs", "distance_m", "relative_distance", "session_time_ms", "lap_time_ms", "driver_ahead", "distance_to_driver_ahead_m", "track_status", "sample_source", "x", "y", "z"],
+  "availableChannels": ["speed_kmh", "throttle_pct", "brake_pct", "gear", "rpm", "drs", "session_time_ms", "lap_time_ms", "track_status", "sample_source", "x", "y", "z"],
   "supportedReplaySpeeds": [0.25, 0.5, 1, 2, 5, 10, 20]
 }
 ```
@@ -1707,7 +1698,6 @@ If targets are missed, optimize in this order:
       "gear",
       "rpm",
       "drs",
-      "distance_m",
       "x",
       "y",
       "z"

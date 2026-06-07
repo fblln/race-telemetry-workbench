@@ -19,6 +19,9 @@
 
 ## Phase 1 - Database and Import
 
+- [x] Add local Docker Compose setup for TimescaleDB.
+- [x] Document database schema tables, indexes, and analytical view logic.
+- [x] Replace SQL text contract checks with real TimescaleDB integration tests.
 - [ ] Start TimescaleDB through Aspire.
 - [x] Add `db/migrations/001_initial_schema.sql`.
 - [x] Add `db/migrations/002_timescale_hypertables.sql`.
@@ -45,7 +48,7 @@
   - `track_status_periods`
   - `race_control_event_index`
   - `telemetry_event_candidates`
-- [ ] Add `scripts/import_session.py`.
+- [x] Add `scripts/import_session.py`.
 - [ ] Add `scripts/requirements.txt`.
 - [x] Add `scripts/download_session.py` as the database-free FastF1 fetch and validation slice.
 - [x] Document the data download workflow.
@@ -54,9 +57,9 @@
 - [x] Set race sessions (`R`) as the default download/import scope.
 - [ ] Implement FastF1 session resolution.
 - [ ] Keep non-race session downloads/imports opt-in via explicit `--session`.
-- [ ] Import all available drivers by default.
-- [ ] Import lap metadata.
-- [ ] Import telemetry channels:
+- [x] Import all available drivers by default.
+- [x] Import lap metadata.
+- [x] Import telemetry channels:
   - `session_time_ms`
   - `lap_time_ms`
   - `speed_kmh`
@@ -71,18 +74,18 @@
   - `distance_to_driver_ahead_m`
   - `track_status`
   - `sample_source`
-- [ ] Import position channels:
+- [x] Import position channels:
   - `x`
   - `y`
   - `z`
   - `track_status`
   - `sample_source`
-- [ ] Import FastF1 circuit metadata:
+- [x] Import FastF1 circuit metadata:
   - `rotation_degrees`
   - corner markers
   - marshal light markers
   - marshal sector markers
-- [ ] Import FastF1 weather samples:
+- [x] Import FastF1 weather samples:
   - `air_temp_c`
   - `track_temp_c`
   - `humidity_pct`
@@ -90,23 +93,23 @@
   - `rainfall`
   - `wind_direction_deg`
   - `wind_speed_mps`
-- [ ] Import FastF1 track and race-control events:
+- [x] Import FastF1 track and race-control events:
   - track status events
   - session status events
   - race-control messages
   - safety car and virtual safety car periods
   - yellow/red/green flag periods
-- [ ] Use FastF1 `lap.get_telemetry()` as the composed telemetry source for database telemetry rows.
-- [ ] Use FastF1 `lap.get_pos_data()` as the raw position source for database position rows.
-- [ ] Use FastF1 `session.get_circuit_info()` as the circuit annotation source when available.
-- [ ] Use FastF1 `session.weather_data` as the weather source when available.
-- [ ] Use FastF1 `session.track_status`, `session.session_status`, and `session.race_control_messages` as event timeline sources when available.
+- [x] Use FastF1 `lap.get_telemetry()` as the composed telemetry source for database telemetry rows.
+- [x] Use FastF1 `lap.get_pos_data()` as the raw position source for database position rows.
+- [x] Use FastF1 `session.get_circuit_info()` as the circuit annotation source when available.
+- [x] Use FastF1 `session.weather_data` as the weather source when available.
+- [x] Use FastF1 `session.track_status`, `session.session_status`, and `session.race_control_messages` as event timeline sources when available.
 - [ ] Derive the desktop track outline from imported `position_samples`, not external track assets.
 - [ ] Implement stable `session_id` and `lap_id` generation.
-- [ ] Implement `fail`, `upsert`, and `replace` modes.
-- [ ] Preserve missing telemetry values as `NULL`.
-- [ ] Convert boolean brake values to `0` or `100`.
-- [ ] Print the required import summary.
+- [x] Implement `fail`, `upsert`, and `replace` modes.
+- [x] Preserve missing telemetry values as `NULL`.
+- [x] Convert boolean brake values to `0` or `100`.
+- [x] Print the required import summary.
 - [ ] Verify import with row-count SQL checks.
 
 ## Phase 2 - Query API
