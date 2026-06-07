@@ -1,0 +1,15 @@
+meta {
+  name: Lap Telemetry
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/drivers/{{driverA}}/laps/{{lapA}}/telemetry?channels=speed_kmh,throttle_pct,brake_pct,rpm,gear&sampleEvery=2&maxSamples=5000
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

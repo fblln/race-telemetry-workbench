@@ -238,7 +238,7 @@ COMMENT ON COLUMN telemetry_samples.sample_source IS
 'FastF1 car-data source marker, usually car.';
 
 COMMENT ON TABLE position_samples IS
-'High-volume raw position samples from FastF1 lap.get_pos_data(). Used for replay positions and deriving the track outline.';
+'High-volume raw position samples from FastF1 session.pos_data. Used for replay positions and deriving the track outline.';
 
 COMMENT ON COLUMN position_samples.sample_time_utc IS
 'Absolute sample timestamp. This is the Timescale hypertable time dimension.';

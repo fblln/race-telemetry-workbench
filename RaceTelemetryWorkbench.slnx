@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RaceTelemetry.AppHost/RaceTelemetry.AppHost.csproj" />
+    <Project Path="src/RaceTelemetry.Contracts/RaceTelemetry.Contracts.csproj" />
+    <Project Path="src/RaceTelemetry.Data/RaceTelemetry.Data.csproj" />
+    <Project Path="src/RaceTelemetry.McpServer/RaceTelemetry.McpServer.csproj" />
+    <Project Path="src/RaceTelemetry.QueryApi/RaceTelemetry.QueryApi.csproj" />
+    <Project Path="src/RaceTelemetry.ServiceDefaults/RaceTelemetry.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RaceTelemetry.IntegrationTests/RaceTelemetry.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

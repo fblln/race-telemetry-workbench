@@ -1,0 +1,15 @@
+meta {
+  name: Replay Chunk
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/replay/chunk?fromMs={{fromMs}}&durationMs={{replayDurationMs}}&drivers={{driverA}},{{driverB}}&channels=speed_kmh,throttle_pct,brake_pct,gear,rpm,drs,x,y,z&sampleEvery=2
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Replay Context
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/replay/context?fromMs={{fromMs}}&durationMs={{contextDurationMs}}&includeWeather=true&includeTrackStatus=true&includeRaceControl=true
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

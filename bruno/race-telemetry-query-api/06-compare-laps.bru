@@ -1,0 +1,15 @@
+meta {
+  name: Compare Laps
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/compare/laps?driverA={{driverA}}&lapA={{lapA}}&driverB={{driverB}}&lapB={{lapB}}&channels=speed_kmh,throttle_pct,brake_pct&timeStepMs=100
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

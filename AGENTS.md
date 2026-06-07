@@ -22,20 +22,28 @@ Avalonia desktop app.
 | TimescaleDB importer | `scripts/import_session.py` |
 | DB migrations + hypertables + views | `db/migrations/` |
 | Local TimescaleDB container | `docker-compose.yml` |
+| .NET solution | `RaceTelemetryWorkbench.slnx` |
+| Aspire AppHost | `src/RaceTelemetry.AppHost/` |
+| Query API scaffold | `src/RaceTelemetry.QueryApi/` |
+| Shared contracts | `src/RaceTelemetry.Contracts/` |
+| Query data abstraction | `src/RaceTelemetry.Data/` |
+| MCP placeholder | `src/RaceTelemetry.McpServer/` |
+| Avalonia app slot | `src/RaceTelemetry.Desktop/` |
 | Unit + integration tests | `tests/` |
 | Docs | `docs/`, `db/README.md`, `db/schema.md` |
 
-**Not yet implemented:** TimescaleDB/Aspire setup · .NET solution · Query API · Desktop app · MCP server.
+**Not yet implemented:** Timescale-backed Query API store · real .NET database integration tests · Avalonia desktop app · MCP tools.
 
 ---
 
 ## Next Work (priority order)
 
-1. Import full Monza 2024 race into TimescaleDB; verify row counts against manifest
-2. Fix any importer edge cases found in step 1
-3. Create .NET solution, Aspire host, Query API skeleton
+1. Implement the Timescale-backed `IF1TelemetryQueryStore`
+2. Add real Query API database integration tests
+3. Add replay chunk/context endpoints needed by the desktop app
 
-Do not start the Query API, desktop, or MCP work before steps 1–2.
+Keep the next work focused on the Query API data path before starting the
+Avalonia UI surface.
 
 ---
 
@@ -51,8 +59,8 @@ Do not start the Query API, desktop, or MCP work before steps 1–2.
 | Purpose | Source |
 |---|---|
 | Driver abbreviations | `session.get_driver(ref)["Abbreviation"]` — do NOT assume `session.drivers` contains three-letter codes |
-| Telemetry samples | `lap.get_telemetry()` — includes car channels + Distance, RelativeDistance, DriverAhead, DistanceToDriverAhead, Status, Source, X/Y/Z |
-| Position samples | `lap.get_pos_data()` |
+| Telemetry samples | `session.car_data` raw driver streams |
+| Position samples | `session.pos_data` raw driver streams |
 | Track outline | Derive from imported `position_samples` — do NOT use static track assets |
 | Circuit annotations | `session.get_circuit_info()` — rotation, corners, marshal lights/sectors |
 | Weather | `session.weather_data` (~1 sample/min) |
@@ -71,6 +79,12 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s tests                  # unit
 .venv/bin/python -m unittest tests.test_database_migrations     # integration (needs DB)
 
+# .NET
+dotnet restore RaceTelemetryWorkbench.slnx
+dotnet build RaceTelemetryWorkbench.slnx
+dotnet run --project tests/RaceTelemetry.IntegrationTests/RaceTelemetry.IntegrationTests.csproj
+aspire start
+
 # Database
 docker compose up -d timescaledb
 
@@ -86,6 +100,8 @@ docker compose up -d timescaledb
 ```
 
 Set `RACE_TELEMETRY_DATABASE_URL` to target a non-default database.
+
+See `docs/development.md` for the full day-to-day command guide.
 
 DB integration tests create a temp schema, apply real migrations, insert Monza
 fixture data, verify hypertables and views, then drop the schema.

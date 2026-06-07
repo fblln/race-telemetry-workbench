@@ -1,0 +1,26 @@
+meta {
+  name: Search Telemetry Events
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/telemetry-events/search
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "eventTypes": ["high_speed", "hard_braking"],
+    "drivers": ["{{driverA}}"],
+    "fromMs": {{fromMs}},
+    "durationMs": {{contextDurationMs}},
+    "limit": 100
+  }
+}
