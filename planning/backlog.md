@@ -137,7 +137,11 @@
 - [x] Implement database-backed `GET /api/sessions/{sessionId}/drivers`.
 - [x] Implement database-backed `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps`.
 - [x] Implement `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/telemetry`.
+- [x] Implement `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/story`.
+- [x] Implement `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/braking-zones`.
 - [x] Implement `GET /api/sessions/{sessionId}/compare/laps`.
+- [x] Implement `GET /api/sessions/{sessionId}/compare/laps/story`.
+- [x] Implement `GET /api/sessions/{sessionId}/story`.
 - [x] Implement database-backed `GET /api/sessions/{sessionId}/replay/metadata`.
 - [x] Implement `GET /api/sessions/{sessionId}/replay/chunk`.
 - [x] Implement `GET /api/sessions/{sessionId}/replay/context`.
@@ -187,24 +191,30 @@
 
 ## Phase 5 - MCP Query Server
 
-- [x] Create .NET MCP server project placeholder.
-- [ ] Add HTTP transport for Aspire execution.
-- [ ] Consider optional stdio transport for coding-agent integration.
-- [ ] Ensure tools call the Query API only.
-- [ ] Ensure no direct TimescaleDB access.
-- [ ] Ensure tools are read-only.
-- [ ] Implement `list_sessions`.
-- [ ] Implement `list_drivers`.
-- [ ] Implement `get_driver_laps`.
-- [ ] Implement `compare_laps`.
-- [ ] Implement `get_replay_metadata`.
-- [ ] Implement `get_replay_context`.
-- [ ] Implement `find_telemetry_events`.
-- [ ] Support weather and race-control questions through Query API-backed tools.
-- [ ] Prefer bounded summary/context endpoints over raw sample responses for MCP analytics.
-- [ ] Return compact, bounded, model-friendly JSON.
+- [x] Create .NET MCP server project.
+- [x] Add HTTP transport for Aspire execution.
+- [x] Support Streamable HTTP transport for coding-agent integration.
+- [x] Ensure tools call the shared query-store abstraction.
+- [x] Keep direct data access behind `IF1TelemetryQueryStore`.
+- [x] Ensure tools are read-only.
+- [x] Implement `list_sessions`.
+- [x] Implement `get_session_drivers`.
+- [x] Implement `get_driver_laps`.
+- [x] Implement `compare_laps`.
+- [x] Implement `get_replay_metadata`.
+- [x] Implement `get_replay_context`.
+- [x] Implement `get_replay_chunk`.
+- [x] Implement `get_lap_telemetry`.
+- [x] Implement `get_lap_story`.
+- [x] Implement `get_lap_braking_zones`.
+- [x] Implement `compare_laps_story`.
+- [x] Implement `get_race_story`.
+- [x] Implement `search_telemetry_events`.
+- [x] Support weather and race-control questions through bounded context tools.
+- [x] Prefer bounded summary/context endpoints over raw sample responses for MCP analytics.
+- [x] Return bounded structured JSON.
 - [ ] Emit one trace span per tool call.
-- [ ] Add focused MCP server tests.
+- [x] Add focused MCP server tests.
 
 ## Phase 6 - Optional AI Assistant Panel
 

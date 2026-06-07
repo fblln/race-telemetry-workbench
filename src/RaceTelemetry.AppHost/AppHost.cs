@@ -8,4 +8,9 @@ builder.AddProject<Projects.RaceTelemetry_QueryApi>("query-api")
     .WithHttpEndpoint(port: 5120, env: "ASPNETCORE_HTTP_PORTS")
     .WithExternalHttpEndpoints();
 
+builder.AddProject<Projects.RaceTelemetry_McpServer>("mcp-server")
+    .WithEnvironment("RACE_TELEMETRY_DATABASE_URL", databaseUrl)
+    .WithHttpEndpoint(port: 5122, env: "ASPNETCORE_HTTP_PORTS")
+    .WithExternalHttpEndpoints();
+
 builder.Build().Run();

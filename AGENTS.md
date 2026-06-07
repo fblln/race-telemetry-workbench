@@ -27,20 +27,20 @@ Avalonia desktop app.
 | Query API scaffold | `src/RaceTelemetry.QueryApi/` |
 | Shared contracts | `src/RaceTelemetry.Contracts/` |
 | Query data abstraction | `src/RaceTelemetry.Data/` |
-| MCP placeholder | `src/RaceTelemetry.McpServer/` |
+| MCP server | `src/RaceTelemetry.McpServer/` |
 | Avalonia app slot | `src/RaceTelemetry.Desktop/` |
 | Unit + integration tests | `tests/` |
 | Docs | `docs/`, `db/README.md`, `db/schema.md` |
 
-**Not yet implemented:** Timescale-backed Query API store · real .NET database integration tests · Avalonia desktop app · MCP tools.
+**Not yet implemented:** Avalonia desktop app · full MCP analytical prompt surface.
 
 ---
 
 ## Next Work (priority order)
 
-1. Implement the Timescale-backed `IF1TelemetryQueryStore`
-2. Add real Query API database integration tests
-3. Add replay chunk/context endpoints needed by the desktop app
+1. Build the Avalonia desktop replay surface against the Query API
+2. Expand MCP tools only when the Query API/data contracts expose bounded reads
+3. Add deeper performance validation against larger imported datasets
 
 Keep the next work focused on the Query API data path before starting the
 Avalonia UI surface.
@@ -102,6 +102,13 @@ docker compose up -d timescaledb
 Set `RACE_TELEMETRY_DATABASE_URL` to target a non-default database.
 
 See `docs/development.md` for the full day-to-day command guide.
+
+Aspire debugging note: stable Query API ports must be owned by Aspire/DCP, not
+by Kestrel directly. Prefer `WithHttpEndpoint(port: 5120, env:
+"ASPNETCORE_HTTP_PORTS")` in the AppHost. Do not hard-code
+`ASPNETCORE_URLS=http://127.0.0.1:5120` for the Aspire-managed Query API.
+If `query-api` is `Finished`, run `aspire logs query-api --non-interactive`
+before changing endpoint code.
 
 DB integration tests create a temp schema, apply real migrations, insert Monza
 fixture data, verify hypertables and views, then drop the schema.

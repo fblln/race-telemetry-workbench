@@ -1,0 +1,15 @@
+meta {
+  name: Compare Laps Story
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/compare/laps/story?driverA={{driverA}}&lapA={{lapA}}&driverB={{driverB}}&lapB={{lapB}}&segmentCount=3
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

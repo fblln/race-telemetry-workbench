@@ -41,3 +41,46 @@ telemetry, position, and weather samples.
 DuckDB, ClickHouse, QuestDB, and plain PostgreSQL are not the primary
 implementation path. They may be reconsidered later for export/offline analysis
 or scale-specific secondary analytics.
+
+## 2026-06-07 - Aspire Stable Port Model
+
+The Query API should be exposed through a stable Aspire/DCP external HTTP port
+for manual testing and Bruno. The project process itself must not bind the same
+external port.
+
+Use this AppHost pattern:
+
+```csharp
+builder.AddProject<Projects.RaceTelemetry_QueryApi>("query-api")
+    .WithEnvironment("RACE_TELEMETRY_DATABASE_URL", databaseUrl)
+    .WithHttpEndpoint(port: 5120, env: "ASPNETCORE_HTTP_PORTS")
+    .WithExternalHttpEndpoints();
+```
+
+Avoid:
+
+- Hard-coding `ASPNETCORE_URLS` to `http://127.0.0.1:5120` under Aspire.
+- Setting identical `targetPort` and `port` on a proxied project resource.
+- Starting a second AppHost or Rider-launched Query API on the stable port.
+
+If Aspire Dashboard is running but `query-api` is `Finished`, first inspect
+`aspire logs query-api --non-interactive`. The most common failure is a port
+collision between Kestrel and the DCP proxy.
+
+## 2026-06-07 - Natural-Language Analysis Shape
+
+MCP and Query API should expose compact, structured analytical tools in addition
+to raw sample retrieval.
+
+Natural-language clients should start with race/lap story tools that return
+bounded facts, summaries, and deterministic insight labels:
+
+- race story: weather, stints, pit markers, track status, race-control context;
+- lap story: lap time, sectors, tyre context, speed/throttle/brake aggregates;
+- braking zones: contiguous brake windows plus nearest corner labels where
+  source data aligns;
+- comparison story: total delta, sector deltas, coarse segment differences.
+
+Raw telemetry, replay chunks, and bucketed comparisons remain available for
+drill-down, charting, and validation. They should not be the first tool a
+language model needs to call for broad "what happened in this race?" questions.

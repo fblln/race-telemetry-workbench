@@ -9,5 +9,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/RaceTelemetry.IntegrationTests/RaceTelemetry.IntegrationTests.csproj" />
+    <Project Path="tests/RaceTelemetry.McpServer.Tests/RaceTelemetry.McpServer.Tests.csproj" />
   </Folder>
 </Solution>

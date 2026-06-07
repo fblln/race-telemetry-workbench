@@ -1,0 +1,15 @@
+meta {
+  name: Lap Story
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/drivers/{{driverA}}/laps/{{lapA}}/story
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

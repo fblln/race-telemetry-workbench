@@ -8,6 +8,7 @@ using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using Npgsql;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -71,7 +72,8 @@ public static class Extensions
                     )
                     // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
                     //.AddGrpcClientInstrumentation()
-                    .AddHttpClientInstrumentation();
+                    .AddHttpClientInstrumentation()
+                    .AddNpgsql();
             });
 
         builder.AddOpenTelemetryExporters();

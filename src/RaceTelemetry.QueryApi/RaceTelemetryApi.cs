@@ -79,6 +79,7 @@ public static class RaceTelemetryApi
             var connectionString = PostgresConnectionString.Normalize(databaseUrl);
             return new NpgsqlDataSourceBuilder(connectionString).Build();
         });
+        services.AddHostedService<PostgresConnectionWarmupService>();
         services.AddSingleton<IF1TelemetryQueryStore, PostgresTelemetryQueryStore>();
         return services;
     }
@@ -98,7 +99,11 @@ public static class RaceTelemetryApi
                     "laps",
                     "replay-metadata",
                     "lap-telemetry",
+                    "lap-story",
+                    "lap-braking-zones",
                     "lap-comparison",
+                    "lap-comparison-story",
+                    "race-story",
                     "replay-chunks",
                     "replay-context",
                     "telemetry-event-search",
@@ -211,6 +216,58 @@ public static class RaceTelemetryApi
             })
             .WithName("GetLapTelemetry");
 
+        api.MapGet("/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber:int}/story", async Task<IResult> (
+                string sessionId,
+                string driverCode,
+                int lapNumber,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!ValidateSessionDriverLap(sessionId, driverCode, lapNumber, out var error))
+                {
+                    return error;
+                }
+
+                var story = await store.GetLapStoryAsync(sessionId, driverCode, lapNumber, cancellationToken);
+                return story is null
+                    ? NotFoundError("LapNotFound", $"Lap {lapNumber} for driver {driverCode.ToUpperInvariant()} does not exist in session {sessionId}.", ("sessionId", sessionId), ("driverCode", driverCode.ToUpperInvariant()), ("lapNumber", lapNumber))
+                    : Results.Ok(story);
+            })
+            .WithName("GetLapStory");
+
+        api.MapGet("/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber:int}/braking-zones", async Task<IResult> (
+                string sessionId,
+                string driverCode,
+                int lapNumber,
+                int? brakeThresholdPct,
+                int? minimumDurationMs,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!ValidateSessionDriverLap(sessionId, driverCode, lapNumber, out var error))
+                {
+                    return error;
+                }
+
+                var threshold = brakeThresholdPct ?? 80;
+                if (threshold is < 1 or > 100)
+                {
+                    return ValidationError("InvalidBrakeThreshold", "brakeThresholdPct must be between 1 and 100.", ("brakeThresholdPct", threshold));
+                }
+
+                var duration = minimumDurationMs ?? 250;
+                if (duration is < 0 or > 10_000)
+                {
+                    return ValidationError("InvalidMinimumDuration", "minimumDurationMs must be between 0 and 10000.", ("minimumDurationMs", duration));
+                }
+
+                var zones = await store.GetLapBrakingZonesAsync(sessionId, driverCode, lapNumber, threshold, duration, cancellationToken);
+                return zones is null
+                    ? NotFoundError("LapNotFound", $"Lap {lapNumber} for driver {driverCode.ToUpperInvariant()} does not exist in session {sessionId}.", ("sessionId", sessionId), ("driverCode", driverCode.ToUpperInvariant()), ("lapNumber", lapNumber))
+                    : Results.Ok(zones);
+            })
+            .WithName("GetLapBrakingZones");
+
         api.MapGet("/sessions/{sessionId}/compare/laps", async (
                 string sessionId,
                 string driverA,
@@ -264,6 +321,68 @@ public static class RaceTelemetryApi
                     : Results.Ok(comparison);
             })
             .WithName("CompareLaps");
+
+        api.MapGet("/sessions/{sessionId}/compare/laps/story", async Task<IResult> (
+                string sessionId,
+                string driverA,
+                int lapA,
+                string driverB,
+                int lapB,
+                int? segmentCount,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                if (!IsValidDriverCode(driverA) || !IsValidDriverCode(driverB))
+                {
+                    return ValidationError("InvalidDriver", "Driver codes must contain 2 to 4 letters.", ("driverA", driverA), ("driverB", driverB));
+                }
+
+                if (lapA < 1 || lapB < 1)
+                {
+                    return ValidationError("InvalidLapNumber", "Lap numbers must be positive.", ("lapA", lapA), ("lapB", lapB));
+                }
+
+                var segments = segmentCount ?? 3;
+                if (segments is < 2 or > 12)
+                {
+                    return ValidationError("InvalidSegmentCount", "segmentCount must be between 2 and 12.", ("segmentCount", segments));
+                }
+
+                var story = await store.CompareLapsStoryAsync(sessionId, driverA, lapA, driverB, lapB, segments, cancellationToken);
+                return story is null
+                    ? NotFoundError("LapComparisonNotFound", "One or both requested laps do not exist.", ("sessionId", sessionId), ("driverA", driverA.ToUpperInvariant()), ("lapA", lapA), ("driverB", driverB.ToUpperInvariant()), ("lapB", lapB))
+                    : Results.Ok(story);
+            })
+            .WithName("CompareLapsStory");
+
+        api.MapGet("/sessions/{sessionId}/story", async Task<IResult> (
+                string sessionId,
+                int? raceControlLimit,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                var limit = raceControlLimit ?? 100;
+                if (limit is < 0 or > 1_000)
+                {
+                    return ValidationError("InvalidRaceControlLimit", "raceControlLimit must be between 0 and 1000.", ("raceControlLimit", limit));
+                }
+
+                var story = await store.GetRaceStoryAsync(sessionId, limit, cancellationToken);
+                return story is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(story);
+            })
+            .WithName("GetRaceStory");
 
         api.MapGet("/sessions/{sessionId}/replay/metadata", async (
                 string sessionId,
