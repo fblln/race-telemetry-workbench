@@ -1,0 +1,15 @@
+meta {
+  name: List Sessions
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/sessions?sessionType=R
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

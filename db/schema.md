@@ -150,7 +150,7 @@ Primary key:
 
 ### `position_samples`
 
-High-volume raw position data from FastF1 `lap.get_pos_data()`.
+High-volume raw position data from FastF1 `session.pos_data`.
 
 This table powers replay positions and the data-derived track outline. The
 product should not depend on external static track assets for the main outline.

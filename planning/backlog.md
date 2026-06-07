@@ -2,7 +2,7 @@
 
 ## Repository Setup
 
-- [ ] Create the repository structure from the spec:
+- [ ] Create the .NET repository structure from the spec:
   - `src/F1Telemetry.AppHost`
   - `src/F1Telemetry.ServiceDefaults`
   - `src/F1Telemetry.Contracts`
@@ -49,14 +49,14 @@
   - `race_control_event_index`
   - `telemetry_event_candidates`
 - [x] Add `scripts/import_session.py`.
-- [ ] Add `scripts/requirements.txt`.
+- [x] Add `scripts/requirements.txt`.
 - [x] Add `scripts/download_session.py` as the database-free FastF1 fetch and validation slice.
 - [x] Document the data download workflow.
 - [x] Document raw FastF1 session, lap, car telemetry, position, and cache shapes.
 - [x] Add a raw-cache storage estimator for full-year planning.
 - [x] Set race sessions (`R`) as the default download/import scope.
-- [ ] Implement FastF1 session resolution.
-- [ ] Keep non-race session downloads/imports opt-in via explicit `--session`.
+- [x] Implement FastF1 session resolution.
+- [x] Keep non-race session downloads/imports opt-in via explicit `--session`.
 - [x] Import all available drivers by default.
 - [x] Import lap metadata.
 - [x] Import telemetry channels:
@@ -68,11 +68,6 @@
   - `gear`
   - `rpm`
   - `drs`
-  - `distance_m`
-  - `relative_distance`
-  - `driver_ahead`
-  - `distance_to_driver_ahead_m`
-  - `track_status`
   - `sample_source`
 - [x] Import position channels:
   - `x`
@@ -99,26 +94,38 @@
   - race-control messages
   - safety car and virtual safety car periods
   - yellow/red/green flag periods
-- [x] Use FastF1 `lap.get_telemetry()` as the composed telemetry source for database telemetry rows.
-- [x] Use FastF1 `lap.get_pos_data()` as the raw position source for database position rows.
+- [x] Use FastF1 `session.car_data` as the raw car telemetry source for database telemetry rows.
+- [x] Use FastF1 `session.pos_data` as the raw position source for database position rows.
 - [x] Use FastF1 `session.get_circuit_info()` as the circuit annotation source when available.
 - [x] Use FastF1 `session.weather_data` as the weather source when available.
 - [x] Use FastF1 `session.track_status`, `session.session_status`, and `session.race_control_messages` as event timeline sources when available.
 - [ ] Derive the desktop track outline from imported `position_samples`, not external track assets.
-- [ ] Implement stable `session_id` and `lap_id` generation.
+- [x] Implement stable `session_id` and `lap_id` generation.
 - [x] Implement `fail`, `upsert`, and `replace` modes.
 - [x] Preserve missing telemetry values as `NULL`.
 - [x] Convert boolean brake values to `0` or `100`.
 - [x] Print the required import summary.
-- [ ] Verify import with row-count SQL checks.
+- [x] Verify import with row-count SQL checks.
+- [x] Optimize single-session import with driver-level extraction, large COPY batches, and parallel telemetry/position COPY.
+- [x] Add full-context bulk importer for multi-session and season backfills.
+- [ ] Tune season-import concurrency after completing a full 2025 season import at `--workers 2` or `--workers 3`.
 
 ## Phase 2 - Query API
 
-- [ ] Create ASP.NET Core Minimal API project.
-- [ ] Wire Npgsql and EF Core where useful.
-- [ ] Add raw SQL query layer for analytical and time-series paths.
-- [ ] Add local OpenAPI.
-- [ ] Implement standard error response shape.
+- [x] Create ASP.NET Core Minimal API project.
+- [x] Create .NET 10 solution scaffold.
+- [x] Add Aspire AppHost and ServiceDefaults.
+- [x] Add shared contracts for sessions, drivers, laps, and replay metadata.
+- [x] Add query-store abstraction for API, desktop, and MCP reuse.
+- [x] Add scaffold endpoint shape for `/api/sessions`.
+- [x] Add scaffold endpoint shape for `/api/sessions/{sessionId}/drivers`.
+- [x] Add scaffold endpoint shape for `/api/sessions/{sessionId}/drivers/{driverCode}/laps`.
+- [x] Add scaffold endpoint shape for `/api/sessions/{sessionId}/replay/metadata`.
+- [x] Add console-based HTTP integration-test runner.
+- [x] Wire Npgsql and EF Core where useful.
+- [x] Add raw SQL query layer for analytical and time-series paths.
+- [x] Add local OpenAPI.
+- [x] Implement standard error response shape.
 - [ ] Implement validation for:
   - session IDs
   - driver codes
@@ -126,18 +133,18 @@
   - allowed channels
   - row limits
   - bounded time ranges
-- [ ] Implement `GET /api/sessions`.
-- [ ] Implement `GET /api/sessions/{sessionId}/drivers`.
-- [ ] Implement `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps`.
-- [ ] Implement `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/telemetry`.
-- [ ] Implement `GET /api/sessions/{sessionId}/compare/laps`.
-- [ ] Implement `GET /api/sessions/{sessionId}/replay/metadata`.
-- [ ] Implement `GET /api/sessions/{sessionId}/replay/chunk`.
-- [ ] Implement `GET /api/sessions/{sessionId}/replay/context`.
-- [ ] Implement `POST /api/sessions/{sessionId}/telemetry-events/search`.
-- [ ] Add replay context tests for weather, track-status, and race-control timeline windows.
+- [x] Implement database-backed `GET /api/sessions`.
+- [x] Implement database-backed `GET /api/sessions/{sessionId}/drivers`.
+- [x] Implement database-backed `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps`.
+- [x] Implement `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/telemetry`.
+- [x] Implement `GET /api/sessions/{sessionId}/compare/laps`.
+- [x] Implement database-backed `GET /api/sessions/{sessionId}/replay/metadata`.
+- [x] Implement `GET /api/sessions/{sessionId}/replay/chunk`.
+- [x] Implement `GET /api/sessions/{sessionId}/replay/context`.
+- [x] Implement `POST /api/sessions/{sessionId}/telemetry-events/search`.
+- [x] Add replay context tests for weather, track-status, and race-control timeline windows.
 - [ ] Emit structured logs, traces, and metrics visible in Aspire Dashboard.
-- [ ] Add focused Query API tests.
+- [ ] Add focused Query API tests against the real database.
 
 ## Phase 3 - Desktop Replay
 
@@ -173,14 +180,14 @@
 - [ ] Build Lap Comparison screen.
 - [ ] Add inputs for Driver A, Lap A, Driver B, Lap B, and channels.
 - [ ] Call `/api/sessions/{sessionId}/compare/laps`.
-- [ ] Display distance-based overlay charts.
+- [ ] Display lap-time-aligned overlay charts.
 - [ ] Display lap-time delta.
 - [ ] Display sector deltas.
 - [ ] Use delta convention `driverA - driverB`.
 
 ## Phase 5 - MCP Query Server
 
-- [ ] Create .NET MCP server project.
+- [x] Create .NET MCP server project placeholder.
 - [ ] Add HTTP transport for Aspire execution.
 - [ ] Consider optional stdio transport for coding-agent integration.
 - [ ] Ensure tools call the Query API only.

@@ -5,3 +5,9 @@ __pycache__/
 *.py[cod]
 data/fastf1-cache/
 data/download-manifests/
+bin/
+obj/
+**/bin/
+**/obj/
+.vs/
+.aspire/

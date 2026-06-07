@@ -148,8 +148,8 @@ The script must:
 1. Resolve the requested event and session, defaulting to race (`R`).
 2. Fetch all available drivers unless `--drivers` is specified.
 3. Normalize source data into the database schema.
-   - Use FastF1 `lap.get_car_data()` for raw car telemetry rows.
-   - Use FastF1 `lap.get_pos_data()` for raw position rows used by track-map replay.
+   - Use FastF1 `session.car_data` for raw car telemetry rows.
+   - Use FastF1 `session.pos_data` for raw position rows used by track-map replay.
    - Use FastF1 `session.get_circuit_info()` for circuit annotations. Import should continue if circuit metadata is unavailable, but the summary must report that it was skipped.
    - Use FastF1 `session.weather_data` for session weather samples. Import should continue if weather is unavailable, but the summary must report that it was skipped.
    - Use FastF1 `session.track_status`, `session.session_status`, and `session.race_control_messages` for race-control timelines. Import should continue if race-control messages are unavailable, but the summary must report that they were skipped.
@@ -1119,7 +1119,7 @@ speed_kmh, throttle_pct, brake_pct, gear, rpm
 Expected behavior:
 
 - Calls `/api/sessions/{sessionId}/compare/laps`.
-- Displays distance-based overlay charts.
+- Displays lap-time-aligned overlay charts.
 - Displays lap-time delta and sector deltas.
 - Uses the delta convention `driverA - driverB`.
 
@@ -1597,7 +1597,7 @@ Open imported Monza race, select two drivers, play at 1x, switch to 5x, pause, s
 Deliverables:
 
 - Lap comparison screen.
-- Distance-based channel overlays.
+- Lap-time-aligned channel overlays.
 - Lap-time delta.
 - Sector deltas included in the same screen.
 

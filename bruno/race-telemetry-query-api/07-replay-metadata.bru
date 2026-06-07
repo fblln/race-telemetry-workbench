@@ -1,0 +1,15 @@
+meta {
+  name: Replay Metadata
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/replay/metadata
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
