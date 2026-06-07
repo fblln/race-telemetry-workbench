@@ -41,8 +41,18 @@ Recommended first run:
 3. Update `sessionId` if needed.
 4. `List Drivers`
 5. Update `driverA` and `driverB` if needed.
-6. Run the replay, comparison, and event requests.
+6. Run `Race Story`, `Lap Story`, `Lap Braking Zones`, and `Compare Laps Story`.
+7. Drill into replay, raw comparison, telemetry, and event requests when needed.
 
 For the imported 2025 Monza race, replay samples start around `3470000ms`.
 If you switch `sessionId`, first run `Replay Metadata` and set `fromMs` near
 the returned `replayStartMs`.
+
+Analysis requests:
+
+| Request | Use when |
+|---|---|
+| `Race Story` | Get race-level weather, tyre stints, pit markers, track-status periods, race-control messages, and insights. |
+| `Lap Story` | Get a compact lap summary with sectors, tyre context, telemetry aggregates, and insights. |
+| `Lap Braking Zones` | Detect contiguous braking windows and nearest corner labels when position/circuit data aligns. |
+| `Compare Laps Story` | Compare two laps with total delta, sector deltas, coarse lap segments, and talking points. |

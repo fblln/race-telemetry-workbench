@@ -95,51 +95,72 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         string sessionId,
         CancellationToken cancellationToken)
     {
-        if (!await SessionExistsAsync(sessionId, cancellationToken))
-        {
-            return null;
-        }
-
         const string sql = """
+            WITH session_check AS (
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM sessions
+                    WHERE session_id = @sessionId
+                ) AS session_exists
+            ),
+            drivers AS (
+                SELECT
+                    sd.session_id,
+                    sd.driver_code,
+                    sd.driver_number::text,
+                    sd.full_name,
+                    sd.team_name,
+                    count(l.lap_id)::int AS lap_count
+                FROM session_drivers sd
+                LEFT JOIN laps l
+                    ON l.session_id = sd.session_id
+                    AND l.driver_code = sd.driver_code
+                    AND NOT l.is_deleted
+                WHERE sd.session_id = @sessionId
+                GROUP BY
+                    sd.session_id,
+                    sd.driver_code,
+                    sd.driver_number,
+                    sd.full_name,
+                    sd.team_name
+            )
             SELECT
-                sd.session_id,
-                sd.driver_code,
-                sd.driver_number::text,
-                sd.full_name,
-                sd.team_name,
-                count(l.lap_id)::int AS lap_count
-            FROM session_drivers sd
-            LEFT JOIN laps l
-                ON l.session_id = sd.session_id
-                AND l.driver_code = sd.driver_code
-                AND NOT l.is_deleted
-            WHERE sd.session_id = @sessionId
-            GROUP BY
-                sd.session_id,
-                sd.driver_code,
-                sd.driver_number,
-                sd.full_name,
-                sd.team_name
-            ORDER BY sd.driver_code
+                session_check.session_exists,
+                drivers.session_id,
+                drivers.driver_code,
+                drivers.driver_number,
+                drivers.full_name,
+                drivers.team_name,
+                drivers.lap_count
+            FROM session_check
+            LEFT JOIN drivers ON true
+            ORDER BY drivers.driver_code
             """;
 
         await using var command = dataSource.CreateCommand(sql);
         command.Parameters.AddWithValue("sessionId", sessionId);
 
         var drivers = new List<DriverSummary>();
+        var sessionExists = false;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
+            sessionExists = reader.GetBoolean(0);
+            if (reader.IsDBNull(1))
+            {
+                continue;
+            }
+
             drivers.Add(new DriverSummary(
-                reader.GetString(0),
                 reader.GetString(1),
-                GetNullableString(reader, 2),
+                reader.GetString(2),
                 GetNullableString(reader, 3),
                 GetNullableString(reader, 4),
-                reader.GetInt32(5)));
+                GetNullableString(reader, 5),
+                reader.GetInt32(6)));
         }
 
-        return drivers;
+        return sessionExists ? drivers : null;
     }
 
     public async Task<IReadOnlyList<LapSummary>?> GetLapsAsync(
@@ -147,26 +168,43 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         string driverCode,
         CancellationToken cancellationToken)
     {
-        if (!await DriverExistsAsync(sessionId, driverCode, cancellationToken))
-        {
-            return null;
-        }
-
         const string sql = """
+            WITH driver_check AS (
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM session_drivers
+                    WHERE session_id = @sessionId
+                      AND driver_code = upper(@driverCode)
+                ) AS driver_exists
+            ),
+            lap_rows AS (
+                SELECT
+                    lap_id,
+                    session_id,
+                    driver_code,
+                    lap_number,
+                    lap_time_ms::bigint,
+                    NULL::int AS position,
+                    is_pit_out_lap,
+                    is_pit_in_lap
+                FROM laps
+                WHERE session_id = @sessionId
+                  AND driver_code = upper(@driverCode)
+                  AND NOT is_deleted
+            )
             SELECT
-                lap_id,
-                session_id,
-                driver_code,
-                lap_number,
-                lap_time_ms::bigint,
-                NULL::int AS position,
-                is_pit_out_lap,
-                is_pit_in_lap
-            FROM laps
-            WHERE session_id = @sessionId
-              AND driver_code = upper(@driverCode)
-              AND NOT is_deleted
-            ORDER BY lap_number
+                driver_check.driver_exists,
+                lap_rows.lap_id,
+                lap_rows.session_id,
+                lap_rows.driver_code,
+                lap_rows.lap_number,
+                lap_rows.lap_time_ms,
+                lap_rows.position,
+                lap_rows.is_pit_out_lap,
+                lap_rows.is_pit_in_lap
+            FROM driver_check
+            LEFT JOIN lap_rows ON true
+            ORDER BY lap_rows.lap_number
             """;
 
         await using var command = dataSource.CreateCommand(sql);
@@ -174,21 +212,28 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         command.Parameters.AddWithValue("driverCode", driverCode);
 
         var laps = new List<LapSummary>();
+        var driverExists = false;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
+            driverExists = reader.GetBoolean(0);
+            if (reader.IsDBNull(1))
+            {
+                continue;
+            }
+
             laps.Add(new LapSummary(
-                reader.GetString(0),
                 reader.GetString(1),
                 reader.GetString(2),
-                reader.GetInt32(3),
-                GetNullableInt64(reader, 4),
-                GetNullableInt32(reader, 5),
-                reader.GetBoolean(6),
-                reader.GetBoolean(7)));
+                reader.GetString(3),
+                reader.GetInt32(4),
+                GetNullableInt64(reader, 5),
+                GetNullableInt32(reader, 6),
+                reader.GetBoolean(7),
+                reader.GetBoolean(8)));
         }
 
-        return laps;
+        return driverExists ? laps : null;
     }
 
     public async Task<ReplayMetadata?> GetReplayMetadataAsync(
@@ -200,25 +245,29 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
             return null;
         }
 
-        var (startUtc, endUtc, startMs, endMs) = await GetReplayBoundsAsync(sessionId, cancellationToken);
-        var drivers = await GetReplayDriversAsync(sessionId, cancellationToken);
-        var trackMap = await GetTrackMapAsync(sessionId, cancellationToken);
-        var overlays = await GetEventOverlayAvailabilityAsync(sessionId, cancellationToken);
-        var weatherSummary = await GetWeatherSummaryAsync(sessionId, cancellationToken);
+        var boundsTask = GetReplayBoundsAsync(sessionId, cancellationToken);
+        var driversTask = GetReplayDriversAsync(sessionId, cancellationToken);
+        var trackMapTask = GetTrackMapAsync(sessionId, cancellationToken);
+        var overlaysTask = GetEventOverlayAvailabilityAsync(sessionId, cancellationToken);
+        var weatherSummaryTask = GetWeatherSummaryAsync(sessionId, cancellationToken);
+
+        await Task.WhenAll(boundsTask, driversTask, trackMapTask, overlaysTask, weatherSummaryTask);
+
+        var (startUtc, endUtc, startMs, endMs) = await boundsTask;
 
         return new ReplayMetadata(
             sessionId,
             startUtc,
             endUtc,
             Math.Max(0, endMs - startMs),
-            drivers,
+            await driversTask,
             startMs,
             endMs,
             ReplayChannels,
             ContextChannels,
-            trackMap,
-            overlays,
-            weatherSummary,
+            await trackMapTask,
+            await overlaysTask,
+            await weatherSummaryTask,
             30_000,
             [0.25, 0.5, 1, 2, 5, 10, 20],
             1);
@@ -233,13 +282,18 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int maxSamples,
         CancellationToken cancellationToken)
     {
-        if (!await LapExistsAsync(sessionId, driverCode, lapNumber, cancellationToken))
-        {
-            return null;
-        }
-
         const string sql = """
-            WITH ordered AS (
+            WITH lap_check AS (
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM laps
+                    WHERE session_id = @sessionId
+                      AND driver_code = upper(@driverCode)
+                      AND lap_number = @lapNumber
+                      AND NOT is_deleted
+                ) AS lap_exists
+            ),
+            ordered AS (
                 SELECT
                     sample_time_utc,
                     session_time_ms,
@@ -255,21 +309,37 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
                 WHERE session_id = @sessionId
                   AND driver_code = upper(@driverCode)
                   AND lap_number = @lapNumber
+            ),
+            sampled AS (
+                SELECT
+                    sample_time_utc,
+                    session_time_ms,
+                    lap_time_ms,
+                    speed_kmh,
+                    throttle_pct,
+                    brake_pct,
+                    gear,
+                    rpm,
+                    drs
+                FROM ordered
+                WHERE ((rn - 1) % @sampleEvery) = 0
+                ORDER BY lap_time_ms NULLS LAST, sample_time_utc
+                LIMIT @maxSamples
             )
             SELECT
-                sample_time_utc,
-                session_time_ms,
-                lap_time_ms,
-                speed_kmh,
-                throttle_pct,
-                brake_pct,
-                gear,
-                rpm,
-                drs
-            FROM ordered
-            WHERE ((rn - 1) % @sampleEvery) = 0
-            ORDER BY lap_time_ms NULLS LAST, sample_time_utc
-            LIMIT @maxSamples
+                lap_check.lap_exists,
+                sampled.sample_time_utc,
+                sampled.session_time_ms,
+                sampled.lap_time_ms,
+                sampled.speed_kmh,
+                sampled.throttle_pct,
+                sampled.brake_pct,
+                sampled.gear,
+                sampled.rpm,
+                sampled.drs
+            FROM lap_check
+            LEFT JOIN sampled ON true
+            ORDER BY sampled.lap_time_ms NULLS LAST, sampled.sample_time_utc
             """;
 
         await using var command = dataSource.CreateCommand(sql);
@@ -280,10 +350,20 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         command.Parameters.AddWithValue("maxSamples", maxSamples);
 
         var samples = new List<TelemetrySample>();
+        var lapExists = false;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
-            samples.Add(ReadTelemetrySample(reader));
+            lapExists = reader.GetBoolean(0);
+            if (!reader.IsDBNull(1))
+            {
+                samples.Add(ReadTelemetrySample(reader, offset: 1));
+            }
+        }
+
+        if (!lapExists)
+        {
+            return null;
         }
 
         return new LapTelemetryResponse(sessionId, driverCode.ToUpperInvariant(), lapNumber, channels, samples);
@@ -299,14 +379,25 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int timeStepMs,
         CancellationToken cancellationToken)
     {
-        if (!await LapExistsAsync(sessionId, driverA, lapA, cancellationToken)
-            || !await LapExistsAsync(sessionId, driverB, lapB, cancellationToken))
+        if (!await RequestedLapsExistAsync(sessionId, driverA, lapA, driverB, lapB, cancellationToken))
         {
             return null;
         }
 
-        var a = await GetComparisonBucketsAsync(sessionId, driverA, lapA, timeStepMs, cancellationToken);
-        var b = await GetComparisonBucketsAsync(sessionId, driverB, lapB, timeStepMs, cancellationToken);
+        var aTask = GetComparisonBucketsAsync(sessionId, driverA, lapA, timeStepMs, cancellationToken);
+        var bTask = GetComparisonBucketsAsync(sessionId, driverB, lapB, timeStepMs, cancellationToken);
+        var summaryTask = GetLapComparisonSummaryAsync(
+            sessionId,
+            driverA,
+            lapA,
+            driverB,
+            lapB,
+            cancellationToken);
+
+        await Task.WhenAll(aTask, bTask, summaryTask);
+
+        var a = await aTask;
+        var b = await bTask;
         var points = a.Keys.Union(b.Keys)
             .Order()
             .Select(bucket =>
@@ -326,14 +417,6 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
             })
             .ToArray();
 
-        var summary = await GetLapComparisonSummaryAsync(
-            sessionId,
-            driverA,
-            lapA,
-            driverB,
-            lapB,
-            cancellationToken);
-
         return new LapComparisonResponse(
             sessionId,
             driverA.ToUpperInvariant(),
@@ -343,7 +426,290 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
             timeStepMs,
             channels,
             points,
-            summary);
+            await summaryTask);
+    }
+
+    public async Task<LapStoryResponse?> GetLapStoryAsync(
+        string sessionId,
+        string driverCode,
+        int lapNumber,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT
+                lap_time_ms::bigint,
+                sector_1_ms::bigint,
+                sector_2_ms::bigint,
+                sector_3_ms::bigint,
+                compound,
+                tyre_life,
+                max_speed_kmh,
+                avg_speed_kmh,
+                avg_throttle_pct,
+                avg_brake_pct,
+                telemetry_samples::int
+            FROM lap_summaries
+            WHERE session_id = @sessionId
+              AND driver_code = upper(@driverCode)
+              AND lap_number = @lapNumber
+              AND NOT is_deleted
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        command.Parameters.AddWithValue("driverCode", driverCode);
+        command.Parameters.AddWithValue("lapNumber", lapNumber);
+
+        await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow, cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return null;
+        }
+
+        var lapTimeMs = GetNullableInt64(reader, 0);
+        var sectorTimes = new long?[]
+        {
+            GetNullableInt64(reader, 1),
+            GetNullableInt64(reader, 2),
+            GetNullableInt64(reader, 3)
+        };
+        var compound = GetNullableString(reader, 4);
+        var tyreLife = GetNullableInt32(reader, 5);
+        var peakSpeed = GetNullableDouble(reader, 6);
+        var avgSpeed = GetNullableDouble(reader, 7);
+        var avgThrottle = GetNullableDouble(reader, 8);
+        var avgBrake = GetNullableDouble(reader, 9);
+        var samples = reader.GetInt32(10);
+
+        return new LapStoryResponse(
+            sessionId,
+            driverCode.ToUpperInvariant(),
+            lapNumber,
+            lapTimeMs,
+            sectorTimes,
+            compound,
+            tyreLife,
+            peakSpeed,
+            avgSpeed,
+            avgThrottle,
+            avgBrake,
+            samples,
+            BuildLapInsights(lapTimeMs, sectorTimes, compound, tyreLife, peakSpeed, avgSpeed, avgThrottle, samples));
+    }
+
+    public async Task<LapBrakingZonesResponse?> GetLapBrakingZonesAsync(
+        string sessionId,
+        string driverCode,
+        int lapNumber,
+        int brakeThresholdPct,
+        int minimumDurationMs,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            WITH lap_check AS (
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM laps
+                    WHERE session_id = @sessionId
+                      AND driver_code = upper(@driverCode)
+                      AND lap_number = @lapNumber
+                      AND NOT is_deleted
+                ) AS lap_exists
+            ),
+            ordered AS (
+                SELECT
+                    sample_time_utc,
+                    lap_time_ms::bigint AS lap_time_ms,
+                    speed_kmh,
+                    brake_pct,
+                    brake_pct >= @brakeThresholdPct AS is_braking,
+                    row_number() OVER (ORDER BY lap_time_ms NULLS LAST, sample_time_utc)
+                    - row_number() OVER (PARTITION BY brake_pct >= @brakeThresholdPct ORDER BY lap_time_ms NULLS LAST, sample_time_utc) AS group_id
+                FROM telemetry_samples
+                WHERE session_id = @sessionId
+                  AND driver_code = upper(@driverCode)
+                  AND lap_number = @lapNumber
+                  AND lap_time_ms IS NOT NULL
+            ),
+            zones AS (
+                SELECT
+                    min(sample_time_utc) AS start_sample_time_utc,
+                    min(lap_time_ms) AS start_lap_time_ms,
+                    max(lap_time_ms) AS end_lap_time_ms,
+                    greatest(max(lap_time_ms) - min(lap_time_ms), 0)::bigint AS duration_ms,
+                    (array_agg(speed_kmh ORDER BY lap_time_ms, sample_time_utc))[1] AS entry_speed_kmh,
+                    min(speed_kmh) AS minimum_speed_kmh,
+                    (array_agg(speed_kmh ORDER BY lap_time_ms DESC, sample_time_utc DESC))[1] AS exit_speed_kmh,
+                    max(brake_pct) AS max_brake_pct
+                FROM ordered
+                WHERE is_braking
+                GROUP BY group_id
+                HAVING greatest(max(lap_time_ms) - min(lap_time_ms), 0) >= @minimumDurationMs
+            ),
+            zones_with_position AS (
+                SELECT
+                    zones.*,
+                    p.x,
+                    p.y
+                FROM zones
+                LEFT JOIN position_samples p
+                    ON p.session_id = @sessionId
+                    AND p.driver_code = upper(@driverCode)
+                    AND p.sample_time_utc = zones.start_sample_time_utc
+            ),
+            zone_rows AS (
+                SELECT
+                    row_number() OVER (ORDER BY z.start_lap_time_ms)::int AS zone_index,
+                    z.start_lap_time_ms,
+                    z.end_lap_time_ms,
+                    z.duration_ms,
+                    z.entry_speed_kmh,
+                    z.minimum_speed_kmh,
+                    z.exit_speed_kmh,
+                    z.max_brake_pct,
+                    marker.marker_number,
+                    marker.marker_letter,
+                    marker.distance_to_corner
+                FROM zones_with_position z
+                LEFT JOIN LATERAL (
+                    SELECT
+                        cm.marker_number,
+                        cm.marker_letter,
+                        sqrt(power(cm.x - z.x, 2) + power(cm.y - z.y, 2)) AS distance_to_corner
+                    FROM circuit_markers cm
+                    WHERE cm.session_id = @sessionId
+                      AND cm.marker_type = 'corner'
+                      AND z.x IS NOT NULL
+                      AND z.y IS NOT NULL
+                    ORDER BY distance_to_corner
+                    LIMIT 1
+                ) marker ON true
+            )
+            SELECT
+                lap_check.lap_exists,
+                zone_rows.zone_index,
+                zone_rows.start_lap_time_ms,
+                zone_rows.end_lap_time_ms,
+                zone_rows.duration_ms,
+                zone_rows.entry_speed_kmh,
+                zone_rows.minimum_speed_kmh,
+                zone_rows.exit_speed_kmh,
+                zone_rows.max_brake_pct,
+                zone_rows.marker_number,
+                zone_rows.marker_letter,
+                zone_rows.distance_to_corner
+            FROM lap_check
+            LEFT JOIN zone_rows ON true
+            ORDER BY zone_rows.start_lap_time_ms NULLS LAST
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        command.Parameters.AddWithValue("driverCode", driverCode);
+        command.Parameters.AddWithValue("lapNumber", lapNumber);
+        command.Parameters.AddWithValue("brakeThresholdPct", brakeThresholdPct);
+        command.Parameters.AddWithValue("minimumDurationMs", minimumDurationMs);
+
+        var zones = new List<LapBrakingZone>();
+        var lapExists = false;
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            lapExists = reader.GetBoolean(0);
+            if (reader.IsDBNull(1))
+            {
+                continue;
+            }
+
+            var markerNumber = GetNullableInt32(reader, 9);
+            zones.Add(new LapBrakingZone(
+                reader.GetInt32(1),
+                reader.GetInt64(2),
+                reader.GetInt64(3),
+                reader.GetInt64(4),
+                GetNullableDouble(reader, 5),
+                GetNullableDouble(reader, 6),
+                GetNullableDouble(reader, 7),
+                GetNullableDouble(reader, 8),
+                FormatCornerLabel(sessionId, markerNumber, GetNullableString(reader, 10)),
+                GetNullableDouble(reader, 11)));
+        }
+
+        return lapExists
+            ? new LapBrakingZonesResponse(sessionId, driverCode.ToUpperInvariant(), lapNumber, brakeThresholdPct, minimumDurationMs, zones)
+            : null;
+    }
+
+    public async Task<LapComparisonStoryResponse?> CompareLapsStoryAsync(
+        string sessionId,
+        string driverA,
+        int lapA,
+        string driverB,
+        int lapB,
+        int segmentCount,
+        CancellationToken cancellationToken)
+    {
+        if (!await RequestedLapsExistAsync(sessionId, driverA, lapA, driverB, lapB, cancellationToken))
+        {
+            return null;
+        }
+
+        var summaryTask = GetLapComparisonSummaryAsync(sessionId, driverA, lapA, driverB, lapB, cancellationToken);
+        var segmentsTask = GetLapComparisonSegmentsAsync(sessionId, driverA, lapA, driverB, lapB, segmentCount, cancellationToken);
+
+        await Task.WhenAll(summaryTask, segmentsTask);
+        var summary = await summaryTask;
+        var segments = await segmentsTask;
+
+        return new LapComparisonStoryResponse(
+            sessionId,
+            driverA.ToUpperInvariant(),
+            lapA,
+            driverB.ToUpperInvariant(),
+            lapB,
+            summary.LapTimeDeltaMs,
+            summary.SectorDeltasMs,
+            summary.MaxSpeedDeltaKmh,
+            summary.AvgSpeedDeltaKmh,
+            segments,
+            BuildComparisonInsights(driverA, driverB, summary, segments));
+    }
+
+    public async Task<RaceStoryResponse?> GetRaceStoryAsync(
+        string sessionId,
+        int raceControlLimit,
+        CancellationToken cancellationToken)
+    {
+        var sessionTask = GetSessionSummaryAsync(sessionId, cancellationToken);
+        var weatherTask = GetWeatherSummaryAsync(sessionId, cancellationToken);
+        var stintsTask = GetRaceStintsAsync(sessionId, cancellationToken);
+        var pitStopsTask = GetPitStopsAsync(sessionId, cancellationToken);
+        var trackStatusTask = GetTrackStatusPeriodsAsync(sessionId, cancellationToken);
+        var raceControlTask = GetRaceControlHighlightsAsync(sessionId, raceControlLimit, cancellationToken);
+
+        await Task.WhenAll(sessionTask, weatherTask, stintsTask, pitStopsTask, trackStatusTask, raceControlTask);
+
+        var session = await sessionTask;
+        if (session is null)
+        {
+            return null;
+        }
+
+        var weather = await weatherTask;
+        var stints = await stintsTask;
+        var pitStops = await pitStopsTask;
+        var trackStatus = await trackStatusTask;
+        var raceControl = await raceControlTask;
+
+        return new RaceStoryResponse(
+            sessionId,
+            session,
+            weather,
+            stints,
+            pitStops,
+            trackStatus,
+            raceControl,
+            BuildRaceInsights(session, weather, stints, pitStops, trackStatus, raceControl));
     }
 
     public async Task<ReplayChunkResponse?> GetReplayChunkAsync(
@@ -355,12 +721,14 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int sampleEvery,
         CancellationToken cancellationToken)
     {
-        if (!await SessionExistsAsync(sessionId, cancellationToken))
-        {
-            return null;
-        }
+        var sessionExistsTask = SessionExistsAsync(sessionId, cancellationToken);
+        var driversExistTask = drivers is { Count: > 0 }
+            ? DriversExistAsync(sessionId, drivers, cancellationToken)
+            : Task.FromResult(true);
 
-        if (drivers is { Count: > 0 } && !await DriversExistAsync(sessionId, drivers, cancellationToken))
+        await Task.WhenAll(sessionExistsTask, driversExistTask);
+
+        if (!await sessionExistsTask || !await driversExistTask)
         {
             return null;
         }
@@ -470,17 +838,25 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
             return null;
         }
 
-        var weather = includeWeather
-            ? await GetWeatherSamplesAsync(sessionId, fromMs, durationMs, cancellationToken)
-            : [];
-        var trackStatus = includeTrackStatus
-            ? await GetTrackStatusEventsAsync(sessionId, fromMs, durationMs, cancellationToken)
-            : [];
-        var raceControl = includeRaceControl
-            ? await GetRaceControlMessagesAsync(sessionId, fromMs, durationMs, cancellationToken)
-            : [];
+        var weatherTask = includeWeather
+            ? GetWeatherSamplesAsync(sessionId, fromMs, durationMs, cancellationToken)
+            : Task.FromResult<IReadOnlyList<WeatherSample>>([]);
+        var trackStatusTask = includeTrackStatus
+            ? GetTrackStatusEventsAsync(sessionId, fromMs, durationMs, cancellationToken)
+            : Task.FromResult<IReadOnlyList<TrackStatusEvent>>([]);
+        var raceControlTask = includeRaceControl
+            ? GetRaceControlMessagesAsync(sessionId, fromMs, durationMs, cancellationToken)
+            : Task.FromResult<IReadOnlyList<RaceControlMessage>>([]);
 
-        return new ReplayContextResponse(sessionId, fromMs, durationMs, weather, trackStatus, raceControl);
+        await Task.WhenAll(weatherTask, trackStatusTask, raceControlTask);
+
+        return new ReplayContextResponse(
+            sessionId,
+            fromMs,
+            durationMs,
+            await weatherTask,
+            await trackStatusTask,
+            await raceControlTask);
     }
 
     public async Task<TelemetryEventSearchResponse?> SearchTelemetryEventsAsync(
@@ -488,32 +864,51 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         TelemetryEventSearchRequest request,
         CancellationToken cancellationToken)
     {
-        if (!await SessionExistsAsync(sessionId, cancellationToken))
-        {
-            return null;
-        }
-
         const string sql = """
+            WITH session_check AS (
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM sessions
+                    WHERE session_id = @sessionId
+                ) AS session_exists
+            ),
+            events AS (
+                SELECT
+                    sample_time_utc,
+                    driver_code,
+                    lap_number,
+                    session_time_ms,
+                    lap_time_ms,
+                    speed_kmh,
+                    throttle_pct,
+                    brake_pct,
+                    drs,
+                    event_type
+                FROM telemetry_event_candidates
+                WHERE session_id = @sessionId
+                  AND event_type IS NOT NULL
+                  AND (@eventTypes::text[] IS NULL OR event_type = ANY(@eventTypes::text[]))
+                  AND (@drivers::text[] IS NULL OR driver_code = ANY(@drivers::text[]))
+                  AND (@fromMs::bigint IS NULL OR session_time_ms >= @fromMs::bigint)
+                  AND (@toMs::bigint IS NULL OR session_time_ms < @toMs::bigint)
+                ORDER BY session_time_ms, driver_code
+                LIMIT @limit
+            )
             SELECT
-                sample_time_utc,
-                driver_code,
-                lap_number,
-                session_time_ms,
-                lap_time_ms,
-                speed_kmh,
-                throttle_pct,
-                brake_pct,
-                drs,
-                event_type
-            FROM telemetry_event_candidates
-            WHERE session_id = @sessionId
-              AND event_type IS NOT NULL
-              AND (@eventTypes::text[] IS NULL OR event_type = ANY(@eventTypes::text[]))
-              AND (@drivers::text[] IS NULL OR driver_code = ANY(@drivers::text[]))
-              AND (@fromMs::bigint IS NULL OR session_time_ms >= @fromMs::bigint)
-              AND (@toMs::bigint IS NULL OR session_time_ms < @toMs::bigint)
-            ORDER BY session_time_ms, driver_code
-            LIMIT @limit
+                session_check.session_exists,
+                events.sample_time_utc,
+                events.driver_code,
+                events.lap_number,
+                events.session_time_ms,
+                events.lap_time_ms,
+                events.speed_kmh,
+                events.throttle_pct,
+                events.brake_pct,
+                events.drs,
+                events.event_type
+            FROM session_check
+            LEFT JOIN events ON true
+            ORDER BY events.session_time_ms, events.driver_code
             """;
 
         var fromMs = request.FromMs;
@@ -530,23 +925,30 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         command.Parameters.AddWithValue("limit", request.Limit ?? 500);
 
         var items = new List<TelemetryEventCandidate>();
+        var sessionExists = false;
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
+            sessionExists = reader.GetBoolean(0);
+            if (reader.IsDBNull(1))
+            {
+                continue;
+            }
+
             items.Add(new TelemetryEventCandidate(
-                GetNullableDateTimeOffset(reader, 0) ?? DateTimeOffset.UnixEpoch,
-                reader.GetString(1),
-                GetNullableInt32(reader, 2),
-                GetNullableInt64(reader, 3),
+                GetNullableDateTimeOffset(reader, 1) ?? DateTimeOffset.UnixEpoch,
+                reader.GetString(2),
+                GetNullableInt32(reader, 3),
                 GetNullableInt64(reader, 4),
-                GetNullableDouble(reader, 5),
+                GetNullableInt64(reader, 5),
                 GetNullableDouble(reader, 6),
                 GetNullableDouble(reader, 7),
-                GetNullableInt32(reader, 8),
-                reader.GetString(9)));
+                GetNullableDouble(reader, 8),
+                GetNullableInt32(reader, 9),
+                reader.GetString(10)));
         }
 
-        return new TelemetryEventSearchResponse(sessionId, items);
+        return sessionExists ? new TelemetryEventSearchResponse(sessionId, items) : null;
     }
 
     private async Task<bool> SessionExistsAsync(string sessionId, CancellationToken cancellationToken)
@@ -613,6 +1015,39 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         command.Parameters.AddWithValue("driverCode", driverCode);
         command.Parameters.AddWithValue("lapNumber", lapNumber);
         return (bool)(await command.ExecuteScalarAsync(cancellationToken) ?? false);
+    }
+
+    private async Task<bool> RequestedLapsExistAsync(
+        string sessionId,
+        string driverA,
+        int lapA,
+        string driverB,
+        int lapB,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT count(*)::int
+            FROM laps
+            WHERE session_id = @sessionId
+              AND NOT is_deleted
+              AND (
+                (driver_code = upper(@driverA) AND lap_number = @lapA)
+                OR (driver_code = upper(@driverB) AND lap_number = @lapB)
+              )
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        command.Parameters.AddWithValue("driverA", driverA);
+        command.Parameters.AddWithValue("lapA", lapA);
+        command.Parameters.AddWithValue("driverB", driverB);
+        command.Parameters.AddWithValue("lapB", lapB);
+
+        var expectedCount = driverA.Equals(driverB, StringComparison.OrdinalIgnoreCase) && lapA == lapB
+            ? 1
+            : 2;
+        var count = (int)(await command.ExecuteScalarAsync(cancellationToken) ?? 0);
+        return count == expectedCount;
     }
 
     private async Task<(DateTimeOffset? StartUtc, DateTimeOffset? EndUtc, long StartMs, long EndMs)> GetReplayBoundsAsync(
@@ -900,6 +1335,357 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
             GetNullableDouble(reader, 5));
     }
 
+    private async Task<IReadOnlyList<LapComparisonSegment>> GetLapComparisonSegmentsAsync(
+        string sessionId,
+        string driverA,
+        int lapA,
+        string driverB,
+        int lapB,
+        int segmentCount,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            WITH selected_samples AS (
+                SELECT
+                    driver_code,
+                    lap_time_ms::bigint AS lap_time_ms,
+                    speed_kmh,
+                    throttle_pct,
+                    brake_pct
+                FROM telemetry_samples
+                WHERE session_id = @sessionId
+                  AND lap_time_ms IS NOT NULL
+                  AND (
+                    (driver_code = upper(@driverA) AND lap_number = @lapA)
+                    OR (driver_code = upper(@driverB) AND lap_number = @lapB)
+                  )
+            ),
+            bounds AS (
+                SELECT greatest(coalesce(max(lap_time_ms), 0), 1)::bigint AS max_lap_time_ms
+                FROM selected_samples
+            ),
+            segment_bounds AS (
+                SELECT
+                    segment,
+                    floor(((segment - 1)::numeric / @segmentCount) * bounds.max_lap_time_ms)::bigint AS start_lap_time_ms,
+                    CASE
+                        WHEN segment = @segmentCount THEN bounds.max_lap_time_ms
+                        ELSE floor((segment::numeric / @segmentCount) * bounds.max_lap_time_ms)::bigint
+                    END AS end_lap_time_ms,
+                    bounds.max_lap_time_ms
+                FROM generate_series(1, @segmentCount) AS segment
+                CROSS JOIN bounds
+            ),
+            aggregates AS (
+                SELECT
+                    s.driver_code,
+                    b.segment,
+                    avg(s.speed_kmh) AS avg_speed_kmh,
+                    avg(s.throttle_pct) AS avg_throttle_pct,
+                    avg(s.brake_pct) AS avg_brake_pct
+                FROM segment_bounds b
+                LEFT JOIN selected_samples s
+                    ON s.lap_time_ms >= b.start_lap_time_ms
+                    AND s.lap_time_ms < CASE WHEN b.segment = @segmentCount THEN b.end_lap_time_ms + 1 ELSE b.end_lap_time_ms END
+                GROUP BY s.driver_code, b.segment
+            )
+            SELECT
+                b.segment::int,
+                b.start_lap_time_ms,
+                b.end_lap_time_ms,
+                a.avg_speed_kmh - bb.avg_speed_kmh,
+                a.avg_throttle_pct - bb.avg_throttle_pct,
+                a.avg_brake_pct - bb.avg_brake_pct
+            FROM segment_bounds b
+            LEFT JOIN aggregates a
+                ON a.segment = b.segment
+                AND a.driver_code = upper(@driverA)
+            LEFT JOIN aggregates bb
+                ON bb.segment = b.segment
+                AND bb.driver_code = upper(@driverB)
+            ORDER BY b.segment
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        command.Parameters.AddWithValue("driverA", driverA);
+        command.Parameters.AddWithValue("lapA", lapA);
+        command.Parameters.AddWithValue("driverB", driverB);
+        command.Parameters.AddWithValue("lapB", lapB);
+        command.Parameters.AddWithValue("segmentCount", segmentCount);
+
+        var segments = new List<LapComparisonSegment>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var speedDelta = GetNullableDouble(reader, 3);
+            segments.Add(new LapComparisonSegment(
+                reader.GetInt32(0),
+                reader.GetInt64(1),
+                reader.GetInt64(2),
+                speedDelta,
+                GetNullableDouble(reader, 4),
+                GetNullableDouble(reader, 5),
+                speedDelta switch
+                {
+                    > 2 => "driver_a",
+                    < -2 => "driver_b",
+                    _ => "even"
+                }));
+        }
+
+        return segments;
+    }
+
+    private async Task<SessionSummary?> GetSessionSummaryAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            WITH driver_counts AS (
+                SELECT session_id, count(*)::int AS driver_count
+                FROM session_drivers
+                WHERE session_id = @sessionId
+                GROUP BY session_id
+            ),
+            lap_counts AS (
+                SELECT session_id, count(*)::int AS lap_count
+                FROM laps
+                WHERE session_id = @sessionId
+                GROUP BY session_id
+            )
+            SELECT
+                s.session_id,
+                s.year,
+                s.event_name,
+                s.session_type,
+                s.circuit_name,
+                s.country,
+                s.session_start_utc,
+                coalesce(dc.driver_count, 0),
+                coalesce(lc.lap_count, 0)
+            FROM sessions s
+            LEFT JOIN driver_counts dc ON dc.session_id = s.session_id
+            LEFT JOIN lap_counts lc ON lc.session_id = s.session_id
+            WHERE s.session_id = @sessionId
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow, cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return null;
+        }
+
+        return new SessionSummary(
+            reader.GetString(0),
+            reader.GetInt32(1),
+            reader.GetString(2),
+            reader.GetString(3),
+            GetNullableString(reader, 4),
+            GetNullableString(reader, 5),
+            GetNullableDateTimeOffset(reader, 6),
+            reader.GetInt32(7),
+            reader.GetInt32(8));
+    }
+
+    private async Task<IReadOnlyList<RaceStintSummary>> GetRaceStintsAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT
+                driver_code,
+                stint_number,
+                compound,
+                first_lap_number,
+                last_lap_number,
+                laps::int,
+                min_tyre_life,
+                max_tyre_life,
+                round(avg_lap_time_ms)::bigint,
+                best_lap_time_ms::bigint,
+                worst_lap_time_ms::bigint
+            FROM driver_stint_summaries
+            WHERE session_id = @sessionId
+            ORDER BY driver_code, stint_number
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+
+        var stints = new List<RaceStintSummary>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            stints.Add(new RaceStintSummary(
+                reader.GetString(0),
+                reader.GetInt32(1),
+                GetNullableString(reader, 2),
+                reader.GetInt32(3),
+                reader.GetInt32(4),
+                reader.GetInt32(5),
+                GetNullableInt32(reader, 6),
+                GetNullableInt32(reader, 7),
+                GetNullableInt64(reader, 8),
+                GetNullableInt64(reader, 9),
+                GetNullableInt64(reader, 10)));
+        }
+
+        return stints;
+    }
+
+    private async Task<IReadOnlyList<PitStopSummary>> GetPitStopsAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            WITH pit_laps AS (
+                SELECT
+                    driver_code,
+                    lap_number,
+                    CASE
+                        WHEN is_pit_in_lap AND is_pit_out_lap THEN 'pit_in_out'
+                        WHEN is_pit_in_lap THEN 'pit_in'
+                        ELSE 'pit_out'
+                    END AS kind,
+                    stint_number,
+                    compound,
+                    tyre_life,
+                    lap_time_ms::bigint,
+                    lap_start_utc
+                FROM laps
+                WHERE session_id = @sessionId
+                  AND NOT is_deleted
+                  AND (is_pit_in_lap OR is_pit_out_lap)
+            )
+            SELECT
+                p.driver_code,
+                p.lap_number,
+                p.kind,
+                p.stint_number,
+                p.compound,
+                p.tyre_life,
+                p.lap_time_ms,
+                min(t.session_time_ms)::bigint
+            FROM pit_laps p
+            LEFT JOIN telemetry_samples t
+                ON t.session_id = @sessionId
+                AND t.driver_code = p.driver_code
+                AND t.lap_number = p.lap_number
+            GROUP BY
+                p.driver_code,
+                p.lap_number,
+                p.kind,
+                p.stint_number,
+                p.compound,
+                p.tyre_life,
+                p.lap_time_ms,
+                p.lap_start_utc
+            ORDER BY coalesce(min(t.session_time_ms), 9223372036854775807), p.driver_code, p.lap_number
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+
+        var pitStops = new List<PitStopSummary>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            pitStops.Add(new PitStopSummary(
+                reader.GetString(0),
+                reader.GetInt32(1),
+                reader.GetString(2),
+                GetNullableInt32(reader, 3),
+                GetNullableString(reader, 4),
+                GetNullableInt32(reader, 5),
+                GetNullableInt64(reader, 6),
+                GetNullableInt64(reader, 7)));
+        }
+
+        return pitStops;
+    }
+
+    private async Task<IReadOnlyList<TrackStatusPeriodSummary>> GetTrackStatusPeriodsAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT
+                start_time_ms,
+                end_time_ms,
+                status_code,
+                status_name,
+                message
+            FROM track_status_periods
+            WHERE session_id = @sessionId
+            ORDER BY start_time_ms
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+
+        var periods = new List<TrackStatusPeriodSummary>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            periods.Add(new TrackStatusPeriodSummary(
+                reader.GetInt64(0),
+                GetNullableInt64(reader, 1),
+                reader.GetString(2),
+                reader.GetString(3),
+                GetNullableString(reader, 4)));
+        }
+
+        return periods;
+    }
+
+    private async Task<IReadOnlyList<RaceControlSummary>> GetRaceControlHighlightsAsync(
+        string sessionId,
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT
+                session_time_ms,
+                lap_number,
+                category,
+                message,
+                status,
+                flag,
+                scope,
+                sector,
+                racing_number
+            FROM race_control_event_index
+            WHERE session_id = @sessionId
+            ORDER BY session_time_ms NULLS LAST, race_control_message_id
+            LIMIT @limit
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        command.Parameters.AddWithValue("limit", limit);
+
+        var messages = new List<RaceControlSummary>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            messages.Add(new RaceControlSummary(
+                GetNullableInt64(reader, 0),
+                GetNullableInt32(reader, 1),
+                GetNullableString(reader, 2),
+                reader.GetString(3),
+                GetNullableString(reader, 4),
+                GetNullableString(reader, 5),
+                GetNullableString(reader, 6),
+                GetNullableString(reader, 7),
+                GetNullableInt32(reader, 8)));
+        }
+
+        return messages;
+    }
+
     private async Task<IReadOnlyList<WeatherSample>> GetWeatherSamplesAsync(
         string sessionId,
         long fromMs,
@@ -1024,17 +1810,17 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         return messages;
     }
 
-    private static TelemetrySample ReadTelemetrySample(NpgsqlDataReader reader) =>
+    private static TelemetrySample ReadTelemetrySample(NpgsqlDataReader reader, int offset = 0) =>
         new(
-            GetNullableDateTimeOffset(reader, 0) ?? DateTimeOffset.UnixEpoch,
-            GetNullableInt64(reader, 1),
-            GetNullableInt64(reader, 2),
-            GetNullableDouble(reader, 3),
-            GetNullableDouble(reader, 4),
-            GetNullableDouble(reader, 5),
-            GetNullableInt32(reader, 6),
-            GetNullableDouble(reader, 7),
-            GetNullableInt32(reader, 8));
+            GetNullableDateTimeOffset(reader, offset) ?? DateTimeOffset.UnixEpoch,
+            GetNullableInt64(reader, offset + 1),
+            GetNullableInt64(reader, offset + 2),
+            GetNullableDouble(reader, offset + 3),
+            GetNullableDouble(reader, offset + 4),
+            GetNullableDouble(reader, offset + 5),
+            GetNullableInt32(reader, offset + 6),
+            GetNullableDouble(reader, offset + 7),
+            GetNullableInt32(reader, offset + 8));
 
     private static void AddNullable<T>(NpgsqlCommand command, string name, NpgsqlDbType type, T? value)
     {
@@ -1077,6 +1863,205 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
 
     private static int? DifferenceInt(int? a, int? b) =>
         a is null || b is null ? null : a - b;
+
+    private static IReadOnlyList<AnalysisInsight> BuildLapInsights(
+        long? lapTimeMs,
+        IReadOnlyList<long?> sectorTimesMs,
+        string? compound,
+        int? tyreLife,
+        double? peakSpeedKmh,
+        double? averageSpeedKmh,
+        double? averageThrottlePct,
+        int telemetrySamples)
+    {
+        var insights = new List<AnalysisInsight>();
+        if (lapTimeMs is not null)
+        {
+            insights.Add(new AnalysisInsight("lap_time", $"Lap time was {FormatDuration(lapTimeMs.Value)}.", lapTimeMs, "ms"));
+        }
+
+        if (peakSpeedKmh is not null)
+        {
+            insights.Add(new AnalysisInsight("peak_speed", $"Peak sampled speed was {Math.Round(peakSpeedKmh.Value)} km/h.", peakSpeedKmh, "km/h"));
+        }
+
+        var indexedSectors = sectorTimesMs
+            .Select((value, index) => new { Value = value, Sector = index + 1 })
+            .Where(sector => sector.Value is not null)
+            .ToArray();
+        if (indexedSectors.Length > 0)
+        {
+            var fastest = indexedSectors.MinBy(sector => sector.Value);
+            insights.Add(new AnalysisInsight("fastest_sector", $"Fastest sector was S{fastest!.Sector} at {FormatDuration(fastest.Value!.Value)}.", fastest.Value, "ms"));
+        }
+
+        if (!string.IsNullOrWhiteSpace(compound) || tyreLife is not null)
+        {
+            var tyreText = string.IsNullOrWhiteSpace(compound) ? "unknown compound" : compound;
+            insights.Add(new AnalysisInsight("tyre", $"Tyre context: {tyreText}, tyre life {tyreLife?.ToString() ?? "unknown"}.", tyreLife, "laps"));
+        }
+
+        if (averageSpeedKmh is not null && averageThrottlePct is not null)
+        {
+            insights.Add(new AnalysisInsight("pace_shape", $"Average speed was {Math.Round(averageSpeedKmh.Value, 1)} km/h with {Math.Round(averageThrottlePct.Value, 1)}% average throttle.", averageSpeedKmh, "km/h"));
+        }
+
+        insights.Add(new AnalysisInsight("data_quality", $"Telemetry sample count for this lap is {telemetrySamples}.", telemetrySamples, "samples"));
+        return insights;
+    }
+
+    private static IReadOnlyList<AnalysisInsight> BuildComparisonInsights(
+        string driverA,
+        string driverB,
+        LapComparisonSummary summary,
+        IReadOnlyList<LapComparisonSegment> segments)
+    {
+        driverA = driverA.ToUpperInvariant();
+        driverB = driverB.ToUpperInvariant();
+
+        var insights = new List<AnalysisInsight>();
+        if (summary.LapTimeDeltaMs is not null)
+        {
+            var quicker = summary.LapTimeDeltaMs < 0 ? driverA : driverB;
+            insights.Add(new AnalysisInsight(
+                "lap_delta",
+                $"{quicker} was {Math.Abs(summary.LapTimeDeltaMs.Value)} ms quicker overall.",
+                summary.LapTimeDeltaMs,
+                "ms"));
+        }
+
+        var sectorDeltas = summary.SectorDeltasMs
+            .Select((delta, index) => new { Delta = delta, Sector = index + 1 })
+            .Where(sector => sector.Delta is not null)
+            .ToArray();
+        if (sectorDeltas.Length > 0)
+        {
+            var biggest = sectorDeltas.MaxBy(sector => Math.Abs(sector.Delta!.Value));
+            var quicker = biggest!.Delta < 0 ? driverA : driverB;
+            insights.Add(new AnalysisInsight(
+                "biggest_sector_delta",
+                $"Largest sector delta was S{biggest.Sector}: {quicker} by {Math.Abs(biggest.Delta!.Value)} ms.",
+                biggest.Delta,
+                "ms"));
+        }
+
+        var driverASegments = segments.Count(segment => segment.Advantage == "driver_a");
+        var driverBSegments = segments.Count(segment => segment.Advantage == "driver_b");
+        if (driverASegments > 0 || driverBSegments > 0)
+        {
+            insights.Add(new AnalysisInsight(
+                "segment_advantage",
+                $"{driverA} had the higher average speed in {driverASegments} segment(s); {driverB} in {driverBSegments}."));
+        }
+
+        if (summary.AvgSpeedDeltaKmh is not null)
+        {
+            var faster = summary.AvgSpeedDeltaKmh > 0 ? driverA : driverB;
+            insights.Add(new AnalysisInsight(
+                "average_speed_delta",
+                $"{faster} carried {Math.Abs(Math.Round(summary.AvgSpeedDeltaKmh.Value, 1))} km/h more average speed.",
+                summary.AvgSpeedDeltaKmh,
+                "km/h"));
+        }
+
+        return insights;
+    }
+
+    private static IReadOnlyList<AnalysisInsight> BuildRaceInsights(
+        SessionSummary session,
+        WeatherSummary? weather,
+        IReadOnlyList<RaceStintSummary> stints,
+        IReadOnlyList<PitStopSummary> pitStops,
+        IReadOnlyList<TrackStatusPeriodSummary> trackStatus,
+        IReadOnlyList<RaceControlSummary> raceControl)
+    {
+        var insights = new List<AnalysisInsight>
+        {
+            new("session_scope", $"{session.EventName} {session.Year} {session.SessionType}: {session.DriverCount} drivers and {session.LapCount} imported laps.")
+        };
+
+        if (weather is not null)
+        {
+            insights.Add(new AnalysisInsight(
+                "weather",
+                weather.RainfallObserved
+                    ? "Rainfall was observed in the session weather samples."
+                    : $"No rainfall observed; track temperature range was {FormatNullable(weather.TrackTempMinC)}-{FormatNullable(weather.TrackTempMaxC)} C."));
+        }
+
+        if (stints.Count > 0)
+        {
+            var compounds = stints
+                .Select(stint => stint.Compound)
+                .Where(compound => !string.IsNullOrWhiteSpace(compound))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Order()
+                .ToArray();
+            insights.Add(new AnalysisInsight("tyre_strategy", $"Imported stint data contains {stints.Count} stints across compounds: {string.Join(", ", compounds)}."));
+        }
+
+        if (pitStops.Count > 0)
+        {
+            insights.Add(new AnalysisInsight("pit_stops", $"Detected {pitStops.Count} pit-in/out lap markers.", pitStops.Count, "events"));
+        }
+
+        var neutralized = trackStatus.Count(period => period.StatusCode is "2" or "4" or "5" or "6" or "7");
+        if (neutralized > 0)
+        {
+            insights.Add(new AnalysisInsight("track_status", $"Track status includes {neutralized} non-clear period(s).", neutralized, "periods"));
+        }
+
+        if (raceControl.Count > 0)
+        {
+            insights.Add(new AnalysisInsight("race_control", $"Included {raceControl.Count} race-control messages for narrative context.", raceControl.Count, "messages"));
+        }
+
+        return insights;
+    }
+
+    private static string? FormatCornerLabel(string sessionId, int? markerNumber, string? markerLetter)
+    {
+        if (markerNumber is null)
+        {
+            return null;
+        }
+
+        if (IsMonzaSession(sessionId))
+        {
+            return markerNumber switch
+            {
+                1 or 2 => "Turn 1/2, Variante del Rettifilo",
+                4 or 5 => "Turn 4/5, Variante della Roggia",
+                6 => "Turn 6, Lesmo 1",
+                7 => "Turn 7, Lesmo 2",
+                8 or 9 or 10 => "Turn 8/9/10, Variante Ascari",
+                11 => "Turn 11, Parabolica / Alboreto",
+                _ => FormatGenericCorner(markerNumber.Value, markerLetter)
+            };
+        }
+
+        return FormatGenericCorner(markerNumber.Value, markerLetter);
+    }
+
+    private static bool IsMonzaSession(string sessionId) =>
+        sessionId.Contains("italian-grand-prix", StringComparison.OrdinalIgnoreCase)
+        || sessionId.Contains("monza", StringComparison.OrdinalIgnoreCase);
+
+    private static string FormatGenericCorner(int markerNumber, string? markerLetter) =>
+        $"Turn {markerNumber}{markerLetter}";
+
+    private static string FormatDuration(long durationMs)
+    {
+        var minutes = durationMs / 60_000;
+        var seconds = (durationMs % 60_000) / 1_000;
+        var millis = durationMs % 1_000;
+        return minutes > 0
+            ? $"{minutes}:{seconds:00}.{millis:000}"
+            : $"{seconds}.{millis:000}s";
+    }
+
+    private static string FormatNullable(double? value) =>
+        value is null ? "unknown" : Math.Round(value.Value, 1).ToString("0.0");
 
     private static readonly TelemetryChannelValues EmptyTelemetryChannelValues = new(
         null,

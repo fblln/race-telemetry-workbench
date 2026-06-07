@@ -197,6 +197,141 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             new LapComparisonSummary(-430, [-200, -100, -130], 17, 8.5)));
     }
 
+    public Task<LapStoryResponse?> GetLapStoryAsync(
+        string sessionId,
+        string driverCode,
+        int lapNumber,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId) || !LapsByDriver.TryGetValue(driverCode, out var laps)
+            || !laps.Any(lap => lap.LapNumber == lapNumber))
+        {
+            return Task.FromResult<LapStoryResponse?>(null);
+        }
+
+        return Task.FromResult<LapStoryResponse?>(new LapStoryResponse(
+            sessionId,
+            driverCode.ToUpperInvariant(),
+            lapNumber,
+            85_120,
+            [28_100, 28_400, 28_620],
+            "MEDIUM",
+            12,
+            342,
+            247.8,
+            74.2,
+            12.5,
+            1_420,
+            [
+                new AnalysisInsight("lap_time", "Lap time was 1:25.120.", 85_120, "ms"),
+                new AnalysisInsight("peak_speed", "Peak sampled speed was 342 km/h.", 342, "km/h"),
+                new AnalysisInsight("tyre", "Tyre context: MEDIUM, tyre life 12.", 12, "laps")
+            ]));
+    }
+
+    public Task<LapBrakingZonesResponse?> GetLapBrakingZonesAsync(
+        string sessionId,
+        string driverCode,
+        int lapNumber,
+        int brakeThresholdPct,
+        int minimumDurationMs,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId) || !LapsByDriver.TryGetValue(driverCode, out var laps)
+            || !laps.Any(lap => lap.LapNumber == lapNumber))
+        {
+            return Task.FromResult<LapBrakingZonesResponse?>(null);
+        }
+
+        return Task.FromResult<LapBrakingZonesResponse?>(new LapBrakingZonesResponse(
+            sessionId,
+            driverCode.ToUpperInvariant(),
+            lapNumber,
+            brakeThresholdPct,
+            minimumDurationMs,
+            [
+                new LapBrakingZone(1, 8_600, 13_100, 4_500, 342, 87, 132, 100, "Turn 1/2, Variante del Rettifilo", 28.4),
+                new LapBrakingZone(2, 55_600, 57_000, 1_400, 319, 171, 206, 94, "Turn 8/9/10, Variante Ascari", 41.2)
+            ]));
+    }
+
+    public Task<LapComparisonStoryResponse?> CompareLapsStoryAsync(
+        string sessionId,
+        string driverA,
+        int lapA,
+        string driverB,
+        int lapB,
+        int segmentCount,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId)
+            || !LapsByDriver.TryGetValue(driverA, out var lapsA)
+            || !LapsByDriver.TryGetValue(driverB, out var lapsB)
+            || !lapsA.Any(lap => lap.LapNumber == lapA)
+            || !lapsB.Any(lap => lap.LapNumber == lapB))
+        {
+            return Task.FromResult<LapComparisonStoryResponse?>(null);
+        }
+
+        return Task.FromResult<LapComparisonStoryResponse?>(new LapComparisonStoryResponse(
+            sessionId,
+            driverA.ToUpperInvariant(),
+            lapA,
+            driverB.ToUpperInvariant(),
+            lapB,
+            -430,
+            [-200, -100, -130],
+            17,
+            8.5,
+            [
+                new LapComparisonSegment(1, 0, 28_000, 2.1, 1.3, -3.2, "driver_a"),
+                new LapComparisonSegment(2, 28_000, 56_000, 9.4, 4.6, 8.1, "driver_a"),
+                new LapComparisonSegment(3, 56_000, 85_120, -0.8, -1.0, 2.4, "even")
+            ],
+            [
+                new AnalysisInsight("lap_delta", $"{driverA.ToUpperInvariant()} was 430 ms quicker overall.", -430, "ms"),
+                new AnalysisInsight("biggest_sector_delta", $"Largest sector delta was S1: {driverA.ToUpperInvariant()} by 200 ms.", -200, "ms")
+            ]));
+    }
+
+    public Task<RaceStoryResponse?> GetRaceStoryAsync(
+        string sessionId,
+        int raceControlLimit,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<RaceStoryResponse?>(null);
+        }
+
+        return Task.FromResult<RaceStoryResponse?>(new RaceStoryResponse(
+            sessionId,
+            Monza2025,
+            new WeatherSummary(32.2, 34.1, 43.5, 54.6, false),
+            [
+                new RaceStintSummary("LEC", 1, "MEDIUM", 1, 24, 24, 1, 24, 86_400, 84_900, 92_450),
+                new RaceStintSummary("LEC", 2, "HARD", 25, 53, 29, 1, 29, 85_900, 84_700, 96_200)
+            ],
+            [
+                new PitStopSummary("LEC", 24, "pit_in", 1, "MEDIUM", 24, 96_200, 2_060_000),
+                new PitStopSummary("LEC", 25, "pit_out", 2, "HARD", 1, 94_300, 2_150_000)
+            ],
+            [new TrackStatusPeriodSummary(0, null, "1", "track_clear", "Track clear")],
+            [new RaceControlSummary(100_000, 2, "Drs", "DRS ENABLED", "ENABLED", null, null, null, null)],
+            [
+                new AnalysisInsight("session_scope", "Italian Grand Prix 2025 R: 20 drivers and 1060 imported laps."),
+                new AnalysisInsight("pit_stops", "Detected 2 pit-in/out lap markers.", 2, "events")
+            ]));
+    }
+
     public Task<ReplayChunkResponse?> GetReplayChunkAsync(
         string sessionId,
         long fromMs,

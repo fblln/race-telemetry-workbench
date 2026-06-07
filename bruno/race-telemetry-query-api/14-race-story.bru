@@ -1,0 +1,15 @@
+meta {
+  name: Race Story
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/story?raceControlLimit=100
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

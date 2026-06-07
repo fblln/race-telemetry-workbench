@@ -1,6 +1,7 @@
 <Project Sdk="Aspire.AppHost.Sdk/13.4.2">
 
   <ItemGroup>
+    <ProjectReference Include="..\RaceTelemetry.McpServer\RaceTelemetry.McpServer.csproj" />
     <ProjectReference Include="..\RaceTelemetry.QueryApi\RaceTelemetry.QueryApi.csproj" />
   </ItemGroup>
 

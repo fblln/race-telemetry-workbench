@@ -130,7 +130,6 @@ See resources:
 
 ```bash
 aspire ps
-aspire ps --include-hidden
 ```
 
 Describe the full app model:
@@ -166,6 +165,57 @@ The AppHost is:
 src/RaceTelemetry.AppHost/AppHost.cs
 ```
 
+### Aspire Debugging Notes
+
+This repo uses Aspire 13.4. The CLI writes diagnostic logs under `~/.aspire`,
+so sandboxed agent runs may need approval for `aspire ps`, `aspire describe`,
+`aspire logs`, `aspire stop`, and `aspire resource`.
+
+Use `aspire describe` to inspect resource state and URLs. In this Aspire
+version, `--include-hidden` is valid for `aspire describe`, not `aspire ps`.
+
+Stable Query API ports must be modeled carefully:
+
+- Aspire/DCP owns the stable external port.
+- The project process must listen on the internal port injected by Aspire.
+- Do not set `ASPNETCORE_URLS=http://127.0.0.1:5120` for a project resource
+  while also exposing `5120` through Aspire; that makes Kestrel and DCP fight
+  for the same port.
+- Do not specify identical `targetPort` and `port` on a proxied non-container
+  project endpoint; Aspire rejects that model.
+
+The intended AppHost shape for a stable Query API HTTP endpoint is:
+
+```csharp
+builder.AddProject<Projects.RaceTelemetry_QueryApi>("query-api")
+    .WithEnvironment("RACE_TELEMETRY_DATABASE_URL", databaseUrl)
+    .WithHttpEndpoint(port: 5120, env: "ASPNETCORE_HTTP_PORTS")
+    .WithExternalHttpEndpoints();
+```
+
+If `query-api` is `Finished` or has no URLs in `aspire describe`, inspect logs:
+
+```bash
+aspire logs query-api --non-interactive
+```
+
+Common failures:
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `Failed to bind ... 5120: address already in use` | Kestrel is binding the same external port as DCP, or an old AppHost is still running. | Remove hard-coded `ASPNETCORE_URLS` for the Aspire project resource; stop the old AppHost with `aspire stop`. |
+| `Non-container resources cannot be proxied when both TargetPort and Port are specified with the same value` | AppHost used identical `targetPort` and `port` on a project endpoint. | Use `WithHttpEndpoint(port: 5120, env: "ASPNETCORE_HTTP_PORTS")` instead. |
+| Dashboard is up but Query API has no URL | The project process exited after startup failure. | Use `aspire describe`, then `aspire logs query-api --non-interactive`. |
+| No logs/traces/metrics in dashboard | OTLP exporter endpoint was not configured or the resource has not been restarted after telemetry config changes. | Ensure ServiceDefaults exports to `OTEL_EXPORTER_OTLP_ENDPOINT` or `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL`, then rebuild/restart the resource. |
+
+After changing AppHost endpoint or telemetry configuration, restart the AppHost
+rather than only refreshing Bruno:
+
+```bash
+aspire stop
+aspire start
+```
+
 ## Query API Checks
 
 When Aspire is running, use the dashboard or `aspire ps` to find the Query API
@@ -195,6 +245,13 @@ bruno/race-telemetry-query-api
 
 Set the collection `baseUrl` variable to the Query API endpoint shown by Aspire
 or `dotnet run`.
+
+For a detailed explanation of the Query API runtime, endpoint behavior,
+database access, Bruno workflow, and observability setup, see:
+
+```text
+docs/query-api.md
+```
 
 ## Database Loop
 
@@ -318,8 +375,12 @@ For a full verification pass:
 dotnet restore RaceTelemetryWorkbench.slnx
 dotnet build RaceTelemetryWorkbench.slnx
 dotnet run --project tests/RaceTelemetry.IntegrationTests/RaceTelemetry.IntegrationTests.csproj
+dotnet run --project tests/RaceTelemetry.McpServer.Tests/RaceTelemetry.McpServer.Tests.csproj
 .venv/bin/python -m unittest discover -s tests
 ```
+
+For MCP server details, client configuration, and real-database test commands,
+see `docs/mcp-server.md`.
 
 ## Troubleshooting
 
