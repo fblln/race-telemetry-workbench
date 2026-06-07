@@ -1,0 +1,183 @@
+// Race Telemetry Workbench database model.
+// Open this file in https://dbdiagram.io or any DBML-compatible viewer.
+
+Table sessions {
+  session_id text [pk]
+  year int [not null]
+  event_name text [not null]
+  circuit_name text
+  country text
+  session_type text [not null]
+  session_start_utc timestamptz
+  session_end_utc timestamptz
+  source text [not null]
+  imported_at_utc timestamptz [not null]
+  metadata jsonb [not null]
+}
+
+Table session_drivers {
+  session_id text [not null]
+  driver_code text [not null]
+  driver_number int
+  full_name text
+  team_name text
+  metadata jsonb [not null]
+
+  indexes {
+    (session_id, driver_code) [pk]
+  }
+}
+
+Table laps {
+  lap_id text [pk]
+  session_id text [not null]
+  driver_code text [not null]
+  lap_number int [not null]
+  stint_number int
+  lap_start_utc timestamptz
+  lap_end_utc timestamptz
+  lap_time_ms int
+  sector_1_ms int
+  sector_2_ms int
+  sector_3_ms int
+  compound text
+  tyre_life int
+  is_pit_out_lap boolean [not null]
+  is_pit_in_lap boolean [not null]
+  is_deleted boolean [not null]
+  is_accurate boolean
+  metadata jsonb [not null]
+
+  indexes {
+    (session_id, driver_code, lap_number) [unique]
+  }
+}
+
+Table telemetry_samples {
+  sample_time_utc timestamptz [not null]
+  session_id text [not null]
+  driver_code text [not null]
+  lap_number int
+  session_time_ms bigint
+  lap_time_ms bigint
+  speed_kmh double
+  throttle_pct double
+  brake_pct double
+  gear int
+  rpm double
+  drs int
+  sample_source text
+  source_sample_index bigint
+  metadata jsonb [not null]
+
+  indexes {
+    (sample_time_utc, session_id, driver_code) [pk]
+  }
+}
+
+Table position_samples {
+  sample_time_utc timestamptz [not null]
+  session_id text [not null]
+  driver_code text [not null]
+  lap_number int
+  x double
+  y double
+  z double
+  track_status text
+  sample_source text
+  source_sample_index bigint
+  metadata jsonb [not null]
+
+  indexes {
+    (sample_time_utc, session_id, driver_code) [pk]
+  }
+}
+
+Table circuit_metadata {
+  session_id text [pk]
+  rotation_degrees double
+  source text [not null]
+  metadata jsonb [not null]
+}
+
+Table circuit_markers {
+  circuit_marker_id bigint [pk]
+  session_id text [not null]
+  marker_type text [not null]
+  marker_number int
+  marker_letter text
+  x double [not null]
+  y double [not null]
+  angle_degrees double
+  distance_m double
+  metadata jsonb [not null]
+}
+
+Table weather_samples {
+  sample_time_utc timestamptz [not null]
+  session_id text [not null]
+  session_time_ms bigint [not null]
+  air_temp_c double
+  track_temp_c double
+  humidity_pct double
+  pressure_mbar double
+  rainfall boolean
+  wind_direction_deg int
+  wind_speed_mps double
+  metadata jsonb [not null]
+
+  indexes {
+    (sample_time_utc, session_id) [pk]
+  }
+}
+
+Table track_status_events {
+  session_id text [not null]
+  event_time_ms bigint [not null]
+  status_code text [not null]
+  message text
+  metadata jsonb [not null]
+
+  indexes {
+    (session_id, event_time_ms, status_code) [pk]
+  }
+}
+
+Table session_status_events {
+  session_id text [not null]
+  event_time_ms bigint [not null]
+  status text [not null]
+  metadata jsonb [not null]
+
+  indexes {
+    (session_id, event_time_ms, status) [pk]
+  }
+}
+
+Table race_control_messages {
+  race_control_message_id bigint [pk]
+  session_id text [not null]
+  message_time_utc timestamptz
+  session_time_ms bigint
+  category text
+  message text [not null]
+  status text
+  flag text
+  scope text
+  sector text
+  racing_number int
+  lap_number int
+  metadata jsonb [not null]
+}
+
+Ref: session_drivers.session_id > sessions.session_id [delete: cascade]
+Ref: laps.session_id > sessions.session_id [delete: cascade]
+Ref: laps.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
+Ref: telemetry_samples.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
+Ref: position_samples.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
+Ref: circuit_metadata.session_id > sessions.session_id [delete: cascade]
+Ref: circuit_markers.session_id > sessions.session_id [delete: cascade]
+Ref: weather_samples.session_id > sessions.session_id [delete: cascade]
+Ref: track_status_events.session_id > sessions.session_id [delete: cascade]
+Ref: session_status_events.session_id > sessions.session_id [delete: cascade]
+Ref: race_control_messages.session_id > sessions.session_id [delete: cascade]

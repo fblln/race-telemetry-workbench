@@ -1,170 +1,100 @@
 # AGENTS.md
 
-Guidance for coding agents working in this repository.
-
 ## Project
+Race Telemetry Workbench — local F1 telemetry app. Imports public race data into
+TimescaleDB, exposes it via a .NET Query API and MCP server, replays it in an
+Avalonia desktop app.
 
-Race Telemetry Workbench is a local Formula 1 telemetry application. The product
-goal is to import public race telemetry, store it in TimescaleDB, expose it
-through a .NET Query API and MCP server, and replay/analyze it in an Avalonia
-desktop app.
+**Authoritative references:**
+- `f1_telemetry_architecture_spec_focused.md` — architecture spec
+- `planning/progress.md`, `planning/backlog.md`, `planning/decisions.md`
 
-The authoritative product/architecture reference is:
+**License:** GNU GPLv3. Do not modify `LICENSE`.
 
-- `f1_telemetry_architecture_spec_focused.md`
+---
 
-Planning files live in:
+## Implemented
 
-- `planning/progress.md`
-- `planning/backlog.md`
-- `planning/decisions.md`
+| Component | Path |
+|---|---|
+| Race download/validation | `scripts/download_session.py` |
+| Storage estimator | `scripts/estimate_storage.py` |
+| TimescaleDB importer | `scripts/import_session.py` |
+| DB migrations + hypertables + views | `db/migrations/` |
+| Local TimescaleDB container | `docker-compose.yml` |
+| Unit + integration tests | `tests/` |
+| Docs | `docs/`, `db/README.md`, `db/schema.md` |
 
-## License
+**Not yet implemented:** TimescaleDB/Aspire setup · .NET solution · Query API · Desktop app · MCP server.
 
-The repository is licensed under GNU GPLv3. Keep `LICENSE` as standard GPLv3
-text unless the user explicitly requests a license change.
+---
 
-## Current State
+## Next Work (priority order)
 
-Implemented:
+1. Import full Monza 2024 race into TimescaleDB; verify row counts against manifest
+2. Fix any importer edge cases found in step 1
+3. Create .NET solution, Aspire host, Query API skeleton
 
-- `scripts/download_session.py`
-  - FastF1 race download/validation slice.
-  - Defaults to race session `R`.
-  - Supports explicit non-race sessions with `--session`.
-  - Warms `data/fastf1-cache`.
-  - Writes manifests to `data/download-manifests`.
-  - Avoids overwriting canonical full-session manifests for driver/lap subsets.
-- `scripts/estimate_storage.py`
-  - Estimates raw FastF1 cache storage from canonical manifests.
-- Docs:
-  - `docs/data-download.md`
-  - `docs/fastf1-raw-data.md`
-  - `docs/storage-estimates.md`
-- Unit tests:
-  - `tests/test_download_session.py`
+Do not start the Query API, desktop, or MCP work before steps 1–2.
 
-Not implemented yet:
+---
 
-- Database migrations.
-- TimescaleDB/Aspire setup.
-- `scripts/import_session.py`.
-- .NET solution/projects.
-- Query API.
-- Desktop app.
-- MCP server.
+## Session Default
 
-## Default Data Scope
+`--session R` (race) is the default everywhere. Non-race sessions (`FP1`, `FP2`,
+`FP3`, `Q`, `SQ`, `S`) are **explicit opt-ins only**.
 
-Race data is the default scope. Commands and import/download behavior should
-default to `--session R`.
+---
 
-Non-race sessions (`FP1`, `FP2`, `FP3`, `Q`, `SQ`, `S`) are explicit opt-ins.
+## FastF1 Data Sources
 
-## FastF1 Data Model Notes
+| Purpose | Source |
+|---|---|
+| Driver abbreviations | `session.get_driver(ref)["Abbreviation"]` — do NOT assume `session.drivers` contains three-letter codes |
+| Telemetry samples | `lap.get_telemetry()` — includes car channels + Distance, RelativeDistance, DriverAhead, DistanceToDriverAhead, Status, Source, X/Y/Z |
+| Position samples | `lap.get_pos_data()` |
+| Track outline | Derive from imported `position_samples` — do NOT use static track assets |
+| Circuit annotations | `session.get_circuit_info()` — rotation, corners, marshal lights/sectors |
+| Weather | `session.weather_data` (~1 sample/min) |
+| Race control timeline | `session.track_status`, `session.session_status`, `session.race_control_messages` |
 
-Use these FastF1 sources as planned in the spec:
+---
 
-- `session.drivers` may contain racing numbers, not three-letter codes.
-  Normalize via `session.get_driver(driver_ref)["Abbreviation"]`.
-- `lap.get_telemetry()` is the composed telemetry source for
-  `telemetry_samples`.
-  It includes car channels plus fields like `Distance`, `RelativeDistance`,
-  `DriverAhead`, `DistanceToDriverAhead`, `Status`, `Source`, and `X/Y/Z`.
-- `lap.get_pos_data()` is the raw position source for `position_samples`.
-- `session.get_circuit_info()` provides map rotation, corners, marshal lights,
-  and marshal sectors. Use these as annotations over a data-derived track
-  outline.
-- `session.weather_data` provides low-frequency weather samples, roughly once
-  per minute in the observed Monza 2024 race.
-- `session.track_status`, `session.session_status`, and
-  `session.race_control_messages` provide safety car, VSC, flags, DRS, and
-  other race-control timeline context.
-
-The track outline should be derived from imported `position_samples`, not from
-external static track assets.
-
-## Generated And Local Files
-
-Do not commit:
-
-- `.venv/`
-- `.idea/`
-- `.DS_Store`
-- `__pycache__/`
-- `*.pyc`
-- `data/fastf1-cache/`
-- `data/download-manifests/`
-
-These are already ignored.
-
-## Python Commands
-
-Install dependencies into a local virtual environment:
+## Commands
 
 ```bash
+# Setup
 python3 -m venv .venv
 .venv/bin/python -m pip install -r scripts/requirements.txt
-```
 
-Run unit tests:
+# Tests
+.venv/bin/python -m unittest discover -s tests                  # unit
+.venv/bin/python -m unittest tests.test_database_migrations     # integration (needs DB)
 
-```bash
-.venv/bin/python -m unittest discover -s tests
-```
+# Database
+docker compose up -d timescaledb
 
-Download default race data:
-
-```bash
+# Download
 .venv/bin/python scripts/download_session.py --year 2024 --event Monza
-```
-
-Smoke-test a cached subset without overwriting the full manifest:
-
-```bash
 .venv/bin/python scripts/download_session.py --year 2024 --event Monza --drivers LEC --limit-laps 3
-```
 
-Estimate raw FastF1 storage:
+# Import
+.venv/bin/python scripts/import_session.py --year 2024 --event Monza --drivers LEC --limit-laps 1 --mode replace
 
-```bash
+# Storage estimate
 .venv/bin/python scripts/estimate_storage.py
 ```
 
-Network access is needed the first time FastF1 downloads a session, weather,
-race-control messages, or circuit info. Warm-cache runs may still attempt
-schedule revalidation but can fall back to cached responses.
+Set `RACE_TELEMETRY_DATABASE_URL` to target a non-default database.
 
-## Recommended Next Work
+DB integration tests create a temp schema, apply real migrations, insert Monza
+fixture data, verify hypertables and views, then drop the schema.
 
-The best next implementation slice is the database foundation:
-
-1. Create `db/migrations/001_initial_schema.sql`.
-2. Create `db/migrations/002_timescale_hypertables.sql`.
-3. Include tables from the spec:
-   - `sessions`
-   - `session_drivers`
-   - `laps`
-   - `telemetry_samples`
-   - `position_samples`
-   - `circuit_metadata`
-   - `circuit_markers`
-   - `weather_samples`
-   - `track_status_events`
-   - `session_status_events`
-   - `race_control_messages`
-4. Add indexes for replay, lap comparison, track map, context timeline, and
-   session listing queries.
-5. Then build `scripts/import_session.py` to write one race into the database.
-
-This should happen before Query API, desktop replay, or MCP work because those
-components all depend on imported database data.
+---
 
 ## Working Style
 
-- Keep changes aligned with the spec and planning files.
-- Update planning docs when implementation state changes.
+- Stay aligned with the spec and planning files; update planning docs when state changes.
 - Prefer small, verifiable slices.
-- Preserve race-default behavior.
-- Keep non-race support opt-in.
-- Do not commit generated caches, IDE files, or local environment files.
+- Preserve race-default behavior; keep non-race support opt-in.
+- Do not commit: `.venv/`, `.idea/`, `.DS_Store`, `__pycache__/`, `*.pyc`, `data/fastf1-cache/`, `data/download-manifests/`.

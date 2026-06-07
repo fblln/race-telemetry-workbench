@@ -178,93 +178,10 @@ Importer mapping:
 | `DRS` | `drs` |
 
 FastF1 car samples do not include distance by default from `get_car_data`.
-Distance should come from FastF1 telemetry composition when the database importer
-adds the final normalization layer.
-
-## Composed Telemetry
-
-The database importer should use FastF1's composed telemetry view for
-`telemetry_samples`:
-
-```python
-telemetry = lap.get_telemetry()
-```
-
-For Monza 2024, that returns columns like:
-
-```text
-Date
-SessionTime
-DriverAhead
-DistanceToDriverAhead
-Time
-RPM
-Speed
-nGear
-Throttle
-Brake
-DRS
-Source
-Distance
-RelativeDistance
-Status
-X
-Y
-Z
-```
-
-The useful difference from `get_car_data()` is that this view combines and
-interpolates car and position channels. It includes lap distance, relative lap
-progress, driver-ahead context, and track coordinates.
-
-Example rows:
-
-```python
-telemetry.head(2).to_dict(orient="records")
-# [
-#   {
-#     "Date": Timestamp("2024-09-01 13:03:34.413000"),
-#     "SessionTime": Timedelta("0 days 00:55:50.494000"),
-#     "DriverAhead": "",
-#     "DistanceToDriverAhead": 0.0,
-#     "Time": Timedelta("0 days 00:00:00"),
-#     "RPM": 10238.92781368889,
-#     "Speed": 0.0,
-#     "nGear": 1,
-#     "Throttle": 35.0,
-#     "Brake": True,
-#     "DRS": 1,
-#     "Source": "interpolation",
-#     "Distance": -0.00030438168781159105,
-#     "RelativeDistance": -5.5616098948533764e-08,
-#     "Status": "OnTrack",
-#     "X": -1151.001657127824,
-#     "Y": 1892.0473711678944,
-#     "Z": 1884.0007008536452
-#   }
-# ]
-```
-
-Importer mapping:
-
-| FastF1 column | Database field |
-|---|---|
-| `Date` | `sample_time_utc` |
-| `SessionTime` | `session_time_ms` |
-| `Time` | `lap_time_ms` |
-| `Distance` | `distance_m` |
-| `RelativeDistance` | `relative_distance` |
-| `Speed` | `speed_kmh` |
-| `Throttle` | `throttle_pct` |
-| `Brake` | `brake_pct`, converted from boolean to `0` or `100` |
-| `nGear` | `gear` |
-| `RPM` | `rpm` |
-| `DRS` | `drs` |
-| `DriverAhead` | `driver_ahead` |
-| `DistanceToDriverAhead` | `distance_to_driver_ahead_m` |
-| `Status` | `track_status` |
-| `Source` | `sample_source` |
-| `X`, `Y`, `Z` | available for telemetry context, but raw replay position rows still come from `get_pos_data()` |
+The current database design intentionally does not add a derived distance or
+driver-ahead enrichment layer. Those richer channels remain possible as future
+offline analysis artifacts, but the canonical importer stores raw car data and
+raw position data separately.
 
 ## Position Data
 
