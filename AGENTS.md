@@ -38,9 +38,8 @@ Avalonia desktop app.
 
 ## Next Work (priority order)
 
-1. Add bounded analytical primitives to Query API:
-   telemetry aggregation, telemetry windows, and driver stint analysis
-2. Expose matching MCP tools over the same shared contracts
+1. Validate Query API and MCP analytical primitives against imported datasets
+2. Add pit-stop loss, weather delta, race-control, and corner/sector summaries
 3. Build the Avalonia desktop replay surface against the Query API
 4. Add deeper performance validation against larger imported datasets
 

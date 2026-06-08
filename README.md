@@ -162,13 +162,11 @@ codex mcp add race-telemetry-aspire --url http://127.0.0.1:5122/mcp
 codex mcp list
 ```
 
-## What Is Coming Next
+## Natural-Language Analysis Primitives
 
-The next evolution is focused on making natural-language race analysis more
-efficient. Complex questions should not require the MCP client to download all
-telemetry samples for a driver or race.
-
-Planned Query API and MCP primitives:
+The Query API and MCP server include compact analytical primitives so complex
+questions do not require the MCP client to download all telemetry samples for a
+driver or race.
 
 - `aggregate_telemetry`
   - grouped metrics such as DRS active time, brake time, average speed, max
@@ -180,11 +178,17 @@ Planned Query API and MCP primitives:
   - tyre degradation, stint lap-time slope, best/worst lap, tyre-life range,
     and compound strategy summaries
 
-These will keep the Query API and MCP server in sync: every analytical MCP tool
-should normally be backed by a shared contract and Query API route.
+The Query API and MCP server stay in sync: every analytical MCP tool is backed
+by a shared contract and Query API route.
 
-After that, the project moves toward:
+## What Is Coming Next
 
+The next evolution moves toward:
+
+- deeper validation against imported Monza 2024/2025 databases through Bruno
+  and Aspire
+- pit-stop loss, weather deltas, race-control timelines, and
+  position-aware corner/sector analysis
 - Avalonia desktop replay workspace
 - data-derived track map and driver replay
 - timeline overlays for weather, flags, safety car, VSC, and race control

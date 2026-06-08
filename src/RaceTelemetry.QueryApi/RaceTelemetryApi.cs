@@ -37,6 +37,37 @@ public static class RaceTelemetryApi
         "throttle_lift"
     };
 
+    private static readonly HashSet<string> AggregateGroupBy = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "driver",
+        "lap",
+        "stint",
+        "compound",
+        "track_status",
+        "time_bucket"
+    };
+
+    private static readonly HashSet<string> AggregateMetrics = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "sample_count",
+        "avg_speed_kmh",
+        "max_speed_kmh",
+        "avg_throttle_pct",
+        "avg_brake_pct",
+        "brake_time_ms",
+        "drs_active_time_ms",
+        "throttle_lift_count",
+        "high_speed_time_ms"
+    };
+
+    private static readonly HashSet<string> StintMetrics = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "lap_time_slope_ms_per_lap",
+        "best_lap_time_ms",
+        "average_lap_time_ms",
+        "worst_lap_time_ms"
+    };
+
     public static WebApplication CreateApp(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -107,6 +138,9 @@ public static class RaceTelemetryApi
                     "replay-chunks",
                     "replay-context",
                     "telemetry-event-search",
+                    "telemetry-aggregate",
+                    "telemetry-windows",
+                    "stint-analysis",
                     "mcp-ready-query-contracts"
                 ]))
             .WithName("GetApiInfo");
@@ -541,6 +575,130 @@ public static class RaceTelemetryApi
             })
             .WithName("SearchTelemetryEvents");
 
+        api.MapPost("/sessions/{sessionId}/telemetry/aggregate", async Task<IResult> (
+                string sessionId,
+                TelemetryAggregateRequest? request,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                request ??= new TelemetryAggregateRequest(
+                    null,
+                    ["driver"],
+                    ["sample_count", "avg_speed_kmh"],
+                    null,
+                    null,
+                    500);
+
+                if (!ValidateDrivers(request.Drivers, out var error)
+                    || !ValidateAllowedValues(request.GroupBy, AggregateGroupBy, "InvalidGroupBy", "Unknown aggregate grouping.", out error)
+                    || !ValidateAllowedValues(request.Metrics, AggregateMetrics, "InvalidMetrics", "Unknown aggregate metric.", out error)
+                    || !ValidateLapRange(request.Filters?.LapRange, out error))
+                {
+                    return error!;
+                }
+
+                if (request.TimeBucketMs is < 1_000 or > 600_000)
+                {
+                    return ValidationError("InvalidTimeBucket", "timeBucketMs must be between 1000 and 600000.", ("timeBucketMs", request.TimeBucketMs));
+                }
+
+                if (request.Limit is < 1 or > 5_000)
+                {
+                    return ValidationError("InvalidLimit", "limit must be between 1 and 5000.", ("limit", request.Limit));
+                }
+
+                var response = await store.AggregateTelemetryAsync(sessionId, request, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("AggregateTelemetry");
+
+        api.MapPost("/sessions/{sessionId}/telemetry/windows", async Task<IResult> (
+                string sessionId,
+                TelemetryWindowRequest? request,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                if (request is null || string.IsNullOrWhiteSpace(request.EventType))
+                {
+                    return ValidationError("InvalidEventType", "eventType is required.", ("allowed", TelemetryEventTypes.ToArray()));
+                }
+
+                if (!TelemetryEventTypes.Contains(request.EventType))
+                {
+                    return ValidationError("InvalidEventType", "Unknown telemetry event type.", ("allowed", TelemetryEventTypes.ToArray()));
+                }
+
+                if (!ValidateDrivers(request.Drivers, out var error)
+                    || !ValidateLapRange(request.LapRange, out error))
+                {
+                    return error!;
+                }
+
+                if (request.MinimumDurationMs is < 0 or > 10_000)
+                {
+                    return ValidationError("InvalidMinimumDuration", "minimumDurationMs must be between 0 and 10000.", ("minimumDurationMs", request.MinimumDurationMs));
+                }
+
+                if (request.Limit is < 1 or > 5_000)
+                {
+                    return ValidationError("InvalidLimit", "limit must be between 1 and 5000.", ("limit", request.Limit));
+                }
+
+                var response = await store.DetectTelemetryWindowsAsync(sessionId, request, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("DetectTelemetryWindows");
+
+        api.MapPost("/sessions/{sessionId}/stints/analyze", async Task<IResult> (
+                string sessionId,
+                StintAnalysisRequest? request,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                request ??= new StintAnalysisRequest(
+                    null,
+                    null,
+                    true,
+                    3,
+                    ["lap_time_slope_ms_per_lap", "best_lap_time_ms", "average_lap_time_ms"]);
+
+                if (!ValidateDrivers(request.Drivers, out var error)
+                    || !ValidateAllowedValues(request.Metrics, StintMetrics, "InvalidMetrics", "Unknown stint-analysis metric.", out error))
+                {
+                    return error!;
+                }
+
+                if (request.MinimumLaps is < 1 or > 100)
+                {
+                    return ValidationError("InvalidMinimumLaps", "minimumLaps must be between 1 and 100.", ("minimumLaps", request.MinimumLaps));
+                }
+
+                var response = await store.AnalyzeDriverStintsAsync(sessionId, request, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("AnalyzeDriverStints");
+
         return api;
     }
 
@@ -628,6 +786,74 @@ public static class RaceTelemetryApi
         }
 
         return drivers;
+    }
+
+    private static bool ValidateDrivers(IReadOnlyList<string>? drivers, out IResult? error)
+    {
+        error = null;
+        if (drivers is not { Count: > 0 })
+        {
+            return true;
+        }
+
+        var invalid = drivers
+            .Where(driver => string.IsNullOrWhiteSpace(driver) || !IsValidDriverCode(driver))
+            .ToArray();
+        if (invalid.Length == 0)
+        {
+            return true;
+        }
+
+        error = ValidationError("InvalidDriver", "Driver codes must contain 2 to 4 letters.", ("drivers", invalid));
+        return false;
+    }
+
+    private static bool ValidateAllowedValues(
+        IReadOnlyList<string>? values,
+        IReadOnlySet<string> allowed,
+        string code,
+        string message,
+        out IResult? error)
+    {
+        error = null;
+        if (values is not { Count: > 0 })
+        {
+            return true;
+        }
+
+        var invalid = values
+            .Where(value => string.IsNullOrWhiteSpace(value) || !allowed.Contains(value))
+            .ToArray();
+        if (invalid.Length == 0)
+        {
+            return true;
+        }
+
+        error = ValidationError(code, message, ("unknown", invalid), ("allowed", allowed.Order().ToArray()));
+        return false;
+    }
+
+    private static bool ValidateLapRange(LapRange? lapRange, out IResult? error)
+    {
+        error = null;
+        if (lapRange is null)
+        {
+            return true;
+        }
+
+        if (lapRange.From is < 1 || lapRange.To is < 1)
+        {
+            error = ValidationError("InvalidLapRange", "Lap range values must be positive.", ("lapRange", lapRange));
+            return false;
+        }
+
+        if (lapRange.From is not null && lapRange.To is not null && lapRange.From > lapRange.To)
+        {
+            error = ValidationError("InvalidLapRange", "Lap range from must be less than or equal to lap range to.", ("lapRange", lapRange));
+            return false;
+        }
+
+        return true;
     }
 
     private static bool IsValidSessionId(string sessionId) =>

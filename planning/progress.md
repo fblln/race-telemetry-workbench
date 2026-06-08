@@ -24,17 +24,15 @@ season imports should start at `--workers 2` or `--workers 3`.
 | Phase 2 - Query API | Mostly done | .NET 10 solution, Aspire AppHost, ServiceDefaults, contracts, Timescale-backed data store, bounded replay/context endpoints, lap telemetry, lap comparison, race/lap story endpoints, braking-zone detection, telemetry-event search, OpenAPI, Bruno collection, and HTTP integration-test runner are in place. PostgreSQL tracing, startup connection warmup, and first-pass query round-trip optimizations are in place. Needs deeper performance validation against larger imports. |
 | Phase 3 - Desktop Replay | Not started | No Avalonia project exists yet. Needs session selector, replay workspace, controls, charts, data-derived track map, context overlays, and playback verification. |
 | Phase 4 - Lap Comparison | Not started | Needs lap-time-aligned comparison endpoint integration and UI. |
-| Phase 5 - MCP Query Server | Started | Read-only Streamable HTTP MCP server exposes sessions, drivers, laps, replay metadata, lap telemetry, lap story, braking zones, lap comparison/story, race story, replay chunk/context, and telemetry-event search. HTTP protocol smoke-test runner is in place. |
+| Phase 5 - MCP Query Server | Started | Read-only Streamable HTTP MCP server exposes sessions, drivers, laps, replay metadata, lap telemetry, lap story, braking zones, lap comparison/story, race story, aggregate/window/stint analysis, replay chunk/context, and telemetry-event search. HTTP protocol smoke-test runner is in place. |
 | Phase 6 - AI Assistant Panel | Not started | Optional first UI iteration after MCP server works externally. |
 
 ## Next Recommended Step
 
-Add Query API analytical primitive endpoints for telemetry aggregation,
-telemetry windows, and stint analysis, then expose matching MCP tools over the
-same shared contracts. This should reduce natural-language clients fetching raw
-telemetry for questions about DRS usage, braking windows, tyre degradation, and
-strategy. After that, validate the Timescale-backed Query API against the
-imported Monza 2024/2025 databases through Bruno and Aspire.
+Validate the Timescale-backed analytical primitive endpoints against imported
+Monza 2024/2025 databases through Bruno and Aspire, then add the next domain
+summaries for pit-stop loss, weather deltas, race-control timelines, and
+position-aware corner/sector analysis.
 
 ## Achieved Through Phase 3 Checkpoint
 

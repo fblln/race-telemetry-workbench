@@ -1,0 +1,40 @@
+meta {
+  name: Telemetry Aggregate
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/telemetry/aggregate
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "drivers": ["{{driverA}}", "{{driverB}}"],
+    "groupBy": ["driver", "stint", "compound"],
+    "metrics": [
+      "sample_count",
+      "avg_speed_kmh",
+      "max_speed_kmh",
+      "brake_time_ms",
+      "drs_active_time_ms",
+      "throttle_lift_count",
+      "high_speed_time_ms"
+    ],
+    "filters": {
+      "lapRange": {
+        "from": 1,
+        "to": 53
+      },
+      "excludePitLaps": true
+    },
+    "limit": 200
+  }
+}

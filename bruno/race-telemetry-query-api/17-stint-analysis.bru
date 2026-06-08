@@ -1,0 +1,30 @@
+meta {
+  name: Stint Analysis
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/stints/analyze
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "drivers": ["{{driverA}}", "{{driverB}}"],
+    "excludePitLaps": true,
+    "minimumLaps": 3,
+    "metrics": [
+      "lap_time_slope_ms_per_lap",
+      "best_lap_time_ms",
+      "average_lap_time_ms",
+      "worst_lap_time_ms"
+    ]
+  }
+}
