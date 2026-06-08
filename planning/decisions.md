@@ -84,3 +84,27 @@ bounded facts, summaries, and deterministic insight labels:
 Raw telemetry, replay chunks, and bucketed comparisons remain available for
 drill-down, charting, and validation. They should not be the first tool a
 language model needs to call for broad "what happened in this race?" questions.
+
+## 2026-06-08 - Query API And MCP Analytical Parity
+
+MCP analytical capabilities should stay in sync with the Query API. The default
+rule is:
+
+- first add or expose a shared contract and Query API route;
+- then expose an MCP tool as a thin, read-only adapter over that same bounded
+  capability;
+- only allow MCP-only analytical tools when a decision record documents why the
+  capability is not useful over REST.
+
+For complex natural-language questions, prefer generic analytical primitives
+instead of fetching raw telemetry or adding one tool per question:
+
+- `aggregate_telemetry`: grouped metrics such as DRS active time, brake time,
+  average speed, max speed, sample count, and throttle-lift count;
+- `detect_telemetry_windows`: contiguous intervals for DRS active, hard
+  braking, throttle lift, high speed, and similar events;
+- `analyze_driver_stints`: tyre degradation, stint lap-time slope, best/worst
+  lap, tyre-life range, and compound strategy summaries.
+
+Raw telemetry endpoints remain bounded drill-down tools after an aggregate,
+window, or stint query identifies a specific lap or time range.

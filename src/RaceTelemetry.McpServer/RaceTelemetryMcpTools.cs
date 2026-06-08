@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using ModelContextProtocol.Server;
 using RaceTelemetry.Contracts;
@@ -9,6 +10,8 @@ namespace RaceTelemetry.McpServer;
 [McpServerToolType]
 public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
 {
+    private static readonly ActivitySource ActivitySource = new("RaceTelemetry.McpServer");
+
     private static readonly HashSet<string> SessionTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "FP1",
@@ -61,6 +64,11 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Session type filter. Defaults to R. Valid values: FP1, FP2, FP3, Q, SQ, S, R.")] string? sessionType = "R",
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("list_sessions");
+        activity?.SetTag("race.query.year", year);
+        activity?.SetTag("race.query.event", eventName);
+        activity?.SetTag("race.query.session_type", sessionType);
+
         ValidateYear(year);
         ValidateSessionType(sessionType);
 
@@ -80,6 +88,8 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_session_drivers", sessionId);
+
         ValidateSessionId(sessionId);
 
         var drivers = await store.GetDriversAsync(sessionId, cancellationToken)
@@ -101,6 +111,8 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Driver abbreviation, for example LEC.")] string driverCode,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_driver_laps", sessionId, driverCode);
+
         ValidateSessionAndDriver(sessionId, driverCode);
 
         var laps = await store.GetLapsAsync(sessionId, driverCode, cancellationToken)
@@ -121,6 +133,8 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_replay_metadata", sessionId);
+
         ValidateSessionId(sessionId);
 
         return await store.GetReplayMetadataAsync(sessionId, cancellationToken)
@@ -144,6 +158,10 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Maximum returned samples. Range: 1 to 50000.")] int maxSamples = 5_000,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_lap_telemetry", sessionId, driverCode, lapNumber);
+        activity?.SetTag("race.query.sample_every", sampleEvery);
+        activity?.SetTag("race.query.max_samples", maxSamples);
+
         ValidateSessionDriverLap(sessionId, driverCode, lapNumber);
         ValidateRange(sampleEvery, 1, 100, nameof(sampleEvery));
         ValidateRange(maxSamples, 1, 50_000, nameof(maxSamples));
@@ -178,6 +196,8 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Positive lap number.")] int lapNumber,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_lap_story", sessionId, driverCode, lapNumber);
+
         ValidateSessionDriverLap(sessionId, driverCode, lapNumber);
 
         return await store.GetLapStoryAsync(sessionId, driverCode, lapNumber, cancellationToken)
@@ -200,6 +220,10 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Minimum braking-zone duration in milliseconds. Range: 0 to 10000.")] int minimumDurationMs = 250,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_lap_braking_zones", sessionId, driverCode, lapNumber);
+        activity?.SetTag("race.query.brake_threshold_pct", brakeThresholdPct);
+        activity?.SetTag("race.query.minimum_duration_ms", minimumDurationMs);
+
         ValidateSessionDriverLap(sessionId, driverCode, lapNumber);
         ValidateRange(brakeThresholdPct, 1, 100, nameof(brakeThresholdPct));
         ValidateRange(minimumDurationMs, 0, 10_000, nameof(minimumDurationMs));
@@ -232,6 +256,11 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Time-bucket size in milliseconds. Range: 20 to 5000.")] int timeStepMs = 100,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("compare_laps", sessionId, driverA, lapA);
+        activity?.SetTag("race.query.driver_b", driverB.ToUpperInvariant());
+        activity?.SetTag("race.query.lap_b", lapB);
+        activity?.SetTag("race.query.time_step_ms", timeStepMs);
+
         ValidateSessionDriverLap(sessionId, driverA, lapA);
         ValidateDriverCode(driverB);
         ValidateLapNumber(lapB);
@@ -271,6 +300,11 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Number of lap segments. Range: 2 to 12. Defaults to 3 for opening/middle/final thirds.")] int segmentCount = 3,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("compare_laps_story", sessionId, driverA, lapA);
+        activity?.SetTag("race.query.driver_b", driverB.ToUpperInvariant());
+        activity?.SetTag("race.query.lap_b", lapB);
+        activity?.SetTag("race.query.segment_count", segmentCount);
+
         ValidateSessionDriverLap(sessionId, driverA, lapA);
         ValidateDriverCode(driverB);
         ValidateLapNumber(lapB);
@@ -300,6 +334,9 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Maximum race-control messages to include. Range: 0 to 1000.")] int raceControlLimit = 100,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_race_story", sessionId);
+        activity?.SetTag("race.query.race_control_limit", raceControlLimit);
+
         ValidateSessionId(sessionId);
         ValidateRange(raceControlLimit, 0, 1_000, nameof(raceControlLimit));
 
@@ -324,6 +361,11 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Read every Nth sample. Range: 1 to 100.")] int sampleEvery = 1,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_replay_chunk", sessionId);
+        activity?.SetTag("race.query.from_ms", fromMs);
+        activity?.SetTag("race.query.duration_ms", durationMs);
+        activity?.SetTag("race.query.sample_every", sampleEvery);
+
         ValidateSessionId(sessionId);
         ValidateRange(fromMs, 0, long.MaxValue, nameof(fromMs));
         ValidateRange(durationMs, 1_000, 120_000, nameof(durationMs));
@@ -360,6 +402,13 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Include race-control messages.")] bool includeRaceControl = true,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("get_replay_context", sessionId);
+        activity?.SetTag("race.query.from_ms", fromMs);
+        activity?.SetTag("race.query.duration_ms", durationMs);
+        activity?.SetTag("race.query.include_weather", includeWeather);
+        activity?.SetTag("race.query.include_track_status", includeTrackStatus);
+        activity?.SetTag("race.query.include_race_control", includeRaceControl);
+
         ValidateSessionId(sessionId);
         ValidateRange(fromMs, 0, long.MaxValue, nameof(fromMs));
         ValidateRange(durationMs, 1_000, 600_000, nameof(durationMs));
@@ -392,6 +441,11 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         [Description("Maximum returned events. Range: 1 to 5000.")] int limit = 500,
         CancellationToken cancellationToken = default)
     {
+        using var activity = StartToolActivity("search_telemetry_events", sessionId);
+        activity?.SetTag("race.query.from_ms", fromMs);
+        activity?.SetTag("race.query.duration_ms", durationMs);
+        activity?.SetTag("race.query.limit", limit);
+
         ValidateSessionId(sessionId);
         if (fromMs is < 0)
         {
@@ -551,6 +605,21 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
     }
 
     private static KeyNotFoundException NotFound(string message) => new(message);
+
+    private static Activity? StartToolActivity(
+        string toolName,
+        string? sessionId = null,
+        string? driverCode = null,
+        int? lapNumber = null)
+    {
+        var activity = ActivitySource.StartActivity($"mcp.tool.{toolName}", ActivityKind.Server);
+        activity?.SetTag("component", "RaceTelemetry.McpServer");
+        activity?.SetTag("mcp.tool.name", toolName);
+        activity?.SetTag("race.session_id", sessionId);
+        activity?.SetTag("race.driver_code", driverCode?.ToUpperInvariant());
+        activity?.SetTag("race.lap_number", lapNumber);
+        return activity;
+    }
 
     [GeneratedRegex("^[a-z0-9][a-z0-9-]*$")]
     private static partial Regex SessionIdPattern();

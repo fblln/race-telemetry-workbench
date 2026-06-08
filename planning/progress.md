@@ -29,9 +29,12 @@ season imports should start at `--workers 2` or `--workers 3`.
 
 ## Next Recommended Step
 
-Validate the Timescale-backed Query API against the imported Monza 2024/2025
-databases through Bruno and Aspire, then start the Avalonia desktop replay
-surface against `/replay/metadata`, `/replay/chunk`, and `/replay/context`.
+Add Query API analytical primitive endpoints for telemetry aggregation,
+telemetry windows, and stint analysis, then expose matching MCP tools over the
+same shared contracts. This should reduce natural-language clients fetching raw
+telemetry for questions about DRS usage, braking windows, tyre degradation, and
+strategy. After that, validate the Timescale-backed Query API against the
+imported Monza 2024/2025 databases through Bruno and Aspire.
 
 ## Achieved Through Phase 3 Checkpoint
 
@@ -60,6 +63,9 @@ surface against `/replay/metadata`, `/replay/chunk`, and `/replay/context`.
   lap story, lap braking zones, lap comparison, lap comparison story, race
   story, replay metadata, replay chunk, replay context, and telemetry event
   search endpoints.
+- Query API and MCP should remain in capability parity for analytical tools:
+  new MCP analysis should be backed by a shared contract and REST route unless
+  explicitly documented otherwise.
 - Shared contracts and query-store abstractions are ready for API, desktop, and MCP reuse.
 - HTTP integration-test runner covers the implemented endpoint surface.
 - Bruno collection exists for manual API checks.
@@ -87,5 +93,8 @@ surface against `/replay/metadata`, `/replay/chunk`, and `/replay/context`.
 - MCP includes story-oriented tools for race context, lap summaries, braking
   zones, and comparison talking points so natural-language clients do not need
   to stitch raw telemetry manually.
+- The next MCP expansion should add generic analytical primitives instead of
+  many special-case tools: telemetry aggregation, telemetry window detection,
+  and driver stint analysis.
 - `tests/RaceTelemetry.McpServer.Tests` connects to the HTTP MCP endpoint,
   lists tools, and calls representative tools through the MCP client SDK.

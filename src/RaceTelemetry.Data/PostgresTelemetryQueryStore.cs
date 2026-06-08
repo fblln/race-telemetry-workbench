@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics;
 using Npgsql;
 using NpgsqlTypes;
 using RaceTelemetry.Contracts;
@@ -7,6 +8,8 @@ namespace RaceTelemetry.Data;
 
 public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : IF1TelemetryQueryStore
 {
+    private static readonly ActivitySource ActivitySource = new("RaceTelemetry.Data");
+
     private static readonly string[] ReplayChannels =
     [
         "speed_kmh",
@@ -37,6 +40,11 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         string? sessionType,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_sessions");
+        activity?.SetTag("race.query.year", year);
+        activity?.SetTag("race.query.event", eventName);
+        activity?.SetTag("race.query.session_type", sessionType);
+
         const string sql = """
             WITH driver_counts AS (
                 SELECT session_id, count(*)::int AS driver_count
@@ -95,6 +103,8 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         string sessionId,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_drivers", sessionId);
+
         const string sql = """
             WITH session_check AS (
                 SELECT EXISTS (
@@ -168,6 +178,8 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         string driverCode,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_laps", sessionId, driverCode);
+
         const string sql = """
             WITH driver_check AS (
                 SELECT EXISTS (
@@ -240,6 +252,8 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         string sessionId,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_replay_metadata", sessionId);
+
         if (!await SessionExistsAsync(sessionId, cancellationToken))
         {
             return null;
@@ -282,6 +296,10 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int maxSamples,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_lap_telemetry", sessionId, driverCode, lapNumber);
+        activity?.SetTag("race.query.sample_every", sampleEvery);
+        activity?.SetTag("race.query.max_samples", maxSamples);
+
         const string sql = """
             WITH lap_check AS (
                 SELECT EXISTS (
@@ -379,6 +397,11 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int timeStepMs,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.compare_laps", sessionId, driverA, lapA);
+        activity?.SetTag("race.query.driver_b", driverB.ToUpperInvariant());
+        activity?.SetTag("race.query.lap_b", lapB);
+        activity?.SetTag("race.query.time_step_ms", timeStepMs);
+
         if (!await RequestedLapsExistAsync(sessionId, driverA, lapA, driverB, lapB, cancellationToken))
         {
             return null;
@@ -435,6 +458,8 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int lapNumber,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_lap_story", sessionId, driverCode, lapNumber);
+
         const string sql = """
             SELECT
                 lap_time_ms::bigint,
@@ -505,6 +530,10 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int minimumDurationMs,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_lap_braking_zones", sessionId, driverCode, lapNumber);
+        activity?.SetTag("race.query.brake_threshold_pct", brakeThresholdPct);
+        activity?.SetTag("race.query.minimum_duration_ms", minimumDurationMs);
+
         const string sql = """
             WITH lap_check AS (
                 SELECT EXISTS (
@@ -649,6 +678,11 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int segmentCount,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.compare_laps_story", sessionId, driverA, lapA);
+        activity?.SetTag("race.query.driver_b", driverB.ToUpperInvariant());
+        activity?.SetTag("race.query.lap_b", lapB);
+        activity?.SetTag("race.query.segment_count", segmentCount);
+
         if (!await RequestedLapsExistAsync(sessionId, driverA, lapA, driverB, lapB, cancellationToken))
         {
             return null;
@@ -680,6 +714,9 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int raceControlLimit,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_race_story", sessionId);
+        activity?.SetTag("race.query.race_control_limit", raceControlLimit);
+
         var sessionTask = GetSessionSummaryAsync(sessionId, cancellationToken);
         var weatherTask = GetWeatherSummaryAsync(sessionId, cancellationToken);
         var stintsTask = GetRaceStintsAsync(sessionId, cancellationToken);
@@ -721,6 +758,11 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         int sampleEvery,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_replay_chunk", sessionId);
+        activity?.SetTag("race.query.from_ms", fromMs);
+        activity?.SetTag("race.query.duration_ms", durationMs);
+        activity?.SetTag("race.query.sample_every", sampleEvery);
+
         var sessionExistsTask = SessionExistsAsync(sessionId, cancellationToken);
         var driversExistTask = drivers is { Count: > 0 }
             ? DriversExistAsync(sessionId, drivers, cancellationToken)
@@ -833,6 +875,13 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         bool includeRaceControl,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.get_replay_context", sessionId);
+        activity?.SetTag("race.query.from_ms", fromMs);
+        activity?.SetTag("race.query.duration_ms", durationMs);
+        activity?.SetTag("race.query.include_weather", includeWeather);
+        activity?.SetTag("race.query.include_track_status", includeTrackStatus);
+        activity?.SetTag("race.query.include_race_control", includeRaceControl);
+
         if (!await SessionExistsAsync(sessionId, cancellationToken))
         {
             return null;
@@ -864,6 +913,11 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         TelemetryEventSearchRequest request,
         CancellationToken cancellationToken)
     {
+        using var activity = StartStoreActivity("query_store.search_telemetry_events", sessionId);
+        activity?.SetTag("race.query.from_ms", request.FromMs);
+        activity?.SetTag("race.query.duration_ms", request.DurationMs);
+        activity?.SetTag("race.query.limit", request.Limit);
+
         const string sql = """
             WITH session_check AS (
                 SELECT EXISTS (
@@ -2062,6 +2116,20 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
 
     private static string FormatNullable(double? value) =>
         value is null ? "unknown" : Math.Round(value.Value, 1).ToString("0.0");
+
+    private static Activity? StartStoreActivity(
+        string name,
+        string? sessionId = null,
+        string? driverCode = null,
+        int? lapNumber = null)
+    {
+        var activity = ActivitySource.StartActivity(name, ActivityKind.Internal);
+        activity?.SetTag("component", "RaceTelemetry.Data");
+        activity?.SetTag("race.session_id", sessionId);
+        activity?.SetTag("race.driver_code", driverCode?.ToUpperInvariant());
+        activity?.SetTag("race.lap_number", lapNumber);
+        return activity;
+    }
 
     private static readonly TelemetryChannelValues EmptyTelemetryChannelValues = new(
         null,

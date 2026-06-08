@@ -501,6 +501,9 @@ The Query API must:
 - Read from TimescaleDB.
 - Expose REST endpoints only.
 - Return deterministic DTOs consumed by the desktop app and MCP server.
+- Keep MCP and REST capabilities in sync: every MCP analytical tool must be
+  backed by a Query API route and shared contract unless a decision record
+  explicitly documents why it is MCP-only.
 - Validate session IDs, driver codes, lap numbers, channel names, row limits, and bounded time ranges.
 - Emit structured logs, traces, and metrics to Aspire Dashboard.
 
@@ -954,6 +957,187 @@ Validation:
 - `maxResults`: `1` to `1000`.
 - Unbounded all-session searches require `maxResults <= 100`.
 
+### 6.10 Analytical Primitive Endpoints
+
+Natural-language clients must not answer broad analytical questions by fetching
+all lap or race telemetry samples. The Query API must expose generic,
+bounded analytical primitives that aggregate or compress telemetry in SQL and
+return model-friendly tables, windows, rankings, and summaries.
+
+These endpoints are not arbitrary SQL. They accept constrained filter,
+grouping, metric, and condition vocabularies.
+
+#### 6.10.1 `POST /api/sessions/{sessionId}/telemetry/aggregate`
+
+Aggregates telemetry into compact rows.
+
+Typical questions:
+
+- DRS active time by driver/lap/stint.
+- Average speed by stint or compound.
+- Brake time by lap.
+- Throttle lift count by race phase.
+
+Request:
+
+```json
+{
+  "drivers": ["LEC", "HAM"],
+  "groupBy": ["driver", "stint", "compound"],
+  "metrics": ["sample_count", "avg_speed_kmh", "max_speed_kmh", "drs_active_time_ms", "brake_time_ms"],
+  "filters": {
+    "lapRange": { "from": 1, "to": 53 },
+    "compound": ["MEDIUM", "HARD"],
+    "excludePitLaps": true,
+    "trackStatus": ["track_clear"]
+  },
+  "timeBucketMs": null,
+  "limit": 500
+}
+```
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "groupBy": ["driver", "stint", "compound"],
+  "items": [
+    {
+      "driverCode": "LEC",
+      "stintNumber": 1,
+      "compound": "MEDIUM",
+      "sampleCount": 14520,
+      "avgSpeedKmh": 238.4,
+      "maxSpeedKmh": 342.0,
+      "drsActiveTimeMs": 184200,
+      "brakeTimeMs": 41200
+    }
+  ]
+}
+```
+
+Validation:
+
+- `groupBy` values must be allow-listed: `driver`, `lap`, `stint`,
+  `compound`, `sector`, `time_bucket`, `track_status`.
+- `metrics` values must be allow-listed. Initial metrics:
+  `sample_count`, `avg_speed_kmh`, `max_speed_kmh`, `avg_throttle_pct`,
+  `avg_brake_pct`, `brake_time_ms`, `drs_active_time_ms`,
+  `throttle_lift_count`, `high_speed_time_ms`.
+- `timeBucketMs` is required when grouping by `time_bucket`.
+- `limit`: `1` to `5000`.
+- Responses must contain aggregate rows only, never raw telemetry samples.
+
+#### 6.10.2 `POST /api/sessions/{sessionId}/telemetry/windows`
+
+Detects contiguous telemetry windows and returns intervals instead of samples.
+
+Typical questions:
+
+- When was DRS active?
+- Where were heavy braking zones?
+- Where did a driver lift at high speed?
+
+Request:
+
+```json
+{
+  "drivers": ["LEC"],
+  "eventType": "drs_active",
+  "lapRange": { "from": 1, "to": 53 },
+  "minimumDurationMs": 250,
+  "includeNearestCorner": true,
+  "limit": 1000
+}
+```
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "eventType": "drs_active",
+  "items": [
+    {
+      "driverCode": "LEC",
+      "lapNumber": 12,
+      "startSessionTimeMs": 812340,
+      "endSessionTimeMs": 818920,
+      "startLapTimeMs": 12400,
+      "endLapTimeMs": 18980,
+      "durationMs": 6580,
+      "nearestCorner": null,
+      "summary": {
+        "entrySpeedKmh": 286.2,
+        "maxSpeedKmh": 331.4
+      }
+    }
+  ]
+}
+```
+
+Validation:
+
+- `eventType` values must be allow-listed. Initial values:
+  `drs_active`, `hard_braking`, `throttle_lift`, `high_speed`.
+- `minimumDurationMs`: `0` to `10000`.
+- `limit`: `1` to `5000`.
+- Responses must return intervals/windows only, never per-sample rows.
+
+#### 6.10.3 `POST /api/sessions/{sessionId}/stints/analyze`
+
+Analyzes tyre stints from lap metadata and lap summaries, not raw telemetry.
+
+Typical questions:
+
+- Compare tyre degradation by driver and compound.
+- Identify best/worst stints.
+- Explain strategy shape across pit stops.
+
+Request:
+
+```json
+{
+  "drivers": ["LEC", "HAM"],
+  "compound": ["MEDIUM", "HARD"],
+  "excludePitLaps": true,
+  "minimumLaps": 3,
+  "metrics": ["lap_time_slope_ms_per_lap", "best_lap_time_ms", "average_lap_time_ms"]
+}
+```
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "items": [
+    {
+      "driverCode": "LEC",
+      "stintNumber": 1,
+      "compound": "MEDIUM",
+      "firstLapNumber": 1,
+      "lastLapNumber": 24,
+      "laps": 24,
+      "minTyreLife": 1,
+      "maxTyreLife": 24,
+      "averageLapTimeMs": 85620,
+      "bestLapTimeMs": 83440,
+      "lapTimeSlopeMsPerLap": 82.4
+    }
+  ]
+}
+```
+
+Acceptance criteria:
+
+- Uses lap/stint tables and `driver_stint_summaries` where possible.
+- Supports excluding pit-in, pit-out, deleted, and inaccurate laps.
+- Returns compact per-stint rows and optional rankings.
+- Does not read or return raw telemetry unless a future metric explicitly
+  requires telemetry aggregation, in which case it must still return aggregates.
+
 ---
 
 ## 7. Replay Requirements
@@ -1145,10 +1329,10 @@ The panel should show the answer and, when applicable, offer an action to open t
 ### 9.1 Technology
 
 ```text
-.NET 9
+.NET 10
 ModelContextProtocol C# SDK
 HTTP transport for local Aspire execution
-Optional stdio transport for coding-agent integration
+Streamable HTTP transport for coding-agent integration
 Aspire service defaults
 ```
 
@@ -1157,10 +1341,11 @@ Aspire service defaults
 The MCP server must:
 
 - Expose read-only tools.
-- Validate inputs before calling the Query API.
-- Call the Query API for all data access.
+- Validate inputs before calling shared Query API/data contracts.
+- Stay in capability parity with Query API analytical routes.
 - Return compact, bounded, model-friendly JSON.
-- Prefer summary/context endpoints for analytical questions over raw sample retrieval.
+- Prefer summary, aggregate, window, and context endpoints for analytical
+  questions over raw sample retrieval.
 - Emit one trace span per tool call.
 
 The MCP server must not:
@@ -1172,7 +1357,31 @@ The MCP server must not:
 
 MCP-backed analytics must be answered from Query API endpoints that use
 TimescaleDB SQL, indexes, and analytical views/materialized views. The MCP
-server is an adapter over those capabilities, not an analytical database client.
+server is an adapter over the same capabilities and contracts, not an
+independent analytical database client.
+
+### 9.2.1 Analytical Tool Design
+
+The MCP server must not add a new special-purpose tool for every natural
+language question. Instead it should expose a small set of generic, safe
+analytical primitives that map directly to Query API routes:
+
+| MCP tool | Query API route | Purpose |
+|---|---|---|
+| `aggregate_telemetry` | `POST /api/sessions/{sessionId}/telemetry/aggregate` | Return grouped telemetry metrics such as DRS active time, brake time, average speed, max speed, and sample counts. |
+| `detect_telemetry_windows` | `POST /api/sessions/{sessionId}/telemetry/windows` | Return contiguous event intervals such as DRS activation, hard braking, throttle lifts, and high-speed periods. |
+| `analyze_driver_stints` | `POST /api/sessions/{sessionId}/stints/analyze` | Return tyre/stint degradation, best/worst lap, average lap time, tyre-life range, and strategy facts. |
+
+These tools are intentionally broader than one-off question handlers but still
+bounded enough to avoid arbitrary SQL and raw telemetry dumps.
+
+Recommended MCP tool order for complex questions:
+
+1. Use story/context tools to scope the session, drivers, laps, weather, pit
+   stops, and race-control state.
+2. Use aggregate/window/stint tools to compute compact facts.
+3. Use raw lap telemetry or replay chunks only for a short drill-down window
+   after the model has identified the relevant lap, event, or time range.
 
 ### 9.3 Tools
 
@@ -1289,7 +1498,7 @@ Output:
 }
 ```
 
-#### `find_telemetry_events`
+#### `detect_telemetry_windows`
 
 Input:
 
@@ -1297,11 +1506,11 @@ Input:
 {
   "sessionId": "2024-monza-r",
   "drivers": ["LEC"],
+  "eventType": "hard_braking",
   "lapRange": { "from": 1, "to": 10 },
-  "conditions": [
-    { "channel": "brake_pct", "operator": ">=", "value": 80 }
-  ],
-  "maxResults": 50
+  "minimumDurationMs": 250,
+  "includeNearestCorner": true,
+  "limit": 50
 }
 ```
 
@@ -1313,9 +1522,15 @@ Output:
     {
       "driverCode": "LEC",
       "lapNumber": 12,
-      "distanceM": 612.4,
-      "sampleTimeUtc": "2024-09-01T13:14:41.200Z",
-      "values": { "brakePct": 91.0 }
+      "startLapTimeMs": 8600,
+      "endLapTimeMs": 13100,
+      "durationMs": 4500,
+      "nearestCorner": "Turn 1/2, Variante del Rettifilo",
+      "summary": {
+        "entrySpeedKmh": 342.0,
+        "minimumSpeedKmh": 87.0,
+        "maxBrakePct": 100.0
+      }
     }
   ]
 }
@@ -1355,13 +1570,13 @@ Find all LEC braking events above 80 percent in the first 10 laps.
 Expected tool sequence:
 
 ```text
-find_telemetry_events(sessionId="...", drivers=["LEC"], lapRange={from:1,to:10}, conditions=[{channel:"brake_pct", operator:">=", value:80}], maxResults=100)
+detect_telemetry_windows(sessionId="...", drivers=["LEC"], eventType="hard_braking", lapRange={from:1,to:10}, minimumDurationMs=250, limit=100)
 ```
 
 Expected answer:
 
 ```text
-Found N events. The strongest braking event was on lap X at distance Y m with brake_pct Z.
+Found N braking windows. The longest was on lap X from A-B seconds and peaked at Z percent brake.
 ```
 
 #### Get replay availability
@@ -1414,8 +1629,8 @@ MCP server spans:
 
 - Tool name.
 - Input validation result.
-- Query API endpoint called.
-- Query API duration.
+- Query API route or shared query-store method called.
+- Query API/query-store duration.
 - Output item count.
 
 ### 10.3 Required Logs
@@ -1562,7 +1777,8 @@ SELECT count(*) FROM telemetry_samples WHERE session_id = '2024-monza-r';
 
 Deliverables:
 
-- Endpoints for sessions, drivers, laps, lap telemetry, lap comparison, replay metadata, replay chunks, and telemetry-event search.
+- Endpoints for sessions, drivers, laps, lap telemetry, lap comparison, replay metadata, replay chunks, telemetry-event search, and story/context summaries.
+- Analytical primitive endpoints for telemetry aggregation, telemetry windows, and driver stint analysis.
 - OpenAPI in local development.
 - Validation implemented.
 - Logs, traces, and metrics visible in Aspire Dashboard.
@@ -1613,7 +1829,8 @@ Deliverables:
 
 - MCP server started by Aspire.
 - Tools defined in this document.
-- Tools call the Query API only.
+- Tools stay in parity with Query API analytical routes and shared contracts.
+- Aggregate/window/stint tools return compact facts instead of raw telemetry samples.
 - Tool calls visible in Aspire Dashboard.
 
 Acceptance test:

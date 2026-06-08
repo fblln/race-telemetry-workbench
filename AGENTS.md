@@ -38,9 +38,11 @@ Avalonia desktop app.
 
 ## Next Work (priority order)
 
-1. Build the Avalonia desktop replay surface against the Query API
-2. Expand MCP tools only when the Query API/data contracts expose bounded reads
-3. Add deeper performance validation against larger imported datasets
+1. Add bounded analytical primitives to Query API:
+   telemetry aggregation, telemetry windows, and driver stint analysis
+2. Expose matching MCP tools over the same shared contracts
+3. Build the Avalonia desktop replay surface against the Query API
+4. Add deeper performance validation against larger imported datasets
 
 Keep the next work focused on the Query API data path before starting the
 Avalonia UI surface.
