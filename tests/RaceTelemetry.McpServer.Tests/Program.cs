@@ -38,6 +38,9 @@ AssertContains(toolNames, "get_race_story");
 AssertContains(toolNames, "get_replay_chunk");
 AssertContains(toolNames, "get_replay_context");
 AssertContains(toolNames, "search_telemetry_events");
+AssertContains(toolNames, "aggregate_telemetry");
+AssertContains(toolNames, "detect_telemetry_windows");
+AssertContains(toolNames, "analyze_driver_stints");
 
 var sessionsResult = await client.CallToolAsync(
     "list_sessions",
@@ -69,6 +72,20 @@ var raceStoryResult = await client.CallToolAsync(
     cancellationToken: cancellation.Token);
 Assert(raceStoryResult.IsError != true, "get_race_story returned an MCP tool error.");
 Assert(raceStoryResult.StructuredContent is not null, "get_race_story did not return structured content.");
+
+var aggregateResult = await client.CallToolAsync(
+    "aggregate_telemetry",
+    new Dictionary<string, object?>
+    {
+        ["sessionId"] = "2025-italian-grand-prix-r",
+        ["drivers"] = "LEC",
+        ["groupBy"] = "driver,stint,compound",
+        ["metrics"] = "sample_count,avg_speed_kmh,drs_active_time_ms",
+        ["limit"] = 25
+    },
+    cancellationToken: cancellation.Token);
+Assert(aggregateResult.IsError != true, "aggregate_telemetry returned an MCP tool error.");
+Assert(aggregateResult.StructuredContent is not null, "aggregate_telemetry did not return structured content.");
 
 Console.WriteLine("RaceTelemetry.McpServer HTTP protocol smoke checks passed.");
 Console.WriteLine($"Tools: {string.Join(", ", toolNames)}");

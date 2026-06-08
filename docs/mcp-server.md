@@ -29,9 +29,9 @@ for lightweight smoke checks.
 | `compare_laps` | Compare two laps by lap-relative time buckets. |
 | `compare_laps_story` | Compare two laps with total/sector deltas, coarse segment differences, and insight facts. |
 | `get_race_story` | Get weather, tyre stints, pit markers, track-status periods, race-control highlights, and race insight facts. |
-| `aggregate_telemetry` | Planned: grouped telemetry metrics such as DRS active time, brake time, average speed, max speed, and sample counts. |
-| `detect_telemetry_windows` | Planned: contiguous event windows such as DRS active, hard braking, throttle lifts, and high-speed periods. |
-| `analyze_driver_stints` | Planned: tyre/stint degradation, lap-time slope, best/worst lap, and compound strategy summaries. |
+| `aggregate_telemetry` | Grouped telemetry metrics such as DRS active time, brake time, average speed, max speed, and sample counts. |
+| `detect_telemetry_windows` | Contiguous event windows such as DRS active, hard braking, throttle lifts, and high-speed periods. |
+| `analyze_driver_stints` | Tyre/stint degradation, lap-time slope, best/worst lap, and compound strategy summaries. |
 | `get_replay_chunk` | Get bounded replay samples for a session-relative window. |
 | `get_replay_context` | Get weather, track-status, and race-control context for a window. |
 | `search_telemetry_events` | Search bounded telemetry event candidates. |
@@ -146,8 +146,8 @@ For natural-language race analysis, start with compact story tools:
 6. `get_lap_braking_zones`
 7. `compare_laps_story`
 
-For complex analytical questions, use the planned aggregate/window/stint tools
-before raw telemetry:
+For complex analytical questions, use the aggregate/window/stint tools before
+raw telemetry:
 
 1. `aggregate_telemetry` for grouped metrics such as DRS time or brake time.
 2. `detect_telemetry_windows` for intervals such as DRS activations or braking

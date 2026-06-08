@@ -1,0 +1,30 @@
+meta {
+  name: Telemetry Windows
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/telemetry/windows
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "drivers": ["{{driverA}}", "{{driverB}}"],
+    "eventType": "hard_braking",
+    "lapRange": {
+      "from": 1,
+      "to": 53
+    },
+    "minimumDurationMs": 250,
+    "includeNearestCorner": true,
+    "limit": 200
+  }
+}

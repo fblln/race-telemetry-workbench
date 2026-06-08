@@ -332,6 +332,117 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             ]));
     }
 
+    public Task<TelemetryAggregateResponse?> AggregateTelemetryAsync(
+        string sessionId,
+        TelemetryAggregateRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<TelemetryAggregateResponse?>(null);
+        }
+
+        var groupBy = request.GroupBy is { Count: > 0 } ? request.GroupBy : ["driver", "stint", "compound"];
+        var metrics = request.Metrics is { Count: > 0 }
+            ? request.Metrics
+            : ["sample_count", "avg_speed_kmh", "drs_active_time_ms", "brake_time_ms"];
+
+        return Task.FromResult<TelemetryAggregateResponse?>(new TelemetryAggregateResponse(
+            sessionId,
+            groupBy,
+            metrics,
+            [
+                new TelemetryAggregateItem(
+                    "LEC",
+                    null,
+                    1,
+                    "MEDIUM",
+                    "track_clear",
+                    null,
+                    null,
+                    14_520,
+                    238.4,
+                    342.0,
+                    73.1,
+                    12.8,
+                    41_200,
+                    184_200,
+                    18,
+                    604_000)
+            ]));
+    }
+
+    public Task<TelemetryWindowResponse?> DetectTelemetryWindowsAsync(
+        string sessionId,
+        TelemetryWindowRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<TelemetryWindowResponse?>(null);
+        }
+
+        var minimumDurationMs = request.MinimumDurationMs ?? 250;
+        return Task.FromResult<TelemetryWindowResponse?>(new TelemetryWindowResponse(
+            sessionId,
+            request.EventType,
+            minimumDurationMs,
+            [
+                new TelemetryWindowItem(
+                    "LEC",
+                    1,
+                    190_000,
+                    194_500,
+                    8_600,
+                    13_100,
+                    4_500,
+                    request.IncludeNearestCorner == false ? null : "Turn 1/2, Variante del Rettifilo",
+                    request.IncludeNearestCorner == false ? null : 28.4,
+                    new TelemetryWindowSummary(342, 87, 342, 132, 100, 12.1))
+            ]));
+    }
+
+    public Task<StintAnalysisResponse?> AnalyzeDriverStintsAsync(
+        string sessionId,
+        StintAnalysisRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<StintAnalysisResponse?>(null);
+        }
+
+        var metrics = request.Metrics is { Count: > 0 }
+            ? request.Metrics
+            : ["lap_time_slope_ms_per_lap", "best_lap_time_ms", "average_lap_time_ms"];
+
+        return Task.FromResult<StintAnalysisResponse?>(new StintAnalysisResponse(
+            sessionId,
+            metrics,
+            [
+                new DriverStintAnalysisItem(
+                    "LEC",
+                    1,
+                    "MEDIUM",
+                    1,
+                    24,
+                    24,
+                    1,
+                    24,
+                    86_400,
+                    84_900,
+                    92_450,
+                    82.4,
+                    [new AnalysisInsight("degradation", "Lap time trend increased by 82.4 ms per lap.", 82.4, "ms/lap")])
+            ]));
+    }
+
     public Task<ReplayChunkResponse?> GetReplayChunkAsync(
         string sessionId,
         long fromMs,

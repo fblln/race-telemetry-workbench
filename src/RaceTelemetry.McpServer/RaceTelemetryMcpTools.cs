@@ -50,6 +50,37 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         "throttle_lift"
     };
 
+    private static readonly HashSet<string> AggregateGroupBy = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "driver",
+        "lap",
+        "stint",
+        "compound",
+        "track_status",
+        "time_bucket"
+    };
+
+    private static readonly HashSet<string> AggregateMetrics = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "sample_count",
+        "avg_speed_kmh",
+        "max_speed_kmh",
+        "avg_throttle_pct",
+        "avg_brake_pct",
+        "brake_time_ms",
+        "drs_active_time_ms",
+        "throttle_lift_count",
+        "high_speed_time_ms"
+    };
+
+    private static readonly HashSet<string> StintMetrics = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "lap_time_slope_ms_per_lap",
+        "best_lap_time_ms",
+        "average_lap_time_ms",
+        "worst_lap_time_ms"
+    };
+
     [McpServerTool(
         Name = "list_sessions",
         Title = "List Sessions",
@@ -345,6 +376,137 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
     }
 
     [McpServerTool(
+        Name = "aggregate_telemetry",
+        Title = "Aggregate Telemetry",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Aggregate telemetry by driver, lap, stint, compound, track status, or time bucket. Use this before requesting raw samples for tyre degradation, DRS time, braking time, and speed summaries.")]
+    public async Task<TelemetryAggregateResponse> AggregateTelemetry(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Optional comma-separated driver list, for example LEC,VER.")] string? drivers = null,
+        [Description("Comma-separated grouping list. Allowed: driver,lap,stint,compound,track_status,time_bucket.")] string groupBy = "driver",
+        [Description("Comma-separated metric list. Allowed: sample_count,avg_speed_kmh,max_speed_kmh,avg_throttle_pct,avg_brake_pct,brake_time_ms,drs_active_time_ms,throttle_lift_count,high_speed_time_ms.")] string metrics = "sample_count,avg_speed_kmh",
+        [Description("Optional first lap in the range.")] int? lapFrom = null,
+        [Description("Optional last lap in the range.")] int? lapTo = null,
+        [Description("Optional comma-separated tyre compound filter, for example SOFT,MEDIUM,HARD.")] string? compound = null,
+        [Description("Exclude pit-in and pit-out laps when lap data is available.")] bool excludePitLaps = true,
+        [Description("Optional comma-separated track-status filter, for example green,yellow,safety_car.")] string? trackStatus = null,
+        [Description("Time bucket in milliseconds when groupBy includes time_bucket. Range: 1000 to 600000.")] int? timeBucketMs = null,
+        [Description("Maximum returned aggregate rows. Range: 1 to 5000.")] int limit = 500,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("aggregate_telemetry", sessionId);
+        activity?.SetTag("race.query.group_by", groupBy);
+        activity?.SetTag("race.query.metrics", metrics);
+        activity?.SetTag("race.query.limit", limit);
+
+        ValidateSessionId(sessionId);
+        ValidateLapRange(lapFrom, lapTo);
+        ValidateRange(limit, 1, 5_000, nameof(limit));
+        if (timeBucketMs is not null)
+        {
+            ValidateRange(timeBucketMs.Value, 1_000, 600_000, nameof(timeBucketMs));
+        }
+
+        var selectedGroupBy = ParseAllowedList(groupBy, AggregateGroupBy, ["driver"], nameof(groupBy));
+        var selectedMetrics = ParseAllowedList(metrics, AggregateMetrics, ["sample_count", "avg_speed_kmh"], nameof(metrics));
+        var selectedDrivers = ParseDrivers(drivers);
+        var request = new TelemetryAggregateRequest(
+            selectedDrivers,
+            selectedGroupBy,
+            selectedMetrics,
+            new TelemetryAggregateFilters(
+                lapFrom is null && lapTo is null ? null : new LapRange(lapFrom, lapTo),
+                ParseUpperList(compound),
+                excludePitLaps,
+                ParseLowerList(trackStatus)),
+            timeBucketMs,
+            limit);
+
+        return await store.AggregateTelemetryAsync(sessionId, request, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "detect_telemetry_windows",
+        Title = "Detect Telemetry Windows",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Detect contiguous DRS, hard-braking, throttle-lift, or high-speed windows without returning raw telemetry samples.")]
+    public async Task<TelemetryWindowResponse> DetectTelemetryWindows(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Event type. Allowed: drs_active,hard_braking,throttle_lift,high_speed.")] string eventType,
+        [Description("Optional comma-separated driver list, for example LEC,VER.")] string? drivers = null,
+        [Description("Optional first lap in the range.")] int? lapFrom = null,
+        [Description("Optional last lap in the range.")] int? lapTo = null,
+        [Description("Minimum event duration in milliseconds. Range: 0 to 10000.")] int minimumDurationMs = 250,
+        [Description("Attach nearest circuit corner when position/circuit-marker data is available.")] bool includeNearestCorner = true,
+        [Description("Maximum returned windows. Range: 1 to 5000.")] int limit = 1_000,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("detect_telemetry_windows", sessionId);
+        activity?.SetTag("race.query.event_type", eventType);
+        activity?.SetTag("race.query.minimum_duration_ms", minimumDurationMs);
+        activity?.SetTag("race.query.limit", limit);
+
+        ValidateSessionId(sessionId);
+        ValidateTelemetryEventType(eventType);
+        ValidateLapRange(lapFrom, lapTo);
+        ValidateRange(minimumDurationMs, 0, 10_000, nameof(minimumDurationMs));
+        ValidateRange(limit, 1, 5_000, nameof(limit));
+
+        var request = new TelemetryWindowRequest(
+            ParseDrivers(drivers),
+            eventType.ToLowerInvariant(),
+            lapFrom is null && lapTo is null ? null : new LapRange(lapFrom, lapTo),
+            minimumDurationMs,
+            includeNearestCorner,
+            limit);
+
+        return await store.DetectTelemetryWindowsAsync(sessionId, request, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "analyze_driver_stints",
+        Title = "Analyze Driver Stints",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Summarize tyre stints and lap-time trend by driver/compound without downloading lap telemetry.")]
+    public async Task<StintAnalysisResponse> AnalyzeDriverStints(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Optional comma-separated driver list, for example LEC,VER.")] string? drivers = null,
+        [Description("Optional comma-separated tyre compound filter, for example SOFT,MEDIUM,HARD.")] string? compound = null,
+        [Description("Exclude pit-in and pit-out laps.")] bool excludePitLaps = true,
+        [Description("Minimum counted laps per stint. Range: 1 to 100.")] int minimumLaps = 3,
+        [Description("Comma-separated metric list. Allowed: lap_time_slope_ms_per_lap,best_lap_time_ms,average_lap_time_ms,worst_lap_time_ms.")] string metrics = "lap_time_slope_ms_per_lap,best_lap_time_ms,average_lap_time_ms",
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("analyze_driver_stints", sessionId);
+        activity?.SetTag("race.query.minimum_laps", minimumLaps);
+        activity?.SetTag("race.query.metrics", metrics);
+
+        ValidateSessionId(sessionId);
+        ValidateRange(minimumLaps, 1, 100, nameof(minimumLaps));
+
+        var request = new StintAnalysisRequest(
+            ParseDrivers(drivers),
+            ParseUpperList(compound),
+            excludePitLaps,
+            minimumLaps,
+            ParseAllowedList(metrics, StintMetrics, ["lap_time_slope_ms_per_lap", "best_lap_time_ms", "average_lap_time_ms"], nameof(metrics)));
+
+        return await store.AnalyzeDriverStintsAsync(sessionId, request, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
         Name = "get_replay_chunk",
         Title = "Get Replay Chunk",
         ReadOnly = true,
@@ -527,6 +689,34 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         }
     }
 
+    private static void ValidateLapRange(int? lapFrom, int? lapTo)
+    {
+        if (lapFrom is < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(lapFrom), "lapFrom must be positive.");
+        }
+
+        if (lapTo is < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(lapTo), "lapTo must be positive.");
+        }
+
+        if (lapFrom is not null && lapTo is not null && lapFrom > lapTo)
+        {
+            throw new ArgumentException("lapFrom must be less than or equal to lapTo.");
+        }
+    }
+
+    private static void ValidateTelemetryEventType(string eventType)
+    {
+        if (string.IsNullOrWhiteSpace(eventType) || !TelemetryEventTypes.Contains(eventType))
+        {
+            throw new ArgumentException(
+                $"Unsupported event type. Allowed event types: {string.Join(", ", TelemetryEventTypes.Order())}.",
+                nameof(eventType));
+        }
+    }
+
     private static void ValidateRange(long value, long min, long max, string parameterName)
     {
         if (value < min || value > max)
@@ -576,6 +766,56 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         }
 
         return eventTypes;
+    }
+
+    private static IReadOnlyList<string>? ParseUpperList(string? value) =>
+        ParseList(value, item => item.ToUpperInvariant());
+
+    private static IReadOnlyList<string>? ParseLowerList(string? value) =>
+        ParseList(value, item => item.ToLowerInvariant());
+
+    private static IReadOnlyList<string>? ParseList(string? value, Func<string, string> normalize)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(normalize)
+            .Distinct()
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ParseAllowedList(
+        string? value,
+        IReadOnlySet<string> allowed,
+        IReadOnlyList<string> defaults,
+        string parameterName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return defaults;
+        }
+
+        var items = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(item => item.ToLowerInvariant())
+            .Distinct()
+            .ToArray();
+        if (items.Length == 0)
+        {
+            return defaults;
+        }
+
+        var unknown = items.Where(item => !allowed.Contains(item)).ToArray();
+        if (unknown.Length > 0)
+        {
+            throw new ArgumentException(
+                $"Unsupported value(s): {string.Join(", ", unknown)}. Allowed values: {string.Join(", ", allowed.Order())}.",
+                parameterName);
+        }
+
+        return items;
     }
 
     private static IReadOnlyList<string> ParseChannels(

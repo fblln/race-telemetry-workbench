@@ -56,3 +56,6 @@ Analysis requests:
 | `Lap Story` | Get a compact lap summary with sectors, tyre context, telemetry aggregates, and insights. |
 | `Lap Braking Zones` | Detect contiguous braking windows and nearest corner labels when position/circuit data aligns. |
 | `Compare Laps Story` | Compare two laps with total delta, sector deltas, coarse lap segments, and talking points. |
+| `Telemetry Aggregate` | Summarize speed, braking time, DRS-active time, lift count, and high-speed time by driver/lap/stint/compound/status/time bucket without returning raw samples. |
+| `Telemetry Windows` | Detect contiguous DRS, hard-braking, throttle-lift, or high-speed windows across many laps without downloading full telemetry. |
+| `Stint Analysis` | Compare stint lap-time trends and tyre-degradation signals by driver and compound. |

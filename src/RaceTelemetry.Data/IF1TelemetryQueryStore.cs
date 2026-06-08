@@ -70,6 +70,21 @@ public interface IF1TelemetryQueryStore
         int raceControlLimit,
         CancellationToken cancellationToken);
 
+    Task<TelemetryAggregateResponse?> AggregateTelemetryAsync(
+        string sessionId,
+        TelemetryAggregateRequest request,
+        CancellationToken cancellationToken);
+
+    Task<TelemetryWindowResponse?> DetectTelemetryWindowsAsync(
+        string sessionId,
+        TelemetryWindowRequest request,
+        CancellationToken cancellationToken);
+
+    Task<StintAnalysisResponse?> AnalyzeDriverStintsAsync(
+        string sessionId,
+        StintAnalysisRequest request,
+        CancellationToken cancellationToken);
+
     Task<ReplayChunkResponse?> GetReplayChunkAsync(
         string sessionId,
         long fromMs,

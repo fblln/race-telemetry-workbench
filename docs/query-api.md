@@ -99,9 +99,9 @@ All product endpoints are under `/api`.
 | `GET /api/sessions/{sessionId}/compare/laps` | Lap-time-bucketed comparison between two driver/lap pairs. |
 | `GET /api/sessions/{sessionId}/compare/laps/story` | Total delta, sector deltas, coarse segment comparison, and insight facts. |
 | `GET /api/sessions/{sessionId}/story` | Race-level weather, tyre stints, pit markers, track status, race-control context, and insight facts. |
-| `POST /api/sessions/{sessionId}/telemetry/aggregate` | Planned: grouped telemetry metrics for DRS time, brake time, speed, throttle, and sample counts without raw samples. |
-| `POST /api/sessions/{sessionId}/telemetry/windows` | Planned: contiguous telemetry event intervals such as DRS active, hard braking, throttle lifts, and high-speed periods. |
-| `POST /api/sessions/{sessionId}/stints/analyze` | Planned: tyre/stint degradation, lap-time slope, best/worst lap, and compound strategy summaries. |
+| `POST /api/sessions/{sessionId}/telemetry/aggregate` | Grouped telemetry metrics for DRS time, brake time, speed, throttle, and sample counts without raw samples. |
+| `POST /api/sessions/{sessionId}/telemetry/windows` | Contiguous telemetry event intervals such as DRS active, hard braking, throttle lifts, and high-speed periods. |
+| `POST /api/sessions/{sessionId}/stints/analyze` | Tyre/stint degradation, lap-time slope, best/worst lap, and compound strategy summaries. |
 | `GET /api/sessions/{sessionId}/replay/metadata` | Replay bounds, driver list, track markers, context availability, weather summary. |
 | `GET /api/sessions/{sessionId}/replay/chunk` | Bounded replay samples for a session-relative time window. |
 | `GET /api/sessions/{sessionId}/replay/context` | Weather, track status, and race-control context in a time window. |
@@ -194,9 +194,9 @@ Key database surfaces:
 | Lap comparison | `laps`, `telemetry_samples` |
 | Lap comparison story | `laps`, `telemetry_samples` |
 | Race story | `sessions`, `session_drivers`, `laps`, `driver_stint_summaries`, `session_weather_summary`, `track_status_periods`, `race_control_event_index` |
-| Telemetry aggregate | Planned: `telemetry_samples`, `laps`, `track_status_periods` |
-| Telemetry windows | Planned: `telemetry_samples`, `position_samples`, `circuit_markers` |
-| Stint analysis | Planned: `laps`, `lap_summaries`, `driver_stint_summaries` |
+| Telemetry aggregate | `telemetry_samples`, `laps`, `track_status_periods` |
+| Telemetry windows | `telemetry_samples`, `position_samples`, `circuit_markers` |
+| Stint analysis | `laps` |
 | Replay metadata | `telemetry_samples`, `position_samples`, `circuit_metadata`, `circuit_markers`, `session_weather_summary`, context tables |
 | Replay chunk | `telemetry_samples`, `position_samples` |
 | Replay context | `weather_samples`, `track_status_events`, `race_control_messages` |

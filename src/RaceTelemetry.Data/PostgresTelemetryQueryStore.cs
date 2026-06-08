@@ -1,5 +1,6 @@
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using Npgsql;
 using NpgsqlTypes;
 using RaceTelemetry.Contracts;
@@ -33,6 +34,45 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         "race_control",
         "circuit_markers"
     ];
+
+    private static readonly HashSet<string> AggregateGroupBy = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "driver",
+        "lap",
+        "stint",
+        "compound",
+        "track_status",
+        "time_bucket"
+    };
+
+    private static readonly HashSet<string> AggregateMetrics = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "sample_count",
+        "avg_speed_kmh",
+        "max_speed_kmh",
+        "avg_throttle_pct",
+        "avg_brake_pct",
+        "brake_time_ms",
+        "drs_active_time_ms",
+        "throttle_lift_count",
+        "high_speed_time_ms"
+    };
+
+    private static readonly HashSet<string> TelemetryWindowTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "drs_active",
+        "hard_braking",
+        "throttle_lift",
+        "high_speed"
+    };
+
+    private static readonly HashSet<string> StintMetrics = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "lap_time_slope_ms_per_lap",
+        "best_lap_time_ms",
+        "average_lap_time_ms",
+        "worst_lap_time_ms"
+    };
 
     public async Task<IReadOnlyList<SessionSummary>> GetSessionsAsync(
         int? year,
@@ -749,6 +789,374 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
             BuildRaceInsights(session, weather, stints, pitStops, trackStatus, raceControl));
     }
 
+    public async Task<TelemetryAggregateResponse?> AggregateTelemetryAsync(
+        string sessionId,
+        TelemetryAggregateRequest request,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.aggregate_telemetry", sessionId);
+        activity?.SetTag("race.query.limit", request.Limit);
+        activity?.SetTag("race.query.time_bucket_ms", request.TimeBucketMs);
+
+        if (!await SessionExistsAsync(sessionId, cancellationToken))
+        {
+            return null;
+        }
+
+        var groupBy = NormalizeValues(request.GroupBy, AggregateGroupBy, ["driver"]);
+        var metrics = NormalizeValues(request.Metrics, AggregateMetrics, ["sample_count", "avg_speed_kmh"]);
+        var includeTrackStatus = groupBy.Contains("track_status", StringComparer.OrdinalIgnoreCase)
+            || request.Filters?.TrackStatus is { Count: > 0 };
+        var includeTimeBucket = groupBy.Contains("time_bucket", StringComparer.OrdinalIgnoreCase);
+        var timeBucketMs = request.TimeBucketMs ?? 60_000;
+        var limit = request.Limit ?? 500;
+
+        var groupExpressions = BuildAggregateGroupExpressions(groupBy, includeTimeBucket);
+        var selectGroupColumns = string.Join(",\n                ", groupExpressions.Select(expression => $"{expression.Sql} AS {expression.Alias}"));
+        var groupColumns = string.Join(", ", groupExpressions.Select(expression => expression.Sql));
+        var orderColumns = string.Join(", ", groupExpressions.Select(expression => expression.Alias));
+        var statusProjection = includeTrackStatus ? "coalesce(status.status_name, 'unknown')" : "'not_requested'";
+
+        var sql = $"""
+            WITH base AS (
+                SELECT
+                    t.driver_code,
+                    t.lap_number,
+                    l.stint_number,
+                    l.compound,
+                    {statusProjection} AS track_status,
+                    CASE
+                        WHEN @timeBucketMs::int IS NULL THEN NULL::bigint
+                        ELSE (floor(t.session_time_ms::numeric / @timeBucketMs::int) * @timeBucketMs::int)::bigint
+                    END AS bucket_start_ms,
+                    CASE
+                        WHEN @timeBucketMs::int IS NULL THEN NULL::bigint
+                        ELSE ((floor(t.session_time_ms::numeric / @timeBucketMs::int) + 1) * @timeBucketMs::int)::bigint
+                    END AS bucket_end_ms,
+                    t.speed_kmh,
+                    t.throttle_pct,
+                    t.brake_pct,
+                    t.drs,
+                    least(greatest(coalesce(
+                        lead(t.session_time_ms) OVER (
+                            PARTITION BY t.driver_code
+                            ORDER BY t.session_time_ms NULLS LAST, t.sample_time_utc
+                        ) - t.session_time_ms,
+                        0), 0), 2000)::bigint AS sample_duration_ms
+                FROM telemetry_samples t
+                LEFT JOIN laps l
+                    ON l.session_id = t.session_id
+                    AND l.driver_code = t.driver_code
+                    AND l.lap_number = t.lap_number
+                {(includeTrackStatus ? """
+                LEFT JOIN LATERAL (
+                    SELECT status_name
+                    FROM track_status_periods tsp
+                    WHERE tsp.session_id = t.session_id
+                      AND t.session_time_ms >= tsp.start_time_ms
+                      AND (tsp.end_time_ms IS NULL OR t.session_time_ms < tsp.end_time_ms)
+                    ORDER BY tsp.start_time_ms DESC
+                    LIMIT 1
+                ) status ON true
+                """ : "")}
+                WHERE t.session_id = @sessionId
+                  AND t.session_time_ms IS NOT NULL
+                  AND (@drivers::text[] IS NULL OR t.driver_code = ANY(@drivers::text[]))
+                  AND (@lapFrom::int IS NULL OR t.lap_number >= @lapFrom::int)
+                  AND (@lapTo::int IS NULL OR t.lap_number <= @lapTo::int)
+                  AND (@compound::text[] IS NULL OR l.compound = ANY(@compound::text[]))
+                  AND (@excludePitLaps::boolean IS NOT TRUE OR (NOT coalesce(l.is_pit_in_lap, false) AND NOT coalesce(l.is_pit_out_lap, false)))
+            ),
+            filtered AS (
+                SELECT *
+                FROM base
+                WHERE (@trackStatus::text[] IS NULL OR track_status = ANY(@trackStatus::text[]))
+            )
+            SELECT
+                {selectGroupColumns},
+                count(*)::int AS sample_count,
+                avg(speed_kmh) AS avg_speed_kmh,
+                max(speed_kmh) AS max_speed_kmh,
+                avg(throttle_pct) AS avg_throttle_pct,
+                avg(brake_pct) AS avg_brake_pct,
+                sum(CASE WHEN brake_pct >= 80 THEN sample_duration_ms ELSE 0 END)::bigint AS brake_time_ms,
+                sum(CASE WHEN drs IS NOT NULL AND drs > 0 THEN sample_duration_ms ELSE 0 END)::bigint AS drs_active_time_ms,
+                count(*) FILTER (WHERE throttle_pct <= 10 AND speed_kmh >= 150)::int AS throttle_lift_count,
+                sum(CASE WHEN speed_kmh >= 300 THEN sample_duration_ms ELSE 0 END)::bigint AS high_speed_time_ms
+            FROM filtered
+            GROUP BY {groupColumns}
+            ORDER BY {orderColumns}
+            LIMIT @limit
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        AddAnalyticalCommonParameters(command, sessionId, request.Drivers, request.Filters);
+        var timeBucketParameter = command.Parameters.Add("timeBucketMs", NpgsqlDbType.Integer);
+        timeBucketParameter.Value = includeTimeBucket ? timeBucketMs : DBNull.Value;
+        command.Parameters.AddWithValue("limit", limit);
+
+        var items = new List<TelemetryAggregateItem>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var values = ReadAggregateGroupValues(reader, groupExpressions);
+            var offset = groupExpressions.Count;
+            items.Add(new TelemetryAggregateItem(
+                values.DriverCode,
+                values.LapNumber,
+                values.StintNumber,
+                values.Compound,
+                values.TrackStatus,
+                values.BucketStartMs,
+                values.BucketEndMs,
+                reader.GetInt32(offset),
+                GetNullableDouble(reader, offset + 1),
+                GetNullableDouble(reader, offset + 2),
+                GetNullableDouble(reader, offset + 3),
+                GetNullableDouble(reader, offset + 4),
+                GetNullableInt64(reader, offset + 5),
+                GetNullableInt64(reader, offset + 6),
+                GetNullableInt32(reader, offset + 7),
+                GetNullableInt64(reader, offset + 8)));
+        }
+
+        return new TelemetryAggregateResponse(sessionId, groupBy, metrics, items);
+    }
+
+    public async Task<TelemetryWindowResponse?> DetectTelemetryWindowsAsync(
+        string sessionId,
+        TelemetryWindowRequest request,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.detect_telemetry_windows", sessionId);
+        activity?.SetTag("race.query.event_type", request.EventType);
+        activity?.SetTag("race.query.limit", request.Limit);
+
+        if (!await SessionExistsAsync(sessionId, cancellationToken))
+        {
+            return null;
+        }
+
+        var eventType = NormalizeRequiredValue(request.EventType, TelemetryWindowTypes);
+        var minimumDurationMs = request.MinimumDurationMs ?? 250;
+        var limit = request.Limit ?? 1_000;
+        var condition = GetWindowCondition(eventType);
+
+        var sql = $"""
+            WITH ordered AS (
+                SELECT
+                    t.sample_time_utc,
+                    t.driver_code,
+                    t.lap_number,
+                    t.session_time_ms::bigint AS session_time_ms,
+                    t.lap_time_ms::bigint AS lap_time_ms,
+                    t.speed_kmh,
+                    t.throttle_pct,
+                    t.brake_pct,
+                    {condition} AS is_event,
+                    row_number() OVER (
+                        PARTITION BY t.driver_code
+                        ORDER BY t.session_time_ms NULLS LAST, t.sample_time_utc
+                    )
+                    - row_number() OVER (
+                        PARTITION BY t.driver_code, {condition}
+                        ORDER BY t.session_time_ms NULLS LAST, t.sample_time_utc
+                    ) AS group_id
+                FROM telemetry_samples t
+                WHERE t.session_id = @sessionId
+                  AND t.session_time_ms IS NOT NULL
+                  AND (@drivers::text[] IS NULL OR t.driver_code = ANY(@drivers::text[]))
+                  AND (@lapFrom::int IS NULL OR t.lap_number >= @lapFrom::int)
+                  AND (@lapTo::int IS NULL OR t.lap_number <= @lapTo::int)
+            ),
+            windows AS (
+                SELECT
+                    min(sample_time_utc) AS start_sample_time_utc,
+                    driver_code,
+                    min(lap_number) AS lap_number,
+                    min(session_time_ms) AS start_session_time_ms,
+                    max(session_time_ms) AS end_session_time_ms,
+                    min(lap_time_ms) AS start_lap_time_ms,
+                    max(lap_time_ms) AS end_lap_time_ms,
+                    greatest(max(session_time_ms) - min(session_time_ms), 0)::bigint AS duration_ms,
+                    (array_agg(speed_kmh ORDER BY session_time_ms, sample_time_utc))[1] AS entry_speed_kmh,
+                    min(speed_kmh) AS minimum_speed_kmh,
+                    max(speed_kmh) AS max_speed_kmh,
+                    (array_agg(speed_kmh ORDER BY session_time_ms DESC, sample_time_utc DESC))[1] AS exit_speed_kmh,
+                    max(brake_pct) AS max_brake_pct,
+                    avg(throttle_pct) AS avg_throttle_pct
+                FROM ordered
+                WHERE is_event
+                GROUP BY driver_code, group_id
+                HAVING greatest(max(session_time_ms) - min(session_time_ms), 0) >= @minimumDurationMs
+            ),
+            windows_with_position AS (
+                SELECT
+                    w.*,
+                    p.x,
+                    p.y
+                FROM windows w
+                LEFT JOIN position_samples p
+                    ON p.session_id = @sessionId
+                    AND p.driver_code = w.driver_code
+                    AND p.sample_time_utc = w.start_sample_time_utc
+            )
+            SELECT
+                w.driver_code,
+                w.lap_number,
+                w.start_session_time_ms,
+                w.end_session_time_ms,
+                w.start_lap_time_ms,
+                w.end_lap_time_ms,
+                w.duration_ms,
+                marker.marker_number,
+                marker.marker_letter,
+                marker.distance_to_corner,
+                w.entry_speed_kmh,
+                w.minimum_speed_kmh,
+                w.max_speed_kmh,
+                w.exit_speed_kmh,
+                w.max_brake_pct,
+                w.avg_throttle_pct
+            FROM windows_with_position w
+            LEFT JOIN LATERAL (
+                SELECT
+                    cm.marker_number,
+                    cm.marker_letter,
+                    sqrt(power(cm.x - w.x, 2) + power(cm.y - w.y, 2)) AS distance_to_corner
+                FROM circuit_markers cm
+                WHERE cm.session_id = @sessionId
+                  AND cm.marker_type = 'corner'
+                  AND @includeNearestCorner
+                  AND w.x IS NOT NULL
+                  AND w.y IS NOT NULL
+                ORDER BY distance_to_corner
+                LIMIT 1
+            ) marker ON true
+            ORDER BY w.start_session_time_ms, w.driver_code
+            LIMIT @limit
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        AddNullable(command, "drivers", NpgsqlDbType.Array | NpgsqlDbType.Text, request.Drivers is { Count: > 0 } ? request.Drivers.Select(driver => driver.ToUpperInvariant()).ToArray() : null);
+        AddNullable(command, "lapFrom", NpgsqlDbType.Integer, request.LapRange?.From);
+        AddNullable(command, "lapTo", NpgsqlDbType.Integer, request.LapRange?.To);
+        command.Parameters.AddWithValue("minimumDurationMs", minimumDurationMs);
+        command.Parameters.AddWithValue("includeNearestCorner", request.IncludeNearestCorner ?? true);
+        command.Parameters.AddWithValue("limit", limit);
+
+        var items = new List<TelemetryWindowItem>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var markerNumber = GetNullableInt32(reader, 7);
+            items.Add(new TelemetryWindowItem(
+                reader.GetString(0),
+                GetNullableInt32(reader, 1),
+                GetNullableInt64(reader, 2),
+                GetNullableInt64(reader, 3),
+                GetNullableInt64(reader, 4),
+                GetNullableInt64(reader, 5),
+                reader.GetInt64(6),
+                FormatCornerLabel(sessionId, markerNumber, GetNullableString(reader, 8)),
+                GetNullableDouble(reader, 9),
+                new TelemetryWindowSummary(
+                    GetNullableDouble(reader, 10),
+                    GetNullableDouble(reader, 11),
+                    GetNullableDouble(reader, 12),
+                    GetNullableDouble(reader, 13),
+                    GetNullableDouble(reader, 14),
+                    GetNullableDouble(reader, 15))));
+        }
+
+        return new TelemetryWindowResponse(sessionId, eventType, minimumDurationMs, items);
+    }
+
+    public async Task<StintAnalysisResponse?> AnalyzeDriverStintsAsync(
+        string sessionId,
+        StintAnalysisRequest request,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.analyze_driver_stints", sessionId);
+        activity?.SetTag("race.query.minimum_laps", request.MinimumLaps);
+
+        if (!await SessionExistsAsync(sessionId, cancellationToken))
+        {
+            return null;
+        }
+
+        var metrics = NormalizeValues(request.Metrics, StintMetrics, ["lap_time_slope_ms_per_lap", "best_lap_time_ms", "average_lap_time_ms"]);
+        var minimumLaps = request.MinimumLaps ?? 3;
+
+        const string sql = """
+            WITH filtered AS (
+                SELECT
+                    driver_code,
+                    stint_number,
+                    compound,
+                    lap_number,
+                    tyre_life,
+                    lap_time_ms::bigint AS lap_time_ms
+                FROM laps
+                WHERE session_id = @sessionId
+                  AND stint_number IS NOT NULL
+                  AND lap_time_ms IS NOT NULL
+                  AND NOT is_deleted
+                  AND (@drivers::text[] IS NULL OR driver_code = ANY(@drivers::text[]))
+                  AND (@compound::text[] IS NULL OR compound = ANY(@compound::text[]))
+                  AND (@excludePitLaps::boolean IS NOT TRUE OR (NOT is_pit_in_lap AND NOT is_pit_out_lap))
+            )
+            SELECT
+                driver_code,
+                stint_number,
+                compound,
+                min(lap_number) AS first_lap_number,
+                max(lap_number) AS last_lap_number,
+                count(*)::int AS laps,
+                min(tyre_life),
+                max(tyre_life),
+                round(avg(lap_time_ms))::bigint,
+                min(lap_time_ms)::bigint,
+                max(lap_time_ms)::bigint,
+                regr_slope(lap_time_ms::double precision, lap_number::double precision)
+            FROM filtered
+            GROUP BY driver_code, stint_number, compound
+            HAVING count(*) >= @minimumLaps
+            ORDER BY driver_code, stint_number
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        AddNullable(command, "drivers", NpgsqlDbType.Array | NpgsqlDbType.Text, request.Drivers is { Count: > 0 } ? request.Drivers.Select(driver => driver.ToUpperInvariant()).ToArray() : null);
+        AddNullable(command, "compound", NpgsqlDbType.Array | NpgsqlDbType.Text, request.Compound is { Count: > 0 } ? request.Compound.Select(compound => compound.ToUpperInvariant()).ToArray() : null);
+        command.Parameters.AddWithValue("excludePitLaps", request.ExcludePitLaps ?? true);
+        command.Parameters.AddWithValue("minimumLaps", minimumLaps);
+
+        var items = new List<DriverStintAnalysisItem>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var slope = GetNullableDouble(reader, 11);
+            items.Add(new DriverStintAnalysisItem(
+                reader.GetString(0),
+                reader.GetInt32(1),
+                GetNullableString(reader, 2),
+                reader.GetInt32(3),
+                reader.GetInt32(4),
+                reader.GetInt32(5),
+                GetNullableInt32(reader, 6),
+                GetNullableInt32(reader, 7),
+                GetNullableInt64(reader, 8),
+                GetNullableInt64(reader, 9),
+                GetNullableInt64(reader, 10),
+                slope,
+                BuildStintInsights(slope, GetNullableString(reader, 2), reader.GetInt32(5))));
+        }
+
+        return new StintAnalysisResponse(sessionId, metrics, items);
+    }
+
     public async Task<ReplayChunkResponse?> GetReplayChunkAsync(
         string sessionId,
         long fromMs,
@@ -1003,6 +1411,180 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         }
 
         return sessionExists ? new TelemetryEventSearchResponse(sessionId, items) : null;
+    }
+
+    private static IReadOnlyList<string> NormalizeValues(
+        IReadOnlyList<string>? values,
+        IReadOnlySet<string> allowed,
+        IReadOnlyList<string> defaults)
+    {
+        if (values is not { Count: > 0 })
+        {
+            return defaults;
+        }
+
+        var normalized = values
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim().ToLowerInvariant())
+            .Distinct()
+            .ToArray();
+
+        if (normalized.Length == 0)
+        {
+            return defaults;
+        }
+
+        var invalid = normalized.Where(value => !allowed.Contains(value)).ToArray();
+        if (invalid.Length > 0)
+        {
+            throw new ArgumentException($"Unsupported value(s): {string.Join(", ", invalid)}.");
+        }
+
+        return normalized;
+    }
+
+    private static string NormalizeRequiredValue(string value, IReadOnlySet<string> allowed)
+    {
+        var normalized = value.Trim().ToLowerInvariant();
+        if (!allowed.Contains(normalized))
+        {
+            throw new ArgumentException($"Unsupported value: {value}.");
+        }
+
+        return normalized;
+    }
+
+    private static IReadOnlyList<AggregateGroupExpression> BuildAggregateGroupExpressions(
+        IReadOnlyList<string> groupBy,
+        bool includeTimeBucket)
+    {
+        var expressions = new List<AggregateGroupExpression>();
+        foreach (var group in groupBy)
+        {
+            switch (group)
+            {
+                case "driver":
+                    expressions.Add(new AggregateGroupExpression("driver", "driver_code", "driver_code"));
+                    break;
+                case "lap":
+                    expressions.Add(new AggregateGroupExpression("lap", "lap_number", "lap_number"));
+                    break;
+                case "stint":
+                    expressions.Add(new AggregateGroupExpression("stint", "stint_number", "stint_number"));
+                    break;
+                case "compound":
+                    expressions.Add(new AggregateGroupExpression("compound", "compound", "compound"));
+                    break;
+                case "track_status":
+                    expressions.Add(new AggregateGroupExpression("track_status", "track_status", "track_status"));
+                    break;
+                case "time_bucket":
+                    expressions.Add(new AggregateGroupExpression("bucket_start", "bucket_start_ms", "bucket_start_ms"));
+                    expressions.Add(new AggregateGroupExpression("bucket_end", "bucket_end_ms", "bucket_end_ms"));
+                    break;
+            }
+        }
+
+        if (includeTimeBucket && expressions.All(expression => expression.Key != "bucket_start"))
+        {
+            expressions.Add(new AggregateGroupExpression("bucket_start", "bucket_start_ms", "bucket_start_ms"));
+            expressions.Add(new AggregateGroupExpression("bucket_end", "bucket_end_ms", "bucket_end_ms"));
+        }
+
+        return expressions;
+    }
+
+    private static AggregateGroupValues ReadAggregateGroupValues(
+        IDataRecord reader,
+        IReadOnlyList<AggregateGroupExpression> expressions)
+    {
+        string? driverCode = null;
+        int? lapNumber = null;
+        int? stintNumber = null;
+        string? compound = null;
+        string? trackStatus = null;
+        long? bucketStartMs = null;
+        long? bucketEndMs = null;
+
+        for (var index = 0; index < expressions.Count; index++)
+        {
+            switch (expressions[index].Key)
+            {
+                case "driver":
+                    driverCode = GetNullableString(reader, index);
+                    break;
+                case "lap":
+                    lapNumber = GetNullableInt32(reader, index);
+                    break;
+                case "stint":
+                    stintNumber = GetNullableInt32(reader, index);
+                    break;
+                case "compound":
+                    compound = GetNullableString(reader, index);
+                    break;
+                case "track_status":
+                    trackStatus = GetNullableString(reader, index);
+                    break;
+                case "bucket_start":
+                    bucketStartMs = GetNullableInt64(reader, index);
+                    break;
+                case "bucket_end":
+                    bucketEndMs = GetNullableInt64(reader, index);
+                    break;
+            }
+        }
+
+        return new AggregateGroupValues(driverCode, lapNumber, stintNumber, compound, trackStatus, bucketStartMs, bucketEndMs);
+    }
+
+    private static string GetWindowCondition(string eventType) =>
+        eventType switch
+        {
+            "drs_active" => "t.drs IS NOT NULL AND t.drs > 0",
+            "hard_braking" => "t.brake_pct >= 80",
+            "throttle_lift" => "t.throttle_pct <= 10 AND t.speed_kmh >= 150",
+            "high_speed" => "t.speed_kmh >= 300",
+            _ => throw new ArgumentException($"Unsupported event type: {eventType}.")
+        };
+
+    private static void AddAnalyticalCommonParameters(
+        NpgsqlCommand command,
+        string sessionId,
+        IReadOnlyList<string>? drivers,
+        TelemetryAggregateFilters? filters)
+    {
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        AddNullable(command, "drivers", NpgsqlDbType.Array | NpgsqlDbType.Text, drivers is { Count: > 0 } ? drivers.Select(driver => driver.ToUpperInvariant()).ToArray() : null);
+        AddNullable(command, "lapFrom", NpgsqlDbType.Integer, filters?.LapRange?.From);
+        AddNullable(command, "lapTo", NpgsqlDbType.Integer, filters?.LapRange?.To);
+        AddNullable(command, "compound", NpgsqlDbType.Array | NpgsqlDbType.Text, filters?.Compound is { Count: > 0 } ? filters.Compound.Select(compound => compound.ToUpperInvariant()).ToArray() : null);
+        AddNullable(command, "excludePitLaps", NpgsqlDbType.Boolean, filters?.ExcludePitLaps);
+        AddNullable(command, "trackStatus", NpgsqlDbType.Array | NpgsqlDbType.Text, filters?.TrackStatus is { Count: > 0 } ? filters.TrackStatus.Select(status => status.ToLowerInvariant()).ToArray() : null);
+    }
+
+    private static IReadOnlyList<AnalysisInsight> BuildStintInsights(
+        double? lapTimeSlopeMsPerLap,
+        string? compound,
+        int laps)
+    {
+        var insights = new List<AnalysisInsight>();
+        if (lapTimeSlopeMsPerLap is not null)
+        {
+            var direction = lapTimeSlopeMsPerLap > 0 ? "increased" : "improved";
+            var absoluteSlope = Math.Abs(lapTimeSlopeMsPerLap.Value).ToString("0.0", CultureInfo.InvariantCulture);
+            insights.Add(new AnalysisInsight(
+                "lap_time_trend",
+                $"Lap time trend {direction} by {absoluteSlope} ms per lap over {laps} lap(s).",
+                lapTimeSlopeMsPerLap,
+                "ms/lap"));
+        }
+
+        if (!string.IsNullOrWhiteSpace(compound))
+        {
+            insights.Add(new AnalysisInsight("compound", $"Stint compound was {compound}."));
+        }
+
+        return insights;
     }
 
     private async Task<bool> SessionExistsAsync(string sessionId, CancellationToken cancellationToken)
@@ -2130,6 +2712,20 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         activity?.SetTag("race.lap_number", lapNumber);
         return activity;
     }
+
+    private sealed record AggregateGroupExpression(
+        string Key,
+        string Sql,
+        string Alias);
+
+    private sealed record AggregateGroupValues(
+        string? DriverCode,
+        int? LapNumber,
+        int? StintNumber,
+        string? Compound,
+        string? TrackStatus,
+        long? BucketStartMs,
+        long? BucketEndMs);
 
     private static readonly TelemetryChannelValues EmptyTelemetryChannelValues = new(
         null,
