@@ -1,0 +1,15 @@
+meta {
+  name: Circuit Context
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/circuit/context
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

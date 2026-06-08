@@ -59,3 +59,7 @@ Analysis requests:
 | `Telemetry Aggregate` | Summarize speed, braking time, DRS-active time, lift count, and high-speed time by driver/lap/stint/compound/status/time bucket without returning raw samples. |
 | `Telemetry Windows` | Detect contiguous DRS, hard-braking, throttle-lift, or high-speed windows across many laps without downloading full telemetry. |
 | `Stint Analysis` | Compare stint lap-time trends and tyre-degradation signals by driver and compound. |
+| `Pit Stop Analysis` | Estimate pit-lap loss against nearby non-pit laps. |
+| `Weather Trend` | Summarize weather deltas and rainfall for a selected time window. |
+| `Race Control Timeline` | Search and bucket race-control messages without fetching replay context windows. |
+| `Circuit Context` | Inspect imported circuit corners and marshal markers. |

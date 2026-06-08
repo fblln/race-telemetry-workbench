@@ -1157,6 +1157,348 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
         return new StintAnalysisResponse(sessionId, metrics, items);
     }
 
+    public async Task<PitStopAnalysisResponse?> AnalyzePitStopsAsync(
+        string sessionId,
+        PitStopAnalysisRequest request,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.analyze_pit_stops", sessionId);
+        activity?.SetTag("race.query.limit", request.Limit);
+
+        if (!await SessionExistsAsync(sessionId, cancellationToken))
+        {
+            return null;
+        }
+
+        var nearbyLapWindow = request.NearbyLapWindow ?? 3;
+        var limit = request.Limit ?? 200;
+        const string sql = """
+            WITH pit_laps AS (
+                SELECT
+                    driver_code,
+                    lap_number,
+                    CASE
+                        WHEN is_pit_in_lap AND is_pit_out_lap THEN 'pit_in_out'
+                        WHEN is_pit_in_lap THEN 'pit_in'
+                        ELSE 'pit_out'
+                    END AS kind,
+                    stint_number,
+                    compound,
+                    tyre_life,
+                    lap_time_ms::bigint AS lap_time_ms
+                FROM laps
+                WHERE session_id = @sessionId
+                  AND NOT is_deleted
+                  AND (is_pit_in_lap OR is_pit_out_lap)
+                  AND (@drivers::text[] IS NULL OR driver_code = ANY(@drivers::text[]))
+            ),
+            pit_with_session_time AS (
+                SELECT
+                    p.*,
+                    min(t.session_time_ms)::bigint AS session_time_ms
+                FROM pit_laps p
+                LEFT JOIN telemetry_samples t
+                    ON t.session_id = @sessionId
+                    AND t.driver_code = p.driver_code
+                    AND t.lap_number = p.lap_number
+                GROUP BY p.driver_code, p.lap_number, p.kind, p.stint_number, p.compound, p.tyre_life, p.lap_time_ms
+            )
+            SELECT
+                p.driver_code,
+                p.lap_number,
+                p.kind,
+                p.stint_number,
+                p.compound,
+                p.tyre_life,
+                p.lap_time_ms,
+                p.session_time_ms,
+                round(avg(b.lap_time_ms))::bigint AS nearby_baseline_lap_time_ms,
+                (p.lap_time_ms - round(avg(b.lap_time_ms))::bigint) AS estimated_loss_ms
+            FROM pit_with_session_time p
+            LEFT JOIN laps b
+                ON b.session_id = @sessionId
+                AND b.driver_code = p.driver_code
+                AND b.lap_time_ms IS NOT NULL
+                AND NOT b.is_deleted
+                AND NOT b.is_pit_in_lap
+                AND NOT b.is_pit_out_lap
+                AND abs(b.lap_number - p.lap_number) BETWEEN 1 AND @nearbyLapWindow
+            GROUP BY p.driver_code, p.lap_number, p.kind, p.stint_number, p.compound, p.tyre_life, p.lap_time_ms, p.session_time_ms
+            ORDER BY coalesce(p.session_time_ms, 9223372036854775807), p.driver_code, p.lap_number
+            LIMIT @limit
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        AddNullable(command, "drivers", NpgsqlDbType.Array | NpgsqlDbType.Text, request.Drivers is { Count: > 0 } ? request.Drivers.Select(driver => driver.ToUpperInvariant()).ToArray() : null);
+        command.Parameters.AddWithValue("nearbyLapWindow", nearbyLapWindow);
+        command.Parameters.AddWithValue("limit", limit);
+
+        var items = new List<PitStopAnalysisItem>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var estimatedLossMs = GetNullableInt64(reader, 9);
+            items.Add(new PitStopAnalysisItem(
+                reader.GetString(0),
+                reader.GetInt32(1),
+                reader.GetString(2),
+                GetNullableInt32(reader, 3),
+                GetNullableString(reader, 4),
+                GetNullableInt32(reader, 5),
+                GetNullableInt64(reader, 6),
+                GetNullableInt64(reader, 7),
+                GetNullableInt64(reader, 8),
+                estimatedLossMs,
+                BuildPitStopInsights(estimatedLossMs)));
+        }
+
+        return new PitStopAnalysisResponse(sessionId, items);
+    }
+
+    public async Task<WeatherTrendResponse?> GetWeatherTrendAsync(
+        string sessionId,
+        WeatherTrendRequest request,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.weather_trend", sessionId);
+        activity?.SetTag("race.query.from_ms", request.FromMs);
+        activity?.SetTag("race.query.duration_ms", request.DurationMs);
+
+        if (!await SessionExistsAsync(sessionId, cancellationToken))
+        {
+            return null;
+        }
+
+        const string sql = """
+            WITH filtered AS (
+                SELECT *
+                FROM weather_samples
+                WHERE session_id = @sessionId
+                  AND (@fromMs::bigint IS NULL OR session_time_ms >= @fromMs::bigint)
+                  AND (@toMs::bigint IS NULL OR session_time_ms < @toMs::bigint)
+            )
+            SELECT
+                min(session_time_ms)::bigint,
+                max(session_time_ms)::bigint,
+                count(*)::int,
+                (array_agg(air_temp_c ORDER BY session_time_ms))[1],
+                (array_agg(air_temp_c ORDER BY session_time_ms DESC))[1],
+                min(air_temp_c),
+                max(air_temp_c),
+                avg(air_temp_c),
+                (array_agg(track_temp_c ORDER BY session_time_ms))[1],
+                (array_agg(track_temp_c ORDER BY session_time_ms DESC))[1],
+                min(track_temp_c),
+                max(track_temp_c),
+                avg(track_temp_c),
+                (array_agg(humidity_pct ORDER BY session_time_ms))[1],
+                (array_agg(humidity_pct ORDER BY session_time_ms DESC))[1],
+                min(humidity_pct),
+                max(humidity_pct),
+                avg(humidity_pct),
+                (array_agg(pressure_mbar ORDER BY session_time_ms))[1],
+                (array_agg(pressure_mbar ORDER BY session_time_ms DESC))[1],
+                min(pressure_mbar),
+                max(pressure_mbar),
+                avg(pressure_mbar),
+                (array_agg(wind_speed_mps ORDER BY session_time_ms))[1],
+                (array_agg(wind_speed_mps ORDER BY session_time_ms DESC))[1],
+                min(wind_speed_mps),
+                max(wind_speed_mps),
+                avg(wind_speed_mps),
+                bool_or(coalesce(rainfall, false))
+            FROM filtered
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        var toMs = request.FromMs is not null && request.DurationMs is not null
+            ? request.FromMs + request.DurationMs
+            : null;
+        AddNullable(command, "fromMs", NpgsqlDbType.Bigint, request.FromMs);
+        AddNullable(command, "toMs", NpgsqlDbType.Bigint, toMs);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        await reader.ReadAsync(cancellationToken);
+
+        var airTemp = ReadWeatherMetric(reader, 3);
+        var trackTemp = ReadWeatherMetric(reader, 8);
+        var humidity = ReadWeatherMetric(reader, 13);
+        var pressure = ReadWeatherMetric(reader, 18);
+        var windSpeed = ReadWeatherMetric(reader, 23);
+        return new WeatherTrendResponse(
+            sessionId,
+            GetNullableInt64(reader, 0),
+            GetNullableInt64(reader, 1),
+            reader.GetInt32(2),
+            airTemp,
+            trackTemp,
+            humidity,
+            pressure,
+            windSpeed,
+            GetNullableBoolean(reader, 28) == true,
+            BuildWeatherTrendInsights(trackTemp, airTemp, GetNullableBoolean(reader, 28) == true));
+    }
+
+    public async Task<RaceControlTimelineResponse?> GetRaceControlTimelineAsync(
+        string sessionId,
+        RaceControlTimelineRequest request,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.race_control_timeline", sessionId);
+        activity?.SetTag("race.query.limit", request.Limit);
+
+        if (!await SessionExistsAsync(sessionId, cancellationToken))
+        {
+            return null;
+        }
+
+        var limit = request.Limit ?? 200;
+        const string sql = """
+            SELECT
+                session_time_ms,
+                lap_number,
+                category,
+                message,
+                status,
+                flag,
+                scope,
+                sector,
+                racing_number
+            FROM race_control_event_index
+            WHERE session_id = @sessionId
+              AND (@categories::text[] IS NULL OR category = ANY(@categories::text[]))
+              AND (@flags::text[] IS NULL OR flag = ANY(@flags::text[]))
+              AND (@statuses::text[] IS NULL OR status = ANY(@statuses::text[]))
+              AND (@scopes::text[] IS NULL OR scope = ANY(@scopes::text[]))
+              AND (@racingNumbers::int[] IS NULL OR racing_number = ANY(@racingNumbers::int[]))
+              AND (@lapFrom::int IS NULL OR lap_number >= @lapFrom::int)
+              AND (@lapTo::int IS NULL OR lap_number <= @lapTo::int)
+              AND (@search::text IS NULL OR search_text LIKE ('%' || lower(@search::text) || '%'))
+            ORDER BY session_time_ms NULLS LAST, race_control_message_id
+            LIMIT @limit
+            """;
+
+        await using var command = dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        AddNullable(command, "categories", NpgsqlDbType.Array | NpgsqlDbType.Text, request.Categories is { Count: > 0 } ? request.Categories.ToArray() : null);
+        AddNullable(command, "flags", NpgsqlDbType.Array | NpgsqlDbType.Text, request.Flags is { Count: > 0 } ? request.Flags.ToArray() : null);
+        AddNullable(command, "statuses", NpgsqlDbType.Array | NpgsqlDbType.Text, request.Statuses is { Count: > 0 } ? request.Statuses.ToArray() : null);
+        AddNullable(command, "scopes", NpgsqlDbType.Array | NpgsqlDbType.Text, request.Scopes is { Count: > 0 } ? request.Scopes.ToArray() : null);
+        AddNullable(command, "racingNumbers", NpgsqlDbType.Array | NpgsqlDbType.Integer, request.RacingNumbers is { Count: > 0 } ? request.RacingNumbers.ToArray() : null);
+        AddNullable(command, "lapFrom", NpgsqlDbType.Integer, request.LapRange?.From);
+        AddNullable(command, "lapTo", NpgsqlDbType.Integer, request.LapRange?.To);
+        AddNullable(command, "search", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(request.Search) ? null : request.Search.Trim());
+        command.Parameters.AddWithValue("limit", limit);
+
+        var items = new List<RaceControlSummary>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            items.Add(new RaceControlSummary(
+                GetNullableInt64(reader, 0),
+                GetNullableInt32(reader, 1),
+                GetNullableString(reader, 2),
+                reader.GetString(3),
+                GetNullableString(reader, 4),
+                GetNullableString(reader, 5),
+                GetNullableString(reader, 6),
+                GetNullableString(reader, 7),
+                GetNullableInt32(reader, 8)));
+        }
+
+        return new RaceControlTimelineResponse(
+            sessionId,
+            items,
+            BuildRaceControlBuckets(items.Select(item => item.Category)),
+            BuildRaceControlBuckets(items.Select(item => item.Flag)),
+            BuildRaceControlBuckets(items.Select(item => item.Status)),
+            [new AnalysisInsight("race_control", $"Matched {items.Count} race-control message(s).", items.Count, "messages")]);
+    }
+
+    public async Task<CircuitContextResponse?> GetCircuitContextAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.circuit_context", sessionId);
+
+        if (!await SessionExistsAsync(sessionId, cancellationToken))
+        {
+            return null;
+        }
+
+        const string metadataSql = """
+            SELECT rotation_degrees, source
+            FROM circuit_metadata
+            WHERE session_id = @sessionId
+            """;
+        await using var metadataCommand = dataSource.CreateCommand(metadataSql);
+        metadataCommand.Parameters.AddWithValue("sessionId", sessionId);
+        double? rotationDegrees = null;
+        string? source = null;
+        await using (var metadataReader = await metadataCommand.ExecuteReaderAsync(cancellationToken))
+        {
+            if (await metadataReader.ReadAsync(cancellationToken))
+            {
+                rotationDegrees = GetNullableDouble(metadataReader, 0);
+                source = GetNullableString(metadataReader, 1);
+            }
+        }
+
+        const string markersSql = """
+            SELECT marker_type, marker_number, marker_letter, x, y, angle_degrees, distance_m
+            FROM circuit_markers
+            WHERE session_id = @sessionId
+            ORDER BY marker_type, marker_number NULLS LAST, marker_letter NULLS LAST
+            """;
+        await using var markersCommand = dataSource.CreateCommand(markersSql);
+        markersCommand.Parameters.AddWithValue("sessionId", sessionId);
+
+        var corners = new List<CircuitMarker>();
+        var marshalLights = new List<CircuitMarker>();
+        var marshalSectors = new List<CircuitMarker>();
+        await using var markersReader = await markersCommand.ExecuteReaderAsync(cancellationToken);
+        while (await markersReader.ReadAsync(cancellationToken))
+        {
+            var markerType = markersReader.GetString(0);
+            var marker = new CircuitMarker(
+                markerType,
+                GetNullableInt32(markersReader, 1),
+                GetNullableString(markersReader, 2),
+                markersReader.GetDouble(3),
+                markersReader.GetDouble(4),
+                GetNullableDouble(markersReader, 5),
+                GetNullableDouble(markersReader, 6));
+
+            switch (markerType)
+            {
+                case "corner":
+                    corners.Add(marker);
+                    break;
+                case "marshal_light":
+                    marshalLights.Add(marker);
+                    break;
+                case "marshal_sector":
+                    marshalSectors.Add(marker);
+                    break;
+            }
+        }
+
+        return new CircuitContextResponse(
+            sessionId,
+            rotationDegrees,
+            source,
+            corners,
+            marshalLights,
+            marshalSectors,
+            [
+                new AnalysisInsight("corners", $"Loaded {corners.Count} corner marker(s).", corners.Count, "markers"),
+                new AnalysisInsight("marshal_lights", $"Loaded {marshalLights.Count} marshal light marker(s).", marshalLights.Count, "markers"),
+                new AnalysisInsight("marshal_sectors", $"Loaded {marshalSectors.Count} marshal sector marker(s).", marshalSectors.Count, "markers")
+            ]);
+    }
+
     public async Task<ReplayChunkResponse?> GetReplayChunkAsync(
         string sessionId,
         long fromMs,
@@ -1586,6 +1928,78 @@ public sealed class PostgresTelemetryQueryStore(NpgsqlDataSource dataSource) : I
 
         return insights;
     }
+
+    private static IReadOnlyList<AnalysisInsight> BuildPitStopInsights(long? estimatedLossMs)
+    {
+        if (estimatedLossMs is null)
+        {
+            return [new AnalysisInsight("pit_loss", "No nearby non-pit lap baseline was available for this pit marker.")];
+        }
+
+        return
+        [
+            new AnalysisInsight(
+                "pit_loss",
+                $"Pit marker lap was {estimatedLossMs.Value} ms slower than nearby non-pit laps.",
+                estimatedLossMs.Value,
+                "ms")
+        ];
+    }
+
+    private static WeatherTrendMetric ReadWeatherMetric(IDataRecord reader, int offset)
+    {
+        var first = GetNullableDouble(reader, offset);
+        var last = GetNullableDouble(reader, offset + 1);
+        return new WeatherTrendMetric(
+            first,
+            last,
+            GetNullableDouble(reader, offset + 2),
+            GetNullableDouble(reader, offset + 3),
+            GetNullableDouble(reader, offset + 4),
+            first is null || last is null ? null : last - first);
+    }
+
+    private static IReadOnlyList<AnalysisInsight> BuildWeatherTrendInsights(
+        WeatherTrendMetric trackTemp,
+        WeatherTrendMetric airTemp,
+        bool rainfallObserved)
+    {
+        var insights = new List<AnalysisInsight>();
+        if (trackTemp.Delta is not null)
+        {
+            insights.Add(new AnalysisInsight(
+                "track_temperature_trend",
+                $"Track temperature changed by {trackTemp.Delta.Value.ToString("0.0", CultureInfo.InvariantCulture)} C over the selected window.",
+                trackTemp.Delta,
+                "C"));
+        }
+
+        if (airTemp.Delta is not null)
+        {
+            insights.Add(new AnalysisInsight(
+                "air_temperature_trend",
+                $"Air temperature changed by {airTemp.Delta.Value.ToString("0.0", CultureInfo.InvariantCulture)} C over the selected window.",
+                airTemp.Delta,
+                "C"));
+        }
+
+        insights.Add(new AnalysisInsight(
+            "rainfall",
+            rainfallObserved ? "Rainfall was observed in the selected weather samples." : "No rainfall was observed in the selected weather samples.",
+            rainfallObserved ? 1 : 0,
+            "boolean"));
+
+        return insights;
+    }
+
+    private static IReadOnlyList<RaceControlBucket> BuildRaceControlBuckets(IEnumerable<string?> values) =>
+        values
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .GroupBy(value => value!, StringComparer.OrdinalIgnoreCase)
+            .Select(group => new RaceControlBucket(group.Key, group.Count()))
+            .OrderByDescending(bucket => bucket.Count)
+            .ThenBy(bucket => bucket.Value, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
     private async Task<bool> SessionExistsAsync(string sessionId, CancellationToken cancellationToken)
     {

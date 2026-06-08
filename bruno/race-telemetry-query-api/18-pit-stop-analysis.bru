@@ -1,0 +1,24 @@
+meta {
+  name: Pit Stop Analysis
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/pit-stops/analyze
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "drivers": ["{{driverA}}", "{{driverB}}"],
+    "nearbyLapWindow": 3,
+    "limit": 200
+  }
+}

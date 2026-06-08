@@ -85,6 +85,25 @@ public interface IF1TelemetryQueryStore
         StintAnalysisRequest request,
         CancellationToken cancellationToken);
 
+    Task<PitStopAnalysisResponse?> AnalyzePitStopsAsync(
+        string sessionId,
+        PitStopAnalysisRequest request,
+        CancellationToken cancellationToken);
+
+    Task<WeatherTrendResponse?> GetWeatherTrendAsync(
+        string sessionId,
+        WeatherTrendRequest request,
+        CancellationToken cancellationToken);
+
+    Task<RaceControlTimelineResponse?> GetRaceControlTimelineAsync(
+        string sessionId,
+        RaceControlTimelineRequest request,
+        CancellationToken cancellationToken);
+
+    Task<CircuitContextResponse?> GetCircuitContextAsync(
+        string sessionId,
+        CancellationToken cancellationToken);
+
     Task<ReplayChunkResponse?> GetReplayChunkAsync(
         string sessionId,
         long fromMs,

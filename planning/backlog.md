@@ -145,6 +145,10 @@
 - [x] Implement `POST /api/sessions/{sessionId}/telemetry/aggregate`.
 - [x] Implement `POST /api/sessions/{sessionId}/telemetry/windows`.
 - [x] Implement `POST /api/sessions/{sessionId}/stints/analyze`.
+- [x] Implement `POST /api/sessions/{sessionId}/pit-stops/analyze`.
+- [x] Implement `POST /api/sessions/{sessionId}/weather/trend`.
+- [x] Implement `POST /api/sessions/{sessionId}/race-control/timeline`.
+- [x] Implement `GET /api/sessions/{sessionId}/circuit/context`.
 - [x] Add shared contracts for telemetry aggregate requests/responses.
 - [x] Add shared contracts for telemetry window requests/responses.
 - [x] Add shared contracts for driver stint analysis requests/responses.
@@ -218,6 +222,10 @@
 - [x] Implement `aggregate_telemetry` backed by `POST /api/sessions/{sessionId}/telemetry/aggregate`.
 - [x] Implement `detect_telemetry_windows` backed by `POST /api/sessions/{sessionId}/telemetry/windows`.
 - [x] Implement `analyze_driver_stints` backed by `POST /api/sessions/{sessionId}/stints/analyze`.
+- [x] Implement `analyze_pit_stops` backed by `POST /api/sessions/{sessionId}/pit-stops/analyze`.
+- [x] Implement `get_weather_trend` backed by `POST /api/sessions/{sessionId}/weather/trend`.
+- [x] Implement `get_race_control_timeline` backed by `POST /api/sessions/{sessionId}/race-control/timeline`.
+- [x] Implement `get_circuit_context` backed by `GET /api/sessions/{sessionId}/circuit/context`.
 - [x] Implement `search_telemetry_events`.
 - [x] Support weather and race-control questions through bounded context tools.
 - [x] Prefer bounded summary/context endpoints over raw sample responses for MCP analytics.

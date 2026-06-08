@@ -141,6 +141,10 @@ public static class RaceTelemetryApi
                     "telemetry-aggregate",
                     "telemetry-windows",
                     "stint-analysis",
+                    "pit-stop-analysis",
+                    "weather-trend",
+                    "race-control-timeline",
+                    "circuit-context",
                     "mcp-ready-query-contracts"
                 ]))
             .WithName("GetApiInfo");
@@ -698,6 +702,125 @@ public static class RaceTelemetryApi
                     : Results.Ok(response);
             })
             .WithName("AnalyzeDriverStints");
+
+        api.MapPost("/sessions/{sessionId}/pit-stops/analyze", async Task<IResult> (
+                string sessionId,
+                PitStopAnalysisRequest? request,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                request ??= new PitStopAnalysisRequest(null, 3, 200);
+                if (!ValidateDrivers(request.Drivers, out var error))
+                {
+                    return error!;
+                }
+
+                if (request.NearbyLapWindow is < 1 or > 10)
+                {
+                    return ValidationError("InvalidNearbyLapWindow", "nearbyLapWindow must be between 1 and 10.", ("nearbyLapWindow", request.NearbyLapWindow));
+                }
+
+                if (request.Limit is < 1 or > 1_000)
+                {
+                    return ValidationError("InvalidLimit", "limit must be between 1 and 1000.", ("limit", request.Limit));
+                }
+
+                var response = await store.AnalyzePitStopsAsync(sessionId, request, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("AnalyzePitStops");
+
+        api.MapPost("/sessions/{sessionId}/weather/trend", async Task<IResult> (
+                string sessionId,
+                WeatherTrendRequest? request,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                request ??= new WeatherTrendRequest(null, null);
+                if (request.FromMs is < 0)
+                {
+                    return ValidationError("InvalidTimeRange", "fromMs must be non-negative.", ("fromMs", request.FromMs));
+                }
+
+                if (request.DurationMs is < 1_000 or > 86_400_000)
+                {
+                    return ValidationError("InvalidTimeRange", "durationMs must be between 1000 and 86400000.", ("durationMs", request.DurationMs));
+                }
+
+                var response = await store.GetWeatherTrendAsync(sessionId, request, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("GetWeatherTrend");
+
+        api.MapPost("/sessions/{sessionId}/race-control/timeline", async Task<IResult> (
+                string sessionId,
+                RaceControlTimelineRequest? request,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                request ??= new RaceControlTimelineRequest(null, null, null, null, null, null, null, 200);
+                if (!ValidateLapRange(request.LapRange, out var error))
+                {
+                    return error!;
+                }
+
+                if (request.RacingNumbers is { Count: > 0 } && request.RacingNumbers.Any(number => number is < 1 or > 999))
+                {
+                    return ValidationError("InvalidRacingNumber", "Racing numbers must be between 1 and 999.", ("racingNumbers", request.RacingNumbers));
+                }
+
+                if (request.Search is { Length: > 200 })
+                {
+                    return ValidationError("InvalidSearch", "search must be 200 characters or fewer.", ("length", request.Search.Length));
+                }
+
+                if (request.Limit is < 1 or > 1_000)
+                {
+                    return ValidationError("InvalidLimit", "limit must be between 1 and 1000.", ("limit", request.Limit));
+                }
+
+                var response = await store.GetRaceControlTimelineAsync(sessionId, request, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("GetRaceControlTimeline");
+
+        api.MapGet("/sessions/{sessionId}/circuit/context", async Task<IResult> (
+                string sessionId,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                var response = await store.GetCircuitContextAsync(sessionId, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("GetCircuitContext");
 
         return api;
     }

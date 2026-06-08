@@ -102,6 +102,10 @@ All product endpoints are under `/api`.
 | `POST /api/sessions/{sessionId}/telemetry/aggregate` | Grouped telemetry metrics for DRS time, brake time, speed, throttle, and sample counts without raw samples. |
 | `POST /api/sessions/{sessionId}/telemetry/windows` | Contiguous telemetry event intervals such as DRS active, hard braking, throttle lifts, and high-speed periods. |
 | `POST /api/sessions/{sessionId}/stints/analyze` | Tyre/stint degradation, lap-time slope, best/worst lap, and compound strategy summaries. |
+| `POST /api/sessions/{sessionId}/pit-stops/analyze` | Pit-in/out markers with nearby non-pit lap baselines and estimated pit-lap loss. |
+| `POST /api/sessions/{sessionId}/weather/trend` | Weather deltas and rainfall summary for a session or time window. |
+| `POST /api/sessions/{sessionId}/race-control/timeline` | Filtered race-control timeline plus category, flag, and status counts. |
+| `GET /api/sessions/{sessionId}/circuit/context` | Imported circuit rotation, corner markers, marshal lights, and marshal sectors. |
 | `GET /api/sessions/{sessionId}/replay/metadata` | Replay bounds, driver list, track markers, context availability, weather summary. |
 | `GET /api/sessions/{sessionId}/replay/chunk` | Bounded replay samples for a session-relative time window. |
 | `GET /api/sessions/{sessionId}/replay/context` | Weather, track status, and race-control context in a time window. |
@@ -197,6 +201,10 @@ Key database surfaces:
 | Telemetry aggregate | `telemetry_samples`, `laps`, `track_status_periods` |
 | Telemetry windows | `telemetry_samples`, `position_samples`, `circuit_markers` |
 | Stint analysis | `laps` |
+| Pit-stop analysis | `laps`, `telemetry_samples` |
+| Weather trend | `weather_samples` |
+| Race-control timeline | `race_control_event_index` |
+| Circuit context | `circuit_metadata`, `circuit_markers` |
 | Replay metadata | `telemetry_samples`, `position_samples`, `circuit_metadata`, `circuit_markers`, `session_weather_summary`, context tables |
 | Replay chunk | `telemetry_samples`, `position_samples` |
 | Replay context | `weather_samples`, `track_status_events`, `race_control_messages` |
