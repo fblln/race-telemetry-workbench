@@ -231,12 +231,6 @@ curl "http://127.0.0.1:{port}/api/sessions/2025-italian-grand-prix-r/replay/chun
 curl "http://127.0.0.1:{port}/api/sessions/2025-italian-grand-prix-r/replay/context?fromMs=60000&durationMs=300000"
 ```
 
-There is also an HTTP scratch file:
-
-```text
-src/RaceTelemetry.QueryApi/RaceTelemetry.QueryApi.http
-```
-
 Bruno users can open the collection at:
 
 ```text

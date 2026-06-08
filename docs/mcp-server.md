@@ -29,6 +29,9 @@ for lightweight smoke checks.
 | `compare_laps` | Compare two laps by lap-relative time buckets. |
 | `compare_laps_story` | Compare two laps with total/sector deltas, coarse segment differences, and insight facts. |
 | `get_race_story` | Get weather, tyre stints, pit markers, track-status periods, race-control highlights, and race insight facts. |
+| `aggregate_telemetry` | Planned: grouped telemetry metrics such as DRS active time, brake time, average speed, max speed, and sample counts. |
+| `detect_telemetry_windows` | Planned: contiguous event windows such as DRS active, hard braking, throttle lifts, and high-speed periods. |
+| `analyze_driver_stints` | Planned: tyre/stint degradation, lap-time slope, best/worst lap, and compound strategy summaries. |
 | `get_replay_chunk` | Get bounded replay samples for a session-relative window. |
 | `get_replay_context` | Get weather, track-status, and race-control context for a window. |
 | `search_telemetry_events` | Search bounded telemetry event candidates. |
@@ -143,11 +146,46 @@ For natural-language race analysis, start with compact story tools:
 6. `get_lap_braking_zones`
 7. `compare_laps_story`
 
+For complex analytical questions, use the planned aggregate/window/stint tools
+before raw telemetry:
+
+1. `aggregate_telemetry` for grouped metrics such as DRS time or brake time.
+2. `detect_telemetry_windows` for intervals such as DRS activations or braking
+   windows.
+3. `analyze_driver_stints` for tyre degradation and stint strategy.
+
 Use `get_lap_telemetry`, `compare_laps`, `get_replay_chunk`,
 `get_replay_context`, and `search_telemetry_events` only when the client needs
-raw samples or a narrower time window.
+raw samples, exact bucket data, or a narrower time window.
+
+MCP and Query API analysis should remain in parity. New MCP analytical tools
+should be backed by a shared contract and Query API route unless a decision
+record explicitly explains why the tool is MCP-only.
 
 Current limitation: braking-zone corner labels depend on exact timestamp
 alignment between car telemetry and position samples. If a lap has no aligned
 position sample at the braking-zone start, the braking window still returns but
 `nearestCorner` is null. A future nearest-position join would improve this.
+
+## Tracing
+
+The MCP server uses `RaceTelemetry.ServiceDefaults`, so it exports logs,
+metrics, and traces to Aspire when `OTEL_EXPORTER_OTLP_ENDPOINT` or
+`ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` is present.
+
+Expected trace shape for a tool that reads PostgreSQL:
+
+```text
+mcp.tool.<tool_name>
+  query_store.<method_name>
+    postgresql -> localhost
+```
+
+The tool spans come from the `RaceTelemetry.McpServer` activity source. The
+query-store spans come from `RaceTelemetry.Data`. PostgreSQL command spans come
+from `Npgsql.OpenTelemetry` via `.AddNpgsql()` in ServiceDefaults.
+
+If tool spans appear but PostgreSQL child spans do not, verify that the server
+is using the real PostgreSQL store. Without `RACE_TELEMETRY_DATABASE_URL` or
+`ConnectionStrings:RaceTelemetry`, the MCP server falls back to
+`InMemoryTelemetryQueryStore`, which produces no database spans.

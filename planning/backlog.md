@@ -142,6 +142,12 @@
 - [x] Implement `GET /api/sessions/{sessionId}/compare/laps`.
 - [x] Implement `GET /api/sessions/{sessionId}/compare/laps/story`.
 - [x] Implement `GET /api/sessions/{sessionId}/story`.
+- [ ] Implement `POST /api/sessions/{sessionId}/telemetry/aggregate`.
+- [ ] Implement `POST /api/sessions/{sessionId}/telemetry/windows`.
+- [ ] Implement `POST /api/sessions/{sessionId}/stints/analyze`.
+- [ ] Add shared contracts for telemetry aggregate requests/responses.
+- [ ] Add shared contracts for telemetry window requests/responses.
+- [ ] Add shared contracts for driver stint analysis requests/responses.
 - [x] Implement database-backed `GET /api/sessions/{sessionId}/replay/metadata`.
 - [x] Implement `GET /api/sessions/{sessionId}/replay/chunk`.
 - [x] Implement `GET /api/sessions/{sessionId}/replay/context`.
@@ -209,9 +215,13 @@
 - [x] Implement `get_lap_braking_zones`.
 - [x] Implement `compare_laps_story`.
 - [x] Implement `get_race_story`.
+- [ ] Implement `aggregate_telemetry` backed by `POST /api/sessions/{sessionId}/telemetry/aggregate`.
+- [ ] Implement `detect_telemetry_windows` backed by `POST /api/sessions/{sessionId}/telemetry/windows`.
+- [ ] Implement `analyze_driver_stints` backed by `POST /api/sessions/{sessionId}/stints/analyze`.
 - [x] Implement `search_telemetry_events`.
 - [x] Support weather and race-control questions through bounded context tools.
 - [x] Prefer bounded summary/context endpoints over raw sample responses for MCP analytics.
+- [ ] Teach MCP prompts/tool descriptions to prefer story, aggregate, window, and stint tools before raw telemetry.
 - [x] Return bounded structured JSON.
 - [ ] Emit one trace span per tool call.
 - [x] Add focused MCP server tests.

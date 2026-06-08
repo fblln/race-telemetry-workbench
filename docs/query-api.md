@@ -99,6 +99,9 @@ All product endpoints are under `/api`.
 | `GET /api/sessions/{sessionId}/compare/laps` | Lap-time-bucketed comparison between two driver/lap pairs. |
 | `GET /api/sessions/{sessionId}/compare/laps/story` | Total delta, sector deltas, coarse segment comparison, and insight facts. |
 | `GET /api/sessions/{sessionId}/story` | Race-level weather, tyre stints, pit markers, track status, race-control context, and insight facts. |
+| `POST /api/sessions/{sessionId}/telemetry/aggregate` | Planned: grouped telemetry metrics for DRS time, brake time, speed, throttle, and sample counts without raw samples. |
+| `POST /api/sessions/{sessionId}/telemetry/windows` | Planned: contiguous telemetry event intervals such as DRS active, hard braking, throttle lifts, and high-speed periods. |
+| `POST /api/sessions/{sessionId}/stints/analyze` | Planned: tyre/stint degradation, lap-time slope, best/worst lap, and compound strategy summaries. |
 | `GET /api/sessions/{sessionId}/replay/metadata` | Replay bounds, driver list, track markers, context availability, weather summary. |
 | `GET /api/sessions/{sessionId}/replay/chunk` | Bounded replay samples for a session-relative time window. |
 | `GET /api/sessions/{sessionId}/replay/context` | Weather, track status, and race-control context in a time window. |
@@ -165,6 +168,12 @@ Important design choices:
 - Replay chunks currently return joined telemetry/position samples when source
   timestamps match. The frontend should be allowed to evolve toward separate
   telemetry and position streams for interpolation.
+- Natural-language analysis should prefer server-side story, aggregate, window,
+  and stint endpoints over raw telemetry endpoints. Raw samples are drill-down
+  data after an aggregate query identifies a specific lap or time range.
+- Query API and MCP analytical capabilities should stay in parity. A new MCP
+  analysis tool should normally be backed by a shared contract and Query API
+  route.
 
 The Query API also registers a startup warmup hosted service for PostgreSQL.
 It opens two connections from the shared `NpgsqlDataSource` and immediately
@@ -185,6 +194,9 @@ Key database surfaces:
 | Lap comparison | `laps`, `telemetry_samples` |
 | Lap comparison story | `laps`, `telemetry_samples` |
 | Race story | `sessions`, `session_drivers`, `laps`, `driver_stint_summaries`, `session_weather_summary`, `track_status_periods`, `race_control_event_index` |
+| Telemetry aggregate | Planned: `telemetry_samples`, `laps`, `track_status_periods` |
+| Telemetry windows | Planned: `telemetry_samples`, `position_samples`, `circuit_markers` |
+| Stint analysis | Planned: `laps`, `lap_summaries`, `driver_stint_summaries` |
 | Replay metadata | `telemetry_samples`, `position_samples`, `circuit_metadata`, `circuit_markers`, `session_weather_summary`, context tables |
 | Replay chunk | `telemetry_samples`, `position_samples` |
 | Replay context | `weather_samples`, `track_status_events`, `race_control_messages` |
