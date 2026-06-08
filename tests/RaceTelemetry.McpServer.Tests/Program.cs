@@ -41,6 +41,10 @@ AssertContains(toolNames, "search_telemetry_events");
 AssertContains(toolNames, "aggregate_telemetry");
 AssertContains(toolNames, "detect_telemetry_windows");
 AssertContains(toolNames, "analyze_driver_stints");
+AssertContains(toolNames, "analyze_pit_stops");
+AssertContains(toolNames, "get_weather_trend");
+AssertContains(toolNames, "get_race_control_timeline");
+AssertContains(toolNames, "get_circuit_context");
 
 var sessionsResult = await client.CallToolAsync(
     "list_sessions",

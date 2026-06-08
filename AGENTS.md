@@ -38,10 +38,10 @@ Avalonia desktop app.
 
 ## Next Work (priority order)
 
-1. Validate Query API and MCP analytical primitives against imported datasets
-2. Add pit-stop loss, weather delta, race-control, and corner/sector summaries
-3. Build the Avalonia desktop replay surface against the Query API
-4. Add deeper performance validation against larger imported datasets
+1. Add focused real-database tests for Query API analytical endpoints
+2. Build the Avalonia desktop replay surface against the Query API
+3. Add deeper performance validation against larger imported datasets
+4. Improve position-aware corner matching for telemetry windows
 
 Keep the next work focused on the Query API data path before starting the
 Avalonia UI surface.

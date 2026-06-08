@@ -29,10 +29,8 @@ season imports should start at `--workers 2` or `--workers 3`.
 
 ## Next Recommended Step
 
-Validate the Timescale-backed analytical primitive endpoints against imported
-Monza 2024/2025 databases through Bruno and Aspire, then add the next domain
-summaries for pit-stop loss, weather deltas, race-control timelines, and
-position-aware corner/sector analysis.
+Add focused real-database tests for the Query API analytical endpoints, then
+start the Avalonia desktop replay surface against the stable Query API ports.
 
 ## Achieved Through Phase 3 Checkpoint
 

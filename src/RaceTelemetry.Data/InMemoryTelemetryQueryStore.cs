@@ -443,6 +443,106 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             ]));
     }
 
+    public Task<PitStopAnalysisResponse?> AnalyzePitStopsAsync(
+        string sessionId,
+        PitStopAnalysisRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<PitStopAnalysisResponse?>(null);
+        }
+
+        return Task.FromResult<PitStopAnalysisResponse?>(new PitStopAnalysisResponse(
+            sessionId,
+            [
+                new PitStopAnalysisItem(
+                    "LEC",
+                    24,
+                    "pit_in",
+                    1,
+                    "MEDIUM",
+                    24,
+                    96_200,
+                    2_060_000,
+                    84_800,
+                    11_400,
+                    [new AnalysisInsight("pit_loss", "Pit lap was 11400 ms slower than nearby non-pit laps.", 11_400, "ms")])
+            ]));
+    }
+
+    public Task<WeatherTrendResponse?> GetWeatherTrendAsync(
+        string sessionId,
+        WeatherTrendRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<WeatherTrendResponse?>(null);
+        }
+
+        return Task.FromResult<WeatherTrendResponse?>(new WeatherTrendResponse(
+            sessionId,
+            request.FromMs,
+            request.FromMs + request.DurationMs,
+            2,
+            new WeatherTrendMetric(32.2, 33.1, 32.2, 33.1, 32.65, 0.9),
+            new WeatherTrendMetric(43.5, 45.0, 43.5, 45.0, 44.25, 1.5),
+            new WeatherTrendMetric(54.6, 52.0, 52.0, 54.6, 53.3, -2.6),
+            new WeatherTrendMetric(993.9, 993.8, 993.8, 993.9, 993.85, -0.1),
+            new WeatherTrendMetric(1.0, 1.4, 1.0, 1.4, 1.2, 0.4),
+            false,
+            [new AnalysisInsight("weather_trend", "Track temperature increased by 1.5 C over the selected window.", 1.5, "C")]));
+    }
+
+    public Task<RaceControlTimelineResponse?> GetRaceControlTimelineAsync(
+        string sessionId,
+        RaceControlTimelineRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<RaceControlTimelineResponse?>(null);
+        }
+
+        var item = new RaceControlSummary(100_000, 2, "Drs", "DRS ENABLED", "ENABLED", null, null, null, null);
+        return Task.FromResult<RaceControlTimelineResponse?>(new RaceControlTimelineResponse(
+            sessionId,
+            [item],
+            [new RaceControlBucket("Drs", 1)],
+            [],
+            [new RaceControlBucket("ENABLED", 1)],
+            [new AnalysisInsight("race_control", "Matched 1 race-control message.", 1, "messages")]));
+    }
+
+    public Task<CircuitContextResponse?> GetCircuitContextAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<CircuitContextResponse?>(null);
+        }
+
+        var corner = new CircuitMarker("corner", 1, null, -569.58, 8153.72, 153.79, null);
+        return Task.FromResult<CircuitContextResponse?>(new CircuitContextResponse(
+            sessionId,
+            0,
+            "fastf1",
+            [corner],
+            [],
+            [],
+            [new AnalysisInsight("corners", "Loaded 1 circuit corner marker.", 1, "markers")]));
+    }
+
     public Task<ReplayChunkResponse?> GetReplayChunkAsync(
         string sessionId,
         long fromMs,

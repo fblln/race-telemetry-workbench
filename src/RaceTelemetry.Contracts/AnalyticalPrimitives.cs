@@ -102,3 +102,81 @@ public sealed record DriverStintAnalysisItem(
     long? WorstLapTimeMs,
     double? LapTimeSlopeMsPerLap,
     IReadOnlyList<AnalysisInsight> Insights);
+
+public sealed record PitStopAnalysisRequest(
+    IReadOnlyList<string>? Drivers,
+    int? NearbyLapWindow,
+    int? Limit);
+
+public sealed record PitStopAnalysisResponse(
+    string SessionId,
+    IReadOnlyList<PitStopAnalysisItem> Items);
+
+public sealed record PitStopAnalysisItem(
+    string DriverCode,
+    int LapNumber,
+    string Kind,
+    int? StintNumber,
+    string? Compound,
+    int? TyreLife,
+    long? LapTimeMs,
+    long? SessionTimeMs,
+    long? NearbyBaselineLapTimeMs,
+    long? EstimatedLossMs,
+    IReadOnlyList<AnalysisInsight> Insights);
+
+public sealed record WeatherTrendRequest(
+    long? FromMs,
+    long? DurationMs);
+
+public sealed record WeatherTrendResponse(
+    string SessionId,
+    long? FromMs,
+    long? ToMs,
+    int SampleCount,
+    WeatherTrendMetric AirTempC,
+    WeatherTrendMetric TrackTempC,
+    WeatherTrendMetric HumidityPct,
+    WeatherTrendMetric PressureMbar,
+    WeatherTrendMetric WindSpeedMps,
+    bool RainfallObserved,
+    IReadOnlyList<AnalysisInsight> Insights);
+
+public sealed record WeatherTrendMetric(
+    double? First,
+    double? Last,
+    double? Minimum,
+    double? Maximum,
+    double? Average,
+    double? Delta);
+
+public sealed record RaceControlTimelineRequest(
+    IReadOnlyList<string>? Categories,
+    IReadOnlyList<string>? Flags,
+    IReadOnlyList<string>? Statuses,
+    IReadOnlyList<string>? Scopes,
+    IReadOnlyList<int>? RacingNumbers,
+    LapRange? LapRange,
+    string? Search,
+    int? Limit);
+
+public sealed record RaceControlTimelineResponse(
+    string SessionId,
+    IReadOnlyList<RaceControlSummary> Items,
+    IReadOnlyList<RaceControlBucket> CategoryCounts,
+    IReadOnlyList<RaceControlBucket> FlagCounts,
+    IReadOnlyList<RaceControlBucket> StatusCounts,
+    IReadOnlyList<AnalysisInsight> Insights);
+
+public sealed record RaceControlBucket(
+    string Value,
+    int Count);
+
+public sealed record CircuitContextResponse(
+    string SessionId,
+    double? RotationDegrees,
+    string? Source,
+    IReadOnlyList<CircuitMarker> Corners,
+    IReadOnlyList<CircuitMarker> MarshalLights,
+    IReadOnlyList<CircuitMarker> MarshalSectors,
+    IReadOnlyList<AnalysisInsight> Insights);

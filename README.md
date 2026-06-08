@@ -177,6 +177,15 @@ driver or race.
 - `analyze_driver_stints`
   - tyre degradation, stint lap-time slope, best/worst lap, tyre-life range,
     and compound strategy summaries
+- `analyze_pit_stops`
+  - pit-in/out markers, nearby non-pit baselines, and estimated pit-lap loss
+- `get_weather_trend`
+  - weather deltas and rainfall summary for a session or selected time window
+- `get_race_control_timeline`
+  - searchable race-control timeline with category, flag, and status counts
+- `get_circuit_context`
+  - imported circuit rotation, corner markers, marshal lights, and marshal
+    sectors
 
 The Query API and MCP server stay in sync: every analytical MCP tool is backed
 by a shared contract and Query API route.
@@ -185,10 +194,7 @@ by a shared contract and Query API route.
 
 The next evolution moves toward:
 
-- deeper validation against imported Monza 2024/2025 databases through Bruno
-  and Aspire
-- pit-stop loss, weather deltas, race-control timelines, and
-  position-aware corner/sector analysis
+- focused real-database tests for analytical Query API endpoints
 - Avalonia desktop replay workspace
 - data-derived track map and driver replay
 - timeline overlays for weather, flags, safety car, VSC, and race control

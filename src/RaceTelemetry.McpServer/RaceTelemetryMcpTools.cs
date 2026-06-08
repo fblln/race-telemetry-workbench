@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using ModelContextProtocol.Server;
 using RaceTelemetry.Contracts;
@@ -507,6 +508,134 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
     }
 
     [McpServerTool(
+        Name = "analyze_pit_stops",
+        Title = "Analyze Pit Stops",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Analyze pit-in/out lap markers and estimate pit-lap loss against nearby non-pit laps.")]
+    public async Task<PitStopAnalysisResponse> AnalyzePitStops(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Optional comma-separated driver list, for example LEC,VER.")] string? drivers = null,
+        [Description("Number of nearby non-pit laps on either side used for baseline. Range: 1 to 10.")] int nearbyLapWindow = 3,
+        [Description("Maximum returned pit markers. Range: 1 to 1000.")] int limit = 200,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("analyze_pit_stops", sessionId);
+        activity?.SetTag("race.query.nearby_lap_window", nearbyLapWindow);
+        activity?.SetTag("race.query.limit", limit);
+
+        ValidateSessionId(sessionId);
+        ValidateRange(nearbyLapWindow, 1, 10, nameof(nearbyLapWindow));
+        ValidateRange(limit, 1, 1_000, nameof(limit));
+
+        var request = new PitStopAnalysisRequest(ParseDrivers(drivers), nearbyLapWindow, limit);
+        return await store.AnalyzePitStopsAsync(sessionId, request, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "get_weather_trend",
+        Title = "Get Weather Trend",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Summarize weather changes over a session or selected time window without returning every weather sample.")]
+    public async Task<WeatherTrendResponse> GetWeatherTrend(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Optional window start in session-relative milliseconds.")] long? fromMs = null,
+        [Description("Optional window duration in milliseconds. Range: 1000 to 86400000.")] long? durationMs = null,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("get_weather_trend", sessionId);
+        activity?.SetTag("race.query.from_ms", fromMs);
+        activity?.SetTag("race.query.duration_ms", durationMs);
+
+        ValidateSessionId(sessionId);
+        if (fromMs is < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(fromMs), "fromMs must be non-negative.");
+        }
+
+        if (durationMs is not null)
+        {
+            ValidateRange(durationMs.Value, 1_000, 86_400_000, nameof(durationMs));
+        }
+
+        var request = new WeatherTrendRequest(fromMs, durationMs);
+        return await store.GetWeatherTrendAsync(sessionId, request, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "get_race_control_timeline",
+        Title = "Get Race Control Timeline",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Return a filtered race-control timeline with category, flag, and status counts.")]
+    public async Task<RaceControlTimelineResponse> GetRaceControlTimeline(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Optional comma-separated category filter.")] string? categories = null,
+        [Description("Optional comma-separated flag filter.")] string? flags = null,
+        [Description("Optional comma-separated status filter.")] string? statuses = null,
+        [Description("Optional comma-separated scope filter.")] string? scopes = null,
+        [Description("Optional comma-separated racing-number filter, for example 16,44.")] string? racingNumbers = null,
+        [Description("Optional first lap in the range.")] int? lapFrom = null,
+        [Description("Optional last lap in the range.")] int? lapTo = null,
+        [Description("Optional text search over category, flag, status, scope, sector, and message.")] string? search = null,
+        [Description("Maximum returned messages. Range: 1 to 1000.")] int limit = 200,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("get_race_control_timeline", sessionId);
+        activity?.SetTag("race.query.limit", limit);
+        activity?.SetTag("race.query.search", search);
+
+        ValidateSessionId(sessionId);
+        ValidateLapRange(lapFrom, lapTo);
+        ValidateRange(limit, 1, 1_000, nameof(limit));
+        if (search is { Length: > 200 })
+        {
+            throw new ArgumentException("search must be 200 characters or fewer.", nameof(search));
+        }
+
+        var request = new RaceControlTimelineRequest(
+            ParseRawList(categories),
+            ParseRawList(flags),
+            ParseRawList(statuses),
+            ParseRawList(scopes),
+            ParseIntegerList(racingNumbers),
+            lapFrom is null && lapTo is null ? null : new LapRange(lapFrom, lapTo),
+            search,
+            limit);
+
+        return await store.GetRaceControlTimelineAsync(sessionId, request, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "get_circuit_context",
+        Title = "Get Circuit Context",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Get imported circuit rotation and corner/marshal markers for mapping telemetry windows to track context.")]
+    public async Task<CircuitContextResponse> GetCircuitContext(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("get_circuit_context", sessionId);
+
+        ValidateSessionId(sessionId);
+        return await store.GetCircuitContextAsync(sessionId, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
         Name = "get_replay_chunk",
         Title = "Get Replay Chunk",
         ReadOnly = true,
@@ -774,6 +903,9 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
     private static IReadOnlyList<string>? ParseLowerList(string? value) =>
         ParseList(value, item => item.ToLowerInvariant());
 
+    private static IReadOnlyList<string>? ParseRawList(string? value) =>
+        ParseList(value, item => item);
+
     private static IReadOnlyList<string>? ParseList(string? value, Func<string, string> normalize)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -785,6 +917,30 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
             .Select(normalize)
             .Distinct()
             .ToArray();
+    }
+
+    private static IReadOnlyList<int>? ParseIntegerList(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var values = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(item =>
+            {
+                if (!int.TryParse(item, CultureInfo.InvariantCulture, out var parsed))
+                {
+                    throw new ArgumentException($"Invalid integer value: {item}.", nameof(value));
+                }
+
+                ValidateRange(parsed, 1, 999, nameof(value));
+                return parsed;
+            })
+            .Distinct()
+            .ToArray();
+
+        return values.Length == 0 ? null : values;
     }
 
     private static IReadOnlyList<string> ParseAllowedList(

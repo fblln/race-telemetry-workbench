@@ -32,6 +32,10 @@ for lightweight smoke checks.
 | `aggregate_telemetry` | Grouped telemetry metrics such as DRS active time, brake time, average speed, max speed, and sample counts. |
 | `detect_telemetry_windows` | Contiguous event windows such as DRS active, hard braking, throttle lifts, and high-speed periods. |
 | `analyze_driver_stints` | Tyre/stint degradation, lap-time slope, best/worst lap, and compound strategy summaries. |
+| `analyze_pit_stops` | Pit-in/out markers, nearby non-pit lap baselines, and estimated pit-lap loss. |
+| `get_weather_trend` | Weather deltas and rainfall summary for a session or selected time window. |
+| `get_race_control_timeline` | Filtered race-control timeline with category, flag, and status counts. |
+| `get_circuit_context` | Imported circuit rotation, corner markers, marshal lights, and marshal sectors. |
 | `get_replay_chunk` | Get bounded replay samples for a session-relative window. |
 | `get_replay_context` | Get weather, track-status, and race-control context for a window. |
 | `search_telemetry_events` | Search bounded telemetry event candidates. |
@@ -146,13 +150,16 @@ For natural-language race analysis, start with compact story tools:
 6. `get_lap_braking_zones`
 7. `compare_laps_story`
 
-For complex analytical questions, use the aggregate/window/stint tools before
-raw telemetry:
+For complex analytical questions, use story, aggregate, window, stint, pit,
+weather, race-control, and circuit-context tools before raw telemetry:
 
 1. `aggregate_telemetry` for grouped metrics such as DRS time or brake time.
 2. `detect_telemetry_windows` for intervals such as DRS activations or braking
    windows.
 3. `analyze_driver_stints` for tyre degradation and stint strategy.
+4. `analyze_pit_stops` for pit-loss questions.
+5. `get_weather_trend` and `get_race_control_timeline` for race context.
+6. `get_circuit_context` to map telemetry windows to imported track markers.
 
 Use `get_lap_telemetry`, `compare_laps`, `get_replay_chunk`,
 `get_replay_context`, and `search_telemetry_events` only when the client needs
