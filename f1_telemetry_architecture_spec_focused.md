@@ -8,7 +8,10 @@
 
 ## 1. Product Goal
 
-Build a local desktop application that imports public Formula 1 telemetry for one selected race session by default, stores it in TimescaleDB, and lets the user replay, inspect, compare, and query that race through a focused UI and an AI-ready MCP interface.
+Build a high-performance local desktop application that imports public Formula
+1 telemetry for one selected race session by default, stores it in TimescaleDB,
+and lets the user replay, inspect, compare, and query that race through a
+focused UI and an AI-ready MCP interface.
 
 The implementation must prioritize a small set of capabilities that demonstrate the framework clearly:
 
@@ -17,6 +20,16 @@ The implementation must prioritize a small set of capabilities that demonstrate 
 3. Compare two laps by lap-relative time using core telemetry channels.
 4. Ask natural-language questions through a read-only MCP server.
 5. Observe local .NET services through Aspire Dashboard.
+
+The desktop application is the main product surface. The Query API, MCP server,
+import scripts, and database exist to support fast local desktop replay and
+analysis.
+
+The desktop experience should feel like a focused motorsport analysis
+workbench: a synchronized track map, waveform view, lap table, current-value
+readouts, and event timeline should all describe the same replay timestamp.
+The project must use original requirements, terminology, diagrams, and generated
+visual assets.
 
 ---
 
@@ -30,7 +43,7 @@ The implementation must prioritize a small set of capabilities that demonstrate 
 [TimescaleDB]
       ^
       |
-[Query API] <---- REST ----> [Avalonia Desktop App]
+[Query API] <---- REST ----> [.NET MAUI Desktop App]
       ^                         ^
       |                         |
 [MCP Query Server]              |
@@ -46,7 +59,7 @@ The implementation must prioritize a small set of capabilities that demonstrate 
 | TimescaleDB | Postgres + TimescaleDB | Yes | Yes | Local time-series database |
 | Query API | ASP.NET Core Minimal API | Yes | No | REST backend for sessions, replay chunks, lap comparison, and event search |
 | MCP Query Server | .NET MCP server | Yes | No | Read-only natural-language adapter over the Query API |
-| Avalonia Desktop App | Native .NET desktop app | Optional | No | Session selection, replay, lap comparison, and optional AI panel |
+| .NET MAUI Desktop App | Native .NET desktop app | Optional | No | Primary product surface for session selection, replay, lap comparison, and optional AI panel |
 | Import Script | Python CLI script | No | No | Loads one selected real race into TimescaleDB by default |
 | Aspire Dashboard | Aspire built-in UI | Yes | No | Local logs, traces, and metrics |
 
@@ -1142,7 +1155,8 @@ Acceptance criteria:
 
 ## 7. Replay Requirements
 
-Replay is client-driven. The backend returns chunks over REST; the Avalonia app controls playback locally.
+Replay is client-driven. The backend returns chunks over REST; the .NET MAUI
+desktop app controls playback locally.
 
 ### 7.1 Replay Model
 
@@ -1233,30 +1247,134 @@ Given an imported session:
 - Seeking to the middle of the session reloads the correct chunk.
 - Replay remains usable when one driver has missing samples.
 
+### 7.7 Linked Timebase And Cursor
+
+Replay displays must share a common session-relative timebase unless the user
+explicitly opens a comparison view with lap-relative alignment.
+
+The desktop app must:
+
+1. Keep track map, waveform chart, numeric readouts, summary selections, event
+   markers, and context overlays synchronized to the same replay timestamp.
+2. Support a cursor timestamp that can be moved by playback, timeline seek,
+   chart click/drag, event selection, or track-map selection.
+3. Show the cursor timestamp as both session-relative time and, when possible,
+   driver/lap-relative time for the selected driver.
+4. Support a reference cursor in analysis views so the UI can show current
+   values and deltas between the cursor and reference timestamp.
+5. Use `session_time_ms` for replay synchronization and `lap_time_ms` only for
+   lap-comparison alignment.
+6. Avoid inventing samples when data is missing; displays should leave gaps or
+   show unavailable values rather than interpolating across backend `null`
+   values.
+
+### 7.8 Display Interaction Requirements
+
+All replay displays should support a small shared interaction vocabulary:
+
+- Hover or focus shows the nearest timestamp and values for selected drivers.
+- Clicking a chart point, track position, lap row, or event row seeks the common
+  cursor when the target has a timestamp.
+- Zooming a time-series display changes only the visible time window, not the
+  underlying replay clock.
+- Reset zoom returns to the active replay window.
+- Channel visibility, driver visibility, and color assignment are local UI
+  state and must not mutate imported telemetry.
+- Export and copy actions, when added, must export derived project views or
+  tabular data from the local database.
+
 ---
 
-## 8. Avalonia Desktop App
+## 8. .NET MAUI Desktop App
 
 ### 8.1 Technology
 
 ```text
-Avalonia UI 11
+.NET MAUI for desktop-first UI
 CommunityToolkit.Mvvm
-LiveCharts2 for animated time-series charts
-ScottPlot for static lap comparison charts
+SkiaSharp or MAUI Graphics for high-performance track, waveform, and timeline rendering
+Virtualized native list/table controls for lap, driver, and event rows
 System.Text.Json source-generated serializers where useful
 ```
 
-### 8.2 Screens
+The MAUI app should target desktop ergonomics first. Mobile layouts are out of
+scope unless a later decision explicitly adds them.
+
+Chart-like replay surfaces should prefer custom retained data models plus
+batched drawing over per-sample UI elements. Track maps, waveforms, context
+strips, and dense telemetry charts must render from downsampled or windowed
+data sized to the viewport.
+
+### 8.2 Product Slices
+
+The desktop app should be built in opinionated slices. The first version should
+make a few workflows excellent instead of exposing a configurable analytics
+toolkit too early.
+
+#### Version 1 - Replay And First Analysis
+
+Version 1 must provide:
+
+1. Session Browser.
+2. Replay Workspace.
+3. Lap Comparison.
+
+Version 1 must be opinionated:
+
+- One fixed workspace layout.
+- Race sessions shown by default.
+- Two selected drivers in replay by default.
+- Core channels selected by default: `speed_kmh`, `throttle_pct`, `brake_pct`,
+  `gear`, and `rpm`.
+- DRS and weather shown as context rather than primary charts by default.
+- Track-status, race-control, and rainfall context visible when imported.
+- Lap comparison limited to two laps in one session.
+- Pit analysis limited to summary cards and timeline markers.
+- No saved layouts, plugin displays, arbitrary channel formulas, video sync, or
+  live telemetry ingestion.
+- No full-session raw telemetry rendering in the UI. Visible charts must use
+  replay chunks, lap comparison samples, or bounded aggregate responses.
+
+Version 1 should make these questions fast to answer:
+
+- What happened during this race window?
+- Where are the selected drivers on track now?
+- What lap is each selected driver on?
+- How do speed, throttle, brake, gear, and RPM behave around the cursor?
+- Which laps were fastest, pit-in, pit-out, deleted, or unusual?
+- How does one driver's lap compare to another lap?
+- How did pit stops and safety-car/VSC periods affect the selected drivers?
+
+#### Later Analysis Modules
+
+Later versions may add:
+
+- Saved and rearrangeable workspaces.
+- Driver profile view with stint, tyre, lap-time, and consistency summaries.
+- Pit analysis view with stop duration, pit-lane loss, undercut/overcut
+  context, and before/after stint pace.
+- Multi-driver lap ranking and mini-sector style comparison.
+- Cross-session lap comparison.
+- Histogram, load-map, and scatter displays backed by bounded aggregate
+  endpoints.
+- Event search builder for telemetry windows such as hard braking, throttle
+  lifts, DRS usage, and high-speed periods.
+- Local notes and bookmarks.
+- Export of project-owned charts and tables.
+
+### 8.3 Screens
 
 The desktop app must provide only these initial screens:
 
-1. Session Selector.
+1. Session Browser.
 2. Replay Workspace.
 3. Lap Comparison.
-4. AI Assistant Panel.
+4. Optional AI Assistant Panel.
 
-### 8.3 Session Selector
+The first desktop iteration should still use separate panel components
+internally so later modules can be added without reshaping the whole UI.
+
+### 8.4 Session Browser
 
 Fields:
 
@@ -1266,13 +1384,19 @@ Fields:
 - Imported timestamp.
 - Number of drivers.
 - Number of laps.
+- Available context flags: position, circuit markers, weather, track status,
+  race-control messages.
 
 Actions:
 
 - Refresh sessions.
 - Open selected session.
+- Search by season, event, circuit, and session type.
+- Filter to race sessions by default.
+- Show selected-session details in a property panel without requiring the user
+  to open the replay workspace.
 
-### 8.4 Replay Workspace
+### 8.5 Replay Workspace
 
 Must show:
 
@@ -1284,7 +1408,49 @@ Must show:
 - Driver list.
 - Current lap and speed for selected drivers.
 
-### 8.5 Lap Comparison
+The first implementation can use a fixed docked layout, but it must be
+structured as independent panels so the user can later save, hide, resize, or
+rearrange analysis displays.
+
+Required panels:
+
+- **Track Map:** data-derived circuit outline, selected driver markers, current
+  cursor position, sector/corner/marshal annotations when available, and
+  zoom-to-fit/reset controls.
+- **Waveform:** stacked or overlaid time-series for selected channels, visible
+  units, channel colors, current cursor line, optional reference cursor,
+  per-channel current values, track-status shading, lap boundaries, and sector
+  markers when available. Rendering must be viewport-aware and avoid one visual
+  element per telemetry sample.
+- **Current Values:** compact readouts for selected driver speed, throttle,
+  brake, gear, RPM, DRS, lap number, lap-relative time, and session-relative
+  time.
+- **Lap Summary:** lap table for selected drivers with lap time, sectors, tyre
+  compound/life, pit flags, and min/max values for selected channels when
+  available from analytical endpoints.
+- **Event Timeline:** searchable/filterable list for track status, race-control
+  messages, pit events, and telemetry-event candidates. Selecting an event must
+  seek the replay cursor when the event has a timestamp.
+- **Context Strip:** a compact timeline strip that shows laps, flags, safety
+  car/VSC/red-flag periods, rainfall periods, and race-control markers.
+- **Pit Summary:** compact cards for selected drivers showing pit lap, compound
+  change, pit-in/pit-out flags, and available pit-stop analysis metrics.
+
+Optional later panels:
+
+- **Histogram:** distribution of one selected channel over the visible window,
+  backed by aggregate queries rather than client-side full-session scans.
+- **Load Map:** two-channel bucket view such as speed versus gear or speed
+  versus throttle, backed by bounded aggregate queries.
+- **Scatter Plot:** relation between two selected channels for a bounded lap or
+  visible replay window.
+- **Driver Profile:** stint pace, tyre life, consistency, best/worst lap, and
+  pit strategy summary for one selected driver.
+- **Pit Analysis:** detailed stop table, pit-lane loss estimates, before/after
+  pace comparison, and undercut/overcut context when enough data exists.
+- **Notes:** local free-text session notes.
+
+### 8.6 Lap Comparison
 
 Inputs:
 
@@ -1306,8 +1472,83 @@ Expected behavior:
 - Displays lap-time-aligned overlay charts.
 - Displays lap-time delta and sector deltas.
 - Uses the delta convention `driverA - driverB`.
+- Shows a cursor and optional reference cursor over the aligned lap timeline.
+- Shows per-channel values and deltas at the cursor.
+- Shows lap metadata for both selected laps: lap time, sectors, tyre compound,
+  tyre life, pit/deleted/inaccurate flags when available.
+- Supports comparing two drivers, two laps from one driver, or two imported
+  sessions when the backend supports cross-session comparison in a future
+  phase. The first implementation may limit comparison to one session.
+- Keeps distance-based alignment out of scope until the data path can derive a
+  reliable distance or position-aware alignment model.
 
-### 8.6 AI Assistant Panel
+### 8.7 Driver And Pit Analysis Requirements
+
+Version 1 should expose driver and pit analysis as compact, opinionated
+summaries inside the Replay Workspace, not as separate full screens.
+
+Driver summary cards should show:
+
+- Current position in the replay window when position data is available.
+- Current lap, tyre compound, tyre life, and lap-relative time.
+- Best lap, latest completed lap, and selected-window average lap time when
+  available.
+- Current speed, throttle, brake, gear, RPM, and DRS state.
+
+Pit summary cards should show:
+
+- Pit-in and pit-out laps.
+- Compound change and tyre-life reset where imported lap metadata supports it.
+- Stop duration or pit-lane time loss when returned by the pit analysis
+  endpoint.
+- Nearby safety-car, VSC, yellow, red-flag, and race-control context.
+
+Later dedicated analysis screens may expand these summaries with stint pace,
+pit-loss ranking, undercut/overcut context, and driver-to-driver strategy
+comparison.
+
+### 8.8 Display Styling And Assets
+
+The UI should use an original dark analysis theme with dense but legible
+information presentation. It must use project-owned names, diagrams, generated
+mockups, and visual assets.
+
+Project documentation may include original generated mockups or diagrams that
+communicate equivalent concepts, such as:
+
+- synchronized replay workspace;
+- track map with corner and sector annotations;
+- waveform with cursor/reference delta;
+- event timeline with severity/status filters;
+- lap comparison chart with sector and lap deltas.
+
+Generated mockups must be treated as project-owned illustrative assets.
+
+### 8.9 Desktop Performance Requirements
+
+High performance is a core product requirement for the desktop app.
+
+The MAUI app must:
+
+1. Keep replay interaction responsive while playback is running.
+2. Avoid blocking the UI thread on HTTP calls, JSON parsing, database-facing
+   requests, downsampling, or derived metric calculations.
+3. Use cancellation tokens for seek, session switch, driver switch, and channel
+   switch operations.
+4. Virtualize large row sets such as laps, events, race-control messages, and
+   telemetry-event candidates.
+5. Keep chart, track-map, and timeline rendering bounded by visible pixels and
+   visible time range, not by total imported sample count.
+6. Reuse drawing resources and avoid per-frame allocations in replay render
+   loops where practical.
+7. Cache replay metadata, selected-session static context, and recently used
+   chunks in memory with explicit size limits.
+8. Preserve backend downsampling and `null` semantics instead of expanding data
+   client-side.
+9. Degrade gracefully on large sessions by reducing chart detail before
+   dropping replay controls or cursor interaction.
+
+### 8.10 AI Assistant Panel
 
 The AI Assistant Panel is optional in the first UI iteration. The MCP server must work first from an external MCP-compatible client.
 
@@ -1668,7 +1909,9 @@ The Aspire AppHost must orchestrate:
 - Query API.
 - MCP Query Server.
 
-The Avalonia app may be launched separately or registered in Aspire if practical.
+The .NET MAUI desktop app may be launched separately. Aspire should remain
+focused on local services unless a later workflow needs desktop launch
+integration.
 
 Example:
 
@@ -1794,18 +2037,32 @@ curl http://localhost:{port}/api/sessions/2024-monza-r/replay/metadata
 
 Deliverables:
 
-- Session selector.
-- Replay workspace.
+- .NET MAUI desktop app scaffold.
+- Session browser with race-default filtering, search, context availability
+  flags, and selected-session details.
+- Replay workspace with fixed first-pass docked panels.
 - Driver selector.
 - Replay controls.
 - Time-series chart updates.
 - Track-map position updates.
+- Linked replay timebase shared by track map, waveform, current values, lap
+  summary, event timeline, and context strip.
+- Cursor-driven seek from timeline, waveform, event rows, lap rows, and track
+  map positions where timestamps are available.
+- Current-value readouts for selected driver speed, throttle, brake, gear, RPM,
+  DRS, lap number, lap-relative time, and session-relative time.
+- Event timeline with track-status, race-control, pit, and telemetry-event
+  candidate rows.
+- Lap summary table for selected drivers.
 - Replay speed support from `0.25x` to `20x`.
+- Viewport-aware rendering and virtualized lists for high-volume replay data.
 
 Acceptance test:
 
 ```text
-Open imported Monza race, select two drivers, play at 1x, switch to 5x, pause, seek, resume.
+Open imported Monza race, select two drivers, play at 1x, switch to 5x,
+pause, seek from waveform and event timeline, resume, and verify map,
+waveform, readouts, lap summary, and context overlays stay synchronized.
 ```
 
 ### Phase 4 — Lap Comparison
@@ -1816,11 +2073,15 @@ Deliverables:
 - Lap-time-aligned channel overlays.
 - Lap-time delta.
 - Sector deltas included in the same screen.
+- Cursor and optional reference cursor over the aligned lap timeline.
+- Per-channel current values and deltas at the cursor.
+- Lap metadata for both compared laps.
 
 Acceptance test:
 
 ```text
-Compare two laps from two drivers and display speed, throttle, brake, lap delta, and sector deltas.
+Compare two laps from two drivers and display speed, throttle, brake, lap
+delta, sector deltas, cursor values, and channel deltas.
 ```
 
 ### Phase 5 — MCP Query Server
@@ -1843,7 +2104,7 @@ From an MCP-compatible client, ask: "Compare LEC lap 12 with HAM lap 14 at Monza
 
 Deliverables:
 
-- AI panel in Avalonia.
+- AI panel in the .NET MAUI desktop app.
 - Display of MCP-derived answers beside the session data.
 - Deep link from comparison answers to the lap comparison screen.
 
@@ -1886,6 +2147,11 @@ Initial local targets:
 | Replay metadata | `< 200 ms` |
 | Replay chunk, 30 seconds, 2 drivers | `< 1000 ms` |
 | MCP tool call excluding model time | `< 1500 ms` |
+| Desktop replay UI at 1x, 2 selected drivers | Sustained responsive playback |
+| Desktop cursor seek within buffered range | `< 100 ms` visible response |
+| Desktop replay seek requiring chunk load | `< 1500 ms` visible response |
+| Desktop chart redraw after channel toggle | `< 250 ms` for visible window |
+| Desktop event/lap table scroll | Virtualized, no full-list layout stalls |
 
 If targets are missed, optimize in this order:
 
@@ -1894,6 +2160,7 @@ If targets are missed, optimize in this order:
 3. Downsampling.
 4. Materialized summaries.
 5. Persisted replay chunks.
+6. Client-side viewport-aware rendering and cache tuning.
 
 ---
 
@@ -1939,7 +2206,7 @@ The implementation consists of:
 - One TimescaleDB container.
 - One offline import script.
 - One Query API.
-- One Avalonia desktop application.
+- One .NET MAUI desktop application.
 - One MCP Query Server.
 - Aspire Dashboard for local observability.
 

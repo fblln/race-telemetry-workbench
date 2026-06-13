@@ -244,7 +244,7 @@ For a detailed explanation of the Query API runtime, endpoint behavior,
 database access, Bruno workflow, and observability setup, see:
 
 ```text
-docs/query-api.md
+docs/api.md
 ```
 
 ## Database Loop
@@ -373,8 +373,8 @@ dotnet run --project tests/RaceTelemetry.McpServer.Tests/RaceTelemetry.McpServer
 .venv/bin/python -m unittest discover -s tests
 ```
 
-For MCP server details, client configuration, and real-database test commands,
-see `docs/mcp-server.md`.
+For Query API and MCP server details, client configuration, and real-database
+test commands, see `docs/api.md`.
 
 ## Troubleshooting
 

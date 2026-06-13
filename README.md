@@ -88,13 +88,13 @@ Python import scripts
 TimescaleDB / PostgreSQL
   |
   v
-.NET Query API  <---- Bruno / future desktop app
+.NET Query API  <---- Bruno / MAUI desktop app
   |
   v
 HTTP MCP Server <---- Codex / Claude / MCP clients
 ```
 
-The desktop app project slot exists, but the Avalonia UI is not implemented yet.
+The desktop app project slot exists, but the .NET MAUI UI is not implemented yet.
 
 ## Quick Start
 
@@ -195,7 +195,7 @@ by a shared contract and Query API route.
 The next evolution moves toward:
 
 - focused real-database tests for analytical Query API endpoints
-- Avalonia desktop replay workspace
+- high-performance .NET MAUI desktop replay workspace
 - data-derived track map and driver replay
 - timeline overlays for weather, flags, safety car, VSC, and race control
 - lap comparison UI
@@ -213,8 +213,8 @@ The next evolution moves toward:
 | `src/RaceTelemetry.Contracts/` | Shared API/MCP/Desktop DTOs |
 | `src/RaceTelemetry.AppHost/` | Aspire AppHost |
 | `bruno/race-telemetry-query-api/` | Bruno collection for manual API testing |
-| `docs/` | Development, import, Query API, MCP, and data docs |
-| `planning/` | Backlog, decisions, and progress tracking |
+| `docs/` | Development, data, API/MCP, and OpenAPI docs |
+| `planning.md` | Backlog, decisions, and progress tracking |
 
 ## License
 

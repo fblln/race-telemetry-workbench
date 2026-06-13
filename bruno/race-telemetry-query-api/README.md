@@ -34,6 +34,11 @@ Required variables:
 | `replayDurationMs` | Replay chunk duration. |
 | `contextDurationMs` | Replay context duration. |
 
+Errors use `application/problem+json` with an RFC 9457-style body. The
+standard fields are `type`, `title`, `status`, and `detail`; the stable
+application error code is in `code`, and field/request context is in `errors`.
+Run `Invalid Replay Chunk Problem` to inspect a validation failure.
+
 Recommended first run:
 
 1. `API Info`
@@ -58,6 +63,7 @@ Analysis requests:
 | `Compare Laps Story` | Compare two laps with total delta, sector deltas, coarse lap segments, and talking points. |
 | `Telemetry Aggregate` | Summarize speed, braking time, DRS-active time, lift count, and high-speed time by driver/lap/stint/compound/status/time bucket without returning raw samples. |
 | `Telemetry Windows` | Detect contiguous DRS, hard-braking, throttle-lift, or high-speed windows across many laps without downloading full telemetry. |
+| `Search Telemetry Events` | Search event candidates at `/api/sessions/{sessionId}/telemetry/events/search`. The older `/telemetry-events/search` path remains as a compatibility alias. |
 | `Stint Analysis` | Compare stint lap-time trends and tyre-degradation signals by driver and compound. |
 | `Pit Stop Analysis` | Estimate pit-lap loss against nearby non-pit laps. |
 | `Weather Trend` | Summarize weather deltas and rainfall for a selected time window. |

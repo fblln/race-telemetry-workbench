@@ -29,6 +29,15 @@ DEFAULT_DATABASE_URL = "postgresql://race_telemetry:race_telemetry@localhost:543
 FIXTURE_SESSION_ID = "2024-italian-grand-prix-r"
 FIXTURE_SCHEMA_PREFIX = "test_schema_"
 EXPECTED_HYPERTABLES = {"telemetry_samples", "position_samples", "weather_samples"}
+EXPECTED_HOT_PATH_INDEXES = {
+    "ix_telemetry_session_session_time_driver",
+    "ix_telemetry_session_driver_lap_sample_index",
+    "ix_position_session_driver_sample_time_cover",
+    "ix_telemetry_event_hard_braking",
+    "ix_telemetry_event_high_speed",
+    "ix_telemetry_event_drs_active",
+    "ix_telemetry_event_throttle_lift",
+}
 EXPECTED_BASE_TABLES = {
     "sessions",
     "session_drivers",
@@ -583,6 +592,21 @@ class DatabaseIntegrationTests(unittest.TestCase):
 
         self.assertTrue(EXPECTED_TELEMETRY_COLUMNS.issubset(columns))
         self.assertFalse(REMOVED_COMPOSED_TELEMETRY_COLUMNS.intersection(columns))
+
+    def test_hot_path_indexes_exist_for_replay_and_event_queries(self):
+        """Replay and telemetry-event query paths should have targeted indexes."""
+
+        rows = self.execute(
+            """
+            SELECT indexname
+            FROM pg_indexes
+            WHERE schemaname = %s
+            """,
+            (self.schema_name,),
+        )
+        indexes = {row[0] for row in rows}
+
+        self.assertTrue(EXPECTED_HOT_PATH_INDEXES.issubset(indexes))
 
     def test_lap_summaries_aggregate_real_telemetry_rows(self):
         """lap_summaries keeps laps visible and aggregates telemetry rows."""

@@ -5,7 +5,10 @@ using Npgsql;
 
 namespace RaceTelemetry.QueryApi;
 
-public static class RaceTelemetryApi
+/// <summary>
+/// Builds the Query API host and maps the HTTP endpoints for race telemetry queries.
+/// </summary>
+public static partial class RaceTelemetryApi
 {
     private static readonly Regex SessionIdPattern = new("^[a-z0-9][a-z0-9-]*$", RegexOptions.Compiled);
     private static readonly Regex DriverCodePattern = new("^[A-Za-z]{2,4}$", RegexOptions.Compiled);
@@ -76,6 +79,7 @@ public static class RaceTelemetryApi
         builder.Services.AddProblemDetails();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApi();
+        builder.Services.AddMemoryCache(options => options.SizeLimit = 2_000);
         builder.Services.AddTelemetryQueryStore(builder.Configuration);
 
         var app = builder.Build();
@@ -108,7 +112,14 @@ public static class RaceTelemetryApi
         services.AddSingleton(_ =>
         {
             var connectionString = PostgresConnectionString.Normalize(databaseUrl);
-            return new NpgsqlDataSourceBuilder(connectionString).Build();
+            var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString)
+            {
+                MinPoolSize = 2,
+                MaxPoolSize = 50,
+                MaxAutoPrepare = 100,
+                AutoPrepareMinUsages = 2
+            };
+            return new NpgsqlDataSourceBuilder(connectionStringBuilder.ConnectionString).Build();
         });
         services.AddHostedService<PostgresConnectionWarmupService>();
         services.AddSingleton<IF1TelemetryQueryStore, PostgresTelemetryQueryStore>();
@@ -537,47 +548,11 @@ public static class RaceTelemetryApi
             })
             .WithName("GetReplayContext");
 
-        api.MapPost("/sessions/{sessionId}/telemetry-events/search", async (
-                string sessionId,
-                TelemetryEventSearchRequest? request,
-                IF1TelemetryQueryStore store,
-                CancellationToken cancellationToken) =>
-            {
-                if (!IsValidSessionId(sessionId))
-                {
-                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
-                }
-
-                request ??= new TelemetryEventSearchRequest(null, null, null, null, null);
-
-                if (request.EventTypes is { Count: > 0 }
-                    && request.EventTypes.Any(eventType => !TelemetryEventTypes.Contains(eventType)))
-                {
-                    return ValidationError("InvalidEventType", "Unknown telemetry event type.", ("allowed", TelemetryEventTypes.ToArray()));
-                }
-
-                if (request.Drivers is { Count: > 0 }
-                    && request.Drivers.Any(driver => !IsValidDriverCode(driver)))
-                {
-                    return ValidationError("InvalidDriver", "Driver codes must contain 2 to 4 letters.", ("drivers", request.Drivers));
-                }
-
-                if (request.FromMs is < 0 || request.DurationMs is < 1_000 or > 600_000)
-                {
-                    return ValidationError("InvalidTimeRange", "fromMs must be non-negative and durationMs must be between 1000 and 600000.", ("fromMs", request.FromMs), ("durationMs", request.DurationMs));
-                }
-
-                if (request.Limit is < 1 or > 5_000)
-                {
-                    return ValidationError("InvalidLimit", "limit must be between 1 and 5000.", ("limit", request.Limit));
-                }
-
-                var response = await store.SearchTelemetryEventsAsync(sessionId, request, cancellationToken);
-                return response is null
-                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
-                    : Results.Ok(response);
-            })
+        api.MapPost("/sessions/{sessionId}/telemetry/events/search", SearchTelemetryEventsAsync)
             .WithName("SearchTelemetryEvents");
+
+        api.MapPost("/sessions/{sessionId}/telemetry-events/search", SearchTelemetryEventsAsync)
+            .WithName("SearchTelemetryEventsLegacy");
 
         api.MapPost("/sessions/{sessionId}/telemetry/aggregate", async Task<IResult> (
                 string sessionId,
@@ -825,189 +800,44 @@ public static class RaceTelemetryApi
         return api;
     }
 
-    private static bool ValidateSessionAndDriver(string sessionId, string driverCode, out IResult? error)
+    private static async Task<IResult> SearchTelemetryEventsAsync(
+        string sessionId,
+        TelemetryEventSearchRequest? request,
+        IF1TelemetryQueryStore store,
+        CancellationToken cancellationToken)
     {
-        error = null;
         if (!IsValidSessionId(sessionId))
         {
-            error = ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
-            return false;
+            return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
         }
 
-        if (!IsValidDriverCode(driverCode))
+        request ??= new TelemetryEventSearchRequest(null, null, null, null, null);
+
+        if (request.EventTypes is { Count: > 0 }
+            && request.EventTypes.Any(eventType => !TelemetryEventTypes.Contains(eventType)))
         {
-            error = ValidationError("InvalidDriver", "Driver codes must contain 2 to 4 letters.", ("driverCode", driverCode));
-            return false;
+            return ValidationError("InvalidEventType", "Unknown telemetry event type.", ("allowed", TelemetryEventTypes.ToArray()));
         }
 
-        return true;
+        if (request.Drivers is { Count: > 0 }
+            && request.Drivers.Any(driver => !IsValidDriverCode(driver)))
+        {
+            return ValidationError("InvalidDriver", "Driver codes must contain 2 to 4 letters.", ("drivers", request.Drivers));
+        }
+
+        if (request.FromMs is < 0 || request.DurationMs is < 1_000 or > 600_000)
+        {
+            return ValidationError("InvalidTimeRange", "fromMs must be non-negative and durationMs must be between 1000 and 600000.", ("fromMs", request.FromMs), ("durationMs", request.DurationMs));
+        }
+
+        if (request.Limit is < 1 or > 5_000)
+        {
+            return ValidationError("InvalidLimit", "limit must be between 1 and 5000.", ("limit", request.Limit));
+        }
+
+        var response = await store.SearchTelemetryEventsAsync(sessionId, request, cancellationToken);
+        return response is null
+            ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+            : Results.Ok(response);
     }
-
-    private static bool ValidateSessionDriverLap(string sessionId, string driverCode, int lapNumber, out IResult? error)
-    {
-        if (!ValidateSessionAndDriver(sessionId, driverCode, out error))
-        {
-            return false;
-        }
-
-        if (lapNumber < 1)
-        {
-            error = ValidationError("InvalidLapNumber", "Lap numbers must be positive.", ("lapNumber", lapNumber));
-            return false;
-        }
-
-        return true;
-    }
-
-    private static IReadOnlyList<string> ParseChannels(
-        string? value,
-        IReadOnlySet<string> allowed,
-        IReadOnlyList<string> defaults,
-        out IResult? error)
-    {
-        error = null;
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return defaults;
-        }
-
-        var channels = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(channel => channel.ToLowerInvariant())
-            .Distinct()
-            .ToArray();
-
-        var unknown = channels.Where(channel => !allowed.Contains(channel)).ToArray();
-        if (unknown.Length > 0)
-        {
-            error = ValidationError(
-                "InvalidChannels",
-                "One or more requested channels are not supported.",
-                ("unknown", unknown),
-                ("allowed", allowed.Order().ToArray()));
-        }
-
-        return channels;
-    }
-
-    private static IReadOnlyList<string>? ParseDrivers(string? value, out IResult? error)
-    {
-        error = null;
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return null;
-        }
-
-        var drivers = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(driver => driver.ToUpperInvariant())
-            .Distinct()
-            .ToArray();
-
-        var invalid = drivers.Where(driver => !IsValidDriverCode(driver)).ToArray();
-        if (invalid.Length > 0)
-        {
-            error = ValidationError("InvalidDriver", "Driver codes must contain 2 to 4 letters.", ("drivers", invalid));
-        }
-
-        return drivers;
-    }
-
-    private static bool ValidateDrivers(IReadOnlyList<string>? drivers, out IResult? error)
-    {
-        error = null;
-        if (drivers is not { Count: > 0 })
-        {
-            return true;
-        }
-
-        var invalid = drivers
-            .Where(driver => string.IsNullOrWhiteSpace(driver) || !IsValidDriverCode(driver))
-            .ToArray();
-        if (invalid.Length == 0)
-        {
-            return true;
-        }
-
-        error = ValidationError("InvalidDriver", "Driver codes must contain 2 to 4 letters.", ("drivers", invalid));
-        return false;
-    }
-
-    private static bool ValidateAllowedValues(
-        IReadOnlyList<string>? values,
-        IReadOnlySet<string> allowed,
-        string code,
-        string message,
-        out IResult? error)
-    {
-        error = null;
-        if (values is not { Count: > 0 })
-        {
-            return true;
-        }
-
-        var invalid = values
-            .Where(value => string.IsNullOrWhiteSpace(value) || !allowed.Contains(value))
-            .ToArray();
-        if (invalid.Length == 0)
-        {
-            return true;
-        }
-
-        error = ValidationError(code, message, ("unknown", invalid), ("allowed", allowed.Order().ToArray()));
-        return false;
-    }
-
-    private static bool ValidateLapRange(LapRange? lapRange, out IResult? error)
-    {
-        error = null;
-        if (lapRange is null)
-        {
-            return true;
-        }
-
-        if (lapRange.From is < 1 || lapRange.To is < 1)
-        {
-            error = ValidationError("InvalidLapRange", "Lap range values must be positive.", ("lapRange", lapRange));
-            return false;
-        }
-
-        if (lapRange.From is not null && lapRange.To is not null && lapRange.From > lapRange.To)
-        {
-            error = ValidationError("InvalidLapRange", "Lap range from must be less than or equal to lap range to.", ("lapRange", lapRange));
-            return false;
-        }
-
-        return true;
-    }
-
-    private static bool IsValidSessionId(string sessionId) =>
-        SessionIdPattern.IsMatch(sessionId);
-
-    private static bool IsValidDriverCode(string driverCode) =>
-        DriverCodePattern.IsMatch(driverCode);
-
-    private static bool IsValidSessionType(string sessionType) =>
-        sessionType.ToUpperInvariant() is "FP1" or "FP2" or "FP3" or "Q" or "SQ" or "S" or "R";
-
-    private static IResult ValidationError(
-        string code,
-        string message,
-        params (string Key, object? Value)[] details) =>
-        Results.BadRequest(CreateError(code, message, details));
-
-    private static IResult NotFoundError(
-        string code,
-        string message,
-        params (string Key, object? Value)[] details) =>
-        Results.NotFound(CreateError(code, message, details));
-
-    private static ApiErrorResponse CreateError(
-        string code,
-        string message,
-        params (string Key, object? Value)[] details) =>
-        new(new ApiError(
-            code,
-            message,
-            details.Length == 0
-                ? null
-                : details.ToDictionary(detail => detail.Key, detail => detail.Value)));
 }

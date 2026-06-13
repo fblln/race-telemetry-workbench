@@ -45,10 +45,11 @@ var laps = await AssertOk<LapsResponse>(
 Assert(laps.Items.Count >= 2, "Expected seeded LEC laps.");
 
 var telemetry = await AssertOk<LapTelemetryResponse>(
-    $"/api/sessions/{session.SessionId}/drivers/LEC/laps/1/telemetry?sampleEvery=1&maxSamples=10",
+    $"/api/sessions/{session.SessionId}/drivers/LEC/laps/1/telemetry?channels=speed_kmh&sampleEvery=1&maxSamples=10",
     cancellation.Token);
 
 Assert(telemetry.Items.Count > 0, "Expected seeded lap telemetry.");
+Assert(telemetry.Items.All(sample => sample.ThrottlePct is null && sample.BrakePct is null), "Unrequested lap telemetry channels should be null.");
 
 var comparison = await AssertOk<LapComparisonResponse>(
     $"/api/sessions/{session.SessionId}/compare/laps?driverA=LEC&lapA=1&driverB=VER&lapB=1",
@@ -65,10 +66,21 @@ Assert(replayMetadata.ContextChannels.Contains("race_control"), "Expected race-c
 Assert(replayMetadata.Drivers.Contains("LEC"), "Expected replay drivers.");
 
 var replayChunk = await AssertOk<ReplayChunkResponse>(
-    $"/api/sessions/{session.SessionId}/replay/chunk?fromMs=60000&durationMs=30000&drivers=LEC&sampleEvery=2",
+    $"/api/sessions/{session.SessionId}/replay/chunk?fromMs=60000&durationMs=30000&drivers=LEC&channels=speed_kmh&sampleEvery=2",
     cancellation.Token);
 
 Assert(replayChunk.Items.Any(item => item.DriverCode == "LEC"), "Expected LEC replay chunk.");
+Assert(
+    replayChunk.Items.SelectMany(item => item.Samples).All(sample =>
+        sample.ThrottlePct is null
+        && sample.BrakePct is null
+        && sample.Gear is null
+        && sample.Rpm is null
+        && sample.Drs is null
+        && sample.X is null
+        && sample.Y is null
+        && sample.Z is null),
+    "Unrequested replay channels should be null.");
 
 var replayContext = await AssertOk<ReplayContextResponse>(
     $"/api/sessions/{session.SessionId}/replay/context?fromMs=60000&durationMs=300000",
@@ -77,17 +89,72 @@ var replayContext = await AssertOk<ReplayContextResponse>(
 Assert(replayContext.WeatherSamples.Count > 0, "Expected weather context.");
 
 var eventSearch = await PostOk<TelemetryEventSearchResponse>(
-    $"/api/sessions/{session.SessionId}/telemetry-events/search",
+    $"/api/sessions/{session.SessionId}/telemetry/events/search",
     new TelemetryEventSearchRequest(["high_speed"], ["LEC"], 0, 300000, 10),
     cancellation.Token);
 
 Assert(eventSearch.Items.Count > 0, "Expected telemetry-event search results.");
 
+var aggregate = await PostOk<TelemetryAggregateResponse>(
+    $"/api/sessions/{session.SessionId}/telemetry/aggregate",
+    new TelemetryAggregateRequest(["LEC"], ["driver"], ["sample_count", "avg_speed_kmh"], null, null, 20),
+    cancellation.Token);
+
+Assert(aggregate.Items.Count > 0, "Expected telemetry aggregate results.");
+
+var windows = await PostOk<TelemetryWindowResponse>(
+    $"/api/sessions/{session.SessionId}/telemetry/windows",
+    new TelemetryWindowRequest(["LEC"], "high_speed", null, 0, false, 20),
+    cancellation.Token);
+
+Assert(windows.Items.Count > 0, "Expected telemetry window results.");
+
+var stints = await PostOk<StintAnalysisResponse>(
+    $"/api/sessions/{session.SessionId}/stints/analyze",
+    new StintAnalysisRequest(["LEC"], null, true, 1, null),
+    cancellation.Token);
+
+Assert(stints.Items.Count > 0, "Expected stint analysis results.");
+
+var pitStops = await PostOk<PitStopAnalysisResponse>(
+    $"/api/sessions/{session.SessionId}/pit-stops/analyze",
+    new PitStopAnalysisRequest(["LEC"], 3, 20),
+    cancellation.Token);
+
+Assert(pitStops.Items is not null, "Expected pit-stop analysis response.");
+
+var weatherTrend = await PostOk<WeatherTrendResponse>(
+    $"/api/sessions/{session.SessionId}/weather/trend",
+    new WeatherTrendRequest(0, 300000),
+    cancellation.Token);
+
+Assert(weatherTrend.SampleCount >= 0, "Expected weather trend response.");
+
+var raceControl = await PostOk<RaceControlTimelineResponse>(
+    $"/api/sessions/{session.SessionId}/race-control/timeline",
+    new RaceControlTimelineRequest(null, null, null, null, null, null, null, 20),
+    cancellation.Token);
+
+Assert(raceControl.Items is not null, "Expected race-control timeline response.");
+
+var circuitContext = await AssertOk<CircuitContextResponse>(
+    $"/api/sessions/{session.SessionId}/circuit/context",
+    cancellation.Token);
+
+Assert(circuitContext.Corners is not null, "Expected circuit context response.");
+
 var missing = await http.GetAsync("/api/sessions/not-a-session/drivers", cancellation.Token);
 Assert(missing.StatusCode == HttpStatusCode.NotFound, "Unknown sessions should return 404.");
+Assert(missing.Content.Headers.ContentType?.MediaType == "application/problem+json", "404 responses should use problem+json.");
+var missingProblem = await missing.Content.ReadFromJsonAsync<ApiProblem>(cancellation.Token);
+Assert(missingProblem?.Code == "SessionNotFound", "404 problem should expose a stable code.");
 
 var invalid = await http.GetAsync($"/api/sessions/{session.SessionId}/replay/chunk?fromMs=0&durationMs=1", cancellation.Token);
 Assert(invalid.StatusCode == HttpStatusCode.BadRequest, "Invalid time ranges should return 400.");
+Assert(invalid.Content.Headers.ContentType?.MediaType == "application/problem+json", "400 responses should use problem+json.");
+var invalidProblem = await invalid.Content.ReadFromJsonAsync<ApiProblem>(cancellation.Token);
+Assert(invalidProblem?.Code == "InvalidTimeRange", "400 problem should expose a stable code.");
+Assert(invalidProblem?.Errors?.ContainsKey("durationMs") == true, "400 problem should include invalid field context.");
 
 await app.StopAsync(cancellation.Token);
 

@@ -1,8 +1,10 @@
 namespace RaceTelemetry.Contracts;
 
-public sealed record ApiErrorResponse(ApiError Error);
-
-public sealed record ApiError(
+public sealed record ApiProblem(
+    string Type,
+    string Title,
+    int Status,
+    string Detail,
+    string? Instance,
     string Code,
-    string Message,
-    IReadOnlyDictionary<string, object?>? Details = null);
+    IReadOnlyDictionary<string, object?>? Errors = null);
