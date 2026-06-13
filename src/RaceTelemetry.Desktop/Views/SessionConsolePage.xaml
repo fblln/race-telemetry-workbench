@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RaceTelemetry.Desktop.ViewModels"
+             x:Class="RaceTelemetry.Desktop.Views.SessionConsolePage"
+             x:DataType="vm:SessionConsoleViewModel"
+             Shell.NavBarIsVisible="False"
+             Title="Console">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Command bar (§8.11): breadcrumb · always-on search · actions -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14"
+              Padding="12,8" BackgroundColor="{StaticResource BgInset}">
+            <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                <Button Text="‹" Style="{StaticResource SecondaryButton}" Padding="8,2"
+                        Command="{Binding BackToLauncherCommand}" />
+                <Label Text="{Binding Breadcrumb}" FontFamily="JetBrainsMono"
+                       FontSize="{StaticResource FsXs}" TextColor="{StaticResource TextSecondary}"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Border Grid.Column="1" Style="{StaticResource Panel}" BackgroundColor="{StaticResource BgSurface}"
+                    Padding="8,4" HorizontalOptions="End" WidthRequest="340">
+                <Entry Placeholder="Search / query  ·  press /" Text="{Binding SearchQuery}"
+                       BackgroundColor="Transparent" />
+            </Border>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                <Button Text="Export" Style="{StaticResource SecondaryButton}" />
+                <Button Text="Save view" Style="{StaticResource SecondaryButton}" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Body: left view rail + content host -->
+        <Grid Grid.Row="1" ColumnDefinitions="188,*">
+
+            <Border Grid.Column="0" BackgroundColor="{StaticResource BgSurface}"
+                    Stroke="{StaticResource BorderDefault}" StrokeThickness="0"
+                    Padding="8">
+                <CollectionView ItemsSource="{Binding Views}"
+                                SelectionMode="Single"
+                                SelectedItem="{Binding ActiveView}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ConsoleView">
+                            <Grid Padding="10,8" ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="{Binding Title}" TextColor="{StaticResource TextSecondary}"
+                                       FontSize="{StaticResource FsSm}" VerticalOptions="Center" />
+                                <Border Grid.Column="1" BackgroundColor="{StaticResource BgRaised}"
+                                        Stroke="{StaticResource BorderDefault}" StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 3" Padding="5,1">
+                                    <Label Text="{Binding Hotkey}" FontFamily="JetBrainsMono"
+                                           FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Border>
+
+            <!-- Active view is swapped in code-behind when ActiveView changes (§8.11). -->
+            <ContentView Grid.Column="1" x:Name="ContentHost" BackgroundColor="{StaticResource BgCanvas}" />
+        </Grid>
+    </Grid>
+</ContentPage>

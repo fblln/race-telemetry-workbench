@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RaceTelemetry.Desktop.ViewModels"
+             xmlns:contracts="clr-namespace:RaceTelemetry.Contracts;assembly=RaceTelemetry.Contracts"
+             x:Class="RaceTelemetry.Desktop.Views.LauncherPage"
+             x:DataType="vm:LauncherViewModel"
+             Title="Launcher">
+
+    <Grid RowDefinitions="Auto,*" Padding="32" RowSpacing="20">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="Race Telemetry Workbench" Style="{StaticResource H1}" />
+            <Label Text="Open a session — pick a circuit, then drivers." Style="{StaticResource Caption}" />
+            <Label Text="{Binding Error}" TextColor="{StaticResource SemDanger}"
+                   IsVisible="{Binding Error, Converter={StaticResource IsNotNull}}" />
+        </VerticalStackLayout>
+
+        <Border Grid.Row="1" Style="{StaticResource Panel}">
+            <Grid RowDefinitions="Auto,*">
+                <Label Grid.Row="0" Text="SESSIONS" Style="{StaticResource MicroLabel}" Margin="14,12,0,6" />
+                <CollectionView Grid.Row="1"
+                                ItemsSource="{Binding Sessions}"
+                                SelectionMode="Single"
+                                SelectedItem="{Binding SelectedSession}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="contracts:SessionSummary">
+                            <Grid Padding="14,10" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout Grid.Column="0" Spacing="1">
+                                    <Label Text="{Binding EventName}" TextColor="{StaticResource TextPrimary}" FontFamily="InterMedium" />
+                                    <Label FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}">
+                                        <Label.Text>
+                                            <MultiBinding StringFormat="{}{0} · {1} · {2}">
+                                                <Binding Path="Year" />
+                                                <Binding Path="SessionType" />
+                                                <Binding Path="CircuitName" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                    </Label>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding DriverCount, StringFormat='{0} drivers'}"
+                                       Style="{StaticResource Caption}" VerticalOptions="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

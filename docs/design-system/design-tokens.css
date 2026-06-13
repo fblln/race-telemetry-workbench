@@ -1,0 +1,252 @@
+/* =====================================================================
+   Carbon Signal — Design Tokens
+   Race Telemetry Workbench (F1 Telemetry Visualizer)
+   Original dark "warm carbon" analysis theme.
+   Graphite surfaces · signal amber accent · colorblind-safe channels.
+
+   These tokens are the single source of truth for the desktop app's
+   visual language. The .NET MAUI app should mirror them as
+   ResourceDictionary keys (see naming map at the bottom of this file).
+   ===================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------
+     1. SURFACES — warm graphite, never pure black.
+        Layering goes: canvas < surface < raised < overlay.
+     --------------------------------------------------------------- */
+  --rt-bg-canvas:      #14110E; /* app background, deepest layer        */
+  --rt-bg-surface:     #1C1815; /* panels, cards                        */
+  --rt-bg-raised:      #241F1B; /* panel headers, popovers, raised rows */
+  --rt-bg-overlay:     #2C2620; /* tooltips, menus, dialogs             */
+  --rt-bg-inset:       #100D0B; /* chart plot areas, wells, code        */
+  --rt-bg-hover:       #2A241F; /* row / control hover                  */
+  --rt-bg-selected:    #43320F; /* selected row tint (amber-derived)    */
+
+  /* ---------------------------------------------------------------
+     2. BORDERS / DIVIDERS
+     --------------------------------------------------------------- */
+  --rt-border-subtle:  #2A241F; /* hairlines between dense rows         */
+  --rt-border-default: #3A3128; /* panel borders, inputs                */
+  --rt-border-strong:  #524537; /* focus-adjacent, emphasized edges     */
+  --rt-grid-line:      #2A2620; /* chart gridlines                      */
+  --rt-grid-line-major:#3A342C; /* chart major gridlines, axes          */
+
+  /* ---------------------------------------------------------------
+     3. TEXT — warm off-whites for legibility on graphite.
+     --------------------------------------------------------------- */
+  --rt-text-primary:   #F4EEE6; /* headings, key values                 */
+  --rt-text-secondary: #BCB1A2; /* body, labels                         */
+  --rt-text-tertiary:  #8A7F70; /* captions, axis ticks, hints          */
+  --rt-text-disabled:  #5C544A; /* disabled controls                    */
+  --rt-text-on-accent: #1A1206; /* text on amber fills                  */
+  --rt-text-inverse:   #14110E; /* text on light fills                  */
+
+  /* ---------------------------------------------------------------
+     4. ACCENT — signal amber. Reserved for primary action,
+        the replay cursor, active selection and focus.
+        Do NOT use amber for telemetry traces (see channels).
+     --------------------------------------------------------------- */
+  --rt-accent:         #FFA60D; /* primary amber                        */
+  --rt-accent-hover:   #FFC24D; /* hover / lighter                      */
+  --rt-accent-active:  #E08A00; /* pressed / darker                     */
+  --rt-accent-muted:   #43320F; /* amber wash for backgrounds           */
+  --rt-accent-border:  #7D5E12; /* amber border on muted bg             */
+  --rt-cursor:         #FFA60D; /* primary replay cursor line           */
+  --rt-cursor-ref:     #7FA6C9; /* reference cursor (cool, secondary)   */
+  --rt-focus-ring:     #FFA60D; /* focus outline color                  */
+
+  /* ---------------------------------------------------------------
+     5. SEMANTIC — UI feedback (distinct from motorsport flags).
+     --------------------------------------------------------------- */
+  --rt-success:        #27D98C;
+  --rt-success-bg:     #13271E;
+  --rt-warning:        #FFB424;
+  --rt-warning-bg:     #2E2310;
+  --rt-danger:         #FF5A5F;
+  --rt-danger-bg:      #2E1414;
+  --rt-info:           #2E9BFF;
+  --rt-info-bg:        #122230;
+
+  /* ---------------------------------------------------------------
+     6. MOTORSPORT STATUS / FLAGS — track-status & race-control.
+        Each has a line/marker color and a low-alpha shade for
+        chart-background and timeline period overlays.
+     --------------------------------------------------------------- */
+  --rt-flag-clear:     #27D98C; /* track clear (status 1)               */
+  --rt-flag-clear-shade: rgba(39,217,140,0.2);
+  --rt-flag-yellow:    #FFDA1F; /* yellow flag (status 2)               */
+  --rt-flag-yellow-shade: rgba(255,218,31,0.2);
+  --rt-flag-sc:        #FF8A1F; /* safety car (status 4)                */
+  --rt-flag-sc-shade:  rgba(255,138,31,0.24);
+  --rt-flag-vsc:       #FFDB3D; /* virtual safety car (status 6/7)      */
+  --rt-flag-vsc-shade: rgba(255,219,61,0.2);
+  --rt-flag-red:       #FF5A5F; /* red flag (status 5)                  */
+  --rt-flag-red-shade: rgba(255,90,95,0.24);
+  --rt-flag-rain:      #3E9BF5; /* rainfall period                      */
+  --rt-flag-rain-shade: rgba(62,155,245,0.2);
+  --rt-flag-drs:       #1FE0CE; /* DRS enabled marker                   */
+
+  /* ---------------------------------------------------------------
+     7. TELEMETRY CHANNELS — original, colorblind-safe palette
+        (Okabe-Ito derived). Use solid lines; reinforce with the
+        dash patterns in --rt-dash-* for redundant encoding.
+     --------------------------------------------------------------- */
+  --rt-ch-speed:       #22A7FF; /* speed_kmh   — sky blue               */
+  --rt-ch-throttle:    #15D981; /* throttle_pct — green                 */
+  --rt-ch-brake:       #FF7A22; /* brake_pct   — vermillion             */
+  --rt-ch-gear:        #E86BE0; /* gear        — orchid                 */
+  --rt-ch-rpm:         #FFCE1A; /* rpm         — gold                   */
+  --rt-ch-drs:         #1FE0CE; /* drs         — teal                   */
+
+  --rt-dash-speed:     none;
+  --rt-dash-throttle:  none;
+  --rt-dash-brake:     none;
+  --rt-dash-gear:      "4 3";
+  --rt-dash-rpm:       "6 3";
+  --rt-dash-drs:       "2 3";
+
+  /* ---------------------------------------------------------------
+     8. DRIVER COMPARISON — A vs B (lap comparison overlays).
+        Strongly separable + colorblind-safe pair.
+     --------------------------------------------------------------- */
+  --rt-driver-a:       #22A7FF; /* driver A — blue                      */
+  --rt-driver-b:       #FF931A; /* driver B — orange                    */
+  --rt-delta-pos:      #27D98C; /* A faster (negative delta) — green    */
+  --rt-delta-neg:      #FF5A5F; /* A slower (positive delta) — red      */
+  --rt-delta-band:     rgba(255,166,13,0.10); /* selection band          */
+
+  /* ---------------------------------------------------------------
+     9. SEQUENTIAL HEATMAP — load-map / density (amber single-hue).
+        Replaces the reference magenta-blue ramp with on-brand amber.
+     --------------------------------------------------------------- */
+  --rt-heat-0:         #221A12;
+  --rt-heat-1:         #4A2F0C;
+  --rt-heat-2:         #7A4E0B;
+  --rt-heat-3:         #A86A0A;
+  --rt-heat-4:         #E08A00;
+  --rt-heat-5:         #FFA60D;
+  --rt-heat-6:         #FFDE7A;
+
+  /* ---------------------------------------------------------------
+     10. TYPOGRAPHY
+         Sans for chrome/labels; Mono for all numeric telemetry
+         (tabular figures keep columns aligned during replay).
+     --------------------------------------------------------------- */
+  --rt-font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --rt-font-mono: "JetBrains Mono", "Roboto Mono", "Cascadia Mono", ui-monospace, monospace;
+
+  --rt-fs-2xs:   11px; /* axis ticks, dense table meta                  */
+  --rt-fs-xs:    12px; /* table cells, secondary labels                 */
+  --rt-fs-sm:    13px; /* default control text                          */
+  --rt-fs-base:  14px; /* base body / UI                                */
+  --rt-fs-md:    15px; /* panel sub-titles                              */
+  --rt-fs-lg:    17px; /* panel titles                                  */
+  --rt-fs-xl:    20px; /* screen / section headings                     */
+  --rt-fs-2xl:   24px;
+
+  --rt-num-sm:   13px; /* inline numeric in tables                      */
+  --rt-num-md:   18px; /* readout values                                */
+  --rt-num-lg:   28px; /* current-value cards                           */
+  --rt-num-xl:   44px; /* hero timer / dominant readout                 */
+
+  --rt-fw-regular: 400;
+  --rt-fw-medium:  500;
+  --rt-fw-semibold:600;
+  --rt-fw-bold:    700;
+
+  --rt-lh-tight:   1.2;  /* numerics, headings                          */
+  --rt-lh-snug:    1.35; /* dense rows                                  */
+  --rt-lh-normal:  1.55; /* body copy                                   */
+  --rt-tracking-caps: 0.06em; /* the few uppercase micro-labels         */
+
+  /* ---------------------------------------------------------------
+     11. SPACING — 4px base, tuned dense for a workbench.
+     --------------------------------------------------------------- */
+  --rt-space-0:  0;
+  --rt-space-1:  2px;
+  --rt-space-2:  4px;
+  --rt-space-3:  6px;
+  --rt-space-4:  8px;
+  --rt-space-5:  12px;
+  --rt-space-6:  16px;
+  --rt-space-7:  20px;
+  --rt-space-8:  24px;
+  --rt-space-9:  32px;
+  --rt-space-10: 40px;
+  --rt-space-11: 48px;
+
+  /* component padding shortcuts */
+  --rt-pad-control-y: 6px;
+  --rt-pad-control-x: 12px;
+  --rt-pad-panel:     12px;
+  --rt-pad-cell-y:    6px;
+  --rt-pad-cell-x:    10px;
+
+  /* ---------------------------------------------------------------
+     12. RADIUS — moderate; softer than MoTeC (0), tighter than web cards.
+     --------------------------------------------------------------- */
+  --rt-radius-none: 0;
+  --rt-radius-sm:   3px;
+  --rt-radius-md:   5px;  /* default control radius                     */
+  --rt-radius-lg:   8px;  /* panels, cards                              */
+  --rt-radius-xl:   12px;
+  --rt-radius-pill: 999px;
+
+  /* ---------------------------------------------------------------
+     13. BORDER WIDTHS
+     --------------------------------------------------------------- */
+  --rt-border-hairline: 1px;
+  --rt-border-thick:    2px;
+  --rt-border-accent:   2px; /* left-rail accents on active panels      */
+
+  /* ---------------------------------------------------------------
+     14. ELEVATION — restrained shadows on dark; layering leans on
+         surface tint + border more than blur.
+     --------------------------------------------------------------- */
+  --rt-elev-0: none;
+  --rt-elev-1: 0 1px 2px rgba(0,0,0,0.45);
+  --rt-elev-2: 0 2px 8px rgba(0,0,0,0.50);
+  --rt-elev-3: 0 8px 24px rgba(0,0,0,0.55);
+  --rt-focus:  0 0 0 2px rgba(255,166,13,0.55);
+
+  /* ---------------------------------------------------------------
+     15. MOTION — chrome only. The replay render loop (track map,
+         waveform, readouts) must NOT use CSS transitions; it is
+         data-driven and real-time. Respect prefers-reduced-motion.
+     --------------------------------------------------------------- */
+  --rt-dur-instant: 0ms;
+  --rt-dur-fast:    120ms;
+  --rt-dur-base:    180ms;
+  --rt-dur-slow:    240ms;
+  --rt-ease-standard:   cubic-bezier(0.2, 0, 0, 1);
+  --rt-ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --rt-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+
+  /* ---------------------------------------------------------------
+     16. Z-INDEX
+     --------------------------------------------------------------- */
+  --rt-z-base:     0;
+  --rt-z-sticky:   100; /* sticky table headers                        */
+  --rt-z-overlay:  200; /* chart overlays, cursors                     */
+  --rt-z-popover:  300; /* dropdowns, tooltips                         */
+  --rt-z-modal:    400;
+  --rt-z-toast:    500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --rt-dur-fast: 0ms;
+    --rt-dur-base: 0ms;
+    --rt-dur-slow: 0ms;
+  }
+}
+
+/* =====================================================================
+   .NET MAUI MAPPING (reference)
+   Mirror these CSS vars to ResourceDictionary keys, e.g.:
+     --rt-bg-surface     -> <Color x:Key="BgSurface">#1C1815</Color>
+     --rt-accent         -> <Color x:Key="Accent">#FFA60D</Color>
+     --rt-ch-speed       -> <Color x:Key="ChSpeed">#22A7FF</Color>
+   Keep one mapping file (Theme.Carbon.xaml) generated from
+   design-tokens.json so the app and this stylesheet never drift.
+   ===================================================================== */

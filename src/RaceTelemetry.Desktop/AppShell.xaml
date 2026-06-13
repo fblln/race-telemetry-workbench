@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:RaceTelemetry.Desktop.Views"
+       x:Class="RaceTelemetry.Desktop.AppShell"
+       FlyoutBehavior="Disabled"
+       BackgroundColor="{StaticResource BgCanvas}">
+
+    <!-- The launcher is the root. Opening a session navigates to the session console,
+         which hosts the left view rail, command bar, and HUD (§8.11). -->
+    <ShellContent Route="launcher"
+                  ContentTemplate="{DataTemplate views:LauncherPage}" />
+
+</Shell>

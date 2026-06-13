@@ -1,0 +1,121 @@
+{
+  "$schema": "https://design-tokens.org/format",
+  "name": "Carbon Signal",
+  "description": "Warm-carbon dark analysis theme for Race Telemetry Workbench. Graphite surfaces, punchy signal-amber accent, colorblind-safe telemetry channels.",
+  "version": "1.1.0",
+  "color": {
+    "surface": {
+      "canvas":   { "value": "#14110E", "comment": "app background, deepest layer" },
+      "surface":  { "value": "#1C1815", "comment": "panels, cards" },
+      "raised":   { "value": "#241F1B", "comment": "panel headers, popovers" },
+      "overlay":  { "value": "#2C2620", "comment": "tooltips, menus, dialogs" },
+      "inset":    { "value": "#100D0B", "comment": "chart plot areas, wells" },
+      "hover":    { "value": "#2A241F", "comment": "row / control hover" },
+      "selected": { "value": "#43320F", "comment": "selected row tint (amber-derived)" }
+    },
+    "border": {
+      "subtle":    { "value": "#2A241F" },
+      "default":   { "value": "#3A3128" },
+      "strong":    { "value": "#524537" },
+      "gridLine":      { "value": "#2A2620" },
+      "gridLineMajor": { "value": "#3A342C" }
+    },
+    "text": {
+      "primary":   { "value": "#F4EEE6" },
+      "secondary": { "value": "#BCB1A2" },
+      "tertiary":  { "value": "#8A7F70" },
+      "disabled":  { "value": "#5C544A" },
+      "onAccent":  { "value": "#1A1206" },
+      "inverse":   { "value": "#14110E" }
+    },
+    "accent": {
+      "base":   { "value": "#FFA60D" },
+      "hover":  { "value": "#FFC24D" },
+      "active": { "value": "#E08A00" },
+      "muted":  { "value": "#43320F" },
+      "border": { "value": "#7D5E12" },
+      "cursor":    { "value": "#FFA60D" },
+      "cursorRef": { "value": "#7FA6C9" },
+      "focusRing": { "value": "#FFA60D" }
+    },
+    "semantic": {
+      "success":   { "value": "#27D98C" },
+      "successBg": { "value": "#13271E" },
+      "warning":   { "value": "#FFB424" },
+      "warningBg": { "value": "#2E2310" },
+      "danger":    { "value": "#FF5A5F" },
+      "dangerBg":  { "value": "#2E1414" },
+      "info":      { "value": "#2E9BFF" },
+      "infoBg":    { "value": "#122230" }
+    },
+    "flag": {
+      "clear":      { "value": "#27D98C", "shade": "rgba(39,217,140,0.2)", "comment": "track clear (1)" },
+      "yellow":     { "value": "#FFDA1F", "shade": "rgba(255,218,31,0.2)", "comment": "yellow flag (2)" },
+      "safetyCar":  { "value": "#FF8A1F", "shade": "rgba(255,138,31,0.24)", "comment": "safety car (4)" },
+      "vsc":        { "value": "#FFDB3D", "shade": "rgba(255,219,61,0.2)", "comment": "virtual safety car (6/7)" },
+      "red":        { "value": "#FF5A5F", "shade": "rgba(255,90,95,0.24)", "comment": "red flag (5)" },
+      "rain":       { "value": "#3E9BF5", "shade": "rgba(62,155,245,0.2)", "comment": "rainfall period" },
+      "drs":        { "value": "#1FE0CE", "comment": "DRS enabled marker" }
+    },
+    "channel": {
+      "speed":    { "value": "#22A7FF", "dash": "none", "comment": "speed_kmh" },
+      "throttle": { "value": "#15D981", "dash": "none", "comment": "throttle_pct" },
+      "brake":    { "value": "#FF7A22", "dash": "none", "comment": "brake_pct" },
+      "gear":     { "value": "#E86BE0", "dash": "4 3",  "comment": "gear" },
+      "rpm":      { "value": "#FFCE1A", "dash": "6 3",  "comment": "rpm" },
+      "drs":      { "value": "#1FE0CE", "dash": "2 3",  "comment": "drs" }
+    },
+    "driver": {
+      "a":        { "value": "#22A7FF", "comment": "driver A — blue" },
+      "b":        { "value": "#FF931A", "comment": "driver B — orange" },
+      "deltaPos": { "value": "#27D98C", "comment": "A faster" },
+      "deltaNeg": { "value": "#FF5A5F", "comment": "A slower" },
+      "deltaBand":{ "value": "rgba(255,166,13,0.10)" }
+    },
+    "heatmap": {
+      "stops": ["#221A12", "#4A2F0C", "#7A4E0B", "#A86A0A", "#E08A00", "#FFA60D", "#FFDE7A"],
+      "comment": "amber single-hue sequential ramp for load-map / density"
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "sans": "Inter, 'Segoe UI', system-ui, -apple-system, sans-serif",
+      "mono": "'JetBrains Mono', 'Roboto Mono', 'Cascadia Mono', ui-monospace, monospace"
+    },
+    "fontSize": {
+      "2xs": "11px", "xs": "12px", "sm": "13px", "base": "14px",
+      "md": "15px", "lg": "17px", "xl": "20px", "2xl": "24px",
+      "numSm": "13px", "numMd": "18px", "numLg": "28px", "numXl": "44px"
+    },
+    "fontWeight": { "regular": 400, "medium": 500, "semibold": 600, "bold": 700 },
+    "lineHeight": { "tight": 1.2, "snug": 1.35, "normal": 1.55 },
+    "letterSpacing": { "caps": "0.06em" }
+  },
+  "space": {
+    "0": "0", "1": "2px", "2": "4px", "3": "6px", "4": "8px", "5": "12px",
+    "6": "16px", "7": "20px", "8": "24px", "9": "32px", "10": "40px", "11": "48px"
+  },
+  "radius": {
+    "none": "0", "sm": "3px", "md": "5px", "lg": "8px", "xl": "12px", "pill": "999px"
+  },
+  "border": { "hairline": "1px", "thick": "2px", "accent": "2px" },
+  "elevation": {
+    "0": "none",
+    "1": "0 1px 2px rgba(0,0,0,0.45)",
+    "2": "0 2px 8px rgba(0,0,0,0.50)",
+    "3": "0 8px 24px rgba(0,0,0,0.55)",
+    "focus": "0 0 0 2px rgba(255,166,13,0.55)"
+  },
+  "motion": {
+    "duration": { "instant": "0ms", "fast": "120ms", "base": "180ms", "slow": "240ms" },
+    "easing": {
+      "standard": "cubic-bezier(0.2, 0, 0, 1)",
+      "decelerate": "cubic-bezier(0, 0, 0, 1)",
+      "accelerate": "cubic-bezier(0.3, 0, 1, 1)"
+    },
+    "note": "Chrome only. Replay render loop is real-time and must not use CSS transitions."
+  },
+  "zIndex": {
+    "base": 0, "sticky": 100, "overlay": 200, "popover": 300, "modal": 400, "toast": 500
+  }
+}

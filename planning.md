@@ -56,6 +56,9 @@ desktop UI surface.
 - [ ] Move TimescaleDB from standalone Docker Compose into Aspire-managed local resources.
 - [ ] Derive the desktop track outline from imported `position_samples`, not external track assets.
 - [ ] Tune season-import concurrency after completing a full 2025 season import at `--workers 2` or `--workers 3`.
+- [ ] Ensure `circuit_markers` corner attribution is consistently available for
+  imported sessions so `telemetry/windows`'s `nearestCorner` and the new
+  `corners/compare` endpoint (§6.10.6) can rely on it.
 
 Completed highlights:
 
@@ -76,6 +79,18 @@ Completed highlights:
 ### Phase 2 - Query API
 
 - [ ] Add focused Query API analytical endpoint tests against the real database.
+- [ ] Add `sessionIdB` to `compare/laps` for cross-session lap comparison
+  (§6.5), restricted to sessions at the same circuit.
+- [ ] Add `POST /api/sessions/{sessionId}/strategy/summarize` (§6.10.4):
+  pit-stop timing, undercut/overcut labels, pit-lane loss vs. field average,
+  and short narrative facts, composed from existing stint/pit/track-status
+  data.
+- [ ] Add `POST /api/sessions/{sessionId}/debrief` (§6.10.5): bounded,
+  section-based race summary (overview, incidents, strategy, weather)
+  composed from existing story/strategy/weather endpoints.
+- [ ] Add `POST /api/sessions/{sessionId}/corners/compare` (§6.10.6):
+  per-corner braking/exit comparison across drivers using `circuit_markers`
+  and `telemetry/windows` corner attribution.
 
 Completed highlights:
 
@@ -158,7 +173,8 @@ Completed highlights:
 - [ ] Dedicated driver profile view.
 - [ ] Dedicated pit analysis view.
 - [ ] Multi-driver lap ranking and mini-sector style comparison.
-- [ ] Cross-session lap comparison.
+- [ ] Cross-session lap comparison UI (second-session picker over the
+  `sessionIdB` backend contract, §6.5).
 - [ ] Histogram, load-map, and scatter displays backed by bounded aggregate
   endpoints.
 - [ ] Event search builder for telemetry windows.
@@ -179,6 +195,14 @@ Completed:
   telemetry for natural-language analysis.
 - [x] Bounded structured JSON responses and one trace span per tool call.
 - [x] Focused MCP server tests.
+
+Backlog:
+
+- [ ] Add `summarize_strategy`, `generate_race_debrief`, and `compare_corners`
+  MCP tools as thin adapters over the new Query API endpoints (§9.2.1, §9.3),
+  once those endpoints exist.
+- [ ] Add cross-session support to the `compare_laps` MCP tool via
+  `sessionIdB`, matching the Query API contract.
 
 ### Phase 6 - Optional AI Assistant Panel
 
@@ -307,3 +331,25 @@ High performance is a core MAUI requirement: viewport-aware drawing, no UI
 element per telemetry sample, responsive replay/seek/redraw/scrolling, off-UI
 thread HTTP/JSON/downsampling work, virtualized lists, and explicitly bounded
 caches.
+
+### 2026-06-13 - New Analytical Endpoints: Strategy, Debrief, Corner Comparison, Cross-Session
+
+Four new analytical capabilities are added to the spec (§6.10.4-6.10.6, §6.5)
+as compositions over existing data and endpoints, not new raw-data access
+paths:
+
+- `strategy/summarize` (pit timing, undercut/overcut, narrative facts), built
+  from existing stint, pit-stop, track-status, and race-control data.
+- `debrief` (bounded, section-based race summary), composed from existing
+  race/lap story, weather trend, and the new strategy-summary endpoint.
+- `corners/compare`, extending the existing `telemetry/windows`
+  `nearestCorner` attribution into a per-corner driver comparison. This
+  depends on the Phase 1 backlog item to ensure `circuit_markers` corner
+  attribution is consistently available.
+- `compare/laps` gains an optional `sessionIdB` for cross-session comparison
+  at the same circuit (for example year-over-year), keeping the existing
+  single-session behavior as the default.
+
+Each gets a matching MCP tool (`summarize_strategy`, `generate_race_debrief`,
+`compare_corners`) following the existing parity rule
+(2026-06-08 decision): Query API route first, MCP adapter second.
