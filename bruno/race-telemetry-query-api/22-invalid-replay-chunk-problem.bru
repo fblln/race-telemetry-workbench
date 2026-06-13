@@ -1,0 +1,15 @@
+meta {
+  name: Invalid Replay Chunk Problem
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrl}}/api/sessions/{{sessionId}}/replay/chunk?fromMs=0&durationMs=1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/problem+json
+}

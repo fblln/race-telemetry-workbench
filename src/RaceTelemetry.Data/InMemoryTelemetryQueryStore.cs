@@ -153,8 +153,8 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             lapNumber,
             channels,
             [
-                new TelemetrySample(DateTimeOffset.UtcNow, 190_000, 10_000, 312, 100, 0, 8, 11_750, 10),
-                new TelemetrySample(DateTimeOffset.UtcNow.AddSeconds(10), 200_000, 20_000, 184, 5, 92, 4, 10_400, 0)
+                ProjectTelemetrySample(channels, DateTimeOffset.UtcNow, 190_000, 10_000, 312, 100, 0, 8, 11_750, 10),
+                ProjectTelemetrySample(channels, DateTimeOffset.UtcNow.AddSeconds(10), 200_000, 20_000, 184, 5, 92, 4, 10_400, 0)
             ]));
     }
 
@@ -563,7 +563,7 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
         var items = selectedDrivers
             .Select(driver => new ReplayDriverChunk(
                 driver.ToUpperInvariant(),
-                [new ReplaySample(fromMs + 12, 1, 298.2, 100, 0, 8, 11_680, 0, 1234.5, -341.2, 0)]))
+                [ProjectReplaySample(channels, fromMs + 12, 1, 298.2, 100, 0, 8, 11_680, 0, 1234.5, -341.2, 0)]))
             .ToArray();
 
         return Task.FromResult<ReplayChunkResponse?>(new ReplayChunkResponse(
@@ -617,4 +617,55 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
 
     private static bool IsKnownSession(string sessionId) =>
         string.Equals(sessionId, Monza2025.SessionId, StringComparison.OrdinalIgnoreCase);
+
+    private static TelemetrySample ProjectTelemetrySample(
+        IReadOnlyList<string> channels,
+        DateTimeOffset sampleTimeUtc,
+        long? sessionTimeMs,
+        long? lapTimeMs,
+        double? speedKmh,
+        double? throttlePct,
+        double? brakePct,
+        int? gear,
+        double? rpm,
+        int? drs) =>
+        new(
+            sampleTimeUtc,
+            sessionTimeMs,
+            lapTimeMs,
+            ChannelSelected(channels, "speed_kmh") ? speedKmh : null,
+            ChannelSelected(channels, "throttle_pct") ? throttlePct : null,
+            ChannelSelected(channels, "brake_pct") ? brakePct : null,
+            ChannelSelected(channels, "gear") ? gear : null,
+            ChannelSelected(channels, "rpm") ? rpm : null,
+            ChannelSelected(channels, "drs") ? drs : null);
+
+    private static ReplaySample ProjectReplaySample(
+        IReadOnlyList<string> channels,
+        long? offsetMs,
+        int? lapNumber,
+        double? speedKmh,
+        double? throttlePct,
+        double? brakePct,
+        int? gear,
+        double? rpm,
+        int? drs,
+        double? x,
+        double? y,
+        double? z) =>
+        new(
+            offsetMs,
+            lapNumber,
+            ChannelSelected(channels, "speed_kmh") ? speedKmh : null,
+            ChannelSelected(channels, "throttle_pct") ? throttlePct : null,
+            ChannelSelected(channels, "brake_pct") ? brakePct : null,
+            ChannelSelected(channels, "gear") ? gear : null,
+            ChannelSelected(channels, "rpm") ? rpm : null,
+            ChannelSelected(channels, "drs") ? drs : null,
+            ChannelSelected(channels, "x") ? x : null,
+            ChannelSelected(channels, "y") ? y : null,
+            ChannelSelected(channels, "z") ? z : null);
+
+    private static bool ChannelSelected(IReadOnlyList<string> channels, string channel) =>
+        channels.Contains(channel, StringComparer.OrdinalIgnoreCase);
 }

@@ -11,14 +11,12 @@ smoke tests before importing full race sessions.
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
@@ -40,12 +38,29 @@ from scripts.download_session import (
     select_driver_codes,
 )
 
+from scripts.import_helpers import (
+    DriverLapWindow,
+    DriverSampleRows,
+    EMPTY_METADATA,
+    ImportSummary,
+    bool_or_none,
+    brake_to_pct,
+    clean_value,
+    column_values,
+    float_or_none,
+    int_or_none,
+    json_metadata,
+    percentage_or_none,
+    str_or_none,
+    timedelta_to_ms,
+    timestamp_or_none,
+)
+from scripts.import_writers import BatchWriter, CopyWriter, execute_many, sample_writer
 
 DEFAULT_DATABASE_URL = "postgresql://race_telemetry:race_telemetry@localhost:5432/race_telemetry"
 DEFAULT_BATCH_SIZE = 100000
 DEFAULT_TELEMETRY_WORKERS = 1
 SAMPLE_WRITE_METHODS = {"copy", "insert"}
-EMPTY_METADATA = "{}"
 
 TELEMETRY_COLUMNS = (
     "sample_time_utc",
@@ -98,38 +113,6 @@ ON CONFLICT (sample_time_utc, session_id, driver_code) DO NOTHING
 """
 
 
-@dataclass(frozen=True)
-class ImportSummary:
-    session_id: str
-    mode: str
-    drivers: int
-    laps: int
-    telemetry_samples: int
-    position_samples: int
-    circuit_markers: int
-    weather_samples: int
-    track_status_events: int
-    session_status_events: int
-    race_control_messages: int
-    elapsed_seconds: float
-
-
-@dataclass(frozen=True)
-class DriverLapWindow:
-    lap_number: int
-    start_ms: int
-    end_ms: int
-
-
-@dataclass(frozen=True)
-class DriverSampleRows:
-    driver_code: str
-    lap_count: int
-    telemetry_rows: list[tuple[Any, ...]]
-    position_rows: list[tuple[Any, ...]]
-    elapsed_seconds: float
-
-
 def database_url() -> str:
     return os.environ.get("RACE_TELEMETRY_DATABASE_URL", DEFAULT_DATABASE_URL)
 
@@ -142,228 +125,6 @@ def require_psycopg():
             "psycopg is not installed. Run `.venv/bin/python -m pip install -r scripts/requirements.txt`."
         ) from exc
     return psycopg
-
-
-def is_missing(value: Any) -> bool:
-    try:
-        return bool(value is None or value != value)
-    except (TypeError, ValueError):
-        return value is None
-
-
-def clean_value(value: Any) -> Any:
-    if is_missing(value):
-        return None
-    if hasattr(value, "item"):
-        try:
-            return value.item()
-        except (TypeError, ValueError):
-            pass
-    return value
-
-
-def int_or_none(value: Any) -> int | None:
-    value = clean_value(value)
-    return int(value) if value is not None else None
-
-
-def float_or_none(value: Any) -> float | None:
-    value = clean_value(value)
-    return float(value) if value is not None else None
-
-
-def str_or_none(value: Any) -> str | None:
-    value = clean_value(value)
-    if value is None:
-        return None
-    text = str(value)
-    return text if text else None
-
-
-def bool_or_none(value: Any) -> bool | None:
-    value = clean_value(value)
-    return bool(value) if value is not None else None
-
-
-def timestamp_or_none(value: Any) -> datetime | None:
-    value = clean_value(value)
-    if value is None:
-        return None
-    if isinstance(value, str):
-        try:
-            value = datetime.fromisoformat(value.replace("Z", "+00:00"))
-        except ValueError:
-            return None
-    if hasattr(value, "to_pydatetime"):
-        value = value.to_pydatetime()
-    if isinstance(value, datetime):
-        if value.tzinfo is None:
-            return value.replace(tzinfo=UTC)
-        return value.astimezone(UTC)
-    return None
-
-
-def timedelta_to_ms(value: Any) -> int | None:
-    value = clean_value(value)
-    if value is None:
-        return None
-    if hasattr(value, "total_seconds"):
-        return int(round(value.total_seconds() * 1000))
-    return None
-
-
-def brake_to_pct(value: Any) -> float | None:
-    value = clean_value(value)
-    if value is None:
-        return None
-    if isinstance(value, bool):
-        return 100.0 if value else 0.0
-    return percentage_or_none(value)
-
-
-def percentage_or_none(value: Any) -> float | None:
-    value = float_or_none(value)
-    if value is None:
-        return None
-    return min(100.0, max(0.0, value))
-
-
-def json_metadata(payload: dict[str, Any] | None = None) -> str:
-    if not payload:
-        return EMPTY_METADATA
-    return json.dumps(payload)
-
-
-def column_values(frame: Any, column: str) -> Any:
-    if column not in frame:
-        return [None] * len(frame)
-    return frame[column].to_numpy(dtype=object, copy=False)
-
-
-def batched(values: Sequence[tuple[Any, ...]], batch_size: int) -> Iterable[Sequence[tuple[Any, ...]]]:
-    for start in range(0, len(values), batch_size):
-        yield values[start : start + batch_size]
-
-
-def execute_many(connection: Any, sql: str, rows: Sequence[tuple[Any, ...]], batch_size: int) -> int:
-    if not rows:
-        return 0
-    with connection.cursor() as cursor:
-        for batch in batched(rows, batch_size):
-            cursor.executemany(sql, batch)
-    return len(rows)
-
-
-class BatchWriter:
-    """Bounded insert buffer for streaming large sample tables."""
-
-    def __init__(self, connection: Any, sql: str, table_name: str, batch_size: int) -> None:
-        self.connection = connection
-        self.sql = sql
-        self.table_name = table_name
-        self.batch_size = batch_size
-        self.buffer: list[tuple[Any, ...]] = []
-        self.total = 0
-
-    def add_many(self, rows: Sequence[tuple[Any, ...]]) -> None:
-        if not rows:
-            return
-        self.buffer.extend(rows)
-        while len(self.buffer) >= self.batch_size:
-            self.flush(self.batch_size)
-
-    def flush(self, limit: int | None = None) -> None:
-        if not self.buffer:
-            return
-        if limit is None:
-            batch = self.buffer
-            self.buffer = []
-        else:
-            batch = self.buffer[:limit]
-            self.buffer = self.buffer[limit:]
-        execute_many(self.connection, self.sql, batch, len(batch))
-        self.total += len(batch)
-        logging.info("Inserted %s rows: %s", self.table_name, f"{self.total:,}")
-
-
-class CopyWriter:
-    """Bounded COPY buffer for append-heavy sample tables.
-
-    COPY avoids the per-row INSERT protocol cost that dominates full-session
-    imports. The writer keeps a compact key set because FastF1 can occasionally
-    emit duplicate timestamps for the same driver inside raw source feeds.
-    """
-
-    def __init__(
-        self,
-        connection: Any,
-        table_name: str,
-        columns: Sequence[str],
-        batch_size: int,
-        key_indexes: tuple[int, int, int],
-    ) -> None:
-        self.connection = connection
-        self.table_name = table_name
-        self.columns = columns
-        self.batch_size = batch_size
-        self.key_indexes = key_indexes
-        self.buffer: list[tuple[Any, ...]] = []
-        self.seen_keys: set[tuple[Any, Any, Any]] = set()
-        self.total = 0
-        self.duplicates = 0
-        self.write_seconds = 0.0
-
-    def add_many(self, rows: Sequence[tuple[Any, ...]]) -> None:
-        if not rows:
-            return
-        for row in rows:
-            key = tuple(row[index] for index in self.key_indexes)
-            if key in self.seen_keys:
-                self.duplicates += 1
-                continue
-            self.seen_keys.add(key)
-            self.buffer.append(row)
-        while len(self.buffer) >= self.batch_size:
-            self.flush(self.batch_size)
-
-    def flush(self, limit: int | None = None) -> None:
-        if not self.buffer:
-            return
-        if limit is None:
-            batch = self.buffer
-            self.buffer = []
-        else:
-            batch = self.buffer[:limit]
-            self.buffer = self.buffer[limit:]
-
-        start = time.perf_counter()
-        column_sql = ", ".join(self.columns)
-        with self.connection.cursor() as cursor:
-            with cursor.copy(f"COPY {self.table_name} ({column_sql}) FROM STDIN") as copy:
-                for row in batch:
-                    copy.write_row(row)
-        elapsed = time.perf_counter() - start
-        self.write_seconds += elapsed
-        self.total += len(batch)
-        logging.info(
-            "Copied %s rows: %s (+%s in %.2fs)",
-            self.table_name,
-            f"{self.total:,}",
-            f"{len(batch):,}",
-            elapsed,
-        )
-
-
-def sample_writer(
-    connection: Any,
-    args: argparse.Namespace,
-    table_name: str,
-    insert_sql: str,
-    columns: Sequence[str],
-) -> BatchWriter | CopyWriter:
-    if args.sample_write_method == "copy":
-        return CopyWriter(connection, table_name, columns, args.batch_size, (0, 1, 2))
-    return BatchWriter(connection, insert_sql, table_name, args.batch_size)
 
 
 def delete_existing_session(connection: Any, session_id: str) -> None:

@@ -1,0 +1,29 @@
+site_name: Race Telemetry Workbench
+site_description: Local Formula 1 telemetry import, replay, and analysis workbench.
+repo_url: https://github.com/fblln/race-telemetry-workbench
+repo_name: fblln/race-telemetry-workbench
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Development:
+      - development.md
+      - Data: data.md
+  - API:
+      - Overview: api.md
+      - OpenAPI: api/openapi.md
+  - Database schema: database-schema.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
