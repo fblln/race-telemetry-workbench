@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RaceTelemetry.Desktop.ViewModels"
+             x:Class="RaceTelemetry.Desktop.Views.StrategyView"
+             x:DataType="vm:StrategyViewModel">
+    <Grid Padding="16" RowDefinitions="Auto,*" RowSpacing="10">
+        <VerticalStackLayout Grid.Row="0" Spacing="2">
+            <Label Text="Tire strategy" Style="{StaticResource H1}" FontSize="{StaticResource FsLg}" />
+            <Label Text="{Binding Caption}" Style="{StaticResource Caption}" />
+        </VerticalStackLayout>
+        <Border Grid.Row="1" Style="{StaticResource Panel}">
+            <Grid RowDefinitions="Auto,*">
+                <Label Text="Stints" Style="{StaticResource PanelTitle}" Margin="12,8" />
+                <GraphicsView Grid.Row="1" x:Name="GanttView" BackgroundColor="{StaticResource BgSurface}" />
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

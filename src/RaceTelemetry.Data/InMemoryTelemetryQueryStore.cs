@@ -615,6 +615,78 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
                 : null);
     }
 
+    public Task<StandingsResponse?> GetStandingsAsync(
+        string sessionId,
+        int? atLap,
+        string sortBy,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<StandingsResponse?>(null);
+        }
+
+        return Task.FromResult<StandingsResponse?>(new StandingsResponse(
+            sessionId,
+            atLap ?? 53,
+            [
+                new StandingRow(1, "VER", "Max Verstappen", "Red Bull Racing", 0, 0, 84_870, 84_870, true, true, "HARD", 24, 1, "running", [85_100, 84_980, 84_920, 84_900, 84_870]),
+                new StandingRow(2, "LEC", "Charles Leclerc", "Ferrari", 2_340, 2_340, 85_120, 84_900, false, false, "HARD", 24, 1, "running", [85_400, 85_220, 85_180, 85_120, 84_900])
+            ]));
+    }
+
+    public Task<IncidentsResponse?> GetIncidentsAsync(
+        string sessionId,
+        IReadOnlyList<string>? types,
+        double minBrakingG,
+        int maxResults,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<IncidentsResponse?>(null);
+        }
+
+        return Task.FromResult<IncidentsResponse?>(new IncidentsResponse(
+            sessionId,
+            [
+                new Incident("safety_car", null, 1_820_000, "Safety car deployed", null, null, null, null, "high", null),
+                new Incident("hard_braking", 5, 320_000, "LEC hard braking into Turn 1/2, Variante del Rettifilo", new NearestCorner(1, "Turn 1/2, Variante del Rettifilo"), -569.58, 8153.72, "LEC", "info", new IncidentMetrics(5.1, 342, 132))
+            ],
+            new IncidentSummary(2, 5.1, 1)));
+    }
+
+    public Task<PositionsResponse?> GetPositionsAsync(
+        string sessionId,
+        IReadOnlyList<string>? drivers,
+        int? fromLap,
+        int? toLap,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<PositionsResponse?>(null);
+        }
+
+        var from = fromLap ?? 1;
+        var to = toLap ?? 3;
+        var length = Math.Max(1, to - from + 1);
+        return Task.FromResult<PositionsResponse?>(new PositionsResponse(
+            sessionId,
+            from,
+            to,
+            [
+                new DriverPositions("VER", Enumerable.Repeat<int?>(1, length).ToArray()),
+                new DriverPositions("LEC", Enumerable.Repeat<int?>(2, length).ToArray())
+            ]));
+    }
+
     private static bool IsKnownSession(string sessionId) =>
         string.Equals(sessionId, Monza2025.SessionId, StringComparison.OrdinalIgnoreCase);
 

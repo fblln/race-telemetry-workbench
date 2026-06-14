@@ -126,4 +126,24 @@ public interface IF1TelemetryQueryStore
         string sessionId,
         TelemetryEventSearchRequest request,
         CancellationToken cancellationToken);
+
+    Task<StandingsResponse?> GetStandingsAsync(
+        string sessionId,
+        int? atLap,
+        string sortBy,
+        CancellationToken cancellationToken);
+
+    Task<IncidentsResponse?> GetIncidentsAsync(
+        string sessionId,
+        IReadOnlyList<string>? types,
+        double minBrakingG,
+        int maxResults,
+        CancellationToken cancellationToken);
+
+    Task<PositionsResponse?> GetPositionsAsync(
+        string sessionId,
+        IReadOnlyList<string>? drivers,
+        int? fromLap,
+        int? toLap,
+        CancellationToken cancellationToken);
 }

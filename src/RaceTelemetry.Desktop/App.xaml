@@ -11,7 +11,14 @@
             </ResourceDictionary.MergedDictionaries>
 
             <local:IsNotNullConverter x:Key="IsNotNull" />
+            <local:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <local:DashIfEmptyConverter x:Key="DashIfEmpty" />
+            <local:LapTimeConverter x:Key="LapTime" />
+            <local:GapConverter x:Key="Gap" />
+            <local:DriverColorConverter x:Key="DriverColor" />
+            <local:BoolToColorConverter x:Key="BoolColor" />
+            <local:StatusColorConverter x:Key="StatusColor" />
+            <local:SessionLabelConverter x:Key="SessionLabel" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

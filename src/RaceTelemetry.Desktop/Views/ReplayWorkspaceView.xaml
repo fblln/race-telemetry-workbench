@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RaceTelemetry.Desktop.ViewModels"
+             x:Class="RaceTelemetry.Desktop.Views.ReplayWorkspaceView"
+             x:DataType="vm:ReplayWorkspaceViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="{StaticResource AppPagePadding}" RowSpacing="10">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                <Label Text="Replay workspace" Style="{StaticResource H1}" FontSize="{StaticResource FsLg}" />
+                <Label Text="{Binding Status}" Style="{StaticResource Caption}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1" Text="Load" Style="{StaticResource SecondaryButton}"
+                    Command="{Binding LoadCommand}" VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Track map + waveform + current values -->
+        <Grid Grid.Row="1" ColumnDefinitions="1.1*,1.4*,150" ColumnSpacing="12">
+
+            <Border Grid.Column="0" Style="{StaticResource Panel}">
+                <Grid RowDefinitions="Auto,*">
+                    <Label Text="Track map" Style="{StaticResource PanelTitle}" Margin="12,8" />
+                    <GraphicsView Grid.Row="1" x:Name="MapView" BackgroundColor="{StaticResource BgInset}" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource Panel}">
+                <Grid RowDefinitions="Auto,*">
+                    <Label Text="Waveform" Style="{StaticResource PanelTitle}" Margin="12,8" />
+                    <GraphicsView Grid.Row="1" x:Name="WaveView" BackgroundColor="{StaticResource BgInset}" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource Panel}">
+                <VerticalStackLayout Padding="12" Spacing="10">
+                    <Label Text="CURRENT" Style="{StaticResource MicroLabel}" />
+                    <VerticalStackLayout Spacing="1">
+                        <Label Text="SPEED" Style="{StaticResource MicroLabel}" />
+                        <Label Text="{Binding Speed}" Style="{StaticResource Numeric}" TextColor="{StaticResource Accent}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="1">
+                        <Label Text="THROTTLE" Style="{StaticResource MicroLabel}" />
+                        <Label Text="{Binding Throttle}" Style="{StaticResource Numeric}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="1">
+                        <Label Text="BRAKE" Style="{StaticResource MicroLabel}" />
+                        <Label Text="{Binding Brake}" Style="{StaticResource Numeric}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="1">
+                        <Label Text="GEAR" Style="{StaticResource MicroLabel}" />
+                        <Label Text="{Binding Gear}" Style="{StaticResource Numeric}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="1">
+                        <Label Text="DRS" Style="{StaticResource MicroLabel}" />
+                        <Label Text="{Binding Drs}" Style="{StaticResource Numeric}" TextColor="{StaticResource FlagDrs}" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Transport bar -->
+        <Border Grid.Row="2" Style="{StaticResource Panel}" BackgroundColor="{StaticResource BgRaised}">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto" Padding="12,8" ColumnSpacing="14">
+                <Button Grid.Column="0" Text="Play"
+                        Style="{StaticResource PrimaryButton}" WidthRequest="64"
+                        Command="{Binding TogglePlayCommand}" />
+                <Label Grid.Column="1" Text="{Binding Clock}" Style="{StaticResource Numeric}"
+                       FontSize="{StaticResource FsMd}" VerticalOptions="Center" />
+                <Slider Grid.Column="2"
+                        x:Name="SeekSlider"
+                        Minimum="0"
+                        Maximum="{Binding DurationMs}"
+                        Value="{Binding PositionMs, Mode=TwoWay}"
+                        ValueChanged="OnSeekValueChanged"
+                        VerticalOptions="Center" />
+                <Button Grid.Column="3" Text="{Binding ReplaySpeed, StringFormat='{0}×'}"
+                        Style="{StaticResource SecondaryButton}" Command="{Binding CycleSpeedCommand}" />
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

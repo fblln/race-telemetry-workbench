@@ -1,21 +1,23 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using RaceTelemetry.Contracts;
 using RaceTelemetry.Desktop.Services;
 
 namespace RaceTelemetry.Desktop.ViewModels;
 
 /// <summary>
-/// Field View / timing tower (§8.13): all drivers at once, backed by /standings (§6.11).
+/// Field View / timing tower (§8.13). Reads from the prefetched snapshot, so it
+/// renders instantly when the session was warmed at open (§8.9).
 /// </summary>
 public sealed partial class FieldViewViewModel : ObservableObject
 {
-    private readonly IQueryApiClient _api;
+    private readonly ISessionPrefetchService _prefetch;
     private readonly AppState _state;
 
-    public FieldViewViewModel(IQueryApiClient api, AppState state)
+    public FieldViewViewModel(ISessionPrefetchService prefetch, AppState state)
     {
-        _api = api;
+        _prefetch = prefetch;
         _state = state;
     }
 
@@ -38,11 +40,13 @@ public sealed partial class FieldViewViewModel : ObservableObject
         Error = null;
         try
         {
+            var snapshot = await _prefetch.GetAsync(_state.SessionId);
             Rows.Clear();
-            var standings = await _api.GetStandingsAsync(_state.SessionId);
-            if (standings is not null)
-                foreach (var row in standings.Items)
+            if (snapshot.Standings is not null)
+                foreach (var row in snapshot.Standings.Items)
                     Rows.Add(row);
+            else
+                Error = "Standings unavailable (start the Query API and reopen the session).";
         }
         catch (Exception ex)
         {

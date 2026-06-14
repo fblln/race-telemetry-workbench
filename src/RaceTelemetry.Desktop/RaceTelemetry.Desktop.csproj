@@ -13,6 +13,8 @@
     <Nullable>enable</Nullable>
 
     <ApplicationTitle>Race Telemetry Workbench</ApplicationTitle>
+    <!-- Rider launches Mac Catalyst apps by project/assembly name; keep the visible title separate. -->
+    <_AppBundleName Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">$(AssemblyName)</_AppBundleName>
     <ApplicationId>com.racetelemetry.workbench</ApplicationId>
     <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
@@ -28,14 +30,16 @@
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#14110E" BaseSize="128,128" />
 
     <!-- Fonts: drop the TTFs into Resources/Fonts (see Resources/Fonts/README.md). -->
-    <MauiFont Include="Resources\Fonts\*" />
-    <MauiImage Include="Resources\Images\*" />
+    <MauiFont Include="Resources\Fonts\*.ttf" />
+    <MauiImage Include="Resources\Images\*.png" />
+    <MauiImage Include="Resources\Images\*.svg" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageReference Include="Microsoft.Maui.DevFlow.Agent" Version="0.1.0-preview.10.26274.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
   </ItemGroup>
 

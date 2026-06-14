@@ -2,7 +2,7 @@
   "$schema": "https://design-tokens.org/format",
   "name": "Carbon Signal",
   "description": "Warm-carbon dark analysis theme for Race Telemetry Workbench. Graphite surfaces, punchy signal-amber accent, colorblind-safe telemetry channels.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "color": {
     "surface": {
       "canvas":   { "value": "#14110E", "comment": "app background, deepest layer" },
@@ -94,6 +94,25 @@
   "space": {
     "0": "0", "1": "2px", "2": "4px", "3": "6px", "4": "8px", "5": "12px",
     "6": "16px", "7": "20px", "8": "24px", "9": "32px", "10": "40px", "11": "48px"
+  },
+  "density": {
+    "profile": { "value": "macbook-pro-15-retina", "comment": "Primary desktop profile: 15-inch MacBook Pro, 2880x1800 physical / 1440x900 logical points at 2x." },
+    "targetLogicalViewport": { "width": "1440px", "height": "900px" },
+    "pagePadding": { "value": "16px" },
+    "panelPadding": { "value": "12px" },
+    "controlHeight": { "value": "30px" },
+    "commandBarHeight": { "value": "44px" },
+    "hudHeight": { "value": "42px" },
+    "railWidth": { "value": "176px" },
+    "launcher": {
+      "panelPaddingX": { "value": "18px" },
+      "panelPaddingY": { "value": "16px" },
+      "circuitCardHeight": { "value": "132px" },
+      "circuitGridHeight": { "value": "430px" },
+      "circuitGridGap": { "value": "14px" },
+      "driverChipHeight": { "value": "34px" },
+      "sessionChipHeight": { "value": "38px" }
+    }
   },
   "radius": {
     "none": "0", "sm": "3px", "md": "5px", "lg": "8px", "xl": "12px", "pill": "999px"

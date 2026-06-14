@@ -2023,6 +2023,18 @@ The MAUI app must:
    client-side.
 9. Degrade gracefully on large sessions by reducing chart detail before
    dropping replay controls or cursor interaction.
+10. **Eagerly prefetch a session on open.** When a session is selected or opened,
+    the app must warm an in-memory snapshot of all session-scoped, bounded data
+    in parallel — drivers, replay metadata, standings, incidents, positions, and
+    per-driver lap summaries — so that switching between views (Field, Strategy,
+    Lap analysis, Incidents, …) reads from memory and is effectively instant.
+    Prefetch must: start warming on session selection (before open); share one
+    in-flight request per session so priming and opening never double-fetch; use
+    bounded concurrency for per-driver calls; never let a view switch cancel a
+    warm another view is about to await; degrade gracefully so a failed sub-fetch
+    leaves the rest of the snapshot usable; and bound the number of cached
+    sessions. High-volume replay chunks remain streamed/windowed on demand (they
+    are not part of the eager snapshot).
 
 ### 8.10 AI Assistant Panel
 

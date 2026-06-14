@@ -2,7 +2,7 @@
 
 **Product:** Race Telemetry Workbench (F1 Telemetry Visualizer)
 **Owner:** Fabio
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Status:** Foundation release
 
 Carbon Signal is the original visual language for the desktop telemetry workbench described in the [architecture spec](../../f1_telemetry_architecture_spec_focused.md). It satisfies §8.8 *Display Styling and Assets*: an original dark analysis theme, dense but legible, using only project-owned names, palettes, and generated assets.
@@ -21,7 +21,7 @@ The base is **warm carbon** — graphite surfaces with a faint warm bias (`#1411
 
 Three principles drive every decision:
 
-**Density with legibility.** Every panel describes the same replay timestamp; the layout is information-dense by design. Legibility is preserved through tabular numerics, generous contrast on text, and restraint in color — chrome stays quiet so data stays loud.
+**Density with legibility.** Every panel describes the same replay timestamp; the layout is information-dense by design. The primary target is a 15-inch MacBook Pro Retina workspace: 2880×1800 physical pixels, rendered as a 1440×900 logical-point window at 2x. Legibility is preserved through tabular numerics, generous contrast on text, and restraint in color — chrome stays quiet so data stays loud.
 
 **One accent, one meaning.** Amber means *interactive or active*. It is never used for a data series. This single rule keeps a six-channel waveform readable.
 
@@ -119,7 +119,9 @@ Line height: 1.2 for numerics and headings, 1.35 for dense rows, 1.55 for body. 
 
 ### 2.5 Spacing, radius, elevation, motion
 
-Spacing is a 4px base scale tuned dense: `2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48`. Controls use 6×12px padding, panels 12px, table cells 6×10px.
+Spacing is a 4px base scale tuned dense: `2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48`. Controls use 5×12px padding with a 30px target height, panels 12px, table cells 6×10px.
+
+The default density profile is `macbook-pro-15-retina`. Treat sizes as logical CSS pixels / MAUI device-independent points, not physical pixels. The shell target is 1440×900 logical points: 16px page padding, 44px command bar, 42px HUD strip, 176px console rail, 12px panel padding. The launcher uses 132px circuit cards in a 430px scrolling grid with 14px gaps, 38px session chips, and 34px driver chips so the circuit → session → driver funnel fits the first viewport on a 15-inch MacBook Pro without scaling text down.
 
 Radius is moderate — softer than the legacy 0px chrome, tighter than consumer cards: `sm 3 · md 5 (default control) · lg 8 (panel/card) · xl 12 · pill`.
 
@@ -142,6 +144,8 @@ The product wraps the analysis panels in a thin, keyboard-first shell. Patterns 
 **Driver multi-select.** A responsive grid of toggleable driver chips, each with a team-color-free categorical rail, a checkbox affordance (amber when checked), name, and finishing position. A live count plus select-all / clear sit in the header. Selection is local UI state and never mutates imported data. Driver identity uses an **original categorical palette** (LEC blue, HAM orange, NOR green, PIA gold, VER orchid, RUS teal, …) so it stays project-owned per §8.8; a team-livery mode can be offered later as an explicit opt-in.
 
 ## 2b. Race views
+
+**Overview.** The session entry view leads with three compact result cards: Winner, Pole Position, and Fastest Lap. Each card uses a driver identity tile with the categorical color rail, a muted label, the driver name, and the key time/value. Below, a full classification table shows position, driver, team, grid, time/gap, fastest lap, stints, laps, points, and status. Fields not present in the imported Query API surface must render as explicit unavailable values (`--` or "not imported") rather than inferred facts; grid and pole require qualifying/grid metadata before they can be filled.
 
 **Tire strategy gantt.** The Strategy tab: one row per driver, stints drawn as compound-colored bars on a shared lap axis with the stint length labelled and pit boundaries at the segment edges. Compounds use the tyre palette (soft red, medium gold, hard off-white, inter green, wet blue); labels flip to light text on the darker hard/inter fills for contrast.
 

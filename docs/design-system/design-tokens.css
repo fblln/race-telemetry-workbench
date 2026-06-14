@@ -183,6 +183,27 @@
   --rt-pad-cell-x:    10px;
 
   /* ---------------------------------------------------------------
+     11a. DENSITY PROFILE — 15-inch MacBook Pro Retina.
+          MAUI renders these as logical points; physical pixels are 2x.
+     --------------------------------------------------------------- */
+  --rt-density-profile: macbook-pro-15-retina;
+  --rt-target-logical-width: 1440px;
+  --rt-target-logical-height: 900px;
+  --rt-page-padding: 16px;
+  --rt-panel-padding: 12px;
+  --rt-control-height: 30px;
+  --rt-command-bar-height: 44px;
+  --rt-hud-height: 42px;
+  --rt-rail-width: 176px;
+  --rt-launcher-panel-padding-x: 18px;
+  --rt-launcher-panel-padding-y: 16px;
+  --rt-launcher-circuit-card-height: 132px;
+  --rt-launcher-circuit-grid-height: 430px;
+  --rt-launcher-circuit-grid-gap: 14px;
+  --rt-launcher-driver-chip-height: 34px;
+  --rt-launcher-session-chip-height: 38px;
+
+  /* ---------------------------------------------------------------
      12. RADIUS — moderate; softer than MoTeC (0), tighter than web cards.
      --------------------------------------------------------------- */
   --rt-radius-none: 0;

@@ -12,10 +12,13 @@ public interface IQueryApiClient
 {
     Task<IReadOnlyList<SessionSummary>> GetSessionsAsync(int? year = null, string? eventName = null, string? sessionType = null, CancellationToken ct = default);
     Task<IReadOnlyList<DriverSummary>> GetDriversAsync(string sessionId, CancellationToken ct = default);
+    Task<IReadOnlyList<LapSummary>> GetLapsAsync(string sessionId, string driverCode, CancellationToken ct = default);
     Task<ReplayMetadata?> GetReplayMetadataAsync(string sessionId, CancellationToken ct = default);
     Task<StandingsResponse?> GetStandingsAsync(string sessionId, int? atLap = null, string sortBy = "position", CancellationToken ct = default);
     Task<IncidentsResponse?> GetIncidentsAsync(string sessionId, IEnumerable<string>? types = null, double minBrakingG = 4.0, int maxResults = 200, CancellationToken ct = default);
     Task<PositionsResponse?> GetPositionsAsync(string sessionId, IEnumerable<string>? drivers = null, CancellationToken ct = default);
+    Task<StintAnalysisResponse?> GetStintsAsync(string sessionId, CancellationToken ct = default);
+    Task<ReplayChunkResponse?> GetReplayChunkAsync(string sessionId, long fromMs, long durationMs, IEnumerable<string>? drivers = null, IEnumerable<string>? channels = null, int sampleEvery = 1, CancellationToken ct = default);
 }
 
 public sealed class QueryApiClient : IQueryApiClient
@@ -36,6 +39,13 @@ public sealed class QueryApiClient : IQueryApiClient
     {
         var result = await _http.GetFromJsonAsync<ItemsEnvelope<DriverSummary>>($"/api/sessions/{Encode(sessionId)}/drivers", JsonOptions, ct);
         return result?.Items ?? Array.Empty<DriverSummary>();
+    }
+
+    public async Task<IReadOnlyList<LapSummary>> GetLapsAsync(string sessionId, string driverCode, CancellationToken ct = default)
+    {
+        var result = await _http.GetFromJsonAsync<ItemsEnvelope<LapSummary>>(
+            $"/api/sessions/{Encode(sessionId)}/drivers/{Encode(driverCode)}/laps", JsonOptions, ct);
+        return result?.Items ?? Array.Empty<LapSummary>();
     }
 
     public Task<ReplayMetadata?> GetReplayMetadataAsync(string sessionId, CancellationToken ct = default)
@@ -60,6 +70,28 @@ public sealed class QueryApiClient : IQueryApiClient
     {
         var query = BuildQuery(("drivers", drivers is null ? null : string.Join(',', drivers)));
         return _http.GetFromJsonAsync<PositionsResponse>($"/api/sessions/{Encode(sessionId)}/positions{query}", JsonOptions, ct);
+    }
+
+    public async Task<StintAnalysisResponse?> GetStintsAsync(string sessionId, CancellationToken ct = default)
+    {
+        // /stints/analyze is a POST that defaults its body server-side; send an
+        // empty JSON object so model binding produces the default request.
+        using var body = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
+        using var response = await _http.PostAsync($"/api/sessions/{Encode(sessionId)}/stints/analyze", body, ct);
+        if (!response.IsSuccessStatusCode)
+            return null;
+        return await response.Content.ReadFromJsonAsync<StintAnalysisResponse>(JsonOptions, ct);
+    }
+
+    public Task<ReplayChunkResponse?> GetReplayChunkAsync(string sessionId, long fromMs, long durationMs, IEnumerable<string>? drivers = null, IEnumerable<string>? channels = null, int sampleEvery = 1, CancellationToken ct = default)
+    {
+        var query = BuildQuery(
+            ("fromMs", fromMs.ToString()),
+            ("durationMs", durationMs.ToString()),
+            ("drivers", drivers is null ? null : string.Join(',', drivers)),
+            ("channels", channels is null ? null : string.Join(',', channels)),
+            ("sampleEvery", sampleEvery.ToString()));
+        return _http.GetFromJsonAsync<ReplayChunkResponse>($"/api/sessions/{Encode(sessionId)}/replay/chunk{query}", JsonOptions, ct);
     }
 
     private static string Encode(string value) => Uri.EscapeDataString(value);

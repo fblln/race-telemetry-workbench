@@ -11,12 +11,12 @@ namespace RaceTelemetry.Desktop.ViewModels;
 /// </summary>
 public sealed partial class SessionConsoleViewModel : ObservableObject
 {
-    private readonly IQueryApiClient _api;
+    private readonly ISessionPrefetchService _prefetch;
     private readonly AppState _state;
 
-    public SessionConsoleViewModel(IQueryApiClient api, AppState state)
+    public SessionConsoleViewModel(ISessionPrefetchService prefetch, AppState state)
     {
-        _api = api;
+        _prefetch = prefetch;
         _state = state;
 
         Views = new ObservableCollection<ConsoleView>
@@ -31,12 +31,19 @@ public sealed partial class SessionConsoleViewModel : ObservableObject
             new("Telemetry",     "8"),
         };
         ActiveView = Views[4]; // default to the Field view — the engineer's situational screen
+        ActiveView.IsActive = true;
     }
 
     public ObservableCollection<ConsoleView> Views { get; }
 
     [ObservableProperty]
     private ConsoleView _activeView;
+
+    partial void OnActiveViewChanged(ConsoleView? oldValue, ConsoleView? newValue)
+    {
+        if (oldValue is not null) oldValue.IsActive = false;
+        if (newValue is not null) newValue.IsActive = true;
+    }
 
     [ObservableProperty]
     private string _breadcrumb = "—";
@@ -56,11 +63,29 @@ public sealed partial class SessionConsoleViewModel : ObservableObject
         Hud.Clear();
         try
         {
-            var meta = await _api.GetReplayMetadataAsync(_state.SessionId);
-            var drivers = await _api.GetDriversAsync(_state.SessionId);
-            Hud.Add(new HudMetric("drivers", drivers.Count.ToString()));
-            // Remaining HUD cells (pit stops, SC/VSC, conditions) bind to
-            // /standings and /incidents once those endpoints land (§6.11, §6.13).
+            // Already warm if the launcher primed it on selection/open.
+            var snap = await _prefetch.GetAsync(_state.SessionId);
+
+            Hud.Add(new HudMetric("drivers", snap.Drivers.Count.ToString()));
+
+            if (snap.Standings is not null)
+            {
+                var stops = snap.Standings.Items.Sum(r => r.PitCount);
+                Hud.Add(new HudMetric("pit stops", stops.ToString()));
+                var classified = snap.Standings.Items.Count(r => r.LastLapMs is not null);
+                if (classified > 0)
+                    Hud.Add(new HudMetric("avg stops", (stops / (double)classified).ToString("0.0")));
+            }
+
+            if (snap.Incidents is not null)
+            {
+                var sc = snap.Incidents.Items.Count(i => i.Type is "safety_car");
+                var vsc = snap.Incidents.Items.Count(i => i.Type is "vsc");
+                Hud.Add(new HudMetric("SC / VSC", $"{sc} / {vsc}"));
+            }
+
+            if (snap.ReplayMetadata is { DurationMs: > 0 } meta)
+                Hud.Add(new HudMetric("duration", TimeSpan.FromMilliseconds(meta.DurationMs).ToString(@"hh\:mm\:ss")));
         }
         catch
         {
@@ -71,10 +96,32 @@ public sealed partial class SessionConsoleViewModel : ObservableObject
     [RelayCommand]
     private void SelectView(ConsoleView view) => ActiveView = view;
 
+    /// <summary>Switch view by 1-based index — bound to number-key accelerators (§8.12).</summary>
+    [RelayCommand]
+    private void SelectIndex(string oneBasedIndex)
+    {
+        if (int.TryParse(oneBasedIndex, out var i) && i >= 1 && i <= Views.Count)
+            ActiveView = Views[i - 1];
+    }
+
     [RelayCommand]
     private async Task BackToLauncherAsync() => await Shell.Current.GoToAsync("//launcher");
 }
 
-public sealed record ConsoleView(string Title, string Hotkey);
+public sealed partial class ConsoleView : ObservableObject
+{
+    public ConsoleView(string title, string hotkey)
+    {
+        Title = title;
+        Hotkey = hotkey;
+    }
+
+    public string Title { get; }
+    public string Hotkey { get; }
+
+    /// <summary>True for the active rail item — drives the amber rail + muted fill (§2a).</summary>
+    [ObservableProperty]
+    private bool _isActive;
+}
 
 public sealed record HudMetric(string Label, string Value);

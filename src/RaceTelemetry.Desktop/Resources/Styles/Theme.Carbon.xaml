@@ -83,6 +83,23 @@
   <x:Double x:Key="Space10">40</x:Double>
   <x:Double x:Key="Space11">48</x:Double>
 
+  <!-- Density profile: 15-inch MacBook Pro Retina, 1440x900 logical points at 2x. -->
+  <x:Double x:Key="TargetLogicalViewportWidth">1440</x:Double>
+  <x:Double x:Key="TargetLogicalViewportHeight">900</x:Double>
+  <Thickness x:Key="AppPagePadding">16</Thickness>
+  <Thickness x:Key="AppPanelPadding">12</Thickness>
+  <x:Double x:Key="ControlHeight">30</x:Double>
+  <x:Double x:Key="CommandBarHeight">44</x:Double>
+  <x:Double x:Key="HudHeight">42</x:Double>
+  <x:Double x:Key="ConsoleRailWidth">176</x:Double>
+  <x:Double x:Key="LauncherPanelPaddingX">18</x:Double>
+  <x:Double x:Key="LauncherPanelPaddingY">16</x:Double>
+  <x:Double x:Key="LauncherCircuitCardHeight">132</x:Double>
+  <x:Double x:Key="LauncherCircuitGridHeight">430</x:Double>
+  <x:Double x:Key="LauncherCircuitGridGap">14</x:Double>
+  <x:Double x:Key="LauncherDriverChipHeight">34</x:Double>
+  <x:Double x:Key="LauncherSessionChipHeight">38</x:Double>
+
   <!-- Radius -->
   <x:Double x:Key="RadiusNone">0</x:Double>
   <x:Double x:Key="RadiusSm">3</x:Double>

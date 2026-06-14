@@ -143,6 +143,38 @@ var circuitContext = await AssertOk<CircuitContextResponse>(
 
 Assert(circuitContext.Corners is not null, "Expected circuit context response.");
 
+var standings = await AssertOk<StandingsResponse>(
+    $"/api/sessions/{session.SessionId}/standings",
+    cancellation.Token);
+
+Assert(standings.Items.Count > 0, "Expected standings rows.");
+Assert(standings.Items[0].Position == 1, "Standings should start at position 1.");
+Assert(
+    standings.Items.Zip(standings.Items.Skip(1)).All(pair => pair.First.Position < pair.Second.Position),
+    "Standings positions should be strictly increasing.");
+Assert(standings.Items.Any(row => row.DriverCode == "LEC"), "Expected LEC in standings.");
+
+var positions = await AssertOk<PositionsResponse>(
+    $"/api/sessions/{session.SessionId}/positions?drivers=LEC&fromLap=1&toLap=5",
+    cancellation.Token);
+
+Assert(positions.Items.Any(item => item.DriverCode == "LEC"), "Expected LEC positions.");
+Assert(
+    positions.Items.Single(item => item.DriverCode == "LEC").Positions.Count == 5,
+    "Position arrays should align to the requested lap range.");
+
+var incidents = await AssertOk<IncidentsResponse>(
+    $"/api/sessions/{session.SessionId}/incidents?maxResults=50",
+    cancellation.Token);
+
+Assert(incidents.Summary is not null, "Expected an incident summary.");
+Assert(
+    incidents.Items.All(item => item.Type is "safety_car" or "vsc" or "yellow" or "red" or "hard_braking" or "off_track" or "spin"),
+    "Incident types should be from the documented set.");
+
+var invalidSort = await http.GetAsync($"/api/sessions/{session.SessionId}/standings?sortBy=bogus", cancellation.Token);
+Assert(invalidSort.StatusCode == HttpStatusCode.BadRequest, "Unknown standings sort keys should return 400.");
+
 var missing = await http.GetAsync("/api/sessions/not-a-session/drivers", cancellation.Token);
 Assert(missing.StatusCode == HttpStatusCode.NotFound, "Unknown sessions should return 404.");
 Assert(missing.Content.Headers.ContentType?.MediaType == "application/problem+json", "404 responses should use problem+json.");

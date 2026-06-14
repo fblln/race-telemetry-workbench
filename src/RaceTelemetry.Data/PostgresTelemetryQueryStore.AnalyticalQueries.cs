@@ -758,10 +758,16 @@ public sealed partial class PostgresTelemetryQueryStore
             || IncludesChannel(channels, "z");
         var positionJoin = includePosition
             ? """
-                LEFT JOIN position_samples p
-                    ON p.session_id = t.session_id
-                    AND p.driver_code = t.driver_code
-                    AND p.sample_time_utc = t.sample_time_utc
+                LEFT JOIN LATERAL (
+                    SELECT p.x, p.y, p.z
+                    FROM position_samples p
+                    WHERE p.session_id = t.session_id
+                      AND p.driver_code = t.driver_code
+                      AND p.sample_time_utc >= t.sample_time_utc - interval '500 milliseconds'
+                      AND p.sample_time_utc <= t.sample_time_utc + interval '500 milliseconds'
+                    ORDER BY abs(extract(epoch FROM (p.sample_time_utc - t.sample_time_utc)))
+                    LIMIT 1
+                ) p ON true
                 """
             : "";
         var speedProjection = IncludesChannel(channels, "speed_kmh") ? "t.speed_kmh" : "NULL::double precision AS speed_kmh";

@@ -3,48 +3,254 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:RaceTelemetry.Desktop.ViewModels"
              xmlns:contracts="clr-namespace:RaceTelemetry.Contracts;assembly=RaceTelemetry.Contracts"
+             xmlns:controls="clr-namespace:RaceTelemetry.Desktop.Controls"
              x:Class="RaceTelemetry.Desktop.Views.LauncherPage"
+             x:Name="Root"
              x:DataType="vm:LauncherViewModel"
+             Shell.NavBarIsVisible="False"
              Title="Launcher">
 
-    <Grid RowDefinitions="Auto,*" Padding="32" RowSpacing="20">
+    <ContentPage.Resources>
+        <Style x:Key="LauncherPrimaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="MinimumHeightRequest" Value="40" />
+            <Setter Property="Padding" Value="18,8" />
+            <Setter Property="FontSize" Value="{StaticResource FsMd}" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
 
-        <VerticalStackLayout Grid.Row="0" Spacing="4">
-            <Label Text="Race Telemetry Workbench" Style="{StaticResource H1}" />
-            <Label Text="Open a session — pick a circuit, then drivers." Style="{StaticResource Caption}" />
-            <Label Text="{Binding Error}" TextColor="{StaticResource SemDanger}"
-                   IsVisible="{Binding Error, Converter={StaticResource IsNotNull}}" />
-        </VerticalStackLayout>
+        <Style x:Key="LauncherSecondaryButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+            <Setter Property="MinimumHeightRequest" Value="40" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="FontSize" Value="{StaticResource FsMd}" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+    </ContentPage.Resources>
 
-        <Border Grid.Row="1" Style="{StaticResource Panel}">
-            <Grid RowDefinitions="Auto,*">
-                <Label Grid.Row="0" Text="SESSIONS" Style="{StaticResource MicroLabel}" Margin="14,12,0,6" />
-                <CollectionView Grid.Row="1"
-                                ItemsSource="{Binding Sessions}"
-                                SelectionMode="Single"
-                                SelectedItem="{Binding SelectedSession}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="contracts:SessionSummary">
-                            <Grid Padding="14,10" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                <VerticalStackLayout Grid.Column="0" Spacing="1">
-                                    <Label Text="{Binding EventName}" TextColor="{StaticResource TextPrimary}" FontFamily="InterMedium" />
-                                    <Label FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}">
-                                        <Label.Text>
-                                            <MultiBinding StringFormat="{}{0} · {1} · {2}">
-                                                <Binding Path="Year" />
-                                                <Binding Path="SessionType" />
-                                                <Binding Path="CircuitName" />
-                                            </MultiBinding>
-                                        </Label.Text>
-                                    </Label>
-                                </VerticalStackLayout>
-                                <Label Grid.Column="1" Text="{Binding DriverCount, StringFormat='{0} drivers'}"
-                                       Style="{StaticResource Caption}" VerticalOptions="Center" />
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="Go">
+            <MenuFlyoutItem Text="Command palette" Clicked="OnOpenPalette">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Modifiers="Cmd" Key="K" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
+
+    <Grid x:Name="RootGrid" Padding="{StaticResource AppPagePadding}" ColumnDefinitions="*">
+
+        <!-- One "Open a session" panel; circuit → session → drivers run as labelled steps (§2a). -->
+        <Border Grid.Column="0" Style="{StaticResource Panel}" Padding="0"
+                VerticalOptions="Start" HorizontalOptions="Fill">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*" Padding="18,16">
+
+                <!-- Panel header: title · seasons · circuit search -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    <VerticalStackLayout Grid.Column="0" Spacing="3" VerticalOptions="Center">
+                        <Label Text="Open a session" FontFamily="InterSemiBold" FontSize="{StaticResource FsLg}"
+                               TextColor="{StaticResource TextPrimary}" />
+                        <Label Text="{Binding SeasonsLabel, StringFormat='Race Telemetry Workbench · {0}'}"
+                               Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                    <Border Grid.Column="1" BackgroundColor="{StaticResource BgInset}" Stroke="{StaticResource BorderDefault}"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 5" Padding="10,5" WidthRequest="300"
+                            VerticalOptions="Center">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <Label Grid.Column="0" Text="⌕" FontSize="15" TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                            <Entry Grid.Column="1" Placeholder="Search circuit  ·  press ⌘K"
+                                   Text="{Binding SearchQuery}" BackgroundColor="Transparent" />
+                            <ActivityIndicator Grid.Column="2" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                                               HeightRequest="14" WidthRequest="14" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource BorderDefault}" Margin="0,12" />
+
+                <!-- Error / retry -->
+                <Border Grid.Row="2" Style="{StaticResource Panel}" Margin="0,0,0,12"
+                        BackgroundColor="{StaticResource SemDangerBg}" Stroke="{StaticResource SemDanger}"
+                        IsVisible="{Binding Error, Converter={StaticResource IsNotNull}}">
+                    <Grid ColumnDefinitions="*,Auto" Padding="14,10" ColumnSpacing="12">
+                        <Label Grid.Column="0" Text="{Binding Error}" TextColor="{StaticResource TextPrimary}"
+                               FontSize="{StaticResource FsSm}" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="Retry" Style="{StaticResource LauncherPrimaryButton}"
+                                Command="{Binding RetryCommand}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- STEP 1 · CIRCUIT — large wrapping card grid, capped at three visible rows. -->
+                <Grid Grid.Row="3" ColumnDefinitions="*" RowDefinitions="Auto,Auto" RowSpacing="12" Margin="0,2,0,14"
+                      HorizontalOptions="Fill">
+                    <Label Grid.Row="0" Text="STEP 1 · CIRCUIT" FontFamily="InterSemiBold"
+                           FontSize="{StaticResource FsLg}" TextColor="{StaticResource TextPrimary}"
+                           CharacterSpacing="1" />
+                    <Grid Grid.Row="1">
+                        <CollectionView x:Name="CircuitCollection" ItemsSource="{Binding Circuits}" SelectionMode="Single"
+                                        SelectedItem="{Binding SelectedCircuit}" HeightRequest="{StaticResource LauncherCircuitGridHeight}"
+                                        HorizontalOptions="Fill" VerticalScrollBarVisibility="Always"
+                                        Scrolled="OnCircuitCollectionScrolled">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout x:Name="CircuitGridLayout" Orientation="Vertical" Span="5"
+                                                 HorizontalItemSpacing="14" VerticalItemSpacing="14" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CircuitChoice">
+                                    <Border HeightRequest="{StaticResource LauncherCircuitCardHeight}"
+                                            StrokeThickness="1" StrokeShape="RoundRectangle 8"
+                                            BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolColor}, ConverterParameter='#43320F;#241F1B'}"
+                                            Stroke="{Binding IsSelected, Converter={StaticResource BoolColor}, ConverterParameter='#FFA60D;#3A3128'}">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal" />
+                                                <VisualState x:Name="Selected">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource BgSelected}" />
+                                                        <Setter Property="Stroke" Value="{StaticResource Accent}" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                        <Grid Padding="22,20" RowDefinitions="Auto,*,Auto">
+                                            <Label Grid.Row="0" Text="{Binding Flag}" FontSize="24"
+                                                   HorizontalOptions="Start" />
+                                            <VerticalStackLayout Grid.Row="2" Spacing="7">
+                                                <Label Text="{Binding CircuitName}" FontFamily="Inter"
+                                                       FontSize="{StaticResource FsXl}" TextColor="{StaticResource TextPrimary}"
+                                                       LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding YearsLabel}" FontFamily="JetBrainsMono"
+                                                       FontSize="{StaticResource FsSm}" TextColor="{StaticResource TextTertiary}" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <CollectionView.EmptyView>
+                                <Label Text="No sessions. Start the Query API and press Retry." Style="{StaticResource Caption}" />
+                            </CollectionView.EmptyView>
+                        </CollectionView>
+                        <Border x:Name="CircuitOverflowBadge" IsVisible="False" InputTransparent="True"
+                                BackgroundColor="{StaticResource BgInset}" Stroke="{StaticResource AccentBorder}"
+                                StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="10,5"
+                                HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,8"
+                                ZIndex="1">
+                            <Label x:Name="CircuitOverflowLabel" Text="More circuits below"
+                                   FontFamily="JetBrainsMonoMedium" FontSize="{StaticResource Fs2xs}"
+                                   TextColor="{StaticResource Accent}" />
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="LauncherStepsGrid" Grid.Row="4" ColumnDefinitions="*" RowDefinitions="Auto,Auto"
+                      ColumnSpacing="0" RowSpacing="20" Margin="0,0,0,0">
+                    <!-- STEP 2 · SESSION -->
+                    <Grid x:Name="SessionStepGrid" Grid.Column="0" Grid.Row="0"
+                          RowDefinitions="Auto,Auto" RowSpacing="16" HorizontalOptions="Fill">
+                        <Label Grid.Row="0" Text="STEP 2 · SESSION" FontFamily="InterSemiBold"
+                               FontSize="{StaticResource FsLg}" TextColor="{StaticResource TextPrimary}" CharacterSpacing="1" />
+                        <CollectionView Grid.Row="1" ItemsSource="{Binding Sessions}" SelectionMode="Single"
+                                        SelectedItem="{Binding SelectedSession}" HeightRequest="48"
+                                        HorizontalOptions="Start" VerticalOptions="Start">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="contracts:SessionSummary">
+                                    <Border StrokeThickness="1" StrokeShape="RoundRectangle 18" VerticalOptions="Start">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource BgRaised}" />
+                                                        <Setter Property="Stroke" Value="{StaticResource BorderDefault}" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState x:Name="Selected">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource AccentMuted}" />
+                                                        <Setter Property="Stroke" Value="{StaticResource Accent}" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                        <Label Padding="18,10" Text="{Binding ., Converter={StaticResource SessionLabel}}"
+                                               FontFamily="InterMedium" FontSize="{StaticResource FsLg}"
+                                               TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Grid>
+
+                    <!-- STEP 3 · DRIVERS -->
+                    <Grid x:Name="DriverStepGrid" Grid.Column="0" Grid.Row="1"
+                          RowDefinitions="Auto,Auto,Auto" RowSpacing="16" HorizontalOptions="Fill">
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+                            <Label Grid.Column="0" Text="STEP 3 · DRIVERS" FontFamily="InterSemiBold"
+                                   FontSize="{StaticResource FsLg}" TextColor="{StaticResource TextPrimary}"
+                                   CharacterSpacing="1" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding SelectedDriverCount, StringFormat='{0} selected'}"
+                                   FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}"
+                                   TextColor="{StaticResource Accent}" VerticalOptions="Center" Margin="0,0,8,0" />
+                            <Button Grid.Column="2" Text="All" Style="{StaticResource LauncherSecondaryButton}"
+                                    Command="{Binding SelectAllDriversCommand}" />
+                            <Button Grid.Column="3" Text="Clear" Style="{StaticResource LauncherSecondaryButton}"
+                                    Command="{Binding ClearDriversCommand}" />
+                        </Grid>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*" ColumnSpacing="0">
+                            <Grid x:Name="DriverCollectionHost" Grid.Column="0"
+                                  HeightRequest="{StaticResource LauncherDriverChipHeight}">
+                                <CollectionView x:Name="DriverCollection" ItemsSource="{Binding Drivers}" SelectionMode="None"
+                                                HeightRequest="{StaticResource LauncherDriverChipHeight}" HorizontalOptions="Fill"
+                                                HorizontalScrollBarVisibility="Never" VerticalScrollBarVisibility="Always"
+                                                IsVisible="{Binding IsLoadingDrivers, Converter={StaticResource InvertedBoolConverter}}">
+                                    <CollectionView.ItemsLayout>
+                                        <GridItemsLayout x:Name="DriverGridLayout" Orientation="Vertical" Span="8"
+                                                         HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                                    </CollectionView.ItemsLayout>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:DriverChoice">
+                                            <Border Stroke="{Binding ChipStroke}" BackgroundColor="{Binding ChipBackground}"
+                                                    StrokeThickness="1" StrokeShape="RoundRectangle 8" VerticalOptions="Center"
+                                                    MinimumWidthRequest="216">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={x:Reference Root}, Path=BindingContext.ToggleDriverCommand}"
+                                                                          CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Grid Padding="16,12" ColumnDefinitions="4,*" ColumnSpacing="12">
+                                                    <BoxView Grid.Column="0" Color="{Binding RailColor}" WidthRequest="4" HeightRequest="36"
+                                                             VerticalOptions="Center" />
+                                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                                        <Label Text="{Binding DriverCode}" TextColor="{StaticResource TextPrimary}"
+                                                               FontFamily="JetBrainsMonoMedium" FontSize="{StaticResource FsLg}" VerticalOptions="Center" />
+                                                        <Label Text="{Binding FullName}" TextColor="{StaticResource TextSecondary}"
+                                                               FontFamily="InterMedium" FontSize="{StaticResource FsSm}"
+                                                               LineBreakMode="TailTruncation" MaxLines="1" />
+                                                    </VerticalStackLayout>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+
+                                <ActivityIndicator IsRunning="{Binding IsLoadingDrivers}" IsVisible="{Binding IsLoadingDrivers}"
+                                                   HeightRequest="20" WidthRequest="20" HorizontalOptions="Start"
+                                                   VerticalOptions="Center" />
                             </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+
+                        </Grid>
+
+                        <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+                            <BoxView Grid.Column="0" Opacity="0" />
+                            <Button Grid.Column="1" Text="{Binding SelectedDriverCount, StringFormat='▶  Open replay ({0})'}"
+                                    Style="{StaticResource LauncherPrimaryButton}" Command="{Binding OpenCommand}"
+                                    IsEnabled="{Binding CanOpen}" VerticalOptions="Center"
+                                    MinimumWidthRequest="238" />
+                        </Grid>
+                    </Grid>
+                </Grid>
             </Grid>
         </Border>
+
+        <!-- Global command palette overlay (§2a), opened with ⌘K. -->
+        <controls:CommandPalette x:Name="Palette" Margin="-16" />
     </Grid>
 </ContentPage>

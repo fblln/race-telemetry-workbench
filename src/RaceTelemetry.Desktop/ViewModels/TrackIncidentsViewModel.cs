@@ -1,25 +1,33 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using RaceTelemetry.Contracts;
+using RaceTelemetry.Desktop.Controls;
 using RaceTelemetry.Desktop.Services;
 
 namespace RaceTelemetry.Desktop.ViewModels;
 
 /// <summary>
-/// Track Incidents and Hard-Braking (§8.14), backed by /incidents (§6.13).
+/// Track Incidents and Hard-Braking (§8.14). Reads from the prefetched snapshot;
+/// places hard-braking hotspots on the data-derived outline and keeps the list
+/// and map in sync.
 /// </summary>
 public sealed partial class TrackIncidentsViewModel : ObservableObject
 {
-    private readonly IQueryApiClient _api;
+    private readonly ISessionPrefetchService _prefetch;
     private readonly AppState _state;
+    private double _maxBrakingG = 1;
 
-    public TrackIncidentsViewModel(IQueryApiClient api, AppState state)
+    public TrackIncidentsViewModel(ISessionPrefetchService prefetch, AppState state)
     {
-        _api = api;
+        _prefetch = prefetch;
         _state = state;
     }
 
     public ObservableCollection<Incident> Incidents { get; } = new();
+
+    /// <summary>Data-derived outline for the map drawable.</summary>
+    public IReadOnlyList<TrackPoint> Outline { get; private set; } = Array.Empty<TrackPoint>();
 
     [ObservableProperty]
     private IncidentSummary? _summary;
@@ -33,6 +41,16 @@ public sealed partial class TrackIncidentsViewModel : ObservableObject
     [ObservableProperty]
     private string? _error;
 
+    /// <summary>Build amber heat dots for hard-braking incidents that carry a position.</summary>
+    public IReadOnlyList<TrackMapDrawable.IncidentDot> BuildDots() => Incidents
+        .Where(i => i.Type == "hard_braking" && i.X is not null && i.Y is not null)
+        .Select(i => new TrackMapDrawable.IncidentDot(
+            i.X!.Value,
+            i.Y!.Value,
+            (i.Metrics?.PeakBrakingG ?? 0) / _maxBrakingG,
+            ReferenceEquals(i, Selected)))
+        .ToList();
+
     [RelayCommand]
     private async Task LoadAsync()
     {
@@ -41,13 +59,22 @@ public sealed partial class TrackIncidentsViewModel : ObservableObject
         Error = null;
         try
         {
+            var snapshot = await _prefetch.GetAsync(_state.SessionId);
+            Outline = snapshot.TrackOutline;
             Incidents.Clear();
-            var result = await _api.GetIncidentsAsync(_state.SessionId);
-            if (result is not null)
+            if (snapshot.Incidents is not null)
             {
-                foreach (var i in result.Items)
+                foreach (var i in snapshot.Incidents.Items)
                     Incidents.Add(i);
-                Summary = result.Summary;
+                Summary = snapshot.Incidents.Summary;
+                _maxBrakingG = Math.Max(0.1, Incidents
+                    .Select(i => i.Metrics?.PeakBrakingG ?? 0)
+                    .DefaultIfEmpty(0)
+                    .Max());
+            }
+            else
+            {
+                Error = "Incidents unavailable (start the Query API and reopen the session).";
             }
         }
         catch (Exception ex)
