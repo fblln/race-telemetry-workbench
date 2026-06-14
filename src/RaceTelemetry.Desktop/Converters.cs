@@ -111,13 +111,19 @@ public sealed class DashIfEmptyConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-/// <summary>Formats a session as "Race · 2025" for the launcher session chips (§2a).</summary>
+/// <summary>Formats a session label for the launcher session chips (§2a).</summary>
 public sealed class SessionLabelConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is RaceTelemetry.Contracts.SessionSummary s
-            ? $"{RaceTelemetry.Desktop.ViewModels.CountryFlags.SessionTypeName(s.SessionType)} · {s.Year}"
-            : string.Empty;
+    {
+        if (value is not RaceTelemetry.Contracts.SessionSummary s)
+            return string.Empty;
+
+        var sessionType = RaceTelemetry.Desktop.ViewModels.CountryFlags.SessionTypeName(s.SessionType);
+        return string.Equals(parameter as string, "TypeOnly", StringComparison.OrdinalIgnoreCase)
+            ? sessionType
+            : $"{sessionType} · {s.Year}";
+    }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();

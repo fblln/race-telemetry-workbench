@@ -10,7 +10,7 @@ using RaceTelemetry.Desktop.Services;
 namespace RaceTelemetry.Desktop.ViewModels;
 
 /// <summary>
-/// Home / Launcher (§8.11): circuit -> session -> drivers. Selecting a session
+/// Home / Launcher (§8.11): year -> circuit -> session -> drivers. Selecting a session
 /// primes its prefetch; opening commits selected drivers to shared app state.
 /// </summary>
 public sealed partial class LauncherViewModel : ObservableObject
@@ -19,17 +19,25 @@ public sealed partial class LauncherViewModel : ObservableObject
     private readonly ILauncherSessionCache _launcherCache;
     private readonly AppState _state;
     private IReadOnlyList<SessionSummary> _allSessions = Array.Empty<SessionSummary>();
+    private IReadOnlyList<SessionSummary> _filteredSessions = Array.Empty<SessionSummary>();
     private CancellationTokenSource? _searchDebounceCts;
     private bool _isRebuildingChoices;
+    private bool _isRebuildingYearChoices;
     private bool _isReplacingSessions;
+    private bool _isRestoringYearSelection;
     private bool _isRestoringCircuitSelection;
     private bool _isRestoringSessionSelection;
     private int _driverLoadVersion;
+    private YearChoice? _lastSelectedYear;
     private CircuitChoice? _lastSelectedCircuit;
     private SessionSummary? _lastSelectedSession;
     private string? _renderedDriversSessionId;
     private string? _lastFilterSignature;
     private int _driverPrefetchVersion;
+    private readonly Dictionary<int, YearChoice> _yearChoiceCache = new();
+    private readonly Dictionary<string, CircuitChoice> _circuitChoiceCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<DriverChoice>> _driverChoiceCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, Dictionary<string, int>> _driverPositionCache = new(StringComparer.OrdinalIgnoreCase);
 
     public LauncherViewModel(ISessionPrefetchService prefetch, ILauncherSessionCache launcherCache, AppState state)
     {
@@ -39,6 +47,8 @@ public sealed partial class LauncherViewModel : ObservableObject
     }
 
     public BatchedObservableCollection<CircuitChoice> Circuits { get; } = new();
+
+    public BatchedObservableCollection<YearChoice> Years { get; } = new();
 
     public BatchedObservableCollection<SessionSummary> Sessions { get; } = new();
 
@@ -60,6 +70,9 @@ public sealed partial class LauncherViewModel : ObservableObject
     private string _searchQuery = string.Empty;
 
     [ObservableProperty]
+    private YearChoice? _selectedYear;
+
+    [ObservableProperty]
     private CircuitChoice? _selectedCircuit;
 
     [ObservableProperty]
@@ -72,6 +85,15 @@ public sealed partial class LauncherViewModel : ObservableObject
     private string _driverHeader = "Select a circuit and session";
 
     public bool CanOpen => SelectedSession is not null && SelectedDriverCount > 0 && !IsRefreshingDrivers;
+
+    public string YearCountLabel
+    {
+        get
+        {
+            var years = Years.Count;
+            return years == 1 ? "1 year" : $"{years} years";
+        }
+    }
 
     /// <summary>"N seasons imported" for the panel subtitle (§2a home header).</summary>
     public string SeasonsLabel
@@ -114,9 +136,10 @@ public sealed partial class LauncherViewModel : ObservableObject
             _allSessions = await sessionsTask;
             OnPropertyChanged(nameof(SeasonsLabel));
             OnPropertyChanged(nameof(ResultsSummaryLabel));
-            var filtered = FilterSessions(_allSessions);
-            _lastFilterSignature = FilterSignature(filtered);
-            BuildCircuitChoices(filtered);
+            _filteredSessions = FilterSessions(_allSessions);
+            _lastFilterSignature = FilterSignature(_filteredSessions);
+            BuildYearChoices(_filteredSessions);
+            BuildCircuitChoices(FilterBySelectedYear(_filteredSessions));
 
             if (Circuits.Count == 0)
                 Error = "No imported sessions found. Import a session, then retry.";
@@ -174,9 +197,11 @@ public sealed partial class LauncherViewModel : ObservableObject
         if (signature == _lastFilterSignature)
             return;
         _lastFilterSignature = signature;
+        _filteredSessions = filtered;
 
         var preferredSessionId = SelectedSession?.SessionId;
-        BuildCircuitChoices(filtered, preferredSessionId);
+        BuildYearChoices(filtered, preferredSessionId);
+        BuildCircuitChoices(FilterBySelectedYear(filtered), preferredSessionId);
     }
 
     private static string ApiHint =>
@@ -224,6 +249,13 @@ public sealed partial class LauncherViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void SelectYear(YearChoice? year)
+    {
+        if (year is not null)
+            SelectedYear = year;
+    }
+
+    [RelayCommand]
     private void SelectCircuit(CircuitChoice? circuit)
     {
         if (circuit is not null)
@@ -235,6 +267,30 @@ public sealed partial class LauncherViewModel : ObservableObject
         _searchDebounceCts?.Cancel();
         var cts = _searchDebounceCts = new CancellationTokenSource();
         _ = ApplySearchAfterDelayAsync(cts.Token);
+    }
+
+    partial void OnSelectedYearChanged(YearChoice? value)
+    {
+        if (_isRestoringYearSelection)
+            return;
+
+        if (_isRebuildingYearChoices)
+        {
+            UpdateYearSelection(value);
+            return;
+        }
+
+        if (value is null && _lastSelectedYear is not null && Years.Contains(_lastSelectedYear))
+        {
+            _isRestoringYearSelection = true;
+            try { SelectedYear = _lastSelectedYear; }
+            finally { _isRestoringYearSelection = false; }
+            return;
+        }
+
+        _lastSelectedYear = value;
+        UpdateYearSelection(value);
+        BuildCircuitChoices(FilterBySelectedYear(_filteredSessions));
     }
 
     partial void OnSelectedCircuitChanged(CircuitChoice? value)
@@ -261,13 +317,19 @@ public sealed partial class LauncherViewModel : ObservableObject
 
     private void ApplySelectedCircuit(CircuitChoice? value, bool preserveDrivers, string? preferredSessionId)
     {
+        if (!preserveDrivers)
+        {
+            _driverLoadVersion++;
+            IsRefreshingDrivers = false;
+        }
+
         var orderedSessions = value?.Sessions.OrderByDescending(s => s.Year).ThenBy(s => s.SessionType).ToArray()
             ?? Array.Empty<SessionSummary>();
 
         _isReplacingSessions = true;
         try
         {
-            Sessions.ReplaceWith(orderedSessions);
+            Sessions.SyncWith(orderedSessions);
         }
         finally
         {
@@ -285,16 +347,14 @@ public sealed partial class LauncherViewModel : ObservableObject
             return;
         }
 
-        // Warm only the driver rosters here; standings can wait until a session is
-        // actually shown so a circuit switch does not fan out unnecessary work.
-        PrimeCircuit(value);
-
         var nextSession = preferredSessionId is null
             ? Sessions.FirstOrDefault(s => string.Equals(s.SessionType, "R", StringComparison.OrdinalIgnoreCase))
               ?? Sessions.FirstOrDefault()
             : Sessions.FirstOrDefault(s => string.Equals(s.SessionId, preferredSessionId, StringComparison.OrdinalIgnoreCase))
               ?? Sessions.FirstOrDefault(s => string.Equals(s.SessionType, "R", StringComparison.OrdinalIgnoreCase))
                           ?? Sessions.FirstOrDefault();
+
+        PrimeCircuit(value, nextSession);
 
         if (nextSession is null)
         {
@@ -307,6 +367,9 @@ public sealed partial class LauncherViewModel : ObservableObject
             return;
         }
 
+        if (!preserveDrivers)
+            TryShowCachedDrivers(nextSession);
+
         if (!preserveDrivers || !string.Equals(SelectedSession?.SessionId, nextSession.SessionId, StringComparison.OrdinalIgnoreCase))
             SelectedSession = nextSession;
     }
@@ -315,6 +378,18 @@ public sealed partial class LauncherViewModel : ObservableObject
     {
         if (_isRestoringSessionSelection || _isReplacingSessions)
             return;
+
+        if (value is not null && !IsAvailableSession(value))
+        {
+            var fallback = _lastSelectedSession is not null && IsAvailableSession(_lastSelectedSession)
+                ? _lastSelectedSession
+                : Sessions.FirstOrDefault();
+
+            _isRestoringSessionSelection = true;
+            try { SelectedSession = fallback; }
+            finally { _isRestoringSessionSelection = false; }
+            return;
+        }
 
         if (value is null && _lastSelectedSession is not null && Sessions.Contains(_lastSelectedSession))
         {
@@ -346,6 +421,56 @@ public sealed partial class LauncherViewModel : ObservableObject
 
     partial void OnIsRefreshingDriversChanged(bool value) => OnPropertyChanged(nameof(CanOpen));
 
+    private void BuildYearChoices(IReadOnlyList<SessionSummary> sessions, string? preferredSessionId = null)
+    {
+        YearChoice? preferredYear = null;
+        var years = sessions
+            .GroupBy(s => s.Year)
+            .OrderByDescending(g => g.Key)
+            .Select(g => GetYearChoice(g.Key, g.Count()))
+            .ToList();
+
+        var preferredValue = preferredSessionId is null
+            ? _lastSelectedYear?.Year
+            : sessions.FirstOrDefault(s => string.Equals(s.SessionId, preferredSessionId, StringComparison.OrdinalIgnoreCase))?.Year;
+
+        if (preferredValue is not null)
+            preferredYear = years.FirstOrDefault(y => y.Year == preferredValue.Value);
+
+        preferredYear ??= years.FirstOrDefault();
+
+        _isRebuildingYearChoices = true;
+        try
+        {
+            Years.SyncWith(years);
+            OnPropertyChanged(nameof(YearCountLabel));
+            if (!ReferenceEquals(SelectedYear, preferredYear))
+                SelectedYear = preferredYear;
+            UpdateYearSelection(SelectedYear);
+        }
+        finally
+        {
+            _isRebuildingYearChoices = false;
+        }
+
+        _lastSelectedYear = SelectedYear;
+    }
+
+    private YearChoice GetYearChoice(int year, int sessionCount)
+    {
+        if (!_yearChoiceCache.TryGetValue(year, out var choice))
+        {
+            choice = new YearChoice(year, sessionCount);
+            _yearChoiceCache[year] = choice;
+        }
+        else
+        {
+            choice.SessionCount = sessionCount;
+        }
+
+        return choice;
+    }
+
     private void BuildCircuitChoices(IReadOnlyList<SessionSummary> sessions, string? preferredSessionId = null)
     {
         CircuitChoice? preferredCircuit = null;
@@ -353,8 +478,6 @@ public sealed partial class LauncherViewModel : ObservableObject
         _isRebuildingChoices = true;
         try
         {
-            SelectedCircuit = null;
-
             foreach (var group in sessions
                          .GroupBy(s => CircuitKey(s))
                          .OrderBy(g => g.Min(s => s.EventName))
@@ -366,22 +489,24 @@ public sealed partial class LauncherViewModel : ObservableObject
                     .ThenBy(s => s.SessionType)
                     .ToArray();
 
-                var circuit = new CircuitChoice(
-                    first.CircuitName ?? first.EventName,
-                    first.Country,
-                    CountryFlag(first.Country),
-                    groupSessions.Length,
-                    groupSessions.Max(s => s.Year),
-                    groupSessions);
+                var circuit = GetCircuitChoice(first, groupSessions);
                 circuits.Add(circuit);
 
                 if (preferredSessionId is not null && groupSessions.Any(s => string.Equals(s.SessionId, preferredSessionId, StringComparison.OrdinalIgnoreCase)))
                     preferredCircuit = circuit;
             }
 
-            Circuits.ReplaceWith(circuits);
+            if (preferredCircuit is null && _lastSelectedCircuit is not null)
+            {
+                var previousKey = CircuitIdentity(_lastSelectedCircuit);
+                preferredCircuit = circuits.FirstOrDefault(c => string.Equals(CircuitIdentity(c), previousKey, StringComparison.OrdinalIgnoreCase));
+            }
+
+            Circuits.SyncWith(circuits);
             OnPropertyChanged(nameof(ResultsSummaryLabel));
-            SelectedCircuit = preferredCircuit ?? Circuits.FirstOrDefault();
+            var nextCircuit = preferredCircuit ?? Circuits.FirstOrDefault();
+            if (!ReferenceEquals(SelectedCircuit, nextCircuit))
+                SelectedCircuit = nextCircuit;
             UpdateCircuitSelection(SelectedCircuit);
         }
         finally
@@ -393,20 +518,38 @@ public sealed partial class LauncherViewModel : ObservableObject
         ApplySelectedCircuit(SelectedCircuit, preserveDrivers, preserveDrivers ? preferredSessionId : null);
     }
 
+    private CircuitChoice GetCircuitChoice(SessionSummary first, IReadOnlyList<SessionSummary> sessions)
+    {
+        var cacheKey = CircuitChoiceCacheKey(sessions);
+        if (_circuitChoiceCache.TryGetValue(cacheKey, out var choice))
+            return choice;
+
+        choice = new CircuitChoice(
+            first.CircuitName ?? first.EventName,
+            first.Country,
+            CountryFlag(first.Country),
+            sessions.Count,
+            sessions.Max(s => s.Year),
+            sessions);
+        _circuitChoiceCache[cacheKey] = choice;
+        return choice;
+    }
+
     private async Task LoadDriversAsync(SessionSummary session)
     {
         var version = ++_driverLoadVersion;
         var data = GetLauncherDataAsync(session.SessionId);
-        var warmStandings = data.TryGetStandingsTask();
+        var driversTask = data.Drivers;
+        var standingsTask = data.Standings;
 
         try
         {
             // 1) Show chips as soon as the (fast) drivers call returns — never block
             //    the grid on the heavier standings query.
             IReadOnlyList<DriverSummary> drivers;
-            if (data.Drivers.IsCompletedSuccessfully)
+            if (driversTask.IsCompletedSuccessfully)
             {
-                drivers = data.Drivers.Result; // warm cache → render synchronously, no spinner
+                drivers = driversTask.Result; // warm cache -> render synchronously, no spinner
             }
             else
             {
@@ -418,30 +561,29 @@ public sealed partial class LauncherViewModel : ObservableObject
                     IsLoadingDrivers = true;
                 }
 
-                try { drivers = await data.Drivers; }
+                try { drivers = await driversTask; }
                 finally
                 {
                     IsRefreshingDrivers = false;
                     if (showLoader)
                         IsLoadingDrivers = false;
                 }
-                if (version != _driverLoadVersion) return;
+                if (!IsCurrentDriverLoad(version, session)) return;
             }
 
             // Use standings ordering immediately if it's already there, else fall back
             // to driver-code order and enrich below.
             IsRefreshingDrivers = false;
-            var positions = warmStandings?.IsCompletedSuccessfully is true ? ToPositions(warmStandings.Result) : null;
-            RenderChips(drivers, positions);
-            _renderedDriversSessionId = session.SessionId;
-            DriverHeader = Drivers.Count == 0 ? "No drivers for this session" : "Choose drivers for replay";
+            if (!IsCurrentDriverLoad(version, session)) return;
+            var positions = standingsTask.IsCompletedSuccessfully ? ToPositions(session.SessionId, standingsTask.Result) : null;
+            ShowDriverChoices(session.SessionId, BuildOrUpdateDriverChoices(session.SessionId, drivers, positions));
 
             // 2) Enrich positions/order once standings land (when they weren't ready).
-            if (positions is null)
+            if (positions is null || positions.Count == 0)
             {
-                var standings = await data.Standings;
-                if (version != _driverLoadVersion) return;
-                ApplyPositions(ToPositions(standings));
+                var standings = await standingsTask;
+                if (!IsCurrentDriverLoad(version, session)) return;
+                ApplyPositions(session.SessionId, ToPositions(session.SessionId, standings));
             }
         }
         catch (Exception ex)
@@ -452,19 +594,78 @@ public sealed partial class LauncherViewModel : ObservableObject
         }
     }
 
-    /// <summary>Build the driver chips ordered by finishing position when known, else by code.</summary>
-    private void RenderChips(IReadOnlyList<DriverSummary> drivers, IReadOnlyDictionary<string, int>? positions)
+    private bool TryShowCachedDrivers(SessionSummary session)
     {
-        SelectedDriverCount = 0;
+        if (!_driverChoiceCache.TryGetValue(session.SessionId, out var choices))
+            return false;
+
+        if (_driverPositionCache.TryGetValue(session.SessionId, out var positions))
+            ApplyPositionsToChoices(choices, positions);
+        else
+            ClearPositions(choices);
+
+        foreach (var choice in choices)
+            choice.SessionId = session.SessionId;
+
+        SortDriverChoices(choices);
+        ShowDriverChoices(session.SessionId, choices);
+        return true;
+    }
+
+    private void ShowDriverChoices(string sessionId, IReadOnlyList<DriverChoice> choices)
+    {
+        _renderedDriversSessionId = sessionId;
+        Drivers.SyncWith(choices);
+        IsRefreshingDrivers = false;
+        IsLoadingDrivers = false;
+        DriverHeader = Drivers.Count == 0 ? "No drivers for this session" : "Choose drivers for replay";
+        UpdateSelectedDriverCount();
+    }
+
+    /// <summary>Build or reuse driver chips ordered by finishing position when known, else by code.</summary>
+    private IReadOnlyList<DriverChoice> BuildOrUpdateDriverChoices(
+        string sessionId,
+        IReadOnlyList<DriverSummary> drivers,
+        IReadOnlyDictionary<string, int>? positions)
+    {
+        if (_driverChoiceCache.TryGetValue(sessionId, out var cached) && SameDriverSet(cached, drivers))
+        {
+            RememberPositions(sessionId, positions);
+            foreach (var choice in cached)
+                choice.SessionId = sessionId;
+            if (positions is null || positions.Count == 0)
+                ClearPositions(cached);
+            else
+                ApplyPositionsToChoices(cached, positions);
+            SortDriverChoices(cached);
+            return cached;
+        }
+
+        if (SameDriverSet(Drivers, drivers))
+        {
+            var visible = Drivers.ToList();
+            RememberPositions(sessionId, positions);
+            foreach (var choice in visible)
+                choice.SessionId = sessionId;
+            if (positions is null || positions.Count == 0)
+                ClearPositions(visible);
+            else
+                ApplyPositionsToChoices(visible, positions);
+            SortDriverChoices(visible);
+            CacheDriverChoices(sessionId, visible);
+            return visible;
+        }
 
         var ordered = positions is null
             ? drivers.OrderBy(d => d.DriverCode)
             : drivers.OrderBy(d => positions.GetValueOrDefault(d.DriverCode, 999)).ThenBy(d => d.DriverCode);
 
-        var choices = new List<DriverChoice>();
+        RememberPositions(sessionId, positions);
+        var choices = new List<DriverChoice>(drivers.Count);
         foreach (var driver in ordered)
         {
             var choice = new DriverChoice(
+                sessionId,
                 driver.DriverCode,
                 driver.FullName,
                 driver.TeamName,
@@ -479,36 +680,106 @@ public sealed partial class LauncherViewModel : ObservableObject
             choices.Add(choice);
         }
 
-        Drivers.ReplaceWith(choices);
-        UpdateSelectedDriverCount();
+        CacheDriverChoices(sessionId, choices);
+        return choices;
     }
+
+    private bool IsCurrentDriverLoad(int version, SessionSummary session)
+        => version == _driverLoadVersion
+           && string.Equals(SelectedSession?.SessionId, session.SessionId, StringComparison.OrdinalIgnoreCase);
+
+    private bool IsAvailableSession(SessionSummary session)
+        => Sessions.Any(s => string.Equals(s.SessionId, session.SessionId, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>Fill in finishing positions and re-sort in place without rebuilding the chips.</summary>
-    private void ApplyPositions(IReadOnlyDictionary<string, int> positions)
+    private void ApplyPositions(string sessionId, IReadOnlyDictionary<string, int> positions)
     {
         if (positions.Count == 0) return;
+        RememberPositions(sessionId, positions);
 
-        foreach (var d in Drivers)
-            if (positions.TryGetValue(d.DriverCode, out var pos))
-                d.Position = pos;
+        if (!string.Equals(_renderedDriversSessionId, sessionId, StringComparison.OrdinalIgnoreCase))
+            return;
 
-        var sorted = Drivers.OrderBy(d => d.Position ?? 999).ThenBy(d => d.DriverCode).ToList();
-        for (var i = 0; i < sorted.Count; i++)
-        {
-            var current = Drivers.IndexOf(sorted[i]);
-            if (current != i)
-                Drivers.Move(current, i);
-        }
+        if (!_driverChoiceCache.TryGetValue(sessionId, out var choices))
+            return;
+
+        ApplyPositionsToChoices(choices, positions);
+        SortDriverChoices(choices);
+        ShowDriverChoices(sessionId, choices);
     }
 
-    private static Dictionary<string, int> ToPositions(StandingsResponse? standings)
-        => standings?.Items.ToDictionary(r => r.DriverCode, r => r.Position, StringComparer.OrdinalIgnoreCase)
-           ?? new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+    private static bool SameDriverSet(IReadOnlyList<DriverChoice> choices, IReadOnlyList<DriverSummary> drivers)
+    {
+        if (choices.Count != drivers.Count)
+            return false;
+
+        var codes = choices.Select(c => c.DriverCode).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return drivers.All(d => codes.Contains(d.DriverCode));
+    }
+
+    private static bool SameDriverSet(IEnumerable<DriverChoice> choices, IReadOnlyList<DriverSummary> drivers)
+        => SameDriverSet(choices.ToArray(), drivers);
+
+    private void RememberPositions(string sessionId, IReadOnlyDictionary<string, int>? positions)
+    {
+        if (positions is null || positions.Count == 0)
+            return;
+
+        _driverPositionCache[sessionId] = new Dictionary<string, int>(positions, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private void CacheDriverChoices(string sessionId, List<DriverChoice> choices)
+    {
+        foreach (var key in _driverChoiceCache
+                     .Where(pair => !string.Equals(pair.Key, sessionId, StringComparison.OrdinalIgnoreCase)
+                                    && ReferenceEquals(pair.Value, choices))
+                     .Select(pair => pair.Key)
+                     .ToArray())
+        {
+            _driverChoiceCache.Remove(key);
+        }
+
+        _driverChoiceCache[sessionId] = choices;
+    }
+
+    private static void ClearPositions(IEnumerable<DriverChoice> choices)
+    {
+        foreach (var choice in choices)
+            choice.Position = null;
+    }
+
+    private static void ApplyPositionsToChoices(List<DriverChoice> choices, IReadOnlyDictionary<string, int>? positions)
+    {
+        if (positions is null || positions.Count == 0)
+            return;
+
+        foreach (var choice in choices)
+            if (positions.TryGetValue(choice.DriverCode, out var position))
+                choice.Position = position;
+    }
+
+    private static void SortDriverChoices(List<DriverChoice> choices)
+        => choices.Sort(static (left, right) =>
+        {
+            var position = (left.Position ?? 999).CompareTo(right.Position ?? 999);
+            return position != 0 ? position : string.CompareOrdinal(left.DriverCode, right.DriverCode);
+        });
+
+    private static Dictionary<string, int> ToPositions(string sessionId, StandingsResponse? standings)
+        => standings is not null && string.Equals(standings.SessionId, sessionId, StringComparison.OrdinalIgnoreCase)
+            ? standings.Items.ToDictionary(r => r.DriverCode, r => r.Position, StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
     private void UpdateSelectedDriverCount()
     {
         SelectedDriverCount = Drivers.Count(d => d.IsSelected);
         OnPropertyChanged(nameof(CanOpen));
+    }
+
+    private void UpdateYearSelection(YearChoice? selected)
+    {
+        foreach (var year in Years)
+            year.IsSelected = ReferenceEquals(year, selected);
     }
 
     private void UpdateCircuitSelection(CircuitChoice? selected)
@@ -524,12 +795,25 @@ public sealed partial class LauncherViewModel : ObservableObject
     private LauncherSessionData GetLauncherDataAsync(string sessionId)
         => _launcherCache.Get(sessionId);
 
-    /// <summary>Warm driver/standings fetches for every session of a circuit so picks are instant.</summary>
-    private void PrimeCircuit(CircuitChoice? circuit)
+    /// <summary>Warm driver rosters for the circuit, and standings for the session likely to render next.</summary>
+    private void PrimeCircuit(CircuitChoice? circuit, SessionSummary? prioritySession)
     {
         if (circuit is null) return;
+
+        if (prioritySession is not null)
+        {
+            var priorityData = GetLauncherDataAsync(prioritySession.SessionId);
+            _ = priorityData.Drivers;
+            _ = priorityData.Standings;
+        }
+
         foreach (var session in circuit.Sessions)
+        {
+            if (prioritySession is not null && string.Equals(session.SessionId, prioritySession.SessionId, StringComparison.OrdinalIgnoreCase))
+                continue;
+
             _ = GetLauncherDataAsync(session.SessionId).Drivers;
+        }
     }
 
     private IReadOnlyList<SessionSummary> FilterSessions(IReadOnlyList<SessionSummary> sessions)
@@ -548,6 +832,9 @@ public sealed partial class LauncherViewModel : ObservableObject
                 || MatchesDriver(s, query))
             .ToArray();
     }
+
+    private IReadOnlyList<SessionSummary> FilterBySelectedYear(IReadOnlyList<SessionSummary> sessions)
+        => SelectedYear is null ? Array.Empty<SessionSummary>() : sessions.Where(s => s.Year == SelectedYear.Year).ToArray();
 
     /// <summary>True if a (already-warmed) session roster has a driver matching by code, first/last name.</summary>
     private bool MatchesDriver(SessionSummary session, string query)
@@ -591,6 +878,12 @@ public sealed partial class LauncherViewModel : ObservableObject
     private static string CircuitKey(SessionSummary session)
         => $"{session.CircuitName ?? session.EventName}|{session.Country}".ToUpperInvariant();
 
+    private static string CircuitIdentity(CircuitChoice circuit)
+        => $"{circuit.CircuitName}|{circuit.Country}".ToUpperInvariant();
+
+    private static string CircuitChoiceCacheKey(IReadOnlyList<SessionSummary> sessions)
+        => string.Join("|", sessions.Select(s => s.SessionId));
+
     /// <summary>National flag emoji for a country (a factual identifier, not a team livery — §2a).</summary>
     private static string CountryFlag(string? country)
     {
@@ -622,6 +915,27 @@ public sealed partial class LauncherViewModel : ObservableObject
             _ => "🏳",
         };
     }
+}
+
+public sealed partial class YearChoice : ObservableObject
+{
+    public YearChoice(int year, int sessionCount)
+    {
+        Year = year;
+        _sessionCount = sessionCount;
+    }
+
+    public int Year { get; }
+
+    [ObservableProperty]
+    private int _sessionCount;
+
+    [ObservableProperty]
+    private bool _isSelected;
+
+    public string SessionCountLabel => SessionCount == 1 ? "1 session" : $"{SessionCount} sessions";
+
+    partial void OnSessionCountChanged(int value) => OnPropertyChanged(nameof(SessionCountLabel));
 }
 
 public sealed partial class CircuitChoice : ObservableObject
@@ -661,6 +975,7 @@ public sealed partial class CircuitChoice : ObservableObject
 public sealed partial class DriverChoice : ObservableObject
 {
     public DriverChoice(
+        string sessionId,
         string driverCode,
         string? fullName,
         string? teamName,
@@ -668,6 +983,7 @@ public sealed partial class DriverChoice : ObservableObject
         int? position,
         bool isSelected)
     {
+        _sessionId = sessionId;
         DriverCode = driverCode;
         FullName = fullName;
         TeamName = teamName;
@@ -675,6 +991,9 @@ public sealed partial class DriverChoice : ObservableObject
         Position = position;
         _isSelected = isSelected;
     }
+
+    [ObservableProperty]
+    private string _sessionId;
 
     public string DriverCode { get; }
     public string? FullName { get; }
@@ -713,6 +1032,25 @@ public sealed class BatchedObservableCollection<T> : ObservableCollection<T>
 {
     private bool _suppressNotifications;
 
+    public void SyncWith(IReadOnlyList<T> items)
+    {
+        if (!HasSameItems(items))
+        {
+            ReplaceWith(items);
+            return;
+        }
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            var current = Items.IndexOf(items[i]);
+            if (current >= 0 && current != i)
+                Move(current, i);
+        }
+
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(Count)));
+        OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+    }
+
     public void ReplaceWith(IEnumerable<T> items)
     {
         _suppressNotifications = true;
@@ -746,5 +1084,32 @@ public sealed class BatchedObservableCollection<T> : ObservableCollection<T>
             return;
 
         base.OnPropertyChanged(e);
+    }
+
+    private bool HasSameItems(IReadOnlyList<T> items)
+    {
+        if (Items.Count != items.Count)
+            return false;
+
+        var comparer = EqualityComparer<T>.Default;
+        var matched = new bool[items.Count];
+        foreach (var existing in Items)
+        {
+            var found = false;
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (matched[i] || !comparer.Equals(existing, items[i]))
+                    continue;
+
+                matched[i] = true;
+                found = true;
+                break;
+            }
+
+            if (!found)
+                return false;
+        }
+
+        return true;
     }
 }
