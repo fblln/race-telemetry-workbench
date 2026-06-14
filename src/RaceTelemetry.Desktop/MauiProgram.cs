@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+#if DEBUG
 using Microsoft.Maui.DevFlow.Agent;
+#endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RaceTelemetry.Desktop.Services;
@@ -49,6 +51,7 @@ public static class MauiProgram
         // Prefetch cache: eagerly loads everything about a session so view
         // switches are instant (§8.9). Singleton so the cache outlives views.
         builder.Services.AddSingleton<ISessionPrefetchService, SessionPrefetchService>();
+        builder.Services.AddSingleton<ILauncherSessionCache, LauncherSessionCache>();
 
         // View models
         builder.Services.AddSingleton<AppState>();

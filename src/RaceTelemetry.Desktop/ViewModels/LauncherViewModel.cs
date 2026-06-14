@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RaceTelemetry.Contracts;
@@ -13,34 +15,43 @@ namespace RaceTelemetry.Desktop.ViewModels;
 /// </summary>
 public sealed partial class LauncherViewModel : ObservableObject
 {
-    private readonly IQueryApiClient _api;
     private readonly ISessionPrefetchService _prefetch;
+    private readonly ILauncherSessionCache _launcherCache;
     private readonly AppState _state;
     private IReadOnlyList<SessionSummary> _allSessions = Array.Empty<SessionSummary>();
-    private readonly Dictionary<string, LauncherSessionData> _launcherData = new(StringComparer.OrdinalIgnoreCase);
     private CancellationTokenSource? _searchDebounceCts;
     private bool _isRebuildingChoices;
+    private bool _isReplacingSessions;
+    private bool _isRestoringCircuitSelection;
+    private bool _isRestoringSessionSelection;
     private int _driverLoadVersion;
+    private CircuitChoice? _lastSelectedCircuit;
+    private SessionSummary? _lastSelectedSession;
+    private string? _renderedDriversSessionId;
     private string? _lastFilterSignature;
+    private int _driverPrefetchVersion;
 
-    public LauncherViewModel(IQueryApiClient api, ISessionPrefetchService prefetch, AppState state)
+    public LauncherViewModel(ISessionPrefetchService prefetch, ILauncherSessionCache launcherCache, AppState state)
     {
-        _api = api;
         _prefetch = prefetch;
+        _launcherCache = launcherCache;
         _state = state;
     }
 
-    public ObservableCollection<CircuitChoice> Circuits { get; } = new();
+    public BatchedObservableCollection<CircuitChoice> Circuits { get; } = new();
 
-    public ObservableCollection<SessionSummary> Sessions { get; } = new();
+    public BatchedObservableCollection<SessionSummary> Sessions { get; } = new();
 
-    public ObservableCollection<DriverChoice> Drivers { get; } = new();
+    public BatchedObservableCollection<DriverChoice> Drivers { get; } = new();
 
     [ObservableProperty]
     private bool _isLoading;
 
     [ObservableProperty]
     private bool _isLoadingDrivers;
+
+    [ObservableProperty]
+    private bool _isRefreshingDrivers;
 
     [ObservableProperty]
     private string? _error;
@@ -60,7 +71,7 @@ public sealed partial class LauncherViewModel : ObservableObject
     [ObservableProperty]
     private string _driverHeader = "Select a circuit and session";
 
-    public bool CanOpen => SelectedSession is not null && SelectedDriverCount > 0 && !IsLoadingDrivers;
+    public bool CanOpen => SelectedSession is not null && SelectedDriverCount > 0 && !IsRefreshingDrivers;
 
     /// <summary>"N seasons imported" for the panel subtitle (§2a home header).</summary>
     public string SeasonsLabel
@@ -69,6 +80,16 @@ public sealed partial class LauncherViewModel : ObservableObject
         {
             var seasons = _allSessions.Select(s => s.Year).Distinct().Count();
             return seasons == 1 ? "1 season imported" : $"{seasons} seasons imported";
+        }
+    }
+
+    /// <summary>Panel subtitle: result count for the current search, plus seasons covered.</summary>
+    public string ResultsSummaryLabel
+    {
+        get
+        {
+            var circuits = Circuits.Count == 1 ? "1 circuit" : $"{Circuits.Count} circuits";
+            return $"{circuits} · {SeasonsLabel}";
         }
     }
 
@@ -82,18 +103,27 @@ public sealed partial class LauncherViewModel : ObservableObject
     private async Task FetchSessionsAsync(bool refresh)
     {
         if (IsLoading) return;
-        IsLoading = true;
         Error = null;
+        var sessionsTask = _prefetch.GetSessionsAsync(refresh);
+        var showLoader = !sessionsTask.IsCompletedSuccessfully;
+        if (showLoader)
+            IsLoading = true;
+
         try
         {
-            _allSessions = await _prefetch.GetSessionsAsync(refresh);
+            _allSessions = await sessionsTask;
             OnPropertyChanged(nameof(SeasonsLabel));
+            OnPropertyChanged(nameof(ResultsSummaryLabel));
             var filtered = FilterSessions(_allSessions);
             _lastFilterSignature = FilterSignature(filtered);
             BuildCircuitChoices(filtered);
 
             if (Circuits.Count == 0)
                 Error = "No imported sessions found. Import a session, then retry.";
+
+            // Warm driver rosters for every session in the background so search-by-driver
+            // (name, surname, or code) becomes effective as results trickle in.
+            _ = PrefetchAllDriversAsync(_allSessions);
         }
         catch (Exception ex)
         {
@@ -101,8 +131,52 @@ public sealed partial class LauncherViewModel : ObservableObject
         }
         finally
         {
-            IsLoading = false;
+            if (showLoader)
+                IsLoading = false;
         }
+    }
+
+    /// <summary>Best-effort background warm-up so driver search can match sessions not yet opened.</summary>
+    private async Task PrefetchAllDriversAsync(IReadOnlyList<SessionSummary> sessions)
+    {
+        var version = ++_driverPrefetchVersion;
+        using var gate = new SemaphoreSlim(6);
+
+        async Task Warm(SessionSummary session)
+        {
+            await gate.WaitAsync();
+            try
+            {
+                await _launcherCache.Get(session.SessionId).Drivers;
+            }
+            catch
+            {
+                // best-effort; an unreachable session just won't match driver search
+            }
+            finally
+            {
+                gate.Release();
+            }
+        }
+
+        await Task.WhenAll(sessions.Select(Warm));
+
+        if (version != _driverPrefetchVersion) return;
+        if (!string.IsNullOrWhiteSpace(SearchQuery))
+            await MainThread.InvokeOnMainThreadAsync(RefreshFilter);
+    }
+
+    /// <summary>Re-applies the current search query and rebuilds the circuit list if results changed.</summary>
+    private void RefreshFilter()
+    {
+        var filtered = FilterSessions(_allSessions);
+        var signature = FilterSignature(filtered);
+        if (signature == _lastFilterSignature)
+            return;
+        _lastFilterSignature = signature;
+
+        var preferredSessionId = SelectedSession?.SessionId;
+        BuildCircuitChoices(filtered, preferredSessionId);
     }
 
     private static string ApiHint =>
@@ -165,6 +239,18 @@ public sealed partial class LauncherViewModel : ObservableObject
 
     partial void OnSelectedCircuitChanged(CircuitChoice? value)
     {
+        if (_isRestoringCircuitSelection)
+            return;
+
+        if (!_isRebuildingChoices && value is null && _lastSelectedCircuit is not null && Circuits.Contains(_lastSelectedCircuit))
+        {
+            _isRestoringCircuitSelection = true;
+            try { SelectedCircuit = _lastSelectedCircuit; }
+            finally { _isRestoringCircuitSelection = false; }
+            return;
+        }
+
+        _lastSelectedCircuit = value;
         UpdateCircuitSelection(value);
 
         if (_isRebuildingChoices)
@@ -175,26 +261,33 @@ public sealed partial class LauncherViewModel : ObservableObject
 
     private void ApplySelectedCircuit(CircuitChoice? value, bool preserveDrivers, string? preferredSessionId)
     {
-        Sessions.Clear();
-        if (!preserveDrivers)
+        var orderedSessions = value?.Sessions.OrderByDescending(s => s.Year).ThenBy(s => s.SessionType).ToArray()
+            ?? Array.Empty<SessionSummary>();
+
+        _isReplacingSessions = true;
+        try
         {
-            Drivers.Clear();
-            SelectedSession = null;
+            Sessions.ReplaceWith(orderedSessions);
         }
-        if (!preserveDrivers)
-            SelectedDriverCount = 0;
+        finally
+        {
+            _isReplacingSessions = false;
+        }
 
         if (value is null)
         {
+            Drivers.Clear();
+            _renderedDriversSessionId = null;
+            SelectedSession = null;
+            _lastSelectedSession = null;
+            SelectedDriverCount = 0;
             DriverHeader = "Select a circuit and session";
             return;
         }
 
-        // Warm every session of this circuit so selecting one renders instantly.
+        // Warm only the driver rosters here; standings can wait until a session is
+        // actually shown so a circuit switch does not fan out unnecessary work.
         PrimeCircuit(value);
-
-        foreach (var session in value.Sessions.OrderByDescending(s => s.Year).ThenBy(s => s.SessionType))
-            Sessions.Add(session);
 
         var nextSession = preferredSessionId is null
             ? Sessions.FirstOrDefault(s => string.Equals(s.SessionType, "R", StringComparison.OrdinalIgnoreCase))
@@ -203,12 +296,36 @@ public sealed partial class LauncherViewModel : ObservableObject
               ?? Sessions.FirstOrDefault(s => string.Equals(s.SessionType, "R", StringComparison.OrdinalIgnoreCase))
                           ?? Sessions.FirstOrDefault();
 
-        if (!preserveDrivers || !string.Equals(SelectedSession?.SessionId, nextSession?.SessionId, StringComparison.OrdinalIgnoreCase))
+        if (nextSession is null)
+        {
+            Drivers.Clear();
+            _renderedDriversSessionId = null;
+            SelectedSession = null;
+            _lastSelectedSession = null;
+            SelectedDriverCount = 0;
+            DriverHeader = "Select a session";
+            return;
+        }
+
+        if (!preserveDrivers || !string.Equals(SelectedSession?.SessionId, nextSession.SessionId, StringComparison.OrdinalIgnoreCase))
             SelectedSession = nextSession;
     }
 
     async partial void OnSelectedSessionChanged(SessionSummary? value)
     {
+        if (_isRestoringSessionSelection || _isReplacingSessions)
+            return;
+
+        if (value is null && _lastSelectedSession is not null && Sessions.Contains(_lastSelectedSession))
+        {
+            _isRestoringSessionSelection = true;
+            try { SelectedSession = _lastSelectedSession; }
+            finally { _isRestoringSessionSelection = false; }
+            return;
+        }
+
+        _lastSelectedSession = value;
+
         // Warm the snapshot the moment a row is highlighted, so opening is instant.
         if (value is not null)
         {
@@ -218,6 +335,7 @@ public sealed partial class LauncherViewModel : ObservableObject
         {
             Drivers.Clear();
             SelectedDriverCount = 0;
+            _renderedDriversSessionId = null;
             DriverHeader = "Select a session";
         }
     }
@@ -226,21 +344,16 @@ public sealed partial class LauncherViewModel : ObservableObject
 
     partial void OnIsLoadingDriversChanged(bool value) => OnPropertyChanged(nameof(CanOpen));
 
+    partial void OnIsRefreshingDriversChanged(bool value) => OnPropertyChanged(nameof(CanOpen));
+
     private void BuildCircuitChoices(IReadOnlyList<SessionSummary> sessions, string? preferredSessionId = null)
     {
         CircuitChoice? preferredCircuit = null;
+        var circuits = new List<CircuitChoice>();
         _isRebuildingChoices = true;
         try
         {
-            Circuits.Clear();
-            Sessions.Clear();
-            if (preferredSessionId is null)
-            {
-                Drivers.Clear();
-            }
             SelectedCircuit = null;
-            if (preferredSessionId is null)
-                SelectedDriverCount = 0;
 
             foreach (var group in sessions
                          .GroupBy(s => CircuitKey(s))
@@ -260,12 +373,14 @@ public sealed partial class LauncherViewModel : ObservableObject
                     groupSessions.Length,
                     groupSessions.Max(s => s.Year),
                     groupSessions);
-                Circuits.Add(circuit);
+                circuits.Add(circuit);
 
                 if (preferredSessionId is not null && groupSessions.Any(s => string.Equals(s.SessionId, preferredSessionId, StringComparison.OrdinalIgnoreCase)))
                     preferredCircuit = circuit;
             }
 
+            Circuits.ReplaceWith(circuits);
+            OnPropertyChanged(nameof(ResultsSummaryLabel));
             SelectedCircuit = preferredCircuit ?? Circuits.FirstOrDefault();
             UpdateCircuitSelection(SelectedCircuit);
         }
@@ -282,6 +397,7 @@ public sealed partial class LauncherViewModel : ObservableObject
     {
         var version = ++_driverLoadVersion;
         var data = GetLauncherDataAsync(session.SessionId);
+        var warmStandings = data.TryGetStandingsTask();
 
         try
         {
@@ -294,17 +410,30 @@ public sealed partial class LauncherViewModel : ObservableObject
             }
             else
             {
-                DriverHeader = "Loading drivers…";
-                IsLoadingDrivers = true;
+                var showLoader = Drivers.Count == 0;
+                IsRefreshingDrivers = true;
+                if (showLoader)
+                {
+                    DriverHeader = "Loading drivers…";
+                    IsLoadingDrivers = true;
+                }
+
                 try { drivers = await data.Drivers; }
-                finally { IsLoadingDrivers = false; }
+                finally
+                {
+                    IsRefreshingDrivers = false;
+                    if (showLoader)
+                        IsLoadingDrivers = false;
+                }
                 if (version != _driverLoadVersion) return;
             }
 
             // Use standings ordering immediately if it's already there, else fall back
             // to driver-code order and enrich below.
-            var positions = data.Standings.IsCompletedSuccessfully ? ToPositions(data.Standings.Result) : null;
+            IsRefreshingDrivers = false;
+            var positions = warmStandings?.IsCompletedSuccessfully is true ? ToPositions(warmStandings.Result) : null;
             RenderChips(drivers, positions);
+            _renderedDriversSessionId = session.SessionId;
             DriverHeader = Drivers.Count == 0 ? "No drivers for this session" : "Choose drivers for replay";
 
             // 2) Enrich positions/order once standings land (when they weren't ready).
@@ -317,6 +446,7 @@ public sealed partial class LauncherViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            IsRefreshingDrivers = false;
             if (version == _driverLoadVersion)
                 DriverHeader = $"Drivers unavailable: {ex.Message}";
         }
@@ -325,13 +455,13 @@ public sealed partial class LauncherViewModel : ObservableObject
     /// <summary>Build the driver chips ordered by finishing position when known, else by code.</summary>
     private void RenderChips(IReadOnlyList<DriverSummary> drivers, IReadOnlyDictionary<string, int>? positions)
     {
-        Drivers.Clear();
         SelectedDriverCount = 0;
 
         var ordered = positions is null
             ? drivers.OrderBy(d => d.DriverCode)
             : drivers.OrderBy(d => positions.GetValueOrDefault(d.DriverCode, 999)).ThenBy(d => d.DriverCode);
 
+        var choices = new List<DriverChoice>();
         foreach (var driver in ordered)
         {
             var choice = new DriverChoice(
@@ -346,9 +476,10 @@ public sealed partial class LauncherViewModel : ObservableObject
                 if (e.PropertyName == nameof(DriverChoice.IsSelected))
                     UpdateSelectedDriverCount();
             };
-            Drivers.Add(choice);
+            choices.Add(choice);
         }
 
+        Drivers.ReplaceWith(choices);
         UpdateSelectedDriverCount();
     }
 
@@ -391,23 +522,14 @@ public sealed partial class LauncherViewModel : ObservableObject
     /// usually return well before standings, so callers await them independently.
     /// </summary>
     private LauncherSessionData GetLauncherDataAsync(string sessionId)
-    {
-        if (_launcherData.TryGetValue(sessionId, out var cached))
-            return cached;
-
-        var data = new LauncherSessionData(
-            _api.GetDriversAsync(sessionId),
-            _api.GetStandingsAsync(sessionId));
-        _launcherData[sessionId] = data;
-        return data;
-    }
+        => _launcherCache.Get(sessionId);
 
     /// <summary>Warm driver/standings fetches for every session of a circuit so picks are instant.</summary>
     private void PrimeCircuit(CircuitChoice? circuit)
     {
         if (circuit is null) return;
         foreach (var session in circuit.Sessions)
-            _ = GetLauncherDataAsync(session.SessionId);
+            _ = GetLauncherDataAsync(session.SessionId).Drivers;
     }
 
     private IReadOnlyList<SessionSummary> FilterSessions(IReadOnlyList<SessionSummary> sessions)
@@ -422,8 +544,25 @@ public sealed partial class LauncherViewModel : ObservableObject
                 || Contains(s.Country, query)
                 || Contains(s.SessionType, query)
                 || Contains(s.SessionId, query)
-                || s.Year.ToString(System.Globalization.CultureInfo.InvariantCulture).Contains(query, StringComparison.OrdinalIgnoreCase))
+                || s.Year.ToString(System.Globalization.CultureInfo.InvariantCulture).Contains(query, StringComparison.OrdinalIgnoreCase)
+                || MatchesDriver(s, query))
             .ToArray();
+    }
+
+    /// <summary>True if a (already-warmed) session roster has a driver matching by code, first/last name.</summary>
+    private bool MatchesDriver(SessionSummary session, string query)
+    {
+        var driversTask = _launcherCache.Get(session.SessionId).Drivers;
+        if (!driversTask.IsCompletedSuccessfully)
+            return false;
+
+        foreach (var driver in driversTask.Result)
+        {
+            if (Contains(driver.DriverCode, query) || Contains(driver.FullName, query))
+                return true;
+        }
+
+        return false;
     }
 
     private static bool Contains(string? value, string query)
@@ -437,18 +576,9 @@ public sealed partial class LauncherViewModel : ObservableObject
             if (cancellationToken.IsCancellationRequested)
                 return;
 
-            var filtered = FilterSessions(_allSessions);
-
             // Skip the rebuild when the filtered result is unchanged (e.g. "monz" -> "monza"):
             // rebuilding would needlessly reset the circuit/session/driver selection.
-            var signature = FilterSignature(filtered);
-            if (signature == _lastFilterSignature)
-                return;
-            _lastFilterSignature = signature;
-
-            var preferredSessionId = SelectedSession?.SessionId;
-            await MainThread.InvokeOnMainThreadAsync(() =>
-                BuildCircuitChoices(filtered, preferredSessionId));
+            await MainThread.InvokeOnMainThreadAsync(RefreshFilter);
         }
         catch (OperationCanceledException)
         {
@@ -528,10 +658,6 @@ public sealed partial class CircuitChoice : ObservableObject
     public string YearsLabel => string.Join(" · ", Sessions.Select(s => s.Year).Distinct().OrderByDescending(y => y));
 }
 
-public sealed record LauncherSessionData(
-    Task<IReadOnlyList<DriverSummary>> Drivers,
-    Task<StandingsResponse?> Standings);
-
 public sealed partial class DriverChoice : ObservableObject
 {
     public DriverChoice(
@@ -580,5 +706,45 @@ public sealed partial class DriverChoice : ObservableObject
         OnPropertyChanged(nameof(SelectionFill));
         OnPropertyChanged(nameof(SelectionStroke));
         OnPropertyChanged(nameof(SelectionTextColor));
+    }
+}
+
+public sealed class BatchedObservableCollection<T> : ObservableCollection<T>
+{
+    private bool _suppressNotifications;
+
+    public void ReplaceWith(IEnumerable<T> items)
+    {
+        _suppressNotifications = true;
+        try
+        {
+            Items.Clear();
+            foreach (var item in items)
+                Items.Add(item);
+        }
+        finally
+        {
+            _suppressNotifications = false;
+        }
+
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(Count)));
+        OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+
+    protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+    {
+        if (_suppressNotifications)
+            return;
+
+        base.OnCollectionChanged(e);
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        if (_suppressNotifications)
+            return;
+
+        base.OnPropertyChanged(e);
     }
 }

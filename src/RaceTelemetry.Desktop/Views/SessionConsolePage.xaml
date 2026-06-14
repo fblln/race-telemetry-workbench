@@ -157,6 +157,6 @@
         </Grid>
 
         <!-- Global command palette overlay (§2a), opened with ⌘K. -->
-        <controls:CommandPalette x:Name="Palette" Grid.Row="0" Grid.RowSpan="3" />
+        <controls:CommandPalette x:Name="Palette" Grid.Row="0" Grid.RowSpan="3" ZIndex="100" />
     </Grid>
 </ContentPage>

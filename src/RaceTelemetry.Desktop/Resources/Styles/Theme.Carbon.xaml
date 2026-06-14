@@ -94,10 +94,11 @@
   <x:Double x:Key="ConsoleRailWidth">176</x:Double>
   <x:Double x:Key="LauncherPanelPaddingX">18</x:Double>
   <x:Double x:Key="LauncherPanelPaddingY">16</x:Double>
-  <x:Double x:Key="LauncherCircuitCardHeight">132</x:Double>
-  <x:Double x:Key="LauncherCircuitGridHeight">430</x:Double>
+  <x:Double x:Key="LauncherCircuitCardHeight">130</x:Double>
+  <x:Double x:Key="LauncherCircuitGridHeight">450</x:Double>
   <x:Double x:Key="LauncherCircuitGridGap">14</x:Double>
   <x:Double x:Key="LauncherDriverChipHeight">34</x:Double>
+  <x:Double x:Key="LauncherDriverChipCardHeight">60</x:Double>
   <x:Double x:Key="LauncherSessionChipHeight">38</x:Double>
 
   <!-- Radius -->

@@ -75,6 +75,26 @@ public sealed partial class CommandPaletteViewModel : ObservableObject
     [RelayCommand]
     public Task ActivateSelectedAsync() => ExecuteAsync(Selected);
 
+    /// <summary>Move the highlight to the next result — bound to the Down arrow.</summary>
+    [RelayCommand]
+    public void SelectNext() => MoveSelection(1);
+
+    /// <summary>Move the highlight to the previous result — bound to the Up arrow.</summary>
+    [RelayCommand]
+    public void SelectPrevious() => MoveSelection(-1);
+
+    private void MoveSelection(int delta)
+    {
+        if (!IsOpen) return;
+
+        var items = SessionItems.Concat(ActionItems).ToList();
+        if (items.Count == 0) return;
+
+        var index = Selected is null ? -1 : items.IndexOf(Selected);
+        index = Math.Clamp(index + delta, 0, items.Count - 1);
+        Selected = items[index];
+    }
+
     partial void OnQueryChanged(string value) => Rebuild();
 
     partial void OnSelectedChanged(PaletteItem? oldValue, PaletteItem? newValue)
