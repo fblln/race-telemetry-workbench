@@ -18,8 +18,12 @@ endpoints, telemetry-event search, RFC-style problem responses, OpenAPI, Bruno
 requests, and Aspire/OpenTelemetry wiring. The MCP server exposes the same
 read-only analytical surface over Streamable HTTP.
 
-The desktop folder is still a placeholder; no .NET MAUI project or replay UI
-exists yet.
+The desktop folder now contains a .NET MAUI Mac desktop shell using the Carbon
+Signal design tokens, launcher funnel, console rail, and first replay/analysis
+views. The replay workspace has an initial chunk-backed timebase, seek slider,
+current-value readouts, track markers, and waveform rendering against the Query
+API. It still needs deeper playback buffering, placeholder analysis modules, and
+larger-dataset responsiveness validation.
 
 The current local database has been verified with full-context Monza race
 imports for 2024 and 2025. A high-concurrency all-2025 import with
@@ -44,7 +48,7 @@ desktop UI surface.
 | Planning scaffold | Done | Planning, decisions, backlog, progress tracking, and repo instructions are now consolidated here and in `AGENTS.md`. |
 | Phase 1 - Database and Import | Mostly done | TimescaleDB Docker setup, migrations, analytical views, schema docs/DBML, integration tests, optimized importer, bulk importer, full-context imports, and Monza 2024/2025 verification are in place. TimescaleDB still runs through Docker Compose rather than as an Aspire-managed resource. |
 | Phase 2 - Query API | Implemented, needs coverage/perf hardening | .NET 10 solution, Aspire AppHost, ServiceDefaults, contracts, Timescale-backed data store, RFC-style problems, replay/context, lap telemetry, comparison, race/lap stories, analytical primitives, telemetry-event search, OpenAPI, Bruno, and HTTP integration runner are in place. Needs focused real-database analytical tests and larger-dataset performance validation. |
-| Phase 3 - Desktop Replay | Not started | `src/RaceTelemetry.Desktop` is a placeholder. Version 1 is scoped as a high-performance .NET MAUI desktop workbench with session browser, replay workspace, track map, waveform, current values, lap summary, event timeline, context strip, driver summary, pit summary, linked timebase/cursor behavior, context overlays, viewport-aware rendering, virtualized lists, and playback verification. |
+| Phase 3 - Desktop Replay | In progress | .NET MAUI shell, Carbon Signal styling, launcher circuit/session/driver funnel, console rail/HUD, field/incidents/strategy/position-trace views, and a first chunk-backed replay workspace are in place. Still needs deeper buffering/context overlays, richer analysis screens, and end-to-end AppHost UI verification. |
 | Phase 4 - Lap Comparison | Backend done, UI not started | Query API and MCP lap comparison endpoints exist. Version 1 comparison is limited to two laps in one session with lap-time-aligned overlays, sector/lap deltas, cursor/reference-cursor values, channel deltas, lap metadata, and UI verification. |
 | Phase 5 - MCP Query Server | Implemented, needs deeper external validation | Read-only Streamable HTTP MCP server exposes sessions, drivers, laps, replay metadata, lap telemetry, stories, braking zones, comparisons, race story, analytical primitives, replay chunk/context, and telemetry-event search. HTTP protocol smoke-test runner is in place. |
 | Phase 6 - AI Assistant Panel | Not started | Optional first UI iteration after MCP works externally. |
@@ -56,6 +60,9 @@ desktop UI surface.
 - [ ] Move TimescaleDB from standalone Docker Compose into Aspire-managed local resources.
 - [ ] Derive the desktop track outline from imported `position_samples`, not external track assets.
 - [ ] Tune season-import concurrency after completing a full 2025 season import at `--workers 2` or `--workers 3`.
+- [ ] Ensure `circuit_markers` corner attribution is consistently available for
+  imported sessions so `telemetry/windows`'s `nearestCorner` and the new
+  `corners/compare` endpoint (§6.10.6) can rely on it.
 
 Completed highlights:
 
@@ -76,6 +83,18 @@ Completed highlights:
 ### Phase 2 - Query API
 
 - [ ] Add focused Query API analytical endpoint tests against the real database.
+- [ ] Add `sessionIdB` to `compare/laps` for cross-session lap comparison
+  (§6.5), restricted to sessions at the same circuit.
+- [ ] Add `POST /api/sessions/{sessionId}/strategy/summarize` (§6.10.4):
+  pit-stop timing, undercut/overcut labels, pit-lane loss vs. field average,
+  and short narrative facts, composed from existing stint/pit/track-status
+  data.
+- [ ] Add `POST /api/sessions/{sessionId}/debrief` (§6.10.5): bounded,
+  section-based race summary (overview, incidents, strategy, weather)
+  composed from existing story/strategy/weather endpoints.
+- [ ] Add `POST /api/sessions/{sessionId}/corners/compare` (§6.10.6):
+  per-corner braking/exit comparison across drivers using `circuit_markers`
+  and `telemetry/windows` corner attribution.
 
 Completed highlights:
 
@@ -96,26 +115,28 @@ Completed highlights:
 
 ### Phase 3 - Desktop Replay
 
-- [ ] Create the .NET MAUI desktop project.
-- [ ] Add CommunityToolkit.Mvvm.
-- [ ] Add a high-performance drawing stack for track map, waveform, and timeline
+- [x] Create the .NET MAUI desktop project.
+- [x] Add CommunityToolkit.Mvvm.
+- [x] Add a high-performance drawing stack for track map, waveform, and timeline
   rendering.
 - [ ] Add virtualized native table/list controls for lap, driver, event, and
   race-control rows.
 - [ ] Build Version 1 as an opinionated fixed layout, not a configurable
   analytics toolkit.
-- [ ] Build the Session Browser with race-default filtering, search,
+- [x] Build the Session Browser with race-default filtering, search,
   selected-session details, and context availability flags.
+- [x] Tune Carbon Signal and the MAUI shell for the 15-inch MacBook Pro Retina
+  density target: 1440x900 logical points at 2x.
 - [ ] Build the Replay Workspace with fixed first-pass docked panels.
 - [ ] Structure replay panels as independent components so later saved layouts
   or resizing do not require a rewrite.
 - [ ] Implement replay controls: play, pause, restart, timeline seek, speed
   selector, driver selector, and channel selector.
-- [ ] Implement a linked session-relative timebase shared by all replay panels.
+- [x] Implement a linked session-relative timebase shared by all replay panels.
 - [ ] Implement cursor seek from timeline, waveform, event rows, lap rows, and
   timestamped track-map selections.
 - [ ] Implement optional reference cursor for analysis views.
-- [ ] Load replay metadata when opening a session.
+- [x] Load replay metadata when opening a session.
 - [ ] Load the first replay chunk before playback and keep at least one future
   chunk buffered.
 - [ ] Load context windows for weather, flags, safety car, VSC, red flags, DRS
@@ -158,7 +179,8 @@ Completed highlights:
 - [ ] Dedicated driver profile view.
 - [ ] Dedicated pit analysis view.
 - [ ] Multi-driver lap ranking and mini-sector style comparison.
-- [ ] Cross-session lap comparison.
+- [ ] Cross-session lap comparison UI (second-session picker over the
+  `sessionIdB` backend contract, §6.5).
 - [ ] Histogram, load-map, and scatter displays backed by bounded aggregate
   endpoints.
 - [ ] Event search builder for telemetry windows.
@@ -179,6 +201,14 @@ Completed:
   telemetry for natural-language analysis.
 - [x] Bounded structured JSON responses and one trace span per tool call.
 - [x] Focused MCP server tests.
+
+Backlog:
+
+- [ ] Add `summarize_strategy`, `generate_race_debrief`, and `compare_corners`
+  MCP tools as thin adapters over the new Query API endpoints (§9.2.1, §9.3),
+  once those endpoints exist.
+- [ ] Add cross-session support to the `compare_laps` MCP tool via
+  `sessionIdB`, matching the Query API contract.
 
 ### Phase 6 - Optional AI Assistant Panel
 
@@ -307,3 +337,58 @@ High performance is a core MAUI requirement: viewport-aware drawing, no UI
 element per telemetry sample, responsive replay/seek/redraw/scrolling, off-UI
 thread HTTP/JSON/downsampling work, virtualized lists, and explicitly bounded
 caches.
+
+### 2026-06-13 - New Analytical Endpoints: Strategy, Debrief, Corner Comparison, Cross-Session
+
+Four new analytical capabilities are added to the spec (§6.10.4-6.10.6, §6.5)
+as compositions over existing data and endpoints, not new raw-data access
+paths:
+
+- `strategy/summarize` (pit timing, undercut/overcut, narrative facts), built
+  from existing stint, pit-stop, track-status, and race-control data.
+- `debrief` (bounded, section-based race summary), composed from existing
+  race/lap story, weather trend, and the new strategy-summary endpoint.
+- `corners/compare`, extending the existing `telemetry/windows`
+  `nearestCorner` attribution into a per-corner driver comparison. This
+  depends on the Phase 1 backlog item to ensure `circuit_markers` corner
+  attribution is consistently available.
+- `compare/laps` gains an optional `sessionIdB` for cross-session comparison
+  at the same circuit (for example year-over-year), keeping the existing
+  single-session behavior as the default.
+
+Each gets a matching MCP tool (`summarize_strategy`, `generate_race_debrief`,
+`compare_corners`) following the existing parity rule
+(2026-06-08 decision): Query API route first, MCP adapter second.
+
+### 2026-06-15 - Timescale Compression Experiment Deferred
+
+An experiment enabled Timescale compression on `telemetry_samples`,
+`position_samples`, and `aligned_telemetry_10hz` using segment-by keys
+(`session_id,driver_code` for raw tables; `session_key,driver_number` for
+aligned telemetry) and `sample_time_utc` ordering.
+
+Measured local storage improved substantially:
+
+| Table | Before | After | Reduction |
+|---|---:|---:|---:|
+| `telemetry_samples` | 6,111 MB | 167 MB | ~36.5x |
+| `position_samples` | 5,795 MB | 111 MB | ~52.2x |
+| Raw combined | ~12 GB | ~279 MB | ~42.7x |
+| `aligned_telemetry_10hz` | 15 GB | 1,505 MB | ~10.3x |
+
+Hot-cache, replay-shaped bounded query timings did not improve. Most small
+window reads were slower due to decompression CPU overhead:
+
+| Query | Before | After |
+|---|---:|---:|
+| aligned 5s all drivers | 3.57 ms | 7.19 ms |
+| aligned 60s single driver | 2.24 ms | 3.03 ms |
+| aligned lap 25 all drivers | 39.45 ms | 67.01 ms |
+| raw car 60s single driver | 1.17 ms | 1.13 ms |
+| raw position 60s single driver | 0.72 ms | 1.07 ms |
+| raw car 5s all drivers | 1.36 ms | 3.07 ms |
+| raw position 5s all drivers | 1.30 ms | 2.82 ms |
+
+Decision: do not adopt compression as a migration yet. Revisit after measuring
+cold-cache reads, larger data volumes, index changes, and chunk/columnstore
+settings shaped specifically around replay queries.

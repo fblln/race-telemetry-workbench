@@ -1,0 +1,14 @@
+[mcp_servers.maui-devflow]
+command = "/Users/fabio/.dotnet/tools/maui"
+args = [
+  "devflow",
+  "mcp",
+  "--platform",
+  "maccatalyst",
+  "--agent-host",
+  "127.0.0.1",
+  "--agent-port",
+  "9223",
+]
+startup_timeout_sec = 20
+tool_timeout_sec = 60

@@ -6,7 +6,9 @@ public sealed record ReplayChunkResponse(
     long DurationMs,
     long NextFromMs,
     IReadOnlyList<string> Channels,
-    IReadOnlyList<ReplayDriverChunk> Items);
+    IReadOnlyList<ReplayDriverChunk> Items,
+    double? FrequencyHz = null,
+    string? TelemetrySource = null);
 
 public sealed record ReplayDriverChunk(
     string DriverCode,
@@ -23,4 +25,13 @@ public sealed record ReplaySample(
     int? Drs,
     double? X,
     double? Y,
-    double? Z);
+    double? Z,
+    int? SampleIndex = null,
+    DateTimeOffset? DateUtc = null,
+    long? LapTimeMs = null,
+    string? LocationStatus = null,
+    IReadOnlyList<string>? QualityFlags = null,
+    int? CarSampleAgeMs = null,
+    int? LocationSampleAgeMs = null,
+    bool? IsInterpolatedCar = null,
+    bool? IsInterpolatedLocation = null);

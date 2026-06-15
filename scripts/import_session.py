@@ -15,6 +15,7 @@ import logging
 import os
 import sys
 import time
+import zlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -92,6 +93,54 @@ POSITION_COLUMNS = (
     "source_sample_index",
     "metadata",
 )
+ALIGNED_TELEMETRY_COLUMNS = (
+    "sample_time_utc",
+    "session_id",
+    "session_key",
+    "driver_number",
+    "driver_code",
+    "lap_number",
+    "sample_index",
+    "session_time_ms",
+    "lap_time_ms",
+    "speed",
+    "rpm",
+    "n_gear",
+    "throttle",
+    "brake",
+    "drs",
+    "x",
+    "y",
+    "z",
+    "location_status",
+    "source_car_time",
+    "source_location_time",
+    "car_sample_age_ms",
+    "location_sample_age_ms",
+    "is_interpolated_car",
+    "is_interpolated_location",
+    "quality_flags",
+    "alignment_version",
+)
+TELEMETRY_DIAGNOSTIC_COLUMNS = (
+    "session_id",
+    "session_key",
+    "driver_number",
+    "driver_code",
+    "stream_name",
+    "sample_count",
+    "start_time",
+    "end_time",
+    "min_delta_ms",
+    "median_delta_ms",
+    "p90_delta_ms",
+    "p99_delta_ms",
+    "max_delta_ms",
+    "estimated_frequency_hz",
+    "duplicate_count",
+    "out_of_order_count",
+    "warning_flags",
+)
 
 TELEMETRY_INSERT_SQL = """
 INSERT INTO telemetry_samples (
@@ -110,6 +159,31 @@ INSERT INTO position_samples (
 )
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 ON CONFLICT (sample_time_utc, session_id, driver_code) DO NOTHING
+"""
+
+ALIGNED_TELEMETRY_INSERT_SQL = """
+INSERT INTO aligned_telemetry_10hz (
+    sample_time_utc, session_id, session_key, driver_number, driver_code,
+    lap_number, sample_index, session_time_ms, lap_time_ms,
+    speed, rpm, n_gear, throttle, brake, drs,
+    x, y, z, location_status,
+    source_car_time, source_location_time,
+    car_sample_age_ms, location_sample_age_ms,
+    is_interpolated_car, is_interpolated_location,
+    quality_flags, alignment_version
+)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+ON CONFLICT (sample_time_utc, session_key, driver_number) DO NOTHING
+"""
+
+TELEMETRY_DIAGNOSTIC_INSERT_SQL = """
+INSERT INTO telemetry_ingestion_diagnostics (
+    session_id, session_key, driver_number, driver_code, stream_name,
+    sample_count, start_time, end_time,
+    min_delta_ms, median_delta_ms, p90_delta_ms, p99_delta_ms, max_delta_ms,
+    estimated_frequency_hz, duplicate_count, out_of_order_count, warning_flags
+)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 
@@ -145,6 +219,8 @@ def ensure_import_mode(connection: Any, session_id: str, mode: str) -> None:
 
 def clear_upsert_children(connection: Any, session_id: str) -> None:
     tables = [
+        "telemetry_ingestion_diagnostics",
+        "aligned_telemetry_10hz",
         "telemetry_samples",
         "position_samples",
         "circuit_markers",
@@ -205,6 +281,12 @@ def race_control_time_fields(start: datetime | None, value: Any) -> tuple[dateti
     return message_time, session_time_ms if session_time_ms >= 0 else None
 
 
+def stable_session_key(session_id: str) -> int:
+    """Project-local integer session key for UI-aligned telemetry materialization."""
+
+    return zlib.crc32(session_id.encode("utf-8")) & 0x7FFFFFFF
+
+
 def selected_laps(session: Any, driver_codes: Sequence[str], limit_laps: int | None) -> Any:
     laps = session.laps.pick_drivers(list(driver_codes))
     if limit_laps is not None:
@@ -259,7 +341,13 @@ def build_session_row(session: Any, args: argparse.Namespace, session_id: str) -
         start,
         None,
         "fastf1",
-        json_metadata({"imported_by": "scripts/import_session.py"}),
+        json_metadata(
+            {
+                "imported_by": "scripts/import_session.py",
+                "session_key": stable_session_key(session_id),
+                "session_key_source": "project_crc32_session_id",
+            }
+        ),
     )
 
 
@@ -576,6 +664,9 @@ def build_race_control_rows(session: Any, session_id: str, start: datetime | Non
     for message in messages.itertuples(index=False):
         data = message._asdict()
         message_time, session_time_ms = race_control_time_fields(start, data.get("Time"))
+        lap_number = int_or_none(data.get("Lap"))
+        if lap_number is not None and lap_number <= 0:
+            lap_number = None
         rows.append(
             (
                 session_id,
@@ -588,7 +679,7 @@ def build_race_control_rows(session: Any, session_id: str, start: datetime | Non
                 str_or_none(data.get("Scope")),
                 str_or_none(data.get("Sector")),
                 int_or_none(data.get("RacingNumber")),
-                int_or_none(data.get("Lap")),
+                lap_number,
                 json_metadata(),
             )
         )
@@ -658,16 +749,320 @@ def collect_sample_rows(
     return telemetry_rows, position_rows, extraction_seconds
 
 
+def stream_diagnostics(
+    rows: Sequence[tuple[Any, ...]],
+    *,
+    session_id: str,
+    session_key: int,
+    driver_number: int,
+    driver_code: str,
+    stream_name: str,
+    max_interpolation_gap_ms: int,
+) -> tuple[Any, ...]:
+    try:
+        import pandas as pd
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "pandas is required for aligned telemetry materialization. "
+            "Run `.venv/bin/python -m pip install -r scripts/requirements.txt`."
+        ) from exc
+
+    if not rows:
+        return (
+            session_id,
+            session_key,
+            driver_number,
+            driver_code,
+            stream_name,
+            0,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            0,
+            0,
+            ["EMPTY_STREAM"],
+        )
+
+    times = pd.to_datetime([row[0] for row in rows], utc=True)
+    deltas = times.to_series().diff().dt.total_seconds().mul(1000)
+    positive_deltas = deltas[deltas > 0]
+    duplicate_count = int(times.duplicated().sum())
+    out_of_order_count = int((deltas < 0).sum())
+    median_delta_ms = float(positive_deltas.median()) if not positive_deltas.empty else None
+    max_delta_ms = float(positive_deltas.max()) if not positive_deltas.empty else None
+    warnings: list[str] = []
+    if duplicate_count:
+        warnings.append("DUPLICATE_SOURCE_TIMESTAMP")
+    if out_of_order_count:
+        warnings.append("OUT_OF_ORDER_SOURCE_DATA")
+    if max_delta_ms is not None and max_delta_ms > max_interpolation_gap_ms:
+        warnings.append("SOURCE_GAP_TOO_LARGE")
+    if not warnings:
+        warnings = []
+
+    return (
+        session_id,
+        session_key,
+        driver_number,
+        driver_code,
+        stream_name,
+        len(rows),
+        times.min().to_pydatetime(),
+        times.max().to_pydatetime(),
+        float(positive_deltas.min()) if not positive_deltas.empty else None,
+        median_delta_ms,
+        float(positive_deltas.quantile(0.90)) if not positive_deltas.empty else None,
+        float(positive_deltas.quantile(0.99)) if not positive_deltas.empty else None,
+        max_delta_ms,
+        (1000.0 / median_delta_ms) if median_delta_ms and median_delta_ms > 0 else None,
+        duplicate_count,
+        out_of_order_count,
+        warnings,
+    )
+
+
+def deduplicate_stream_frame(rows: Sequence[tuple[Any, ...]], columns: Sequence[str]) -> Any:
+    import pandas as pd
+
+    frame = pd.DataFrame(rows, columns=columns)
+    if frame.empty:
+        return frame
+    frame["_source_order"] = range(len(frame))
+    frame["sample_time_utc"] = pd.to_datetime(frame["sample_time_utc"], utc=True)
+    frame = (
+        frame.sort_values(["sample_time_utc", "_source_order"])
+        .drop_duplicates(subset=["sample_time_utc"], keep="last")
+        .sort_values("sample_time_utc")
+        .reset_index(drop=True)
+    )
+    return frame
+
+
+def series_on_grid(frame: Any, grid: Any, column: str, *, interpolate: bool) -> Any:
+    import pandas as pd
+
+    if column not in frame:
+        return pd.Series([None] * len(grid), index=grid)
+
+    source = pd.Series(frame[column].to_numpy(dtype=object), index=frame["sample_time_utc"])
+    combined_index = source.index.union(grid).sort_values()
+    combined = source.reindex(combined_index)
+    if interpolate:
+        combined = pd.to_numeric(combined, errors="coerce").interpolate(method="time")
+    else:
+        combined = combined.ffill()
+    return combined.reindex(grid)
+
+
+def previous_source_times(frame: Any, grid: Any) -> Any:
+    import pandas as pd
+
+    source_times = pd.Series(frame["sample_time_utc"].to_numpy(), index=frame["sample_time_utc"])
+    combined_index = source_times.index.union(grid).sort_values()
+    return source_times.reindex(combined_index).ffill().reindex(grid)
+
+
+def next_source_times(frame: Any, grid: Any) -> Any:
+    source_times = frame["sample_time_utc"].iloc[::-1]
+    reverse = source_times.to_numpy()
+    import pandas as pd
+
+    source = pd.Series(reverse, index=source_times)
+    combined_index = source.index.union(grid).sort_values(ascending=False)
+    return source.reindex(combined_index).ffill().reindex(grid)
+
+
+def lap_for_session_time(session_time_ms: int | None, lap_windows: Sequence[DriverLapWindow]) -> tuple[int | None, int | None]:
+    if session_time_ms is None:
+        return None, None
+    for window in lap_windows:
+        if window.start_ms <= session_time_ms <= window.end_ms:
+            return window.lap_number, session_time_ms - window.start_ms
+    return None, None
+
+
+def materialize_aligned_telemetry(
+    session_id: str,
+    session_key: int,
+    driver_rows: Sequence[tuple[Any, ...]],
+    telemetry_rows: Sequence[tuple[Any, ...]],
+    position_rows: Sequence[tuple[Any, ...]],
+    lap_windows_by_driver: dict[str, list[DriverLapWindow]],
+    *,
+    output_frequency_hz: int = 10,
+    max_interpolation_gap_ms: int = 1000,
+    max_source_age_ms: int = 750,
+) -> tuple[list[tuple[Any, ...]], list[tuple[Any, ...]]]:
+    import pandas as pd
+
+    driver_numbers = {
+        str(row[1]).upper(): int(row[2])
+        for row in driver_rows
+        if row[1] is not None and row[2] is not None
+    }
+    telemetry_by_driver: dict[str, list[tuple[Any, ...]]] = {}
+    position_by_driver: dict[str, list[tuple[Any, ...]]] = {}
+    for row in telemetry_rows:
+        telemetry_by_driver.setdefault(str(row[2]).upper(), []).append(row)
+    for row in position_rows:
+        position_by_driver.setdefault(str(row[2]).upper(), []).append(row)
+
+    aligned_rows: list[tuple[Any, ...]] = []
+    diagnostic_rows: list[tuple[Any, ...]] = []
+    interval_ms = int(round(1000 / output_frequency_hz))
+
+    for driver_code in sorted(set(telemetry_by_driver).intersection(position_by_driver)):
+        driver_number = driver_numbers.get(driver_code)
+        if driver_number is None:
+            logging.warning("Skipping aligned telemetry for %s: missing driver number", driver_code)
+            continue
+
+        raw_car_rows = telemetry_by_driver[driver_code]
+        raw_position_rows = position_by_driver[driver_code]
+        diagnostic_rows.append(
+            stream_diagnostics(
+                raw_car_rows,
+                session_id=session_id,
+                session_key=session_key,
+                driver_number=driver_number,
+                driver_code=driver_code,
+                stream_name="raw_car_telemetry",
+                max_interpolation_gap_ms=max_interpolation_gap_ms,
+            )
+        )
+        diagnostic_rows.append(
+            stream_diagnostics(
+                raw_position_rows,
+                session_id=session_id,
+                session_key=session_key,
+                driver_number=driver_number,
+                driver_code=driver_code,
+                stream_name="raw_location_telemetry",
+                max_interpolation_gap_ms=max_interpolation_gap_ms,
+            )
+        )
+
+        car = deduplicate_stream_frame(raw_car_rows, TELEMETRY_COLUMNS)
+        location = deduplicate_stream_frame(raw_position_rows, POSITION_COLUMNS)
+        if car.empty or location.empty:
+            continue
+
+        start = max(car["sample_time_utc"].min(), location["sample_time_utc"].min()).ceil(f"{interval_ms}ms")
+        end = min(car["sample_time_utc"].max(), location["sample_time_utc"].max()).floor(f"{interval_ms}ms")
+        if start > end:
+            continue
+        grid = pd.date_range(start=start, end=end, freq=f"{interval_ms}ms", tz="UTC")
+        if grid.empty:
+            continue
+
+        session_times = pd.to_numeric(series_on_grid(car, grid, "session_time_ms", interpolate=True), errors="coerce").round()
+        speed = series_on_grid(car, grid, "speed_kmh", interpolate=True)
+        rpm = series_on_grid(car, grid, "rpm", interpolate=True)
+        throttle = series_on_grid(car, grid, "throttle_pct", interpolate=True)
+        gear = series_on_grid(car, grid, "gear", interpolate=False)
+        brake = series_on_grid(car, grid, "brake_pct", interpolate=False)
+        drs = series_on_grid(car, grid, "drs", interpolate=False)
+
+        x = series_on_grid(location, grid, "x", interpolate=True)
+        y = series_on_grid(location, grid, "y", interpolate=True)
+        z = series_on_grid(location, grid, "z", interpolate=True)
+        location_status = series_on_grid(location, grid, "track_status", interpolate=False)
+
+        car_source_times = previous_source_times(car, grid)
+        location_source_times = previous_source_times(location, grid)
+        car_next_times = next_source_times(car, grid)
+        location_next_times = next_source_times(location, grid)
+        car_exact_times = set(car["sample_time_utc"])
+        location_exact_times = set(location["sample_time_utc"])
+
+        lap_windows = lap_windows_by_driver.get(driver_code, [])
+        for sample_index, sample_time in enumerate(grid):
+            session_time_ms = int(session_times.iloc[sample_index]) if pd.notna(session_times.iloc[sample_index]) else None
+            lap_number, lap_time_ms = lap_for_session_time(session_time_ms, lap_windows)
+            car_source_time = car_source_times.iloc[sample_index]
+            location_source_time = location_source_times.iloc[sample_index]
+            car_next_time = car_next_times.iloc[sample_index]
+            location_next_time = location_next_times.iloc[sample_index]
+
+            car_age_ms = (
+                int((sample_time - car_source_time).total_seconds() * 1000)
+                if pd.notna(car_source_time)
+                else None
+            )
+            location_age_ms = (
+                int((sample_time - location_source_time).total_seconds() * 1000)
+                if pd.notna(location_source_time)
+                else None
+            )
+            flags: list[str] = []
+            if car_age_ms is None:
+                flags.append("MISSING_CAR_DATA")
+            elif car_age_ms > max_source_age_ms:
+                flags.append("CAR_SAMPLE_TOO_OLD")
+            if location_age_ms is None:
+                flags.append("MISSING_LOCATION_DATA")
+            elif location_age_ms > max_source_age_ms:
+                flags.append("LOCATION_SAMPLE_TOO_OLD")
+            if pd.notna(car_source_time) and pd.notna(car_next_time):
+                car_gap_ms = (car_next_time - car_source_time).total_seconds() * 1000
+                if car_gap_ms > max_interpolation_gap_ms:
+                    flags.append("CAR_GAP_TOO_LARGE")
+            if pd.notna(location_source_time) and pd.notna(location_next_time):
+                location_gap_ms = (location_next_time - location_source_time).total_seconds() * 1000
+                if location_gap_ms > max_interpolation_gap_ms:
+                    flags.append("LOCATION_GAP_TOO_LARGE")
+
+            aligned_rows.append(
+                (
+                    sample_time.to_pydatetime(),
+                    session_id,
+                    session_key,
+                    driver_number,
+                    driver_code,
+                    lap_number,
+                    sample_index,
+                    session_time_ms,
+                    lap_time_ms,
+                    float_or_none(speed.iloc[sample_index]),
+                    float_or_none(rpm.iloc[sample_index]),
+                    int_or_none(gear.iloc[sample_index]),
+                    float_or_none(throttle.iloc[sample_index]),
+                    float_or_none(brake.iloc[sample_index]),
+                    int_or_none(drs.iloc[sample_index]),
+                    float_or_none(x.iloc[sample_index]),
+                    float_or_none(y.iloc[sample_index]),
+                    float_or_none(z.iloc[sample_index]),
+                    str_or_none(location_status.iloc[sample_index]),
+                    car_source_time.to_pydatetime() if pd.notna(car_source_time) else None,
+                    location_source_time.to_pydatetime() if pd.notna(location_source_time) else None,
+                    car_age_ms,
+                    location_age_ms,
+                    sample_time not in car_exact_times,
+                    sample_time not in location_exact_times,
+                    flags or ["OK"],
+                    1,
+                )
+            )
+
+    return aligned_rows, diagnostic_rows
+
+
 def copy_sample_rows(
     database_url: str,
     table_name: str,
     columns: Sequence[str],
     rows: Sequence[tuple[Any, ...]],
     batch_size: int,
+    key_indexes: tuple[int, int, int] = (0, 1, 2),
 ) -> tuple[int, float, int]:
     psycopg = require_psycopg()
     with psycopg.connect(database_url, autocommit=False) as connection:
-        writer = CopyWriter(connection, table_name, columns, batch_size, (0, 1, 2))
+        writer = CopyWriter(connection, table_name, columns, batch_size, key_indexes)
         writer.add_many(rows)
         writer.flush()
         connection.commit()
@@ -681,7 +1076,8 @@ def stream_sample_rows(
     laps: Any,
     session_id: str,
     driver_refs: Sequence[tuple[str, str]],
-) -> tuple[int, int]:
+    driver_rows: Sequence[tuple[Any, ...]],
+) -> tuple[int, int, int, int]:
     if args.parallel_sample_copy and args.sample_write_method == "copy":
         telemetry_rows, position_rows, extraction_seconds = collect_sample_rows(
             args,
@@ -690,6 +1086,17 @@ def stream_sample_rows(
             session_id,
             driver_refs,
         )
+        aligned_rows: list[tuple[Any, ...]] = []
+        diagnostic_rows: list[tuple[Any, ...]] = []
+        if args.include_aligned_telemetry:
+            aligned_rows, diagnostic_rows = materialize_aligned_telemetry(
+                session_id,
+                stable_session_key(session_id),
+                driver_rows,
+                telemetry_rows,
+                position_rows,
+                build_driver_lap_windows(laps),
+            )
         start = time.perf_counter()
         with ThreadPoolExecutor(max_workers=2) as executor:
             telemetry_future = executor.submit(
@@ -708,18 +1115,92 @@ def stream_sample_rows(
                 position_rows,
                 args.batch_size,
             )
+            aligned_future = (
+                executor.submit(
+                    copy_sample_rows,
+                    args.database_url,
+                    "aligned_telemetry_10hz",
+                    ALIGNED_TELEMETRY_COLUMNS,
+                    aligned_rows,
+                    args.batch_size,
+                    (0, 2, 3),
+                )
+                if aligned_rows
+                else None
+            )
             telemetry_count, telemetry_write_seconds, telemetry_duplicates = telemetry_future.result()
             position_count, position_write_seconds, position_duplicates = position_future.result()
+            if aligned_future is not None:
+                aligned_count, aligned_write_seconds, aligned_duplicates = aligned_future.result()
+            else:
+                aligned_count, aligned_write_seconds, aligned_duplicates = 0, 0.0, 0
+        execute_many(connection, TELEMETRY_DIAGNOSTIC_INSERT_SQL, diagnostic_rows, args.batch_size)
         logging.info(
-            "Parallel sample copy completed: telemetry=%s position=%s extraction_worker_seconds=%.2f write_seconds=%.2f wall_seconds=%.2f duplicates_skipped=%d",
+            "Parallel sample copy completed: telemetry=%s position=%s aligned=%s diagnostics=%s extraction_worker_seconds=%.2f write_seconds=%.2f wall_seconds=%.2f duplicates_skipped=%d",
             f"{telemetry_count:,}",
             f"{position_count:,}",
+            f"{aligned_count:,}",
+            f"{len(diagnostic_rows):,}",
             extraction_seconds,
-            telemetry_write_seconds + position_write_seconds,
+            telemetry_write_seconds + position_write_seconds + aligned_write_seconds,
             time.perf_counter() - start,
-            telemetry_duplicates + position_duplicates,
+            telemetry_duplicates + position_duplicates + aligned_duplicates,
         )
-        return telemetry_count, position_count
+        return telemetry_count, position_count, aligned_count, len(diagnostic_rows)
+
+    if args.include_aligned_telemetry:
+        telemetry_rows, position_rows, extraction_seconds = collect_sample_rows(
+            args,
+            session,
+            laps,
+            session_id,
+            driver_refs,
+        )
+        aligned_rows, diagnostic_rows = materialize_aligned_telemetry(
+            session_id,
+            stable_session_key(session_id),
+            driver_rows,
+            telemetry_rows,
+            position_rows,
+            build_driver_lap_windows(laps),
+        )
+        telemetry_writer = sample_writer(
+            connection,
+            args,
+            "telemetry_samples",
+            TELEMETRY_INSERT_SQL,
+            TELEMETRY_COLUMNS,
+        )
+        position_writer = sample_writer(
+            connection,
+            args,
+            "position_samples",
+            POSITION_INSERT_SQL,
+            POSITION_COLUMNS,
+        )
+        aligned_writer = CopyWriter(
+            connection,
+            "aligned_telemetry_10hz",
+            ALIGNED_TELEMETRY_COLUMNS,
+            args.batch_size,
+            (0, 2, 3),
+        )
+        telemetry_writer.add_many(telemetry_rows)
+        position_writer.add_many(position_rows)
+        aligned_writer.add_many(aligned_rows)
+        telemetry_writer.flush()
+        position_writer.flush()
+        aligned_writer.flush()
+        execute_many(connection, TELEMETRY_DIAGNOSTIC_INSERT_SQL, diagnostic_rows, args.batch_size)
+        logging.info(
+            "Sample write completed: telemetry=%s position=%s aligned=%s diagnostics=%s extraction_worker_seconds=%.2f",
+            f"{telemetry_writer.total:,}",
+            f"{position_writer.total:,}",
+            f"{aligned_writer.total:,}",
+            f"{len(diagnostic_rows):,}",
+            extraction_seconds,
+        )
+        return telemetry_writer.total, position_writer.total, aligned_writer.total, len(diagnostic_rows)
 
     driver_windows = build_driver_lap_windows(laps)
     driver_items = [
@@ -745,7 +1226,7 @@ def stream_sample_rows(
     )
 
     if total_drivers == 0 or (not args.include_telemetry and not args.include_position):
-        return 0, 0
+        return 0, 0, 0, 0
 
     logging.info(
         "Streaming samples for %d driver(s), %d lap(s), %d worker(s), write_method=%s batch_size=%d",
@@ -798,7 +1279,7 @@ def stream_sample_rows(
         getattr(telemetry_writer, "write_seconds", 0.0) + getattr(position_writer, "write_seconds", 0.0),
         getattr(telemetry_writer, "duplicates", 0) + getattr(position_writer, "duplicates", 0),
     )
-    return telemetry_writer.total, position_writer.total
+    return telemetry_writer.total, position_writer.total, 0, 0
 
 
 def insert_parent_rows(
@@ -1001,7 +1482,15 @@ def insert_import(connection: Any, args: argparse.Namespace, session: Any, sessi
                     clear_upsert_children(connection, session_id)
                 insert_parent_rows(connection, args, session_id, session_row, driver_rows, lap_rows)
 
-            telemetry_count, position_count = stream_sample_rows(connection, args, session, laps, session_id, driver_refs)
+            telemetry_count, position_count, aligned_count, diagnostic_count = stream_sample_rows(
+                connection,
+                args,
+                session,
+                laps,
+                session_id,
+                driver_refs,
+                driver_rows,
+            )
 
             with connection.transaction():
                 insert_context_rows(
@@ -1023,7 +1512,15 @@ def insert_import(connection: Any, args: argparse.Namespace, session: Any, sessi
             if args.mode == "upsert":
                 clear_upsert_children(connection, session_id)
             insert_parent_rows(connection, args, session_id, session_row, driver_rows, lap_rows)
-            telemetry_count, position_count = stream_sample_rows(connection, args, session, laps, session_id, driver_refs)
+            telemetry_count, position_count, aligned_count, diagnostic_count = stream_sample_rows(
+                connection,
+                args,
+                session,
+                laps,
+                session_id,
+                driver_refs,
+                driver_rows,
+            )
             insert_context_rows(
                 connection,
                 args,
@@ -1042,6 +1539,8 @@ def insert_import(connection: Any, args: argparse.Namespace, session: Any, sessi
         laps=len(lap_rows),
         telemetry_samples=telemetry_count,
         position_samples=position_count,
+        aligned_samples=aligned_count,
+        telemetry_diagnostics=diagnostic_count,
         circuit_markers=len(circuit_marker_rows),
         weather_samples=len(weather_rows),
         track_status_events=len(track_status_rows),
@@ -1059,6 +1558,8 @@ def print_summary(summary: ImportSummary) -> None:
     print(f"Laps: {summary.laps}")
     print(f"Telemetry samples: {summary.telemetry_samples:,}")
     print(f"Position samples: {summary.position_samples:,}")
+    print(f"Aligned 10Hz samples: {summary.aligned_samples:,}")
+    print(f"Telemetry diagnostics: {summary.telemetry_diagnostics:,}")
     print(f"Circuit markers: {summary.circuit_markers}")
     print(f"Weather samples: {summary.weather_samples}")
     print(f"Track status events: {summary.track_status_events}")
@@ -1111,6 +1612,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mode", choices=["fail", "replace", "upsert"], default="fail")
     parser.add_argument("--skip-telemetry", dest="include_telemetry", action="store_false")
     parser.add_argument("--skip-position", dest="include_position", action="store_false")
+    parser.set_defaults(include_aligned_telemetry=True)
+    parser.add_argument(
+        "--skip-aligned-telemetry",
+        dest="include_aligned_telemetry",
+        action="store_false",
+        help="Do not materialize aligned_telemetry_10hz rows for UI replay.",
+    )
     parser.add_argument("--skip-context", dest="include_context", action="store_false")
     parser.add_argument(
         "--log-level",

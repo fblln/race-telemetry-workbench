@@ -71,6 +71,28 @@ public static partial class RaceTelemetryApi
         "worst_lap_time_ms"
     };
 
+    private static readonly HashSet<string> StandingsSortKeys = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "position",
+        "last_lap_ms",
+        "best_lap_ms",
+        "gap_ms",
+        "pit_count"
+    };
+
+    private static readonly HashSet<string> IncidentTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "safety_car",
+        "vsc",
+        "yellow",
+        "red",
+        "clear",
+        "drs",
+        "hard_braking",
+        "off_track",
+        "spin"
+    };
+
     public static WebApplication CreateApp(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -156,6 +178,9 @@ public static partial class RaceTelemetryApi
                     "weather-trend",
                     "race-control-timeline",
                     "circuit-context",
+                    "standings",
+                    "incidents",
+                    "positions",
                     "mcp-ready-query-contracts"
                 ]))
             .WithName("GetApiInfo");
@@ -796,6 +821,115 @@ public static partial class RaceTelemetryApi
                     : Results.Ok(response);
             })
             .WithName("GetCircuitContext");
+
+        api.MapGet("/sessions/{sessionId}/standings", async Task<IResult> (
+                string sessionId,
+                int? atLap,
+                string? sortBy,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                if (atLap is < 1)
+                {
+                    return ValidationError("InvalidAtLap", "atLap must be 1 or greater.", ("atLap", atLap));
+                }
+
+                var sort = string.IsNullOrWhiteSpace(sortBy) ? "position" : sortBy.ToLowerInvariant();
+                if (!StandingsSortKeys.Contains(sort))
+                {
+                    return ValidationError("InvalidSortBy", "Unknown standings sort key.", ("sortBy", sortBy), ("allowed", StandingsSortKeys.Order().ToArray()));
+                }
+
+                var standings = await store.GetStandingsAsync(sessionId, atLap, sort, cancellationToken);
+                return standings is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(standings);
+            })
+            .WithName("GetStandings");
+
+        api.MapGet("/sessions/{sessionId}/positions", async Task<IResult> (
+                string sessionId,
+                string? drivers,
+                int? fromLap,
+                int? toLap,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                var selectedDrivers = ParseDrivers(drivers, out var error);
+                if (error is not null)
+                {
+                    return error;
+                }
+
+                if (fromLap is < 1 || toLap is < 1)
+                {
+                    return ValidationError("InvalidLapRange", "Lap numbers must be positive.", ("fromLap", fromLap), ("toLap", toLap));
+                }
+
+                if (fromLap is not null && toLap is not null && fromLap > toLap)
+                {
+                    return ValidationError("InvalidLapRange", "fromLap must be less than or equal to toLap.", ("fromLap", fromLap), ("toLap", toLap));
+                }
+
+                var positions = await store.GetPositionsAsync(sessionId, selectedDrivers, fromLap, toLap, cancellationToken);
+                return positions is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(positions);
+            })
+            .WithName("GetPositions");
+
+        api.MapGet("/sessions/{sessionId}/incidents", async Task<IResult> (
+                string sessionId,
+                string? types,
+                double? minBrakingG,
+                int? maxResults,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                IReadOnlyList<string>? selectedTypes = null;
+                if (!string.IsNullOrWhiteSpace(types))
+                {
+                    var parsed = types.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Select(type => type.ToLowerInvariant())
+                        .Distinct()
+                        .ToArray();
+                    var unknown = parsed.Where(type => !IncidentTypes.Contains(type)).ToArray();
+                    if (unknown.Length > 0)
+                    {
+                        return ValidationError("InvalidIncidentType", "Unknown incident type.", ("unknown", unknown), ("allowed", IncidentTypes.Order().ToArray()));
+                    }
+
+                    selectedTypes = parsed;
+                }
+
+                var braking = minBrakingG ?? 4.0;
+                if (braking is < 0 or > 10)
+                {
+                    return ValidationError("InvalidMinBrakingG", "minBrakingG must be between 0 and 10.", ("minBrakingG", braking));
+                }
+
+                var limit = Math.Clamp(maxResults ?? 200, 1, 1_000);
+                var incidents = await store.GetIncidentsAsync(sessionId, selectedTypes, braking, limit, cancellationToken);
+                return incidents is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(incidents);
+            })
+            .WithName("GetIncidents");
 
         return api;
     }

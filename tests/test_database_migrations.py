@@ -28,7 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATABASE_URL = "postgresql://race_telemetry:race_telemetry@localhost:5432/race_telemetry"
 FIXTURE_SESSION_ID = "2024-italian-grand-prix-r"
 FIXTURE_SCHEMA_PREFIX = "test_schema_"
-EXPECTED_HYPERTABLES = {"telemetry_samples", "position_samples", "weather_samples"}
+EXPECTED_HYPERTABLES = {"telemetry_samples", "position_samples", "weather_samples", "aligned_telemetry_10hz"}
 EXPECTED_HOT_PATH_INDEXES = {
     "ix_telemetry_session_session_time_driver",
     "ix_telemetry_session_driver_lap_sample_index",
@@ -37,6 +37,9 @@ EXPECTED_HOT_PATH_INDEXES = {
     "ix_telemetry_event_high_speed",
     "ix_telemetry_event_drs_active",
     "ix_telemetry_event_throttle_lift",
+    "ix_aligned_telemetry_session_driver_time",
+    "ix_aligned_telemetry_driver_lap",
+    "ix_aligned_telemetry_session_lap",
 }
 EXPECTED_BASE_TABLES = {
     "sessions",
@@ -48,6 +51,8 @@ EXPECTED_BASE_TABLES = {
     "track_status_events",
     "session_status_events",
     "race_control_messages",
+    "aligned_telemetry_10hz",
+    "telemetry_ingestion_diagnostics",
 }
 EXPECTED_TRACK_STATUS_PERIODS = [
     (0, 210000, "track_clear"),

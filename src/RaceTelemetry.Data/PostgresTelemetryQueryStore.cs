@@ -333,10 +333,12 @@ public sealed partial class PostgresTelemetryQueryStore(NpgsqlDataSource dataSou
         var trackMapTask = GetTrackMapAsync(sessionId, cancellationToken);
         var overlaysTask = GetEventOverlayAvailabilityAsync(sessionId, cancellationToken);
         var weatherSummaryTask = GetWeatherSummaryAsync(sessionId, cancellationToken);
+        var hasAlignedTelemetryTask = SessionHasAlignedTelemetryAsync(sessionId, cancellationToken);
 
-        await Task.WhenAll(boundsTask, driversTask, trackMapTask, overlaysTask, weatherSummaryTask);
+        await Task.WhenAll(boundsTask, driversTask, trackMapTask, overlaysTask, weatherSummaryTask, hasAlignedTelemetryTask);
 
         var (startUtc, endUtc, startMs, endMs) = await boundsTask;
+        var hasAlignedTelemetry = await hasAlignedTelemetryTask;
 
         var metadata = new ReplayMetadata(
             sessionId,
@@ -352,11 +354,32 @@ public sealed partial class PostgresTelemetryQueryStore(NpgsqlDataSource dataSou
             await overlaysTask,
             await weatherSummaryTask,
             30_000,
-            [0.25, 0.5, 1, 2, 5, 10, 20],
-            1);
+            [0.5, 1, 5],
+            1,
+            hasAlignedTelemetry ? 10 : null,
+            hasAlignedTelemetry ? "aligned_telemetry_10hz" : "raw");
 
         _cache.Set(cacheKey, metadata, MetadataCacheOptions);
         return metadata;
+    }
+
+    private async Task<bool> SessionHasAlignedTelemetryAsync(string sessionId, CancellationToken cancellationToken)
+    {
+        if (!await TableExistsAsync("aligned_telemetry_10hz", cancellationToken))
+        {
+            return false;
+        }
+
+        await using var command = _dataSource.CreateCommand(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM aligned_telemetry_10hz
+                WHERE session_id = @sessionId
+            )
+            """);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        return (bool)(await command.ExecuteScalarAsync(cancellationToken) ?? false);
     }
 
     public async Task<LapTelemetryResponse?> GetLapTelemetryAsync(

@@ -702,6 +702,12 @@ Query parameters:
 | `lapB` | Yes | `14` |
 | `channels` | No | `speed_kmh,throttle_pct,brake_pct` |
 | `timeStepMs` | No | `100` |
+| `sessionIdB` | No | `2025-monza-r` |
+
+`sessionIdB` enables cross-session lap comparison, for example comparing a
+driver's lap at the same circuit across two seasons. When omitted, `driverB`
+and `lapB` are read from `sessionId` (the existing single-session behavior).
+When present, `driverB` and `lapB` are read from `sessionIdB` instead.
 
 Example:
 
@@ -737,6 +743,9 @@ Response:
 ```
 
 Delta convention: `driverA - driverB`. Negative lap or sector deltas mean driver A was faster.
+When `sessionIdB` is set, the response includes `sessionIdA` and `sessionIdB`
+fields alongside `driverA`/`driverB` so cross-session results are
+unambiguous.
 
 Acceptance criteria:
 
@@ -744,7 +753,8 @@ Acceptance criteria:
 - Uses interpolation or bucket aggregation when exact time matches are unavailable.
 - Includes sector deltas in the summary.
 - Returns `400` for invalid lap numbers or invalid `timeStepMs`.
-- Returns `404` for missing session, driver, or lap.
+- Returns `404` for missing session, driver, or lap, including a missing `sessionIdB`.
+- When `sessionIdB` is set, both sessions must reference the same circuit; otherwise return `400` with code `IncompatibleCircuits`. Cross-season comparisons of the same circuit are the primary use case.
 
 ### 6.6 `GET /api/sessions/{sessionId}/replay/metadata`
 
@@ -1151,6 +1161,437 @@ Acceptance criteria:
 - Does not read or return raw telemetry unless a future metric explicitly
   requires telemetry aggregation, in which case it must still return aggregates.
 
+#### 6.10.4 `POST /api/sessions/{sessionId}/strategy/summarize`
+
+Produces a bounded strategy narrative for selected drivers by composing
+existing stint, pit-stop, track-status, and race-control data. This endpoint
+must not introduce new raw-data access; it aggregates results already
+available from `driver_stint_summaries`, pit-stop analytics, and
+`track_status_periods`/`race_control_event_index`.
+
+Typical questions:
+
+- Why did a driver pit on a given lap?
+- Did a driver undercut or overcut a rival?
+- How costly was a pit stop relative to the field?
+
+Request:
+
+```json
+{
+  "drivers": ["LEC", "HAM"],
+  "compareToFieldAverage": true
+}
+```
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "items": [
+    {
+      "driverCode": "LEC",
+      "stops": [
+        {
+          "lapNumber": 24,
+          "fromCompound": "MEDIUM",
+          "toCompound": "HARD",
+          "pitLaneTimeMs": 23800,
+          "fieldAveragePitLaneTimeMs": 24100,
+          "trackStatusAtStop": "track_clear",
+          "strategyLabel": "undercut",
+          "rivalDriverCode": "HAM",
+          "positionGainAfterStop": 1
+        }
+      ],
+      "narrativeFacts": [
+        "LEC pitted on lap 24 onto HARD, two laps before HAM.",
+        "LEC's pit stop was 0.3s faster than the field average.",
+        "The undercut gained LEC one position over HAM by lap 27."
+      ]
+    }
+  ]
+}
+```
+
+Validation:
+
+- `drivers`: `1` to `10` driver codes that must exist in the session.
+- `strategyLabel` values must be allow-listed: `undercut`, `overcut`,
+  `reactive`, `scheduled`, `unknown`.
+- Returns compact per-stop rows and short, deterministic narrative strings,
+  never raw telemetry or position samples.
+- Returns `404` for missing session or unknown driver codes.
+
+#### 6.10.5 `POST /api/sessions/{sessionId}/debrief`
+
+Generates a bounded, structured race debrief by composing the race/lap story,
+weather trend, track-status/race-control timeline, and strategy-summary
+endpoints into a single document-shaped response. The Query API returns
+structured JSON; rendering to markdown or PDF is a client-side concern (MCP
+client, desktop export, or a script under `scripts/`).
+
+Request:
+
+```json
+{
+  "drivers": ["LEC", "HAM", "VER"],
+  "sections": ["overview", "incidents", "strategy", "weather"]
+}
+```
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "overview": {
+    "winner": "VER",
+    "headline": "VER wins from pole, LEC undercuts HAM for P2.",
+    "lapCount": 53
+  },
+  "incidents": [
+    { "lapNumber": 18, "type": "yellow_flag", "message": "YELLOW FLAG SECTOR 2" }
+  ],
+  "strategy": {
+    "items": []
+  },
+  "weather": {
+    "summary": "Dry, track temperature rising from 43C to 55C."
+  }
+}
+```
+
+Validation:
+
+- `sections` values must be allow-listed: `overview`, `incidents`, `strategy`,
+  `weather`.
+- `drivers`: optional; when omitted, `strategy` covers the top-10 classified
+  drivers only, to keep the response bounded.
+- Returns `404` for missing session.
+- Response size must stay bounded regardless of session length; no raw
+  telemetry or position samples.
+
+#### 6.10.6 `POST /api/sessions/{sessionId}/corners/compare`
+
+Compares driver behavior at a specific corner using `circuit_markers` and the
+`nearestCorner` attribution already returned by `telemetry/windows`
+(§6.10.2). This is the corner-level extension of lap comparison: instead of a
+full lap-time-aligned overlay, it returns a compact per-corner braking/exit
+comparison.
+
+Request:
+
+```json
+{
+  "cornerNumber": 1,
+  "drivers": ["LEC", "HAM"],
+  "lapRange": { "from": 1, "to": 10 },
+  "metrics": ["brake_point_distance_m", "entry_speed_kmh", "min_corner_speed_kmh", "exit_speed_kmh"]
+}
+```
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "cornerNumber": 1,
+  "cornerLabel": "Turn 1, Variante del Rettifilo",
+  "items": [
+    {
+      "driverCode": "LEC",
+      "lapNumber": 5,
+      "brakePointDistanceM": 612.4,
+      "entrySpeedKmh": 342.0,
+      "minCornerSpeedKmh": 87.0,
+      "exitSpeedKmh": 198.2
+    }
+  ],
+  "summary": {
+    "averageBrakePointDeltaM": 4.8,
+    "fastestMinCornerSpeedDriver": "LEC"
+  }
+}
+```
+
+Validation:
+
+- `cornerNumber` must reference an imported `circuit_markers` row of type
+  `corner` for the session; otherwise return `404`.
+- `metrics` values must be allow-listed: `brake_point_distance_m`,
+  `entry_speed_kmh`, `min_corner_speed_kmh`, `exit_speed_kmh`.
+- Requires `telemetry/windows` corner attribution (`includeNearestCorner`) to
+  be available for the session; sessions without circuit metadata return
+  `409` with code `CornerDataUnavailable`.
+- `lapRange` is required and bounded to `100` laps total across all drivers.
+- Returns per-lap rows plus a compact cross-driver summary, never raw
+  telemetry samples.
+
+### 6.11 `GET /api/sessions/{sessionId}/standings`
+
+Returns a compact, sortable field snapshot for the all-driver Field View / timing
+tower. One row per driver, ordered by classified position. Computed from `laps`,
+`lap_summaries`, and `driver_stint_summaries` — never raw telemetry.
+
+Query parameters:
+
+| Name | Required | Default | Description |
+|---|---:|---|---|
+| `atLap` | No | last | Standings as of this lap number |
+| `sortBy` | No | `position` | One of `position`, `last_lap_ms`, `best_lap_ms`, `gap_ms`, `pit_count` |
+
+Example:
+
+```http
+GET /api/sessions/2024-monza-r/standings?atLap=40&sortBy=position
+```
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "atLap": 40,
+  "items": [
+    {
+      "position": 1,
+      "driverCode": "VER",
+      "fullName": "Max Verstappen",
+      "teamName": "Red Bull",
+      "gapToLeaderMs": 0,
+      "intervalMs": 0,
+      "lastLapMs": 81450,
+      "bestLapMs": 81450,
+      "isSessionBestLap": true,
+      "isPersonalBestLap": true,
+      "compound": "HARD",
+      "tyreLife": 29,
+      "pitCount": 1,
+      "status": "running",
+      "recentLapMs": [81980, 81620, 81700, 81510, 81450]
+    }
+  ]
+}
+```
+
+Acceptance criteria:
+
+- Returns every driver in the session, including retired drivers with `status` of `out`.
+- `gapToLeaderMs` and `intervalMs` are derived from cumulative lap times up to `atLap`.
+- `isSessionBestLap` / `isPersonalBestLap` flag the fastest classified laps for the requested scope.
+- `recentLapMs` is bounded to the last 5 laps for the pace sparkline.
+- Returns `404` for missing session; `400` for invalid `sortBy` or out-of-range `atLap`.
+
+### 6.12 `GET /api/sessions/{sessionId}/positions`
+
+Returns lap-by-lap classified position per driver for the Position-Trace
+("race trace") view.
+
+Query parameters:
+
+| Name | Required | Default | Description |
+|---|---:|---|---|
+| `drivers` | No | all | Comma-separated driver subset |
+| `fromLap` | No | `1` | First lap (inclusive) |
+| `toLap` | No | last | Last lap (inclusive) |
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "fromLap": 1,
+  "toLap": 53,
+  "items": [
+    { "driverCode": "VER", "positions": [4, 3, 3, 2, 1, 1, 1] }
+  ]
+}
+```
+
+Acceptance criteria:
+
+- `positions[i]` aligns to lap `fromLap + i`; missing classification is `null`.
+- Returns aggregate rows only; one short array per driver, never telemetry samples.
+
+### 6.13 `GET /api/sessions/{sessionId}/incidents`
+
+Returns a unified, location-aware incident list for the Track Incidents view,
+joining `track_status_events`, `race_control_messages`, and the
+`telemetry_event_candidates` hard-braking helper view, with corner attribution
+from `circuit_markers`.
+
+Query parameters:
+
+| Name | Required | Default | Description |
+|---|---:|---|---|
+| `types` | No | all | Subset of `safety_car`, `vsc`, `yellow`, `red`, `clear`, `drs`, `hard_braking`, `off_track`, `spin` |
+| `minBrakingG` | No | `4.0` | Threshold for `hard_braking` items |
+| `maxResults` | No | `200` | `1`–`1000` |
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "items": [
+    {
+      "type": "safety_car",
+      "lapNumber": 8,
+      "sessionTimeMs": 842800,
+      "message": "Safety car deployed — debris",
+      "nearestCorner": { "number": 1, "label": "Turn 1, Variante del Rettifilo" },
+      "x": -1234.5,
+      "y": 8153.7,
+      "driverCode": null,
+      "severity": "high",
+      "metrics": null
+    },
+    {
+      "type": "hard_braking",
+      "lapNumber": 29,
+      "sessionTimeMs": 2515300,
+      "message": "Peak braking 5.1 g",
+      "nearestCorner": { "number": 11, "label": "Parabolica" },
+      "x": 8120.4,
+      "y": -341.2,
+      "driverCode": "VER",
+      "severity": "info",
+      "metrics": { "peakBrakingG": 5.1, "entrySpeedKmh": 342.0, "minSpeedKmh": 198.0 }
+    }
+  ],
+  "summary": { "incidentCount": 6, "hardestBrakingG": 5.1, "lapsUnderSafetyCar": 3 }
+}
+```
+
+Acceptance criteria:
+
+- Each item carries `x`/`y` from the nearest `position_samples`/`circuit_markers` point so the desktop can place it on the data-derived outline.
+- Hard-braking items derive from bounded aggregate/window queries, not raw sample dumps.
+- `summary` reports incident count, hardest braking load, and laps lost under SC/VSC.
+- Returns `400` for unknown `types` values; `maxResults` is clamped.
+
+### 6.14 `POST /api/sessions/{sessionId}/tires/degradation`
+
+Forecasts per-stint tyre degradation and recommends a pit window. Trained/fit
+over `lap_summaries` and `driver_stint_summaries` (lap time, compound, tyre age,
+fuel-corrected pace); returns measured points plus a bounded forward projection
+with a confidence band. This is the predictive extension of `stints/analyze`
+(§6.10.3) and `strategy/summarize` (§6.10.4).
+
+Request:
+
+```json
+{
+  "drivers": ["LEC"],
+  "stint": 1,
+  "horizonLaps": 12,
+  "fuelCorrect": true
+}
+```
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "items": [
+    {
+      "driverCode": "LEC",
+      "stintNumber": 1,
+      "compound": "MEDIUM",
+      "measured": [
+        { "lapNumber": 12, "lapTimeMs": 83440, "tyreLife": 12 }
+      ],
+      "forecast": [
+        { "lapNumber": 25, "predictedLapTimeMs": 84120, "lowerMs": 84020, "upperMs": 84260 }
+      ],
+      "degradationMsPerLap": 82.4,
+      "predictedCliffLap": 29,
+      "recommendedPitWindow": { "fromLap": 24, "toLap": 27 },
+      "undercutThreat": "high",
+      "modelVersion": "deg_v3",
+      "confidence": 0.86
+    }
+  ]
+}
+```
+
+Validation:
+
+- `horizonLaps`: `1`–`30`.
+- Responses must clearly separate `measured` from `forecast`; the desktop renders forecast as dashed inside the band.
+- Returns aggregate/forecast rows only, never raw telemetry.
+- Returns `404` for missing session/driver/stint.
+
+### 6.15 `GET /api/sessions/{sessionId}/weather-correlation`
+
+Returns weather, track-status, and race-control series aligned on the
+session-relative timebase, plus detected correlations (e.g. SC deployed N laps
+after rainfall crossed a threshold) for the Incident × Weather timeline.
+
+Query parameters:
+
+| Name | Required | Default | Description |
+|---|---:|---|---|
+| `rainThreshold` | No | `0.0` | Rainfall flag/intensity threshold for correlation detection |
+
+Response:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "lanes": {
+    "trackStatus": [ { "fromLap": 8, "toLap": 11, "status": "safety_car" } ],
+    "raceControl": [ { "lapNumber": 12, "category": "Drs", "message": "DRS ENABLED" } ],
+    "rainfall": [ { "fromLap": 42, "toLap": 49 } ],
+    "trackTempC": [ { "lapNumber": 40, "value": 52.1 } ]
+  },
+  "correlations": [
+    {
+      "summary": "Rainfall crossed threshold at L42; safety car deployed L44.",
+      "lagLaps": 2,
+      "trigger": { "type": "rainfall", "lapNumber": 42 },
+      "effect": { "type": "safety_car", "lapNumber": 44 }
+    }
+  ]
+}
+```
+
+Acceptance criteria:
+
+- Weather is presented stepped/nearest, never interpolated as high-frequency data.
+- Correlation detection is bounded and rule-based (lag windows over imported series), not free-form inference.
+
+### 6.16 `GET /api/compare/sessions`
+
+Cross-session lap comparison: the same circuit across two seasons (or two
+sessions) for one driver, or two drivers across two sessions. Reuses the
+lap-relative alignment and delta convention of `/compare/laps` (§6.5) but pins
+circuit identity instead of a single `sessionId`. Powers the Session-Diff and
+Ghost-Car overlays.
+
+Query parameters:
+
+| Name | Required | Example |
+|---|---:|---|
+| `sessionA` | Yes | `2024-monza-r` |
+| `driverA` | Yes | `LEC` |
+| `lapA` | Yes | `best` or a lap number |
+| `sessionB` | Yes | `2025-monza-r` |
+| `driverB` | Yes | `LEC` |
+| `lapB` | Yes | `best` |
+| `channels` | No | `speed_kmh,throttle_pct,brake_pct` |
+| `timeStepMs` | No | `100` |
+
+Acceptance criteria:
+
+- Both sessions must share the same `circuit_name`; otherwise return `400` with a `CircuitMismatch` error code.
+- Response shape matches `/compare/laps` (§6.5) plus `sessionA`/`sessionB` identifiers.
+- Supports `lap=best` resolution from `lap_summaries`.
+- Ghost-car mode additionally returns aligned `position_samples` for both laps so the track map can animate two cars on one outline (§8.14, §8.15).
+
 ---
 
 ## 7. Replay Requirements
@@ -1364,15 +1805,26 @@ Later versions may add:
 
 ### 8.3 Screens
 
-The desktop app must provide only these initial screens:
+The desktop app is organized as a keyboard-first **session console** (§8.11)
+whose left view rail switches between analysis views. The required screens and
+views are:
 
-1. Session Browser.
-2. Replay Workspace.
-3. Lap Comparison.
-4. Optional AI Assistant Panel.
+1. Home / Launcher (§8.11) — circuit → session → driver selection, recent sessions, and the global command palette.
+2. Session Browser (§8.4) — searchable imported-session list with context-availability flags.
+3. Replay Workspace (§8.5).
+4. Lap Comparison (§8.6).
+5. Field View — all drivers / timing tower (§8.13).
+6. Track Incidents and Hard-Braking (§8.14).
+7. Strategy view — tire-strategy gantt (§8.15).
+8. Lap Analysis — position trace (§8.15).
+9. Cross-Session Comparison — session diff / ghost car (§8.15).
+10. Optional AI Assistant Panel (§8.10).
 
-The first desktop iteration should still use separate panel components
-internally so later modules can be added without reshaping the whole UI.
+Version 1 must ship at least screens 1–4; the remaining views build on the same
+panel components and Query API contracts and are sequenced in §13. Every view
+must be built as an independent panel component sharing the linked timebase
+(§7.7) and selection state so views can be added, saved, hidden, or rearranged
+without reshaping the whole UI.
 
 ### 8.4 Session Browser
 
@@ -1477,8 +1929,10 @@ Expected behavior:
 - Shows lap metadata for both selected laps: lap time, sectors, tyre compound,
   tyre life, pit/deleted/inaccurate flags when available.
 - Supports comparing two drivers, two laps from one driver, or two imported
-  sessions when the backend supports cross-session comparison in a future
-  phase. The first implementation may limit comparison to one session.
+  sessions via `compare/laps`'s `sessionIdB` parameter (§6.5), for example the
+  same circuit across two seasons. The first implementation may limit the UI
+  entry point to one session and add a second-session picker as a later
+  module, but the backend contract already supports it.
 - Keeps distance-based alignment out of scope until the data path can derive a
   reliable distance or position-aware alignment model.
 
@@ -1509,20 +1963,42 @@ comparison.
 
 ### 8.8 Display Styling And Assets
 
-The UI should use an original dark analysis theme with dense but legible
-information presentation. It must use project-owned names, diagrams, generated
-mockups, and visual assets.
+The UI must implement the project-owned **Carbon Signal** design system,
+documented in `docs/design-system/`:
+
+- `docs/design-system/DESIGN_SYSTEM.md` — the authoritative description of the system.
+- `docs/design-system/design-tokens.json` / `design-tokens.css` — the single source of truth for all colors, typography, spacing, radius, elevation, and motion values.
+- `docs/design-system/styleguide.html` — an interactive reference rendering every token, component, and view.
+
+Carbon Signal is an original "warm carbon" dark analysis theme: warm graphite
+surfaces (never pure black), a single punchy **signal-amber** accent reserved
+for primary action, selection, focus, and the replay cursor, and an original,
+colorblind-safe telemetry-channel palette that never borrows real team liveries.
+
+The MAUI app must consume these tokens rather than hardcoding values: generate a
+`Theme.Carbon.xaml` `ResourceDictionary` from `design-tokens.json` so the app,
+charts, and any documentation surfaces never drift. SkiaSharp / MAUI Graphics
+rendering for the track map, waveform, gantt, position trace, and timelines must
+read channel, flag, grid, and heatmap tokens from this theme.
+
+Required styling rules (from the design system):
+
+1. Amber is never used for a telemetry trace — it is chrome only, so the cursor never competes with data.
+2. Channel hue is reinforced with a dash pattern (gear `4 3`, rpm `6 3`, drs `2 3`) so traces survive grayscale and color-vision deficiency.
+3. All numeric telemetry uses the monospaced, tabular figure font so columns do not shift during replay.
+4. Delta sign is encoded with green/red **and** a leading `+`/`−` glyph; flags carry an LED dot **and** a text label — no meaning rests on color alone.
+5. Flags expose both a marker color and a low-alpha period shade for chart-background and timeline overlays.
+6. The replay render loop must not use CSS/animation transitions; motion tokens apply to chrome only and collapse to zero under reduced-motion.
+7. Driver identity uses the original categorical palette by default; a real-team-livery mode, if added, must be an explicit opt-in.
 
 Project documentation may include original generated mockups or diagrams that
-communicate equivalent concepts, such as:
-
-- synchronized replay workspace;
-- track map with corner and sector annotations;
-- waveform with cursor/reference delta;
-- event timeline with severity/status filters;
-- lap comparison chart with sector and lap deltas.
-
-Generated mockups must be treated as project-owned illustrative assets.
+communicate equivalent concepts (synchronized replay workspace; track map with
+corner and sector annotations; waveform with cursor/reference delta; event
+timeline with severity/status filters; lap comparison with sector and lap
+deltas; field-view timing tower; incident map). The data-derived track outline
+must come from imported `position_samples` (the styleguide uses a real Monza
+lap), never an external track asset. Generated mockups are project-owned
+illustrative assets.
 
 ### 8.9 Desktop Performance Requirements
 
@@ -1547,6 +2023,18 @@ The MAUI app must:
    client-side.
 9. Degrade gracefully on large sessions by reducing chart detail before
    dropping replay controls or cursor interaction.
+10. **Eagerly prefetch a session on open.** When a session is selected or opened,
+    the app must warm an in-memory snapshot of all session-scoped, bounded data
+    in parallel — drivers, replay metadata, standings, incidents, positions, and
+    per-driver lap summaries — so that switching between views (Field, Strategy,
+    Lap analysis, Incidents, …) reads from memory and is effectively instant.
+    Prefetch must: start warming on session selection (before open); share one
+    in-flight request per session so priming and opening never double-fetch; use
+    bounded concurrency for per-driver calls; never let a view switch cancel a
+    warm another view is about to await; degrade gracefully so a failed sub-fetch
+    leaves the rest of the snapshot usable; and bound the number of cached
+    sessions. High-volume replay chunks remain streamed/windowed on demand (they
+    are not part of the eager snapshot).
 
 ### 8.10 AI Assistant Panel
 
@@ -1562,6 +2050,80 @@ Can I replay the Monza race and which drivers are available?
 ```
 
 The panel should show the answer and, when applicable, offer an action to open the corresponding replay or lap comparison screen.
+
+### 8.11 Application Shell, Navigation, And Command Model
+
+The desktop app is a keyboard-first **session console** for race engineers, not a
+casual dashboard. It must not use a generic horizontal tab strip. The shell has
+three persistent regions that stay in place across every view so the engineer
+never loses session context or keyboard focus.
+
+1. **Command bar** (top): a monospace session breadcrumb (`{year} / {event-code} / {session} / {session-id}`) with a load indicator, an **always-on search/query input**, and actions that each display their shortcut. The search input doubles as the telemetry-event query entry (e.g. `brake > 80 in S2`).
+2. **View rail** (left): a vertical list of the views in §8.3, each with an icon, label, and number-key shortcut (`1`–`9`). The active view takes the amber left-border and muted fill. The rail replaces the tab strip.
+3. **Instrument HUD** (per session): a compact strip of monospaced label-over-value metric cells divided by hairlines (pit stops, average stops, most-used compound, laps, SC/VSC count, driver count, conditions). Sized like a status line, not hero cards.
+
+The app must also provide:
+
+- **Home / Launcher**: a circuit → session → driver funnel. Circuit cards may show a national flag (a factual identifier; team liveries are not permitted). Selecting a circuit, then a session, then drivers, then a primary action (e.g. Open replay) commits the choice.
+- **Command palette**: a global launcher on `⌘K` / `Ctrl+K` (and `/` to focus search) that fuzzy-matches imported sessions, drivers, and quick actions, with grouped results and an `Enter`-to-open affordance.
+- **Driver multi-select**: a grid of toggleable driver chips (categorical team-free rail, checkbox affordance, code, name, position) with select-all / clear and a live count. Selection is local UI state and must never mutate imported data.
+
+### 8.12 Keyboard And Shortcut Model
+
+Fast keyboard operation is a first-class requirement. The app must expose a
+discoverable, always-available shortcut model and a cheat-sheet on `?`. The
+initial required bindings:
+
+| Action | Binding |
+|---|---|
+| Command palette | `⌘K` / `Ctrl+K` |
+| Focus search / filter | `/` |
+| Switch view | `1`–`9` |
+| Play / pause replay | `Space` |
+| Step frame back / forward | `←` / `→` |
+| Set / clear reference cursor | `R` |
+| Add / remove selected driver | `D` |
+| Toggle channel visibility | `C` |
+| Jump to next / previous incident | `N` / `Shift+N` |
+| Export · Save view | `E` · `S` |
+| Show shortcut cheat-sheet | `?` |
+
+Shortcuts must work from any view, must not conflict with text entry in the
+search field, and must be listed in one place (`?`) rather than hidden in menus.
+
+### 8.13 Field View — All Drivers (Timing Tower)
+
+The Field View is the engineer's default situational-awareness screen, backed by
+`GET /api/sessions/{sessionId}/standings` (§6.11). It must:
+
+1. Show every driver in the session at once in a dense, virtualized timing tower.
+2. Provide columns: position, driver (categorical team rail + code + name), gap to leader, interval, last lap, best lap, tyre compound + age, pit count, a five-lap pace sparkline, and a running/out status dot.
+3. Color the last/best lap as session-best and personal-best per the design-system delta/highlight tokens.
+4. Be sortable on any column and filterable by driver/team via `/`.
+5. Let the user pin a row to comparison and add a driver to replay with `D`.
+6. Offer at least Tower, Grid, and Gaps presentations of the same data.
+7. Update with the replay cursor when a lap boundary is crossed; never block playback.
+
+### 8.14 Track Incidents And Hard-Braking View
+
+A spatial situational-awareness view backed by
+`GET /api/sessions/{sessionId}/incidents` (§6.13). It must:
+
+1. Render incidents and hard-braking hotspots on the data-derived track outline (§7.3) using each item's `x`/`y` and corner attribution.
+2. Use a colored glyph per incident type (safety car, VSC, yellow, red, spin, off-track) and amber heat dots sized by braking load.
+3. Show a synced incident list (timestamp, glyph, message, lap/location); selecting a list row highlights the map marker and seeks the replay cursor when the item has a timestamp, and vice-versa.
+4. Provide filter toggles per incident type and a hard-braking threshold control.
+5. Show a compact summary (hardest braking g, incident count, laps lost under SC/VSC).
+
+### 8.15 Strategy, Position-Trace, And Cross-Session Views
+
+These views reuse existing analytical contracts and the linked timebase:
+
+- **Strategy view (tire gantt):** one row per driver, stints as compound-colored bars on a shared lap axis with stint length labelled and pit boundaries at segment edges. Backed by `strategy/summarize` (§6.10.4) and lap/stint summaries. Selecting a stint may open the degradation/pit-window predictor (§6.14) and the Strategy / pit-loss narrative.
+- **Lap Analysis (position trace):** a race-trace chart of classified position over laps, one line per driver in the categorical palette, backed by `GET /api/sessions/{sessionId}/positions` (§6.12). Crossings read as overtakes and pit cycles; the legend toggles visibility.
+- **Cross-Session Comparison (session diff / ghost car):** the same circuit across two seasons (or two sessions), backed by `GET /api/compare/sessions` (§6.16). The lap-relative overlay recolors the pair to a neutral past-year tone against the amber current year so it never reads as a live driver duel. In **ghost-car** mode the track map animates two cars on one outline using both laps' position samples (§7.3, §7.7).
+- **Strategy / pit-loss narrative** and **Tire degradation & pit-window predictor:** surfaced as cards in the Strategy view, backed by `strategy/summarize` (§6.10.4) and `tires/degradation` (§6.14); measured data is solid, forecasts are dashed inside a confidence band.
+- **Incident × weather correlation** and **Exportable session report:** the correlation timeline is backed by `weather-correlation` (§6.15); the session report is a client-side templating feature composing existing Query API responses into a shareable PDF/HTML, with the on-screen race debrief and the exported report sharing one renderer at two levels of detail.
 
 ---
 
@@ -1612,9 +2174,18 @@ analytical primitives that map directly to Query API routes:
 | `aggregate_telemetry` | `POST /api/sessions/{sessionId}/telemetry/aggregate` | Return grouped telemetry metrics such as DRS active time, brake time, average speed, max speed, and sample counts. |
 | `detect_telemetry_windows` | `POST /api/sessions/{sessionId}/telemetry/windows` | Return contiguous event intervals such as DRS activation, hard braking, throttle lifts, and high-speed periods. |
 | `analyze_driver_stints` | `POST /api/sessions/{sessionId}/stints/analyze` | Return tyre/stint degradation, best/worst lap, average lap time, tyre-life range, and strategy facts. |
+| `summarize_strategy` | `POST /api/sessions/{sessionId}/strategy/summarize` | Return pit-stop timing, undercut/overcut labels, pit-lane loss vs. field average, and short narrative facts. |
+| `generate_race_debrief` | `POST /api/sessions/{sessionId}/debrief` | Return a bounded, section-based race summary (overview, incidents, strategy, weather) for export or chat display. |
+| `compare_corners` | `POST /api/sessions/{sessionId}/corners/compare` | Return per-corner braking/exit comparison across drivers using circuit-marker attribution. |
+| `get_standings` | `GET /api/sessions/{sessionId}/standings` | Return the classified field at a lap: position, gap, interval, last/best lap, tyre, pits, status. |
+| `list_incidents` | `GET /api/sessions/{sessionId}/incidents` | Return location-aware incidents and hard-braking hotspots with corner attribution and a summary. |
+| `predict_pit_window` | `POST /api/sessions/{sessionId}/tires/degradation` | Return per-stint degradation forecast, recommended pit window, predicted cliff lap, and undercut threat. |
+| `correlate_incidents_weather` | `GET /api/sessions/{sessionId}/weather-correlation` | Return weather/track-status/race-control lanes plus detected lag correlations (e.g. rain → safety car). |
+| `compare_sessions` | `GET /api/compare/sessions` | Return a cross-session lap comparison (same circuit, two seasons/sessions) reusing the lap-comparison contract. |
 
 These tools are intentionally broader than one-off question handlers but still
-bounded enough to avoid arbitrary SQL and raw telemetry dumps.
+bounded enough to avoid arbitrary SQL and raw telemetry dumps. Every tool remains
+read-only and in parity with its Query API route (§5.2, §9.2).
 
 Recommended MCP tool order for complex questions:
 
@@ -1719,6 +2290,121 @@ Output:
 }
 ```
 
+`sessionIdB` may be set to compare laps across two sessions at the same
+circuit, for example a driver's qualifying lap across two seasons:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "sessionIdB": "2025-monza-r",
+  "driverA": "LEC",
+  "lapA": 12,
+  "driverB": "LEC",
+  "lapB": 9,
+  "channels": ["speed_kmh", "throttle_pct", "brake_pct"]
+}
+```
+
+#### `summarize_strategy`
+
+Input:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "drivers": ["LEC", "HAM"],
+  "compareToFieldAverage": true
+}
+```
+
+Output:
+
+```json
+{
+  "items": [
+    {
+      "driverCode": "LEC",
+      "stops": [
+        {
+          "lapNumber": 24,
+          "fromCompound": "MEDIUM",
+          "toCompound": "HARD",
+          "strategyLabel": "undercut",
+          "rivalDriverCode": "HAM",
+          "positionGainAfterStop": 1
+        }
+      ],
+      "narrativeFacts": [
+        "LEC pitted on lap 24 onto HARD, two laps before HAM.",
+        "The undercut gained LEC one position over HAM by lap 27."
+      ]
+    }
+  ]
+}
+```
+
+#### `generate_race_debrief`
+
+Input:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "sections": ["overview", "incidents", "strategy", "weather"]
+}
+```
+
+Output:
+
+```json
+{
+  "overview": {
+    "winner": "VER",
+    "headline": "VER wins from pole, LEC undercuts HAM for P2.",
+    "lapCount": 53
+  },
+  "incidents": [
+    { "lapNumber": 18, "type": "yellow_flag", "message": "YELLOW FLAG SECTOR 2" }
+  ],
+  "strategy": { "items": [] },
+  "weather": { "summary": "Dry, track temperature rising from 43C to 55C." }
+}
+```
+
+#### `compare_corners`
+
+Input:
+
+```json
+{
+  "sessionId": "2024-monza-r",
+  "cornerNumber": 1,
+  "drivers": ["LEC", "HAM"],
+  "lapRange": { "from": 1, "to": 10 },
+  "metrics": ["brake_point_distance_m", "min_corner_speed_kmh"]
+}
+```
+
+Output:
+
+```json
+{
+  "cornerLabel": "Turn 1, Variante del Rettifilo",
+  "items": [
+    {
+      "driverCode": "LEC",
+      "lapNumber": 5,
+      "brakePointDistanceM": 612.4,
+      "minCornerSpeedKmh": 87.0
+    }
+  ],
+  "summary": {
+    "averageBrakePointDeltaM": 4.8,
+    "fastestMinCornerSpeedDriver": "LEC"
+  }
+}
+```
+
 #### `get_replay_metadata`
 
 Input:
@@ -1774,6 +2460,110 @@ Output:
       }
     }
   ]
+}
+```
+
+#### `get_standings`
+
+Input:
+
+```json
+{ "sessionId": "2024-monza-r", "atLap": 40, "sortBy": "position" }
+```
+
+Output:
+
+```json
+{
+  "atLap": 40,
+  "items": [
+    { "position": 1, "driverCode": "VER", "gapToLeaderMs": 0, "lastLapMs": 81450, "compound": "HARD", "tyreLife": 29, "pitCount": 1, "status": "running" }
+  ]
+}
+```
+
+#### `list_incidents`
+
+Input:
+
+```json
+{ "sessionId": "2024-monza-r", "types": ["safety_car", "red", "hard_braking"], "minBrakingG": 4.0, "maxResults": 100 }
+```
+
+Output:
+
+```json
+{
+  "items": [
+    { "type": "safety_car", "lapNumber": 8, "nearestCorner": "Turn 1, Variante del Rettifilo", "message": "Safety car deployed — debris" }
+  ],
+  "summary": { "incidentCount": 6, "hardestBrakingG": 5.1, "lapsUnderSafetyCar": 3 }
+}
+```
+
+#### `predict_pit_window`
+
+Input:
+
+```json
+{ "sessionId": "2024-monza-r", "drivers": ["LEC"], "stint": 1, "horizonLaps": 12 }
+```
+
+Output:
+
+```json
+{
+  "items": [
+    {
+      "driverCode": "LEC",
+      "compound": "MEDIUM",
+      "degradationMsPerLap": 82.4,
+      "predictedCliffLap": 29,
+      "recommendedPitWindow": { "fromLap": 24, "toLap": 27 },
+      "undercutThreat": "high",
+      "confidence": 0.86
+    }
+  ]
+}
+```
+
+#### `correlate_incidents_weather`
+
+Input:
+
+```json
+{ "sessionId": "2024-monza-r", "rainThreshold": 0.2 }
+```
+
+Output:
+
+```json
+{
+  "correlations": [
+    { "summary": "Rainfall crossed threshold at L42; safety car deployed L44.", "lagLaps": 2 }
+  ]
+}
+```
+
+#### `compare_sessions`
+
+Input:
+
+```json
+{
+  "sessionA": "2024-monza-r", "driverA": "LEC", "lapA": "best",
+  "sessionB": "2025-monza-r", "driverB": "LEC", "lapB": "best",
+  "channels": ["speed_kmh", "throttle_pct", "brake_pct"]
+}
+```
+
+Output:
+
+```json
+{
+  "sessionA": "2024-monza-r",
+  "sessionB": "2025-monza-r",
+  "summary": { "lapTimeDeltaMs": -920, "maxSpeedDeltaKmh": 8.4 }
 }
 ```
 
@@ -1839,6 +2629,73 @@ Expected answer:
 
 ```text
 Yes. The session duration is X minutes. Available drivers are A, B, C. Replay supports 0.25x to 20x in the desktop app.
+```
+
+#### Explain a pit stop
+
+User:
+
+```text
+Why did LEC pit on lap 24, and did it work?
+```
+
+Expected tool sequence:
+
+```text
+list_sessions(year=2024, event="Monza", sessionType="R")
+summarize_strategy(sessionId="2024-monza-r", drivers=["LEC", "HAM"], compareToFieldAverage=true)
+```
+
+Expected answer:
+
+```text
+LEC pitted on lap 24 for HARD tyres, two laps before HAM. The stop was slightly
+faster than the field average and the undercut gained LEC one position over HAM
+by lap 27.
+```
+
+#### Generate a race debrief
+
+User:
+
+```text
+Give me a quick debrief of the Monza 2024 race.
+```
+
+Expected tool sequence:
+
+```text
+list_sessions(year=2024, event="Monza", sessionType="R")
+generate_race_debrief(sessionId="2024-monza-r", sections=["overview","incidents","strategy","weather"])
+```
+
+Expected answer:
+
+```text
+VER won from pole. There was a yellow flag in sector 2 on lap 18. LEC undercut
+HAM for P2. Conditions were dry, with track temperature rising from 43C to 55C.
+```
+
+#### Compare a corner across drivers
+
+User:
+
+```text
+Where does LEC brake later than HAM into Turn 1?
+```
+
+Expected tool sequence:
+
+```text
+list_sessions(year=2024, event="Monza", sessionType="R")
+compare_corners(sessionId="2024-monza-r", cornerNumber=1, drivers=["LEC","HAM"], lapRange={from:1,to:10}, metrics=["brake_point_distance_m","min_corner_speed_kmh"])
+```
+
+Expected answer:
+
+```text
+On average LEC brakes about 5 meters later into Turn 1 than HAM and carries a
+slightly higher minimum corner speed.
 ```
 
 ---
@@ -2114,6 +2971,45 @@ Acceptance test:
 Ask for a lap comparison from the assistant and open the corresponding lap comparison screen from the answer.
 ```
 
+### Phase 7 — Application Shell, Field View, And Incidents
+
+Deliverables:
+
+- Carbon Signal design system applied via a generated `Theme.Carbon.xaml` consumed by the app and chart renderers (§8.8).
+- Session console shell: command bar, left view rail, instrument HUD (§8.11).
+- Home / Launcher and command palette (`⌘K` / `/`) over imported sessions, drivers, and quick actions (§8.11).
+- Full keyboard model with `?` cheat-sheet (§8.12).
+- Field View / timing tower backed by `GET /api/sessions/{sessionId}/standings` (§6.11, §8.13).
+- Track Incidents and Hard-Braking view backed by `GET /api/sessions/{sessionId}/incidents` (§6.13, §8.14).
+- Strategy tire-gantt and Lap-Analysis position trace backed by `strategy/summarize` (§6.10.4) and `GET /api/sessions/{sessionId}/positions` (§6.12, §8.15).
+
+Acceptance test:
+
+```text
+Open a session from the launcher, switch views with number keys, sort the
+field-view timing tower, click an incident on the track map and confirm the
+incident list and replay cursor sync, and confirm every surface uses the
+Carbon Signal tokens.
+```
+
+### Phase 8 — Predictive And Cross-Session Analytics
+
+Deliverables:
+
+- Tire degradation & pit-window predictor endpoint and MCP tool (§6.14, `predict_pit_window`), surfaced as Strategy-view cards with measured/forecast separation.
+- Cross-session comparison endpoint and MCP tool (§6.16, `compare_sessions`), driving the session-diff and ghost-car overlay (§8.15).
+- Incident × weather correlation endpoint and MCP tool (§6.15, `correlate_incidents_weather`) and timeline view.
+- Strategy / pit-loss narrative and natural-language race story over the MCP analytical tools.
+- Exportable session report (PDF/HTML) sharing one renderer with the on-screen race debrief.
+
+Acceptance test:
+
+```text
+Forecast LEC's stint-1 pit window, overlay LEC's best 2024 vs 2025 Monza lap as
+a ghost car, surface a rain→safety-car correlation, and export a one-page
+session report — all from bounded Query API / MCP responses.
+```
+
 ---
 
 ## 14. Validation and Safety Rules
@@ -2210,9 +3106,79 @@ The implementation consists of:
 - One MCP Query Server.
 - Aspire Dashboard for local observability.
 
+The desktop application is a keyboard-first **session console** (§8.11) styled
+with the project-owned **Carbon Signal** design system (§8.8, `docs/design-system/`).
+Beyond replay and lap comparison it provides a Home/Launcher with command
+palette, an all-driver Field View / timing tower (§8.13), a Track Incidents and
+hard-braking map (§8.14), tire-strategy gantt and position-trace views, and
+cross-session / ghost-car comparison with predictive tire and pit-window
+analytics (§8.15) — every surface backed by a bounded Query API route (§6) and a
+read-only MCP tool in parity (§9).
+
 The workflow is:
 
-1. Import one real session into TimescaleDB.
+1. Import one or more real sessions into TimescaleDB.
 2. Query stored data through the Query API.
-3. Replay and compare the session in the desktop app.
-4. Use MCP tools for natural-language questions over the same Query API capabilities.
+3. Explore the field, replay, compare, and analyze the session in the desktop console.
+4. Use MCP tools for natural-language questions and narrative generation over the same Query API capabilities.
+
+---
+
+## 18. Future Enhancements (Backlog)
+
+> **Status update.** The five items below have been **promoted into required
+> scope** and are now specified in the body of this document; they are retained
+> here only as a reading index. Their authoritative definitions are:
+>
+> - 18.1 Tire degradation & pit-window predictor → §6.14, `predict_pit_window` (§9.3), §8.15, Phase 8.
+> - 18.2 Cross-session "ghost car" overlay → §6.16, `compare_sessions` (§9.3), §8.15, Phase 8.
+> - 18.3 Natural-language race debrief narratives → §6.10.5 / `generate_race_debrief`, race-story surface (§8.15), Phase 8.
+> - 18.4 Incident and weather correlation timeline → §6.15, `correlate_incidents_weather` (§9.3), §8.15, Phase 8.
+> - 18.5 Exportable session report → §8.15 (client renderer over existing aggregates), Phase 8.
+>
+> Genuinely future ideas (saved layouts, cross-circuit meta-analysis, live
+> ingestion, video sync) remain out of scope. The original descriptions follow.
+
+These items extend the focused implementation above. They build directly on
+existing schema, endpoints, and the MCP layer.
+
+### 18.1 Tire Degradation And Pit-Window Predictor
+
+A model trained on `telemetry_samples` and `laps` (lap time, compound, tyre
+age, stint position) that forecasts per-stint degradation curves and surfaces
+a recommended pit window. Builds on the existing `stints/analyze` and
+`strategy/summarize` endpoints (6.10.3, 6.10.4) by adding a forward-looking
+projection rather than only historical summaries. Surfaced in the desktop
+Pit Analysis view and as a new MCP tool (e.g. `predict_pit_window`).
+
+### 18.2 Cross-Session "Ghost Car" Overlay
+
+Extends lap comparison (6.5, 8.6) beyond a single session: overlay a driver's
+lap against another lap from a different session, year, or driver on the
+track map as an animated ghost car synchronized to the same lap-relative
+timebase used in replay (7.7). Requires the compare-laps endpoint to accept
+laps from two different `sessionId` values and the replay track map to render
+multiple position traces concurrently.
+
+### 18.3 Natural-Language Race Debrief Narratives
+
+Extends `generate_race_debrief` (9.3) to chain multiple analytical primitives
+(stint analysis, corner comparison, telemetry windows) into a single narrative
+summary describing key moments of a session — e.g. pace loss tied to tyre
+wear, and its effect on race position. This is a composition layer over
+existing MCP tools rather than a new data source.
+
+### 18.4 Incident And Weather Correlation Timeline
+
+A unified timeline view joining `race_control_messages`, `track_status_events`,
+and `weather_samples` on the replay timebase, so events such as a Virtual
+Safety Car can be displayed alongside the weather conditions that preceded
+them. Extends the existing Context Timeline (7.4) with a weather overlay and
+a corresponding MCP tool for querying correlated events.
+
+### 18.5 Exportable Session Report
+
+A one-click export (PDF/HTML) of a session's key findings — lap comparison,
+stint/strategy summary, and incident timeline — composed from existing Query
+API responses (6.5, 6.10.3, 6.10.4, 9.3). Primarily a desktop-app rendering
+and templating feature; no new backend data is required.

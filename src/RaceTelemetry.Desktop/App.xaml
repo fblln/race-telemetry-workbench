@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:RaceTelemetry.Desktop"
+             x:Class="RaceTelemetry.Desktop.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Theme.Carbon.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <local:IsNotNullConverter x:Key="IsNotNull" />
+            <local:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <local:DashIfEmptyConverter x:Key="DashIfEmpty" />
+            <local:LapTimeConverter x:Key="LapTime" />
+            <local:GapConverter x:Key="Gap" />
+            <local:DriverColorConverter x:Key="DriverColor" />
+            <local:BoolToColorConverter x:Key="BoolColor" />
+            <local:StatusColorConverter x:Key="StatusColor" />
+            <local:SessionLabelConverter x:Key="SessionLabel" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -9,6 +9,71 @@ The project is built around one goal: turn raw race telemetry into useful
 engineering and race-strategy insight without requiring every user to write SQL
 or manually inspect thousands of samples.
 
+## What It Will Look Like
+
+The end state is a high-performance .NET MAUI **desktop workbench** for race
+engineers — keyboard-first, information-dense, and built on a project-owned
+design system called **Carbon Signal**.
+
+Rather than a generic dashboard with horizontal tabs, the app is a **session
+console** with three persistent regions that never lose context: a monospace
+command bar (breadcrumb + always-on query input), an instrument **HUD** strip of
+session metrics, and a left **view rail** switched by number keys `0`–`9`. A
+single signal-amber accent is reserved for action, selection, focus, and the
+replay cursor; an original, colorblind-safe palette carries the telemetry
+channels so data never competes with chrome.
+
+![Race Telemetry Workbench — Home](docs/images/view-home.png)
+
+*Home: the entry point into the console. A circuit → season → session funnel on
+the left, a live preview of the selected circuit (length, turns, DRS zones, lap
+record) on the right, and a driver grid to pick the field before opening a replay
+— all inside the same command bar / HUD / rail shell used by every other view.*
+
+Once a session is open, the same shell carries you through ten purpose-built
+surfaces — from second-by-second replay to strategy, timing, incidents, lap
+comparison, and an AI-assisted race story.
+
+![Race Telemetry Workbench — Replay workspace](docs/images/app-overview.png)
+
+*Replay: a data-derived Monza track map, a synchronized telemetry waveform with a
+primary (amber) and reference (cool) cursor, a live current-values readout, the
+seekable context strip, an event timeline of race-control messages (safety car,
+track clear, DRS, red flag), and the playback transport — all locked to one
+session-relative timebase.*
+
+The workbench is organized into ten surfaces:
+
+| View | What it shows |
+|---|---|
+| **Home** | Circuit → session → driver funnel to open a session |
+| **Overview** | Result cards, full classification, stint sequence, positions gained |
+| **Replay** | Track map, telemetry waveform, current values, context strip, transport |
+| **Strategy** | Tyre-stint gantt, pit-loss narrative, degradation & pit-window predictor |
+| **Field** | Sortable, filterable timing tower with pace sparklines (Tower / Grid / Gaps) |
+| **Incidents** | Flag and incident markers on the track outline + incident × weather correlation |
+| **Head to head** | Lap comparison, corner-level index, multi-season diff, ghost-car overlay |
+| **Lap detail** | Full lap-by-lap log for one driver — every sector, tyre, trap, and channel |
+| **Telemetry** | Bounded-aggregate explorer: histograms and load maps |
+| **Reports & AI** | One-page race debrief / session report export and the MCP race-story assistant |
+
+### More Views
+
+| | |
+|---|---|
+| ![Strategy — tire stint gantt](docs/images/view-strategy.png) **Strategy** — per-driver stint gantt on a shared lap axis, with an MCP-generated strategy story (undercut/overcut narrative) underneath. | ![Incidents — track map and correlation timeline](docs/images/view-incidents.png) **Incidents** — flag and incident markers on the data-derived track outline, correlated against track status, race control, rainfall, and track temperature. |
+| ![Head to head — lap comparison](docs/images/view-head-to-head.png) **Head to head** — lap-relative speed and throttle/brake overlays for two drivers, with lap delta and sector-by-sector deltas. | ![Reports & AI — race story assistant](docs/images/view-reports-ai.png) **Reports & AI** — the MCP-backed race-story assistant: ask a question in plain language and get an answer grounded in the same `list_drivers` / `compare_laps` / `aggregate_telemetry` / `analyze_driver_stints` tools exposed to MCP clients. |
+
+**Explore the design now:**
+
+- Interactive clickable prototype — [`docs/design-system/mockups/app-prototype.html`](docs/design-system/mockups/app-prototype.html) (open in a browser; use the rail or keys `0`–`9`, and `⌘K`)
+- Design system — [`docs/design-system/DESIGN_SYSTEM.md`](docs/design-system/DESIGN_SYSTEM.md)
+- Live styleguide and tokens — [`docs/design-system/styleguide.html`](docs/design-system/styleguide.html)
+
+The backend below already powers this design: every view maps to a bounded Query
+API route and an MCP tool, so the desktop UI reads from the same contracts as any
+other client.
+
 ## What It Does Today
 
 ### Import Full Race Context
@@ -94,7 +159,9 @@ TimescaleDB / PostgreSQL
 HTTP MCP Server <---- Codex / Claude / MCP clients
 ```
 
-The desktop app project slot exists, but the .NET MAUI UI is not implemented yet.
+The desktop app project slot exists and is fully designed (see
+[What It Will Look Like](#what-it-will-look-like) and the interactive prototype);
+the .NET MAUI UI implementation is in progress.
 
 ## Quick Start
 
@@ -192,14 +259,16 @@ by a shared contract and Query API route.
 
 ## What Is Coming Next
 
-The next evolution moves toward:
+The design system, view set, and interactive prototype are complete (see
+[What It Will Look Like](#what-it-will-look-like)). The next evolution builds that
+design on the existing API:
 
 - focused real-database tests for analytical Query API endpoints
-- high-performance .NET MAUI desktop replay workspace
+- the high-performance .NET MAUI session console and Replay workspace
 - data-derived track map and driver replay
 - timeline overlays for weather, flags, safety car, VSC, and race control
-- lap comparison UI
-- optional AI assistant panel beside the race data
+- lap comparison, strategy, field, and incident views
+- the MCP-backed race-story assistant beside the race data
 
 ## Repository Map
 
@@ -214,6 +283,8 @@ The next evolution moves toward:
 | `src/RaceTelemetry.AppHost/` | Aspire AppHost |
 | `bruno/race-telemetry-query-api/` | Bruno collection for manual API testing |
 | `docs/` | Development, data, API/MCP, and OpenAPI docs |
+| `docs/design-system/` | Carbon Signal design system, tokens, styleguide, and the interactive app prototype |
+| `docs/images/` | Rendered mockups used in documentation |
 | `planning.md` | Backlog, decisions, and progress tracking |
 
 ## License

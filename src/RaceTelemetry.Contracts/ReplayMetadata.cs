@@ -15,7 +15,9 @@ public sealed record ReplayMetadata(
     WeatherSummary? WeatherSummary,
     long RecommendedChunkDurationMs,
     IReadOnlyList<double> SupportedReplaySpeeds,
-    double DefaultReplaySpeed);
+    double DefaultReplaySpeed,
+    double? MaterializedFrequencyHz = null,
+    string? TelemetrySource = null);
 
 public sealed record TrackMapMetadata(
     double? RotationDegrees,

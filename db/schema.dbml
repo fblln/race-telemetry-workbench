@@ -93,6 +93,63 @@ Table position_samples {
   }
 }
 
+Table aligned_telemetry_10hz {
+  sample_time_utc timestamptz [not null]
+  session_id text [not null]
+  session_key int [not null]
+  driver_number int [not null]
+  driver_code text [not null]
+  lap_number int
+  sample_index int [not null]
+  session_time_ms bigint
+  lap_time_ms bigint
+  speed double
+  rpm double
+  n_gear int
+  throttle double
+  brake double
+  drs int
+  x double
+  y double
+  z double
+  location_status text
+  source_car_time timestamptz
+  source_location_time timestamptz
+  car_sample_age_ms int
+  location_sample_age_ms int
+  is_interpolated_car boolean [not null]
+  is_interpolated_location boolean [not null]
+  quality_flags text[] [not null]
+  alignment_version int [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (sample_time_utc, session_key, driver_number) [pk]
+  }
+}
+
+Table telemetry_ingestion_diagnostics {
+  diagnostic_id bigint [pk]
+  session_id text [not null]
+  session_key int [not null]
+  driver_number int [not null]
+  driver_code text [not null]
+  stream_name text [not null]
+  sample_count bigint [not null]
+  first_sample_utc timestamptz
+  last_sample_utc timestamptz
+  min_delta_ms double
+  median_delta_ms double
+  p90_delta_ms double
+  p99_delta_ms double
+  max_delta_ms double
+  estimated_hz double
+  duplicate_timestamp_count int [not null]
+  out_of_order_count int [not null]
+  warnings text[] [not null]
+  created_at_utc timestamptz [not null]
+}
+
 Table circuit_metadata {
   session_id text [pk]
   rotation_degrees double
@@ -175,6 +232,10 @@ Ref: laps.session_id > sessions.session_id [delete: cascade]
 Ref: laps.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
 Ref: telemetry_samples.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
 Ref: position_samples.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
+Ref: aligned_telemetry_10hz.session_id > sessions.session_id [delete: cascade]
+Ref: aligned_telemetry_10hz.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
+Ref: telemetry_ingestion_diagnostics.session_id > sessions.session_id [delete: cascade]
+Ref: telemetry_ingestion_diagnostics.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
 Ref: circuit_metadata.session_id > sessions.session_id [delete: cascade]
 Ref: circuit_markers.session_id > sessions.session_id [delete: cascade]
 Ref: weather_samples.session_id > sessions.session_id [delete: cascade]

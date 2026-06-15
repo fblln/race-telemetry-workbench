@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RaceTelemetry.Desktop.ViewModels"
+             xmlns:controls="clr-namespace:RaceTelemetry.Desktop.Controls"
+             x:Class="RaceTelemetry.Desktop.Views.SessionConsolePage"
+             x:DataType="vm:SessionConsoleViewModel"
+             Shell.NavBarIsVisible="False"
+             Title="Console">
+
+    <!-- Desktop keyboard model (§8.12). Number keys switch views; ⌘K focuses search. -->
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="View">
+            <MenuFlyoutItem Text="Overview" Command="{Binding SelectIndexCommand}" CommandParameter="1">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="1" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Replay" Command="{Binding SelectIndexCommand}" CommandParameter="2">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="2" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Strategy" Command="{Binding SelectIndexCommand}" CommandParameter="3">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="3" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Lap analysis" Command="{Binding SelectIndexCommand}" CommandParameter="4">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="4" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Field" Command="{Binding SelectIndexCommand}" CommandParameter="5">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="5" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Incidents" Command="{Binding SelectIndexCommand}" CommandParameter="6">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="6" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Head to head" Command="{Binding SelectIndexCommand}" CommandParameter="7">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="7" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Telemetry" Command="{Binding SelectIndexCommand}" CommandParameter="8">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="8" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+        <MenuBarItem Text="Go">
+            <MenuFlyoutItem Text="Command palette" Clicked="OnOpenPalette">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Modifiers="Cmd" Key="K" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Back to launcher" Command="{Binding BackToLauncherCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Modifiers="Cmd" Key="[" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Command bar (§8.11): breadcrumb · always-on search · actions -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+              Padding="12,6" BackgroundColor="{StaticResource BgInset}"
+              HeightRequest="{StaticResource CommandBarHeight}">
+            <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                <Button Text="‹" Style="{StaticResource SecondaryButton}" Padding="8,2"
+                        Command="{Binding BackToLauncherCommand}" />
+                <Label Text="{Binding Breadcrumb}" FontFamily="JetBrainsMono"
+                       FontSize="{StaticResource FsXs}" TextColor="{StaticResource TextSecondary}"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Border Grid.Column="1" BackgroundColor="{StaticResource BgInset}" Stroke="{StaticResource BorderDefault}"
+                    StrokeThickness="1" StrokeShape="RoundRectangle 5"
+                    Padding="10,4" HorizontalOptions="End" WidthRequest="340">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                    <Label Grid.Column="0" Text="⌕" FontSize="14" TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                    <Entry Grid.Column="1" x:Name="SearchEntry" Placeholder="Search / query" Text="{Binding SearchQuery}"
+                           BackgroundColor="Transparent" />
+                    <Label Grid.Column="2" Text="⌘K" FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}"
+                           TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                <Border BackgroundColor="{StaticResource BgRaised}" Stroke="{StaticResource BorderDefault}" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 5" Padding="8,4">
+                    <HorizontalStackLayout Spacing="7">
+                        <Label Text="Export" FontFamily="InterMedium" FontSize="{StaticResource FsXs}"
+                               TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                        <Label Text="E" FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}"
+                               TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+                <Border BackgroundColor="{StaticResource BgRaised}" Stroke="{StaticResource BorderDefault}" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 5" Padding="8,4">
+                    <HorizontalStackLayout Spacing="7">
+                        <Label Text="Save view" FontFamily="InterMedium" FontSize="{StaticResource FsXs}"
+                               TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                        <Label Text="S" FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}"
+                               TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+                <Border BackgroundColor="{StaticResource BgRaised}" Stroke="{StaticResource BorderDefault}" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 5" Padding="10,4">
+                    <Label Text="?" FontFamily="JetBrainsMono" FontSize="{StaticResource FsSm}"
+                           TextColor="{StaticResource TextTertiary}" />
+                </Border>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Instrument HUD strip (§2a / §8.11): compact mono label-over-value cells. -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never"
+                    BackgroundColor="{StaticResource BgRaised}"
+                    HeightRequest="{StaticResource HudHeight}">
+            <StackLayout Orientation="Horizontal" Spacing="0" Padding="12,5"
+                         BindableLayout.ItemsSource="{Binding Hud}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:HudMetric">
+                        <!-- Instrument cell divided from the next by a hairline (§2a). -->
+                        <Grid ColumnDefinitions="Auto,1">
+                            <VerticalStackLayout Grid.Column="0" Spacing="0" Padding="14,0" MinimumWidthRequest="52">
+                                <Label Text="{Binding Label}" FontFamily="JetBrainsMono"
+                                       FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}" />
+                                <Label Text="{Binding Value}" FontFamily="JetBrainsMonoMedium"
+                                       FontSize="{StaticResource FsSm}" TextColor="{StaticResource TextPrimary}" />
+                            </VerticalStackLayout>
+                            <BoxView Grid.Column="1" WidthRequest="1" Color="{StaticResource BorderDefault}" Margin="0,3" />
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Body: left view rail + content host -->
+        <Grid Grid.Row="2" ColumnDefinitions="176,*">
+
+            <Border Grid.Column="0" BackgroundColor="{StaticResource BgSurface}"
+                    Stroke="{StaticResource BorderDefault}" StrokeThickness="0"
+                    Padding="6">
+                <CollectionView ItemsSource="{Binding Views}"
+                                SelectionMode="Single"
+                                SelectedItem="{Binding ActiveView}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ConsoleView">
+                            <!-- Active item: amber left rail + muted fill (§2a). -->
+                            <Grid ColumnDefinitions="3,*,Auto" Margin="0,1" Padding="0"
+                                  BackgroundColor="{Binding IsActive, Converter={StaticResource BoolColor}, ConverterParameter='#43320F;#00000000'}">
+                                <BoxView Grid.Column="0" Color="{StaticResource Accent}" IsVisible="{Binding IsActive}" />
+                                <Label Grid.Column="1" Text="{Binding Title}" Padding="9,7"
+                                       TextColor="{Binding IsActive, Converter={StaticResource BoolColor}, ConverterParameter='#F4EEE6;#BCB1A2'}"
+                                       FontSize="{StaticResource FsSm}" VerticalOptions="Center" />
+                                <Border Grid.Column="2" BackgroundColor="{StaticResource BgRaised}"
+                                        Stroke="{StaticResource BorderDefault}" StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 3" Padding="5,1" Margin="0,0,8,0" VerticalOptions="Center">
+                                    <Label Text="{Binding Hotkey}" FontFamily="JetBrainsMono"
+                                           FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Border>
+
+            <!-- Active view is swapped in code-behind when ActiveView changes (§8.11). -->
+            <ContentView Grid.Column="1" x:Name="ContentHost" BackgroundColor="{StaticResource BgCanvas}" />
+        </Grid>
+
+        <!-- Global command palette overlay (§2a), opened with ⌘K. -->
+        <controls:CommandPalette x:Name="Palette" Grid.Row="0" Grid.RowSpan="3" ZIndex="100" />
+    </Grid>
+</ContentPage>

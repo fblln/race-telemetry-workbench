@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Carbon Signal theme — GENERATED from docs/design-system/design-tokens.json. Do not edit by hand. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+  <!-- Colors -->
+  <Color x:Key="BgCanvas">#14110E</Color>
+  <Color x:Key="BgSurface">#1C1815</Color>
+  <Color x:Key="BgRaised">#241F1B</Color>
+  <Color x:Key="BgOverlay">#2C2620</Color>
+  <Color x:Key="BgInset">#100D0B</Color>
+  <Color x:Key="BgHover">#2A241F</Color>
+  <Color x:Key="BgSelected">#43320F</Color>
+  <Color x:Key="BorderSubtle">#2A241F</Color>
+  <Color x:Key="BorderDefault">#3A3128</Color>
+  <Color x:Key="BorderStrong">#524537</Color>
+  <Color x:Key="BorderGridLine">#2A2620</Color>
+  <Color x:Key="BorderGridLineMajor">#3A342C</Color>
+  <Color x:Key="TextPrimary">#F4EEE6</Color>
+  <Color x:Key="TextSecondary">#BCB1A2</Color>
+  <Color x:Key="TextTertiary">#8A7F70</Color>
+  <Color x:Key="TextDisabled">#5C544A</Color>
+  <Color x:Key="TextOnAccent">#1A1206</Color>
+  <Color x:Key="TextInverse">#14110E</Color>
+  <Color x:Key="Accent">#FFA60D</Color>
+  <Color x:Key="AccentHover">#FFC24D</Color>
+  <Color x:Key="AccentActive">#E08A00</Color>
+  <Color x:Key="AccentMuted">#43320F</Color>
+  <Color x:Key="AccentBorder">#7D5E12</Color>
+  <Color x:Key="CursorRef">#7FA6C9</Color>
+  <Color x:Key="SemSuccess">#27D98C</Color>
+  <Color x:Key="SemSuccessBg">#13271E</Color>
+  <Color x:Key="SemWarning">#FFB424</Color>
+  <Color x:Key="SemWarningBg">#2E2310</Color>
+  <Color x:Key="SemDanger">#FF5A5F</Color>
+  <Color x:Key="SemDangerBg">#2E1414</Color>
+  <Color x:Key="SemInfo">#2E9BFF</Color>
+  <Color x:Key="SemInfoBg">#122230</Color>
+  <Color x:Key="FlagClear">#27D98C</Color>
+  <Color x:Key="FlagYellow">#FFDA1F</Color>
+  <Color x:Key="FlagSafetyCar">#FF8A1F</Color>
+  <Color x:Key="FlagVsc">#FFDB3D</Color>
+  <Color x:Key="FlagRed">#FF5A5F</Color>
+  <Color x:Key="FlagRain">#3E9BF5</Color>
+  <Color x:Key="FlagDrs">#1FE0CE</Color>
+  <Color x:Key="ChSpeed">#22A7FF</Color>
+  <Color x:Key="ChThrottle">#15D981</Color>
+  <Color x:Key="ChBrake">#FF7A22</Color>
+  <Color x:Key="ChGear">#E86BE0</Color>
+  <Color x:Key="ChRpm">#FFCE1A</Color>
+  <Color x:Key="ChDrs">#1FE0CE</Color>
+  <Color x:Key="DriverA">#22A7FF</Color>
+  <Color x:Key="DriverB">#FF931A</Color>
+  <Color x:Key="DeltaPos">#27D98C</Color>
+  <Color x:Key="DeltaNeg">#FF5A5F</Color>
+  <Color x:Key="Heat0">#221A12</Color>
+  <Color x:Key="Heat1">#4A2F0C</Color>
+  <Color x:Key="Heat2">#7A4E0B</Color>
+  <Color x:Key="Heat3">#A86A0A</Color>
+  <Color x:Key="Heat4">#E08A00</Color>
+  <Color x:Key="Heat5">#FFA60D</Color>
+  <Color x:Key="Heat6">#FFDE7A</Color>
+
+  <!-- Brushes (for controls that need Brush not Color) -->
+  <SolidColorBrush x:Key="BgCanvasBrush" Color="{StaticResource BgCanvas}" />
+  <SolidColorBrush x:Key="BgSurfaceBrush" Color="{StaticResource BgSurface}" />
+  <SolidColorBrush x:Key="BgRaisedBrush" Color="{StaticResource BgRaised}" />
+  <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
+  <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}" />
+  <SolidColorBrush x:Key="BorderDefaultBrush" Color="{StaticResource BorderDefault}" />
+
+  <!-- Spacing scale -->
+  <x:Double x:Key="Space0">0</x:Double>
+  <x:Double x:Key="Space1">2</x:Double>
+  <x:Double x:Key="Space2">4</x:Double>
+  <x:Double x:Key="Space3">6</x:Double>
+  <x:Double x:Key="Space4">8</x:Double>
+  <x:Double x:Key="Space5">12</x:Double>
+  <x:Double x:Key="Space6">16</x:Double>
+  <x:Double x:Key="Space7">20</x:Double>
+  <x:Double x:Key="Space8">24</x:Double>
+  <x:Double x:Key="Space9">32</x:Double>
+  <x:Double x:Key="Space10">40</x:Double>
+  <x:Double x:Key="Space11">48</x:Double>
+
+  <!-- Density profile: 15-inch MacBook Pro Retina, 1440x900 logical points at 2x. -->
+  <x:Double x:Key="TargetLogicalViewportWidth">1440</x:Double>
+  <x:Double x:Key="TargetLogicalViewportHeight">900</x:Double>
+  <Thickness x:Key="AppPagePadding">16</Thickness>
+  <Thickness x:Key="AppPanelPadding">12</Thickness>
+  <x:Double x:Key="ControlHeight">30</x:Double>
+  <x:Double x:Key="CommandBarHeight">44</x:Double>
+  <x:Double x:Key="HudHeight">42</x:Double>
+  <x:Double x:Key="ConsoleRailWidth">176</x:Double>
+  <x:Double x:Key="LauncherPanelPaddingX">18</x:Double>
+  <x:Double x:Key="LauncherPanelPaddingY">16</x:Double>
+  <x:Double x:Key="LauncherCircuitCardHeight">130</x:Double>
+  <x:Double x:Key="LauncherCircuitGridHeight">450</x:Double>
+  <x:Double x:Key="LauncherCircuitGridGap">14</x:Double>
+  <x:Double x:Key="LauncherDriverChipHeight">34</x:Double>
+  <x:Double x:Key="LauncherDriverChipCardHeight">60</x:Double>
+  <x:Double x:Key="LauncherSessionChipHeight">38</x:Double>
+
+  <!-- Radius -->
+  <x:Double x:Key="RadiusNone">0</x:Double>
+  <x:Double x:Key="RadiusSm">3</x:Double>
+  <x:Double x:Key="RadiusMd">5</x:Double>
+  <x:Double x:Key="RadiusLg">8</x:Double>
+  <x:Double x:Key="RadiusXl">12</x:Double>
+  <x:Double x:Key="RadiusPill">999</x:Double>
+
+  <!-- Font sizes -->
+  <x:Double x:Key="Fs2xs">11</x:Double>
+  <x:Double x:Key="FsXs">12</x:Double>
+  <x:Double x:Key="FsSm">13</x:Double>
+  <x:Double x:Key="FsBase">14</x:Double>
+  <x:Double x:Key="FsMd">15</x:Double>
+  <x:Double x:Key="FsLg">17</x:Double>
+  <x:Double x:Key="FsXl">20</x:Double>
+  <x:Double x:Key="Fs2xl">24</x:Double>
+  <x:Double x:Key="NumSm">13</x:Double>
+  <x:Double x:Key="NumMd">18</x:Double>
+  <x:Double x:Key="NumLg">28</x:Double>
+  <x:Double x:Key="NumXl">44</x:Double>
+
+  <!-- Font families (register actual TTFs in MauiProgram; see Resources/Fonts) -->
+  <x:String x:Key="FontSans">Inter</x:String>
+  <x:String x:Key="FontMono">JetBrainsMono</x:String>
+</ResourceDictionary>

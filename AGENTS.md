@@ -8,6 +8,9 @@ high-performance .NET MAUI desktop app.
 **Authoritative references:**
 - `f1_telemetry_architecture_spec_focused.md` — architecture spec
 - `planning.md`
+- `docs/design-system/DESIGN_SYSTEM.md` — Carbon Signal UI rules and component patterns
+- `docs/design-system/design-tokens.json` — design-token source of truth
+- `docs/design-system/styleguide.html` — live component and layout reference
 
 **License:** GNU GPLv3. Do not modify `LICENSE`.
 
@@ -141,6 +144,33 @@ fixture data, verify hypertables and views, then drop the schema.
 
 ---
 
+## Application Testing
+
+Use the .NET MAUI DevFlow agent for desktop UI smoke tests and visual
+verification. Debug builds of `src/RaceTelemetry.Desktop` register
+`Microsoft.Maui.DevFlow.Agent` on port `9223`; the project-local config lives at
+`src/RaceTelemetry.Desktop/.mauidevflow`.
+
+When testing the app end to end, start the distributed backend with Aspire
+first, run the Mac Catalyst debug app, then inspect the live UI from another
+shell:
+
+```bash
+aspire start --non-interactive
+aspire wait query-api
+dotnet build src/RaceTelemetry.Desktop -t:Run -f net10.0-maccatalyst
+
+maui devflow ui tree
+maui devflow ui screenshot --output screenshot.png --overwrite
+maui devflow mcp
+```
+
+Prefer DevFlow screenshots and UI-tree inspection for launcher/console/replay
+layout checks instead of relying only on code review. Use `maui devflow mcp`
+when an agent needs interactive inspection of the running MAUI app.
+
+---
+
 ## Codebase Notes
 
 - `RaceTelemetry.QueryApi` is a Minimal API. Endpoint registration and route
@@ -159,6 +189,40 @@ fixture data, verify hypertables and views, then drop the schema.
   values rather than inventing client-friendly defaults.
 - The desktop app folder is only a placeholder. Do not start MAUI work until
   the Query API data path has focused real-database analytical endpoint tests.
+
+---
+
+## Design System And Assets
+
+- The desktop UI follows **Carbon Signal**. Treat `docs/design-system/DESIGN_SYSTEM.md`
+  as the authority for launcher flow, console shell, overview, field, replay,
+  strategy, incidents, typography, spacing, and component behavior.
+- Treat `docs/design-system/design-tokens.json` as the token source of truth.
+  Keep MAUI theme values aligned with it; do not invent parallel token names or
+  silently drift colors, spacing, radii, or typography away from the design
+  system.
+- Use `docs/design-system/styleguide.html` to verify concrete component shapes:
+  session chips, driver multi-select chips, panel headers, command bar, HUD
+  strip, tables, badges, and timeline/context patterns.
+- **Amber has one meaning:** primary action, selection, focus, and replay
+  cursor. Do not use amber as a telemetry data-series color.
+- Default driver identity in the launcher, field, and position trace is the
+  project-owned **categorical palette** (`DriverPalette`), not team livery.
+  The design-system default is team-free categorical rails and chips.
+- Team-livery presentation is an explicit opt-in mode only. If added, keep it
+  clearly separate from the default categorical mode and do not let it replace
+  the project-owned palette across the product.
+- Use only project-owned or generated assets. Do **not** pull in external team
+  logos, car renders, track art, or other third-party visuals unless the task
+  explicitly adds a licensed local asset set and documents that decision.
+- National flags are allowed as factual identifiers for circuits/countries in
+  the launcher. Team liveries and branding are not the default launcher visual
+  language.
+- Track outlines must be derived from imported `position_samples`. Do not use
+  static track SVGs, screenshots, or bundled circuit artwork.
+- When a requested overview or panel field is not present in the current Query
+  API / import surface, render it explicitly as unavailable (`--`,
+  `not imported`, etc.) rather than guessing or fabricating values.
 
 ---
 
