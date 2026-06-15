@@ -753,6 +753,19 @@ public sealed partial class PostgresTelemetryQueryStore
             return null;
         }
 
+        if (await TableExistsAsync("aligned_telemetry_10hz", cancellationToken)
+            && await HasAlignedReplayRowsAsync(sessionId, fromMs, durationMs, drivers, cancellationToken))
+        {
+            return await GetAlignedReplayChunkAsync(
+                sessionId,
+                fromMs,
+                durationMs,
+                drivers,
+                channels,
+                sampleEvery,
+                cancellationToken);
+        }
+
         var includePosition = IncludesChannel(channels, "x")
             || IncludesChannel(channels, "y")
             || IncludesChannel(channels, "z");
@@ -851,7 +864,150 @@ public sealed partial class PostgresTelemetryQueryStore
             chunks
                 .OrderBy(pair => pair.Key)
                 .Select(pair => new ReplayDriverChunk(pair.Key, pair.Value))
-                .ToArray());
+                .ToArray(),
+                TelemetrySource: "raw");
+    }
+
+    private async Task<bool> HasAlignedReplayRowsAsync(
+        string sessionId,
+        long fromMs,
+        long durationMs,
+        IReadOnlyList<string>? drivers,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM aligned_telemetry_10hz
+                WHERE session_id = @sessionId
+                  AND session_time_ms >= @fromMs
+                  AND session_time_ms < (@fromMs + @durationMs)
+                  AND (@drivers::text[] IS NULL OR driver_code = ANY(@drivers::text[]))
+            )
+            """;
+
+        await using var command = _dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        command.Parameters.AddWithValue("fromMs", fromMs);
+        command.Parameters.AddWithValue("durationMs", durationMs);
+        AddNullable(command, "drivers", NpgsqlDbType.Array | NpgsqlDbType.Text, drivers is { Count: > 0 } ? drivers.Select(d => d.ToUpperInvariant()).ToArray() : null);
+        return (bool)(await command.ExecuteScalarAsync(cancellationToken) ?? false);
+    }
+
+    private async Task<ReplayChunkResponse> GetAlignedReplayChunkAsync(
+        string sessionId,
+        long fromMs,
+        long durationMs,
+        IReadOnlyList<string>? drivers,
+        IReadOnlyList<string> channels,
+        int sampleEvery,
+        CancellationToken cancellationToken)
+    {
+        var speedProjection = IncludesChannel(channels, "speed_kmh") ? "a.speed AS speed_kmh" : "NULL::double precision AS speed_kmh";
+        var throttleProjection = IncludesChannel(channels, "throttle_pct") ? "a.throttle AS throttle_pct" : "NULL::double precision AS throttle_pct";
+        var brakeProjection = IncludesChannel(channels, "brake_pct") ? "a.brake AS brake_pct" : "NULL::double precision AS brake_pct";
+        var gearProjection = IncludesChannel(channels, "gear") ? "a.n_gear AS gear" : "NULL::int AS gear";
+        var rpmProjection = IncludesChannel(channels, "rpm") ? "a.rpm" : "NULL::double precision AS rpm";
+        var drsProjection = IncludesChannel(channels, "drs") ? "a.drs" : "NULL::int AS drs";
+        var xProjection = IncludesChannel(channels, "x") ? "a.x" : "NULL::double precision AS x";
+        var yProjection = IncludesChannel(channels, "y") ? "a.y" : "NULL::double precision AS y";
+        var zProjection = IncludesChannel(channels, "z") ? "a.z" : "NULL::double precision AS z";
+
+        var sql = $"""
+            SELECT
+                coalesce(a.driver_code, d.driver_code) AS driver_code,
+                a.session_time_ms,
+                a.lap_number,
+                {speedProjection},
+                {throttleProjection},
+                {brakeProjection},
+                {gearProjection},
+                {rpmProjection},
+                {drsProjection},
+                {xProjection},
+                {yProjection},
+                {zProjection},
+                a.sample_index,
+                a.sample_time_utc,
+                a.lap_time_ms,
+                a.location_status,
+                a.quality_flags,
+                a.car_sample_age_ms,
+                a.location_sample_age_ms,
+                a.is_interpolated_car,
+                a.is_interpolated_location
+            FROM aligned_telemetry_10hz a
+            JOIN sessions s ON s.session_id = a.session_id
+            LEFT JOIN session_drivers d
+              ON d.session_id = s.session_id
+             AND d.driver_number = a.driver_number
+            WHERE s.session_id = @sessionId
+              AND a.session_time_ms >= @fromMs
+              AND a.session_time_ms < (@fromMs + @durationMs)
+              AND (@drivers::text[] IS NULL OR coalesce(a.driver_code, d.driver_code) = ANY(@drivers::text[]))
+            ORDER BY coalesce(a.driver_code, d.driver_code), a.session_time_ms, a.sample_time_utc
+            """;
+
+        await using var command = _dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+        command.Parameters.AddWithValue("fromMs", fromMs);
+        command.Parameters.AddWithValue("durationMs", durationMs);
+        AddNullable(command, "drivers", NpgsqlDbType.Array | NpgsqlDbType.Text, drivers is { Count: > 0 } ? drivers.Select(d => d.ToUpperInvariant()).ToArray() : null);
+
+        var chunks = new Dictionary<string, List<ReplaySample>>(StringComparer.OrdinalIgnoreCase);
+        var rowsByDriver = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            var driverCode = reader.GetString(0);
+            var rowIndex = rowsByDriver.GetValueOrDefault(driverCode);
+            rowsByDriver[driverCode] = rowIndex + 1;
+            if (rowIndex % sampleEvery != 0)
+            {
+                continue;
+            }
+
+            if (!chunks.TryGetValue(driverCode, out var samples))
+            {
+                samples = [];
+                chunks[driverCode] = samples;
+            }
+
+            samples.Add(new ReplaySample(
+                GetNullableInt64(reader, 1),
+                GetNullableInt32(reader, 2),
+                GetNullableDouble(reader, 3),
+                GetNullableDouble(reader, 4),
+                GetNullableDouble(reader, 5),
+                GetNullableInt32(reader, 6),
+                GetNullableDouble(reader, 7),
+                GetNullableInt32(reader, 8),
+                GetNullableDouble(reader, 9),
+                GetNullableDouble(reader, 10),
+                GetNullableDouble(reader, 11),
+                GetNullableInt32(reader, 12),
+                GetNullableDateTimeOffset(reader, 13),
+                GetNullableInt64(reader, 14),
+                GetNullableString(reader, 15),
+                reader.IsDBNull(16) ? null : reader.GetFieldValue<string[]>(16),
+                GetNullableInt32(reader, 17),
+                GetNullableInt32(reader, 18),
+                reader.IsDBNull(19) ? null : reader.GetBoolean(19),
+                reader.IsDBNull(20) ? null : reader.GetBoolean(20)));
+        }
+
+        return new ReplayChunkResponse(
+            sessionId,
+            fromMs,
+            durationMs,
+            fromMs + durationMs,
+            channels,
+            chunks
+                .OrderBy(pair => pair.Key)
+                .Select(pair => new ReplayDriverChunk(pair.Key, pair.Value))
+                .ToArray(),
+            FrequencyHz: 10,
+            TelemetrySource: "aligned_telemetry_10hz");
     }
 
     public async Task<ReplayContextResponse?> GetReplayContextAsync(

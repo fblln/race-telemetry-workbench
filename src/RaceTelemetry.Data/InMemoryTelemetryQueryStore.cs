@@ -572,7 +572,9 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             durationMs,
             fromMs + durationMs,
             channels,
-            items));
+            items,
+            FrequencyHz: 10,
+            TelemetrySource: "in_memory"));
     }
 
     public Task<ReplayContextResponse?> GetReplayContextAsync(
@@ -736,7 +738,8 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             ChannelSelected(channels, "drs") ? drs : null,
             ChannelSelected(channels, "x") ? x : null,
             ChannelSelected(channels, "y") ? y : null,
-            ChannelSelected(channels, "z") ? z : null);
+            ChannelSelected(channels, "z") ? z : null,
+            QualityFlags: ["OK"]);
 
     private static bool ChannelSelected(IReadOnlyList<string> channels, string channel) =>
         channels.Contains(channel, StringComparer.OrdinalIgnoreCase);

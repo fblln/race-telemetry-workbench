@@ -18,6 +18,8 @@ class ImportSummary:
     laps: int
     telemetry_samples: int
     position_samples: int
+    aligned_samples: int
+    telemetry_diagnostics: int
     circuit_markers: int
     weather_samples: int
     track_status_events: int

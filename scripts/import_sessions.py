@@ -16,8 +16,9 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 IMPORT_SESSION_SCRIPT = REPO_ROOT / "scripts" / "import_session.py"
@@ -25,8 +26,19 @@ IMPORT_SESSION_SCRIPT = REPO_ROOT / "scripts" / "import_session.py"
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.download_session import DEFAULT_CACHE_DIR, VALID_SESSIONS, positive_int
+from scripts.download_session import DEFAULT_CACHE_DIR, VALID_SESSIONS, get_event_value, load_fastf1, positive_int, prepare_fastf1_cache
+from scripts.import_helpers import timestamp_or_none
 from scripts.import_session import DEFAULT_BATCH_SIZE, DEFAULT_DATABASE_URL, DEFAULT_TELEMETRY_WORKERS
+
+SESSION_NAME_ALIASES = {
+    "FP1": {"practice 1", "free practice 1"},
+    "FP2": {"practice 2", "free practice 2"},
+    "FP3": {"practice 3", "free practice 3"},
+    "Q": {"qualifying"},
+    "SQ": {"sprint qualifying", "sprint shootout"},
+    "S": {"sprint"},
+    "R": {"race"},
+}
 
 
 @dataclass(frozen=True)
@@ -82,15 +94,99 @@ def parse_spec(value: str) -> ImportTask:
     return ImportTask(year=year, event=parts[1], session=session)
 
 
+def schedule_value(row: Any, key: str) -> Any:
+    try:
+        return row.get(key)
+    except AttributeError:
+        return getattr(row, key, None)
+
+
+def schedule_timestamp(row: Any, *keys: str) -> datetime | None:
+    for key in keys:
+        parsed = timestamp_or_none(schedule_value(row, key))
+        if parsed is not None:
+            return parsed
+    return None
+
+
+def normalize_session_name(value: str | None) -> str | None:
+    if value is None:
+        return None
+    normalized = " ".join(value.strip().lower().replace("_", " ").split())
+    return normalized or None
+
+
+def schedule_session_slot(row: Any, session_code: str) -> int | None:
+    aliases = SESSION_NAME_ALIASES[session_code]
+    for index in range(1, 6):
+        label = normalize_session_name(get_event_value(row, f"Session{index}"))
+        if label in aliases:
+            return index
+    return None
+
+
+def schedule_session_date(row: Any, session_code: str) -> datetime | None:
+    slot = schedule_session_slot(row, session_code)
+    if slot is not None:
+        return schedule_timestamp(row, f"Session{slot}DateUtc", f"Session{slot}Date")
+    return schedule_timestamp(row, "EventDate")
+
+
+def schedule_event_name(row: Any) -> str | None:
+    for key in ("EventName", "Location", "OfficialEventName"):
+        value = get_event_value(row, key)
+        if value:
+            return value
+    return None
+
+
+def build_schedule_tasks(args: argparse.Namespace) -> list[ImportTask]:
+    fastf1 = load_fastf1()
+    prepare_fastf1_cache(fastf1, args.cache_dir)
+    schedule = fastf1.get_event_schedule(args.year, include_testing=False)
+    sessions = parse_session_codes(args.sessions)
+    now = datetime.now(UTC)
+    tasks: list[ImportTask] = []
+    skipped_future = 0
+    skipped_missing_session = 0
+
+    for _, row in schedule.iterrows():
+        event_name = schedule_event_name(row)
+        if not event_name:
+            continue
+
+        for session in sessions:
+            if schedule_session_slot(row, session) is None:
+                skipped_missing_session += 1
+                continue
+
+            session_date = schedule_session_date(row, session)
+            if not args.include_future_events and session_date is not None and session_date > now:
+                skipped_future += 1
+                continue
+
+            tasks.append(ImportTask(year=args.year, event=event_name, session=session))
+
+    if skipped_future:
+        print(f"Skipped {skipped_future} future scheduled session(s); use --include-future-events to force them.")
+    if skipped_missing_session and sessions != ["R"]:
+        print(f"Skipped {skipped_missing_session} event/session combination(s) not present in the schedule.")
+    return tasks
+
+
 def build_tasks(args: argparse.Namespace) -> list[ImportTask]:
     if args.spec:
         return [parse_spec(spec) for spec in args.spec]
 
-    if args.year is None or not args.events:
-        raise argparse.ArgumentTypeError("either --spec or both --year and --events are required")
+    if args.year is None:
+        raise argparse.ArgumentTypeError("either --spec or --year is required")
+
+    sessions = parse_session_codes(args.sessions)
+
+    if not args.events:
+        return build_schedule_tasks(args)
 
     events = parse_csv_values(args.events)
-    sessions = parse_session_codes(args.sessions)
     if not events:
         raise argparse.ArgumentTypeError("--events must contain at least one event")
 
@@ -126,6 +222,8 @@ def build_import_command(task: ImportTask, args: argparse.Namespace) -> list[str
     ]
     if not args.parallel_sample_copy:
         command.append("--no-parallel-sample-copy")
+    if not args.include_aligned_telemetry:
+        command.append("--skip-aligned-telemetry")
     return command
 
 
@@ -163,7 +261,7 @@ def run_imports(tasks: Sequence[ImportTask], args: argparse.Namespace) -> list[I
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Import multiple cached FastF1 sessions concurrently.")
-    parser.add_argument("--year", type=int, help="Championship year for --events imports.")
+    parser.add_argument("--year", type=int, help="Championship year. Without --events, imports the scheduled season.")
     parser.add_argument("--events", help='Comma-separated events, for example "Bahrain,Monza,Suzuka".')
     parser.add_argument(
         "--sessions",
@@ -182,8 +280,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--batch-size", type=positive_int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument("--telemetry-workers", type=positive_int, default=DEFAULT_TELEMETRY_WORKERS)
     parser.set_defaults(parallel_sample_copy=True)
+    parser.set_defaults(include_aligned_telemetry=True)
     parser.add_argument("--parallel-sample-copy", dest="parallel_sample_copy", action="store_true")
     parser.add_argument("--no-parallel-sample-copy", dest="parallel_sample_copy", action="store_false")
+    parser.add_argument("--skip-aligned-telemetry", dest="include_aligned_telemetry", action="store_false")
+    parser.add_argument(
+        "--include-future-events",
+        action="store_true",
+        help="Include scheduled sessions whose session date is still in the future. Default: skip.",
+    )
     parser.add_argument(
         "--log-level",
         default="WARNING",

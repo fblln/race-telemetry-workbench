@@ -36,6 +36,13 @@ public sealed partial class PostgresTelemetryQueryStore
         parameter.Value = value is null ? DBNull.Value : value;
     }
 
+    private async Task<bool> TableExistsAsync(string tableName, CancellationToken cancellationToken)
+    {
+        await using var command = _dataSource.CreateCommand("SELECT to_regclass(@tableName) IS NOT NULL");
+        command.Parameters.AddWithValue("tableName", tableName);
+        return (bool)(await command.ExecuteScalarAsync(cancellationToken) ?? false);
+    }
+
     private static string? GetNullableString(IDataRecord reader, int ordinal) =>
         reader.IsDBNull(ordinal) ? null : reader.GetString(ordinal);
 

@@ -1,0 +1,194 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - heading "Race Telemetry Workbench — full-app prototype v2 (Carbon Signal)" [level=1] [ref=e3]
+    - paragraph [ref=e4]: Updated per feedback. Left rail or 0–8 switch views; ⌘K opens the command palette. Strategy stints and the new Lap-detail driver are clickable. Charts are illustrative SVG; the Monza outline stands in for the data-derived one (§7.3).
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7] [cursor=pointer]: ‹
+      - generic [ref=e8]: 2025 / ITA / RACE / replay
+      - generic "Open command palette (⌘K)" [ref=e9]:
+        - generic [ref=e10]: ⌕
+        - textbox "Search / query · brake > 80 in S2":
+          - /placeholder: Search / query  ·  brake > 80 in S2
+        - generic [ref=e11]: ⌘K
+      - generic [ref=e12]:
+        - generic [ref=e13] [cursor=pointer]:
+          - generic [ref=e14]: Export
+          - generic [ref=e15]: E
+        - generic [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: Save view
+          - generic [ref=e18]: S
+        - generic [ref=e20] [cursor=pointer]: "?"
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: drivers
+        - generic [ref=e24]: "20"
+      - generic [ref=e25]:
+        - generic [ref=e26]: pit stops
+        - generic [ref=e27]: "20"
+      - generic [ref=e28]:
+        - generic [ref=e29]: avg stops
+        - generic [ref=e30]: "1.1"
+      - generic [ref=e31]:
+        - generic [ref=e32]: top compound
+        - generic [ref=e33]: MED
+      - generic [ref=e34]:
+        - generic [ref=e35]: laps
+        - generic [ref=e36]: "53"
+      - generic [ref=e37]:
+        - generic [ref=e38]: SC / VSC
+        - generic [ref=e39]: 0 / 0
+      - generic [ref=e40]:
+        - generic [ref=e41]: conditions
+        - generic [ref=e42]: Dry 27°C
+      - generic [ref=e43]:
+        - generic [ref=e44]: duration
+        - generic [ref=e45]: 01:14:46
+    - generic [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48] [cursor=pointer]:
+          - generic [ref=e50]: Home
+          - generic [ref=e51]: "0"
+        - generic [ref=e53] [cursor=pointer]:
+          - generic [ref=e55]: Overview
+          - generic [ref=e56]: "1"
+        - generic [ref=e57] [cursor=pointer]:
+          - generic [ref=e59]: Replay
+          - generic [ref=e60]: "2"
+        - generic [ref=e61] [cursor=pointer]:
+          - generic [ref=e63]: Strategy
+          - generic [ref=e64]: "3"
+        - generic [ref=e65] [cursor=pointer]:
+          - generic [ref=e67]: Field
+          - generic [ref=e68]: "4"
+        - generic [ref=e69] [cursor=pointer]:
+          - generic [ref=e71]: Incidents
+          - generic [ref=e72]: "5"
+        - generic [ref=e73] [cursor=pointer]:
+          - generic [ref=e75]: Head to head
+          - generic [ref=e76]: "6"
+        - generic [ref=e77] [cursor=pointer]:
+          - generic [ref=e79]: Lap detail
+          - generic [ref=e80]: "7"
+        - generic [ref=e81] [cursor=pointer]:
+          - generic [ref=e83]: Telemetry
+          - generic [ref=e84]: "8"
+        - generic [ref=e85] [cursor=pointer]:
+          - generic [ref=e87]: Reports & AI
+          - generic [ref=e88]: "9"
+        - generic [ref=e89]:
+          - text: ⌘K palette · 1–8 views
+          - text: Space play · ←/→ step
+          - text: R ref · D driver · ? help
+      - generic [ref=e91]:
+        - generic [ref=e92]:
+          - heading "Replay workspace" [level=2] [ref=e93]
+          - generic [ref=e94]: Track map · waveform · current values, locked to one session-relative timebase.
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - generic [ref=e97]:
+              - generic [ref=e98]: Circuit
+              - generic [ref=e99]: Autodromo Nazionale Monza
+            - generic [ref=e100]:
+              - generic [ref=e101]: Length
+              - generic [ref=e102]: 5.793 km
+            - generic [ref=e103]:
+              - generic [ref=e104]: Turns
+              - generic [ref=e105]: "11"
+            - generic [ref=e106]:
+              - generic [ref=e107]: DRS
+              - generic [ref=e108]: 2 zones
+            - generic [ref=e109]:
+              - generic [ref=e110]: Direction
+              - generic [ref=e111]: Clockwise
+            - generic [ref=e112]:
+              - generic [ref=e113]: Lap record
+              - generic [ref=e114]: 1:20.901 (NOR, 2025)
+          - generic [ref=e115]:
+            - generic [ref=e116]:
+              - generic [ref=e117]:
+                - generic [ref=e118]: Track map
+                - generic [ref=e119]:
+                  - generic [ref=e120] [cursor=pointer]: Fit
+                  - generic [ref=e121] [cursor=pointer]: Reset
+              - img [ref=e123]:
+                - generic [ref=e128]: T1
+                - generic [ref=e130]: T3
+                - generic [ref=e132]: T4
+                - generic [ref=e134]: T6
+                - generic [ref=e136]: T8
+                - generic [ref=e138]: T11
+                - generic [ref=e140]: T13
+            - generic [ref=e150]:
+              - generic [ref=e151]:
+                - generic [ref=e152]: Waveform
+                - generic [ref=e153]:
+                  - generic [ref=e154] [cursor=pointer]: R · reference
+                  - generic [ref=e155] [cursor=pointer]: C · channels
+              - img [ref=e157]
+              - generic [ref=e162]:
+                - generic [ref=e163] [cursor=pointer]: speed_kmh
+                - generic [ref=e165] [cursor=pointer]: throttle_pct
+                - generic [ref=e167] [cursor=pointer]: brake_pct
+                - generic [ref=e169] [cursor=pointer]: gear
+                - generic [ref=e171] [cursor=pointer]: rpm
+                - generic [ref=e173] [cursor=pointer]: drs
+            - generic [ref=e175]:
+              - generic [ref=e177]: VER · Current
+              - generic [ref=e178]:
+                - generic [ref=e179]:
+                  - generic [ref=e180]: SPEED
+                  - generic [ref=e181]: "301"
+                - generic [ref=e182]:
+                  - generic [ref=e183]: THROTTLE
+                  - generic [ref=e184]: "0"
+                - generic [ref=e185]:
+                  - generic [ref=e186]: BRAKE
+                  - generic [ref=e187]: "100"
+                - generic [ref=e188]:
+                  - generic [ref=e189]: GEAR
+                  - generic [ref=e190]: "8"
+                - generic [ref=e191]:
+                  - generic [ref=e192]: RPM
+                  - generic [ref=e193]: "11240"
+                - generic [ref=e194]:
+                  - generic [ref=e195]: DRS
+                  - generic [ref=e196]: "OFF"
+          - generic [ref=e199]:
+            - generic [ref=e200]: Context strip
+            - generic [ref=e202]: 53 laps
+          - generic [ref=e214]:
+            - generic [ref=e215]:
+              - generic [ref=e216]: Event timeline
+              - generic [ref=e218]:
+                - generic [ref=e219]: ⌕
+                - textbox "Filter" [ref=e220]
+            - generic [ref=e221]:
+              - generic [ref=e222] [cursor=pointer]:
+                - generic [ref=e223]: 14:02.8
+                - generic [ref=e225]: Safety car deployed — incident at T1
+                - generic [ref=e226]: L8
+              - generic [ref=e227] [cursor=pointer]:
+                - generic [ref=e228]: 19:41.0
+                - generic [ref=e230]: Track clear — safety car in this lap
+                - generic [ref=e231]: L11
+              - generic [ref=e232] [cursor=pointer]:
+                - generic [ref=e233]: 21:13.2
+                - generic [ref=e235]: DRS enabled
+                - generic [ref=e236]: L12
+              - generic [ref=e237] [cursor=pointer]:
+                - generic [ref=e238]: 57:20.1
+                - generic [ref=e240]: Red flag — session suspended
+                - generic [ref=e241]: L38
+              - generic [ref=e242] [cursor=pointer]:
+                - generic [ref=e243]: 1:08:44
+                - generic [ref=e245]: Rain reported — sector 2
+                - generic [ref=e246]: L44
+          - generic [ref=e247]:
+            - button "▶ Play" [ref=e248] [cursor=pointer]
+            - generic [ref=e249]: 01:23:11.956
+            - generic [ref=e255]:
+              - generic [ref=e256] [cursor=pointer]: 0.25×
+              - generic [ref=e257] [cursor=pointer]: 1×
+              - generic [ref=e258] [cursor=pointer]: 4×
+              - generic [ref=e259] [cursor=pointer]: 20×

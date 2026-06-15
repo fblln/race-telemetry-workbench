@@ -359,3 +359,36 @@ paths:
 Each gets a matching MCP tool (`summarize_strategy`, `generate_race_debrief`,
 `compare_corners`) following the existing parity rule
 (2026-06-08 decision): Query API route first, MCP adapter second.
+
+### 2026-06-15 - Timescale Compression Experiment Deferred
+
+An experiment enabled Timescale compression on `telemetry_samples`,
+`position_samples`, and `aligned_telemetry_10hz` using segment-by keys
+(`session_id,driver_code` for raw tables; `session_key,driver_number` for
+aligned telemetry) and `sample_time_utc` ordering.
+
+Measured local storage improved substantially:
+
+| Table | Before | After | Reduction |
+|---|---:|---:|---:|
+| `telemetry_samples` | 6,111 MB | 167 MB | ~36.5x |
+| `position_samples` | 5,795 MB | 111 MB | ~52.2x |
+| Raw combined | ~12 GB | ~279 MB | ~42.7x |
+| `aligned_telemetry_10hz` | 15 GB | 1,505 MB | ~10.3x |
+
+Hot-cache, replay-shaped bounded query timings did not improve. Most small
+window reads were slower due to decompression CPU overhead:
+
+| Query | Before | After |
+|---|---:|---:|
+| aligned 5s all drivers | 3.57 ms | 7.19 ms |
+| aligned 60s single driver | 2.24 ms | 3.03 ms |
+| aligned lap 25 all drivers | 39.45 ms | 67.01 ms |
+| raw car 60s single driver | 1.17 ms | 1.13 ms |
+| raw position 60s single driver | 0.72 ms | 1.07 ms |
+| raw car 5s all drivers | 1.36 ms | 3.07 ms |
+| raw position 5s all drivers | 1.30 ms | 2.82 ms |
+
+Decision: do not adopt compression as a migration yet. Revisit after measuring
+cold-cache reads, larger data volumes, index changes, and chunk/columnstore
+settings shaped specifically around replay queries.

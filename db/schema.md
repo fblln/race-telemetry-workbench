@@ -19,6 +19,8 @@ Apply migrations in filename order:
 | `002_timescale_hypertables.sql` | Enables TimescaleDB, converts sample tables to hypertables, and adds indexes. |
 | `003_analytical_views.sql` | Creates bounded views for API and MCP analytics. |
 | `004_remove_composed_telemetry_columns.sql` | Removes obsolete composed telemetry columns from existing databases. |
+| `005_query_hot_path_indexes.sql` | Adds indexes for bounded replay and analytical hot paths. |
+| `006_aligned_telemetry_10hz.sql` | Adds 10 Hz UI-aligned telemetry and ingestion diagnostics tables. |
 
 When Docker initializes a fresh volume, PostgreSQL applies these files
 automatically from `/docker-entrypoint-initdb.d`.
@@ -49,6 +51,8 @@ erDiagram
     session_drivers ||--o{ laps : drives
     session_drivers ||--o{ telemetry_samples : emits
     session_drivers ||--o{ position_samples : emits
+    session_drivers ||--o{ aligned_telemetry_10hz : aligns
+    session_drivers ||--o{ telemetry_ingestion_diagnostics : diagnoses
     sessions ||--o| circuit_metadata : has
     sessions ||--o{ circuit_markers : annotates
     sessions ||--o{ weather_samples : observes
