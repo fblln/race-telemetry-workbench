@@ -74,94 +74,225 @@ The backend below already powers this design: every view maps to a bounded Query
 API route and an MCP tool, so the desktop UI reads from the same contracts as any
 other client.
 
-## What It Does Today
+## AI-First Analysis Primitives
 
-### Import Full Race Context
+AI is a first-class analysis surface in Race Telemetry Workbench, not a sidecar
+chat box. The app is designed so an engineer can inspect telemetry visually,
+then ask natural-language questions against the same bounded data primitives
+that drive the replay, strategy, incidents, comparison, and report views.
 
-The Python importer can load race sessions from FastF1 into PostgreSQL /
-TimescaleDB:
+The Query API and MCP server expose compact analytical primitives so AI clients
+do not need to download full race telemetry for every question. Each primitive is
+grounded in shared contracts and PostgreSQL queries, which keeps answers tied to
+the imported session data instead of free-form model guesses.
 
-- sessions, drivers, and laps
-- raw car telemetry: speed, throttle, brake, gear, RPM, DRS
-- raw position samples for replay and track maps
-- tyre compound, tyre life, stint, pit-in, and pit-out lap metadata
+| Primitive | What it gives the AI/app |
+|---|---|
+| `aggregate_telemetry` | Grouped metrics such as DRS active time, brake time, average speed, max speed, sample count, and throttle-lift count |
+| `detect_telemetry_windows` | Compact intervals for DRS activation, hard braking, throttle lifts, and high-speed periods |
+| `analyze_driver_stints` | Tyre degradation, stint lap-time slope, best/worst lap, tyre-life range, and compound strategy summaries |
+| `analyze_pit_stops` | Pit-in/out markers, nearby non-pit baselines, and estimated pit-lap loss |
+| `get_weather_trend` | Weather deltas and rainfall summary for a session or selected time window |
+| `get_race_control_timeline` | Searchable race-control timeline with category, flag, and status counts |
+| `get_circuit_context` | Imported circuit rotation, corner markers, marshal lights, and marshal sectors |
+
+These primitives are the bridge between the desktop workbench and the AI layer:
+the Query API serves deterministic UI views, while MCP exposes the same
+analytical surface to the app's small in-process agent and to external clients
+such as Codex or Claude. The Reports & AI view is built around this model: bring
+your own model API key, ask a question in plain language, get an answer grounded
+in bounded telemetry, and jump back to the relevant session, lap, stint,
+incident, or comparison context.
+
+## Backend Architecture
+
+Race Telemetry Workbench uses **.NET Aspire** for the local backend loop. Aspire
+starts and coordinates the Query API and MCP server, owns their stable public
+ports, injects OpenTelemetry export settings, and gives the project a local
+dashboard for logs, metrics, and distributed traces. TimescaleDB currently runs
+from `docker-compose.yml`; the .NET services connect to it through the shared
+`RACE_TELEMETRY_DATABASE_URL` setting and still emit PostgreSQL spans into the
+Aspire Dashboard.
+
+### System Interaction
+
+```mermaid
+flowchart TB
+    User["Engineer"]
+    Desktop["Desktop app"]
+    Agent["In-app agent"]
+    Model["LLM provider"]
+
+    subgraph Aspire["Aspire backend"]
+        QueryApi["Query API"]
+        McpServer["MCP server"]
+        Dashboard["Aspire Dashboard"]
+    end
+
+    Database["TimescaleDB"]
+
+    subgraph Import["Import"]
+        FastF1["FastF1"]
+        Scripts["Import scripts"]
+    end
+
+    RestClients["REST clients"]
+    McpClients["MCP clients"]
+
+    User --> Desktop
+    Desktop -->|"REST data"| QueryApi
+    Desktop -->|"questions"| Agent
+    Agent -->|"model calls"| Model
+    Agent -->|"MCP tools"| McpServer
+    McpClients -->|"MCP tools"| McpServer
+    RestClients -->|"REST"| QueryApi
+    QueryApi -->|"queries"| Database
+    McpServer -->|"queries"| Database
+    FastF1 --> Scripts -->|"imports"| Database
+    QueryApi -. "OpenTelemetry + DB spans" .-> Dashboard
+    McpServer -. "OpenTelemetry + DB spans" .-> Dashboard
+```
+
+### Aspire Observability
+
+The screenshots below were captured from the local Aspire Dashboard after a real
+REST query and a real MCP tool call. They show the backend entrypoints, shared
+query-store spans, and PostgreSQL work in one trace waterfall.
+
+![Aspire trace for Query API GET /api/sessions](docs/images/aspire-query-api-trace.jpg)
+
+![Aspire trace for MCP list_sessions tool call](docs/images/aspire-mcp-tool-trace.jpg)
+
+## Backend Deep Dive
+
+### Aspire AppHost And Service Defaults
+
+`src/RaceTelemetry.AppHost/` is the local distributed application entrypoint. It
+declares the `query-api` and `mcp-server` project resources, injects the database
+URL, and exposes stable HTTP ports:
+
+| Resource | Stable URL | Role |
+|---|---|---|
+| `query-api` | `http://127.0.0.1:5120` | REST surface for replay, analysis, stories, and desktop clients |
+| `mcp-server` | `http://127.0.0.1:5122/mcp` | Streamable HTTP MCP surface for coding-agent and assistant clients |
+
+`src/RaceTelemetry.ServiceDefaults/` wires common .NET service behavior:
+OpenTelemetry tracing and metrics, health checks, service discovery defaults,
+HTTP resilience, Npgsql instrumentation, and OTLP export to the Aspire
+Dashboard. The custom activity sources `RaceTelemetry.Data` and
+`RaceTelemetry.McpServer` make data-store operations and MCP tool calls visible
+beside normal ASP.NET and PostgreSQL spans.
+
+### FastF1 Import Pipeline
+
+The Python scripts in `scripts/` are the only layer that reads from FastF1. The
+import path downloads or reuses local FastF1 cache data, normalizes the session,
+and loads it into PostgreSQL / TimescaleDB. Race sessions (`R`) are the default;
+practice, qualifying, sprint qualifying, and sprint sessions are explicit
+opt-ins.
+
+Imported race context includes:
+
+- sessions, drivers, laps, stint metadata, tyre compound, tyre life, pit-in, and
+  pit-out flags
+- raw car telemetry from `session.car_data`
+- raw position samples from `session.pos_data`
 - weather samples
-- circuit metadata and corner/marshal markers
+- circuit rotation plus corner, marshal-light, and marshal-sector markers
 - track status, session status, and race-control messages
 
-Race sessions (`R`) are the default. Practice, qualifying, sprint qualifying,
-and sprint sessions are explicit opt-ins.
+### TimescaleDB Storage
 
-### Store Data For Replay And Analysis
+The schema uses ordinary PostgreSQL tables for bounded metadata and TimescaleDB
+hypertables for high-volume samples:
 
-The database schema combines ordinary PostgreSQL tables with TimescaleDB
-hypertables. It also includes analytical views for common questions:
+| Shape | Examples | Why |
+|---|---|---|
+| Relational tables | `sessions`, `session_drivers`, `laps`, `race_control_messages`, `circuit_markers` | Stable metadata and event facts |
+| Hypertables | `telemetry_samples`, `position_samples`, `weather_samples` | Time-windowed replay and analysis data |
+| Views | `driver_stint_summaries`, `track_status_periods`, `session_weather_summary`, `race_control_event_index`, `telemetry_event_candidates` | Compact analytical surfaces for API and MCP clients |
 
-- lap summaries
-- stint summaries
-- weather summaries
-- track-status periods
-- race-control search
-- telemetry event candidates
+The database preserves backend `NULL` values instead of inventing client-friendly
+defaults. Track outlines and replay positions are derived from imported
+`position_samples`, not static circuit artwork.
 
-This keeps high-volume samples queryable while giving API and MCP clients compact
-summary surfaces.
+#### Compression Experiment
+
+A local Timescale compression experiment showed that column-oriented compression
+is promising for storage but not yet an obvious default for replay hot paths.
+
+| Data | Before | After | Reduction |
+|---|---:|---:|---:|
+| Raw telemetry + position | ~12 GB | ~279 MB | ~42.7x |
+| `aligned_telemetry_10hz` | 15 GB | 1,505 MB | ~10.3x |
+
+The tradeoff was query latency. Hot-cache, replay-shaped reads generally slowed
+down because decompression added CPU overhead: for example, a 5-second
+all-driver aligned query moved from `3.57 ms` to `7.19 ms`, and a lap-25
+all-driver aligned query moved from `39.45 ms` to `67.01 ms`.
+
+Decision: keep compression out of the default migrations for now. Revisit after
+larger-dataset and cold-cache testing, plus chunk/columnstore tuning shaped
+specifically around replay queries.
+
+### Shared Data Layer
+
+`src/RaceTelemetry.Data/` owns the `IF1TelemetryQueryStore` abstraction and the
+PostgreSQL implementation. The Query API and MCP server both call this layer
+instead of duplicating SQL.
+
+The data layer keeps hot paths bounded by explicit session IDs, time ranges,
+channels, sampling intervals, and row limits. It also emits custom spans such as
+`query_store.get_sessions`, `query_store.get_replay_metadata`, and
+`query_store.aggregate_telemetry`, which makes backend work visible in Aspire
+traces between the HTTP/MCP entrypoint and the Npgsql spans.
 
 ### Query API
 
-The .NET Query API exposes bounded REST endpoints for:
+`src/RaceTelemetry.QueryApi/` is an ASP.NET Core Minimal API. Route registration
+and handlers live in `RaceTelemetryApi.cs`, while validation and problem
+responses live in `RaceTelemetryApi.Validation.cs`.
 
-- listing sessions, drivers, and laps
-- fetching lap telemetry with sampling and row limits
-- comparing two laps by lap-relative time buckets
-- replay metadata, replay chunks, and replay context
-- searching telemetry event candidates
-- race story, lap story, braking zones, and lap comparison story responses
+The API exposes bounded routes for:
 
-The API uses shared contracts from `RaceTelemetry.Contracts` and a
-Timescale-backed query store in `RaceTelemetry.Data`.
+- sessions, drivers, laps, standings, positions, and incidents
+- lap telemetry with sampling and row limits
+- replay metadata, replay chunks, and replay context windows
+- lap comparison, lap stories, braking zones, and race stories
+- telemetry event search
+- telemetry aggregates, telemetry windows, stint analysis, pit-stop analysis,
+  weather trends, race-control timelines, and circuit context
+
+Errors use stable RFC-style problem responses with project-specific error codes,
+and response DTOs come from `RaceTelemetry.Contracts`.
 
 ### MCP Server
 
-The MCP server exposes read-only Streamable HTTP tools for Codex, Claude, and
-other MCP-compatible clients. It is designed for natural-language questions such
-as:
+`src/RaceTelemetry.McpServer/` exposes the same read-only analytical surface over
+Streamable HTTP MCP. It is designed for assistant questions such as "What
+happened in the Monza race?", "Compare Leclerc and Hamilton on lap 53.", and
+"Where were the main braking zones?"
 
-- "What happened in the Monza race?"
-- "Compare Leclerc and Hamilton on lap 53."
-- "Where were the main braking zones?"
-- "What context should I know before replaying this stint?"
+Each tool returns bounded structured content and uses the same query store as
+the Query API. Tool calls emit spans such as `mcp.tool.list_sessions`,
+`mcp.tool.get_race_story`, and `mcp.tool.aggregate_telemetry`, so Aspire can show
+the MCP request, tool execution, shared data-layer call, and PostgreSQL query in
+one trace.
 
-Current MCP tools return bounded JSON and reuse the same query-store contracts
-as the Query API.
+### Contracts And Client Parity
 
-### Bruno Collection
+`src/RaceTelemetry.Contracts/` is the shared DTO boundary for the API, MCP
+server, and desktop app. Contract changes should be additive where possible, and
+API/MCP behavior should stay in parity unless a divergence is intentionally
+documented.
 
-The Bruno collection under `bruno/race-telemetry-query-api` is ready for manual
-testing against the local Query API. It includes requests for the core API,
-replay endpoints, event search, and story-oriented analytical responses.
+The Bruno collection in `bruno/race-telemetry-query-api` is the manual REST test
+surface for the local Query API. It covers core session requests, replay
+endpoints, event search, and story-oriented analytical responses.
 
-## Current Architecture
-
-```text
-FastF1
-  |
-  v
-Python import scripts
-  |
-  v
-TimescaleDB / PostgreSQL
-  |
-  v
-.NET Query API  <---- Bruno / MAUI desktop app
-  |
-  v
-HTTP MCP Server <---- Codex / Claude / MCP clients
-```
-
-The desktop app project slot exists and is fully designed (see
-[What It Will Look Like](#what-it-will-look-like) and the interactive prototype);
-the .NET MAUI UI implementation is in progress.
+The desktop app reads the Query API through the same contracts. That keeps the
+future MAUI replay surface aligned with the API and with the MCP tools used by
+assistant clients.
 
 ## Quick Start
 
@@ -228,34 +359,6 @@ Register the MCP server with Codex CLI:
 codex mcp add race-telemetry-aspire --url http://127.0.0.1:5122/mcp
 codex mcp list
 ```
-
-## Natural-Language Analysis Primitives
-
-The Query API and MCP server include compact analytical primitives so complex
-questions do not require the MCP client to download all telemetry samples for a
-driver or race.
-
-- `aggregate_telemetry`
-  - grouped metrics such as DRS active time, brake time, average speed, max
-    speed, sample count, and throttle-lift count
-- `detect_telemetry_windows`
-  - compact intervals for DRS activation, hard braking, throttle lifts, and
-    high-speed periods
-- `analyze_driver_stints`
-  - tyre degradation, stint lap-time slope, best/worst lap, tyre-life range,
-    and compound strategy summaries
-- `analyze_pit_stops`
-  - pit-in/out markers, nearby non-pit baselines, and estimated pit-lap loss
-- `get_weather_trend`
-  - weather deltas and rainfall summary for a session or selected time window
-- `get_race_control_timeline`
-  - searchable race-control timeline with category, flag, and status counts
-- `get_circuit_context`
-  - imported circuit rotation, corner markers, marshal lights, and marshal
-    sectors
-
-The Query API and MCP server stay in sync: every analytical MCP tool is backed
-by a shared contract and Query API route.
 
 ## What Is Coming Next
 

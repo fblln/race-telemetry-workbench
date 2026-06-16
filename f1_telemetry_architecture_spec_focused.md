@@ -2053,7 +2053,7 @@ The panel should show the answer and, when applicable, offer an action to open t
 
 ### 8.11 Application Shell, Navigation, And Command Model
 
-The desktop app is a keyboard-first **session console** for race engineers, not a
+The desktop app is a keyboard-first **session console** for engineers, not a
 casual dashboard. It must not use a generic horizontal tab strip. The shell has
 three persistent regions that stay in place across every view so the engineer
 never loses session context or keyboard focus.

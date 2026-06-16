@@ -9,6 +9,7 @@ using RaceTelemetry.McpServer;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.Services.AddMemoryCache(options => options.SizeLimit = 2_000);
 builder.Services.AddRaceTelemetryQueryStore(builder.Configuration);
 builder.Services.AddScoped<RaceTelemetryMcpTools>();
 builder.Services

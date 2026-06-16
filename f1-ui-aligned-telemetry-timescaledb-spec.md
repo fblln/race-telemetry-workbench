@@ -78,7 +78,7 @@ The first implementation must not compute:
 - pit stop loss;
 - racing line reconstruction.
 
-This materialization is for UI playback and visualization, not high-precision race engineering analysis.
+This materialization is for UI playback and visualization, not high-precision engineering analysis.
 
 ## 5. Source Data Assumptions
 

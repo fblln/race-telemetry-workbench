@@ -6,7 +6,7 @@ info:
   summary: Local REST API for imported Formula 1 telemetry.
   description: >
     Race Telemetry Query API turns imported FastF1 race data into bounded,
-    client-ready HTTP resources for replay, race engineering analysis, and
+    client-ready HTTP resources for replay, engineering analysis, and
     AI-assisted investigation. The API intentionally exposes compact query and
     analytical surfaces instead of arbitrary SQL or unbounded telemetry dumps.
   license:
