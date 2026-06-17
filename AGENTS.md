@@ -32,6 +32,8 @@ high-performance .NET MAUI desktop app.
 | Query data abstraction + PostgreSQL store | `src/RaceTelemetry.Data/` |
 | MCP server | `src/RaceTelemetry.McpServer/` |
 | .NET MAUI desktop app slot | `src/RaceTelemetry.Desktop/` |
+| 2025 bad-lap telemetry EDA | `notebooks/2025_telemetry_bad_lap_eda.ipynb`, `notebooks/telemetry_bad_lap_support.py` |
+| 2025 database-surface EDA | `notebooks/race_database_surface_eda.ipynb`, `notebooks/database_surface_quality_support.py` |
 | Unit + integration tests | `tests/`, `tests/RaceTelemetry.IntegrationTests/`, `tests/RaceTelemetry.McpServer.Tests/` |
 | Docs | `docs/`, `db/README.md`, `db/schema.md` |
 
@@ -44,6 +46,18 @@ changes in parity unless a divergence is intentionally documented.
 Verified local imports include full-context Monza race data for 2024 and 2025.
 Season backfills should start conservatively at `--workers 2` or `--workers 3`;
 `--workers 6` overloaded the local database/container path.
+
+Data-quality EDA artifacts currently live under:
+
+| EDA | Notebook | Summary | Backlog | Artifacts |
+|---|---|---|---|---|
+| 2025 bad-lap telemetry quality | `notebooks/2025_telemetry_bad_lap_eda.ipynb` | `docs/data-quality/2025-telemetry-bad-lap-eda-summary.md` | `docs/data-quality/2025-telemetry-bad-lap-eda-backlog.md` | `artifacts/2025-telemetry-bad-lap-eda/` |
+| 2025 race database-surface quality | `notebooks/race_database_surface_eda.ipynb` | `docs/data-quality/race-database-surface-eda-summary.md` | `docs/data-quality/2025-race-database-surface-eda-backlog.md` | `artifacts/race-database-surface-eda/` |
+
+Future EDA work should use **2025 race sessions only** (`year = 2025`,
+`session_type = 'R'`) unless another scope is explicitly requested and
+documented as a comparison baseline. The current local DB also contains partial
+2024 and 2026 race imports; do not mix those into 2025 season conclusions.
 
 ---
 
@@ -86,6 +100,7 @@ MAUI desktop UI surface.
 # Setup
 python3 -m venv .venv
 .venv/bin/python -m pip install -r scripts/requirements.txt
+.venv/bin/python -m pip install -r notebooks/requirements.txt
 
 # Tests
 .venv/bin/python -m unittest discover -s tests                  # unit
@@ -189,6 +204,11 @@ when an agent needs interactive inspection of the running MAUI app.
   values rather than inventing client-friendly defaults.
 - The desktop app folder is only a placeholder. Do not start MAUI work until
   the Query API data path has focused real-database analytical endpoint tests.
+- Data-quality notebooks use `skrub` and repo-local writable cache directories.
+  Keep generated cache folders ignored, but preserve intentional notebook
+  outputs such as markdown summaries, SVG figures, CSV/Parquet tables,
+  metadata JSON, and `skrub` HTML reports when they are part of the requested
+  deliverable.
 
 ---
 
