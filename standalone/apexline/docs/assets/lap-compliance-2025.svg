@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="876" viewBox="0 0 1300 876">
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="34.0" y="42.0" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">2025 FastF1 lap compliance by circuit</text>
+<text x="34.0" y="68.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#475569">22,899 good laps (85.8%) vs 3,790 bad laps (14.2%) across 26,689 inspected laps.</text>
+<line x1="34" y1="92" x2="1264" y2="92" stroke="#cbd5e1"/>
+<rect x="365" y="80" width="18" height="8" fill="#059669"/>
+<text x="390.0" y="88.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569">good</text>
+<rect x="452" y="80" width="18" height="8" fill="#dc2626"/>
+<text x="477.0" y="88.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#475569">bad</text>
+<text x="34.0" y="130.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">01 Australian Grand Prix</text>
+<rect x="365" y="118" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="118" width="441.2" height="16" rx="3" fill="#059669"/>
+<rect x="806.2" y="118" width="278.8" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="130.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">61.3% good</text>
+<text x="1202.0" y="130.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">359 bad</text>
+<text x="34.0" y="160.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">02 Chinese Grand Prix</text>
+<rect x="365" y="148" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="148" width="672.7" height="16" rx="3" fill="#059669"/>
+<rect x="1037.7" y="148" width="47.3" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="160.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">93.4% good</text>
+<text x="1202.0" y="160.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">70 bad</text>
+<text x="34.0" y="190.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">03 Japanese Grand Prix</text>
+<rect x="365" y="178" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="178" width="677.8" height="16" rx="3" fill="#059669"/>
+<rect x="1042.8" y="178" width="42.2" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="190.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">94.1% good</text>
+<text x="1202.0" y="190.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">62 bad</text>
+<text x="34.0" y="220.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">04 Bahrain Grand Prix</text>
+<rect x="365" y="208" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="208" width="607.7" height="16" rx="3" fill="#059669"/>
+<rect x="972.7" y="208" width="112.3" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="220.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">84.4% good</text>
+<text x="1202.0" y="220.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">176 bad</text>
+<text x="34.0" y="250.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">05 Saudi Arabian Grand Prix</text>
+<rect x="365" y="238" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="238" width="648.6" height="16" rx="3" fill="#059669"/>
+<rect x="1013.6" y="238" width="71.4" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="250.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">90.1% good</text>
+<text x="1202.0" y="250.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">89 bad</text>
+<text x="34.0" y="280.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">06 Miami Grand Prix</text>
+<rect x="365" y="268" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="268" width="616.8" height="16" rx="3" fill="#059669"/>
+<rect x="981.8" y="268" width="103.2" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="280.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">85.7% good</text>
+<text x="1202.0" y="280.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">144 bad</text>
+<text x="34.0" y="310.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">07 Emilia Romagna Grand Prix</text>
+<rect x="365" y="298" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="298" width="570.3" height="16" rx="3" fill="#059669"/>
+<rect x="935.3" y="298" width="149.7" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="310.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">79.2% good</text>
+<text x="1202.0" y="310.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">251 bad</text>
+<text x="34.0" y="340.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">08 Monaco Grand Prix</text>
+<rect x="365" y="328" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="328" width="642.2" height="16" rx="3" fill="#059669"/>
+<rect x="1007.2" y="328" width="77.8" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="340.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">89.2% good</text>
+<text x="1202.0" y="340.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">154 bad</text>
+<text x="34.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">09 Spanish Grand Prix</text>
+<rect x="365" y="358" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="358" width="592.5" height="16" rx="3" fill="#059669"/>
+<rect x="957.5" y="358" width="127.5" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">82.3% good</text>
+<text x="1202.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">213 bad</text>
+<text x="34.0" y="400.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">10 Canadian Grand Prix</text>
+<rect x="365" y="388" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="388" width="617.5" height="16" rx="3" fill="#059669"/>
+<rect x="982.5" y="388" width="102.5" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="400.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">85.8% good</text>
+<text x="1202.0" y="400.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">192 bad</text>
+<text x="34.0" y="430.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">11 Austrian Grand Prix</text>
+<rect x="365" y="418" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="418" width="645.8" height="16" rx="3" fill="#059669"/>
+<rect x="1010.8" y="418" width="74.2" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="430.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">89.7% good</text>
+<text x="1202.0" y="430.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">116 bad</text>
+<text x="34.0" y="460.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">12 British Grand Prix</text>
+<rect x="365" y="448" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="448" width="432.0" height="16" rx="3" fill="#059669"/>
+<rect x="797.0" y="448" width="288.0" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="460.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">60.0% good</text>
+<text x="1202.0" y="460.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">330 bad</text>
+<text x="34.0" y="490.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">13 Belgian Grand Prix</text>
+<rect x="365" y="478" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="478" width="550.4" height="16" rx="3" fill="#059669"/>
+<rect x="915.4" y="478" width="169.6" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="490.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">76.5% good</text>
+<text x="1202.0" y="490.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">207 bad</text>
+<text x="34.0" y="520.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">14 Hungarian Grand Prix</text>
+<rect x="365" y="508" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="508" width="677.9" height="16" rx="3" fill="#059669"/>
+<rect x="1042.9" y="508" width="42.1" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="520.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">94.2% good</text>
+<text x="1202.0" y="520.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">80 bad</text>
+<text x="34.0" y="550.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">15 Dutch Grand Prix</text>
+<rect x="365" y="538" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="538" width="549.5" height="16" rx="3" fill="#059669"/>
+<rect x="914.5" y="538" width="170.5" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="550.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">76.3% good</text>
+<text x="1202.0" y="550.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">323 bad</text>
+<text x="34.0" y="580.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">16 Italian Grand Prix</text>
+<rect x="365" y="568" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="568" width="674.2" height="16" rx="3" fill="#059669"/>
+<rect x="1039.2" y="568" width="45.8" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="580.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">93.6% good</text>
+<text x="1202.0" y="580.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">62 bad</text>
+<text x="34.0" y="610.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">17 Azerbaijan Grand Prix</text>
+<rect x="365" y="598" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="598" width="634.5" height="16" rx="3" fill="#059669"/>
+<rect x="999.5" y="598" width="85.5" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="610.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">88.1% good</text>
+<text x="1202.0" y="610.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">115 bad</text>
+<text x="34.0" y="640.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">18 Singapore Grand Prix</text>
+<rect x="365" y="628" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="628" width="678.4" height="16" rx="3" fill="#059669"/>
+<rect x="1043.4" y="628" width="41.6" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="640.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">94.2% good</text>
+<text x="1202.0" y="640.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">71 bad</text>
+<text x="34.0" y="670.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">19 United States Grand Prix</text>
+<rect x="365" y="658" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="658" width="648.5" height="16" rx="3" fill="#059669"/>
+<rect x="1013.5" y="658" width="71.5" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="670.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">90.1% good</text>
+<text x="1202.0" y="670.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">106 bad</text>
+<text x="34.0" y="700.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">20 Mexico City Grand Prix</text>
+<rect x="365" y="688" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="688" width="657.3" height="16" rx="3" fill="#059669"/>
+<rect x="1022.3" y="688" width="62.7" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="700.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">91.3% good</text>
+<text x="1202.0" y="700.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">110 bad</text>
+<text x="34.0" y="730.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">21 São Paulo Grand Prix</text>
+<rect x="365" y="718" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="718" width="603.7" height="16" rx="3" fill="#059669"/>
+<rect x="968.7" y="718" width="116.3" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="730.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">83.9% good</text>
+<text x="1202.0" y="730.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">202 bad</text>
+<text x="34.0" y="760.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">22 Las Vegas Grand Prix</text>
+<rect x="365" y="748" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="748" width="616.0" height="16" rx="3" fill="#059669"/>
+<rect x="981.0" y="748" width="104.0" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="760.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">85.6% good</text>
+<text x="1202.0" y="760.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">128 bad</text>
+<text x="34.0" y="790.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">23 Qatar Grand Prix</text>
+<rect x="365" y="778" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="778" width="620.8" height="16" rx="3" fill="#059669"/>
+<rect x="985.8" y="778" width="99.2" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="790.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">86.2% good</text>
+<text x="1202.0" y="790.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">147 bad</text>
+<text x="34.0" y="820.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">24 Abu Dhabi Grand Prix</text>
+<rect x="365" y="808" width="720" height="16" rx="3" fill="#e2e8f0"/>
+<rect x="365" y="808" width="668.3" height="16" rx="3" fill="#059669"/>
+<rect x="1033.3" y="808" width="51.7" height="16" rx="3" fill="#dc2626"/>
+<text x="1110.0" y="820.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#334155">92.8% good</text>
+<text x="1202.0" y="820.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" fill="#64748b">83 bad</text>
+</svg>

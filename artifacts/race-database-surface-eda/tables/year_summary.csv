@@ -1,0 +1,4 @@
+year,sessions,sessions_with_issue,median_surface_issue_count,telemetry_samples,position_samples,aligned_samples,weather_samples,race_control_messages,issue_pct
+2024,1,1,1.0,324545,333502,0,133,59,100.0
+2025,24,24,2.0,9113457,9314091,24477559,3781,2178,100.0
+2026,7,7,2.0,2826311,2330236,6706847,1142,1205,100.0

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520">
+<rect width="100%" height="100%" fill="#101418"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#617282"/></marker></defs>
+<text x="40" y="42" fill="#f3f7fb" font-family="Inter,Arial" font-size="25" font-weight="700">What encoded polyline buys us</text>
+<text x="40" y="68" fill="#9fb0bf" font-family="Inter,Arial" font-size="13">Circuit GPS LineString → conservative simplification → delta/varint text string.</text>
+<path d="M 80 250 C 150 110, 260 110, 330 210 S 520 360, 620 230 S 800 90, 920 190 S 960 330, 840 390 S 560 420, 430 330 S 170 370, 80 250" fill="none" stroke="#35c2ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"/>
+<path d="M 80 250 C 150 110, 260 110, 330 210 S 520 360, 620 230 S 800 90, 920 190 S 960 330, 840 390 S 560 420, 430 330 S 170 370, 80 250" fill="none" stroke="#35c2ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="80" cy="250" r="5" fill="#ffb000"/>
+<circle cx="190" cy="150" r="5" fill="#ffb000"/>
+<circle cx="330" cy="210" r="5" fill="#ffb000"/>
+<circle cx="500" cy="330" r="5" fill="#ffb000"/>
+<circle cx="620" cy="230" r="5" fill="#ffb000"/>
+<circle cx="800" cy="120" r="5" fill="#ffb000"/>
+<circle cx="920" cy="190" r="5" fill="#ffb000"/>
+<circle cx="910" cy="350" r="5" fill="#ffb000"/>
+<circle cx="750" cy="410" r="5" fill="#ffb000"/>
+<circle cx="560" cy="400" r="5" fill="#ffb000"/>
+<circle cx="430" cy="330" r="5" fill="#ffb000"/>
+<circle cx="220" cy="350" r="5" fill="#ffb000"/>
+<rect x="50" y="95" width="220" height="92" rx="8" fill="#18212a" stroke="#2a3946"/>
+<text x="66" y="125" fill="#f3f7fb" font-family="Inter,Arial" font-size="15" font-weight="700">1. Quantize</text>
+<text x="66" y="151" fill="#9fb0bf" font-family="Inter,Arial" font-size="12">lat/lon → integers
+precision 5 ≈ 1.1 m</text>
+<path d="M 276 141 L 300 141" stroke="#617282" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="310" y="95" width="220" height="92" rx="8" fill="#18212a" stroke="#2a3946"/>
+<text x="326" y="125" fill="#f3f7fb" font-family="Inter,Arial" font-size="15" font-weight="700">2. Delta encode</text>
+<text x="326" y="151" fill="#9fb0bf" font-family="Inter,Arial" font-size="12">store movement from
+previous point</text>
+<path d="M 536 141 L 560 141" stroke="#617282" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="570" y="95" width="220" height="92" rx="8" fill="#18212a" stroke="#2a3946"/>
+<text x="586" y="125" fill="#f3f7fb" font-family="Inter,Arial" font-size="15" font-weight="700">3. Varint chars</text>
+<text x="586" y="151" fill="#9fb0bf" font-family="Inter,Arial" font-size="12">small deltas become
+short text</text>
+<path d="M 796 141 L 820 141" stroke="#617282" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="830" y="95" width="220" height="92" rx="8" fill="#18212a" stroke="#2a3946"/>
+<text x="846" y="125" fill="#f3f7fb" font-family="Inter,Arial" font-size="15" font-weight="700">4. Render anywhere</text>
+<text x="846" y="151" fill="#9fb0bf" font-family="Inter,Arial" font-size="12">decode in Maps,
+Mapbox, Leaflet, etc.</text>
+<rect x="50" y="432" width="1000" height="54" rx="8" fill="#18212a" stroke="#2a3946"/>
+<text x="70" y="465" fill="#ffb000" font-family="JetBrains Mono,monospace" font-size="16">kavtGh_w_MvIiBhBYxAAjFd@ZEP[^cBHSRITBRLNXHb@?j@_fDQnA...</text>
+</svg>

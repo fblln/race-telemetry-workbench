@@ -30,6 +30,33 @@ imports for 2024 and 2025. A high-concurrency all-2025 import with
 `--workers 6` overloaded the local database/container path. Future season
 imports should start at `--workers 2` or `--workers 3`.
 
+A 2025 race-only telemetry data-quality EDA now exists in
+`notebooks/2025_telemetry_bad_lap_eda.ipynb`, with supporting code in
+`notebooks/telemetry_bad_lap_support.py`, generated artifacts under
+`artifacts/2025-telemetry-bad-lap-eda/`, and a written summary in
+`docs/data-quality/2025-telemetry-bad-lap-eda-summary.md`. A follow-up backlog
+for turning this into a mature data-quality program lives in
+`docs/data-quality/2025-telemetry-bad-lap-eda-backlog.md`. The local all-race
+2025 import contains 24 race sessions and 26,689 laps; the EDA flags 5,497 laps
+(20.6%) with at least one telemetry/timing/position/context quality signal. Raw
+FastF1 `Distance` is not currently imported, so distance reset and non-monotonic
+distance checks remain explicitly unavailable rather than inferred.
+
+A broader imported race-session database surface EDA now exists in
+`notebooks/race_database_surface_eda.ipynb`, with supporting code in
+`notebooks/database_surface_quality_support.py`, generated artifacts under
+`artifacts/race-database-surface-eda/`, and a written summary in
+`docs/data-quality/race-database-surface-eda-summary.md`. It audits all imported
+race sessions across session metadata, drivers, laps, raw telemetry, raw
+position, aligned 10 Hz replay data, ingestion diagnostics, weather, status
+timelines, race-control messages, and circuit annotations. The current local DB
+has 32 imported race sessions: 1 from 2024, 24 from 2025, and 7 from 2026. The
+2025 season is the only complete season-level slice; 2024 and 2026 should be
+treated as partial imports. Future database-surface EDA iterations should narrow
+to 2025 race sessions only, following
+`docs/data-quality/2025-race-database-surface-eda-backlog.md`, unless another
+scope is explicitly requested and documented as a comparison baseline.
+
 ## Next Recommended Work
 
 1. Add focused real-database tests for Query API analytical endpoints.
@@ -37,6 +64,12 @@ imports should start at `--workers 2` or `--workers 3`.
    stable Query API ports.
 3. Add deeper performance validation against larger imported datasets.
 4. Improve position-aware corner matching for telemetry windows.
+5. Persist per-lap geometry diagnostics from the standalone Apexline workflow if
+   bad-lap quality flags become part of the Query API or desktop analysis
+   surface.
+6. Decode aligned telemetry `quality_flags` by session, driver, lap, and time
+   window, because replay quality depends on interpolation quality in addition
+   to raw sample coverage.
 
 Keep the next work focused on the Query API data path before starting the MAUI
 desktop UI surface.
@@ -227,6 +260,12 @@ Backlog:
 - [ ] Track performance targets for core operations.
 - [ ] Track desktop UI performance targets for replay, seek, chart redraw, and
   virtualized scrolling.
+- [ ] Decide whether telemetry bad-lap flags should be persisted in the
+  database or exposed only as offline notebook diagnostics.
+- [ ] Add raw/derived distance import support if distance reset checks become a
+  first-class telemetry quality gate.
+- [ ] Decide whether session-level surface quality summaries should be persisted
+  or exposed only as offline notebook diagnostics.
 
 ## Decisions
 

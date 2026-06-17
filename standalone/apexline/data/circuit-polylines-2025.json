@@ -1,0 +1,4381 @@
+[
+  {
+    "round": 1,
+    "event_name": "Australian Grand Prix",
+    "fastf1_location": "Melbourne",
+    "circuit_id": "au-1953",
+    "circuit_name": "Albert Park Circuit",
+    "repo_location": "Melbourne",
+    "declared_length_m": 5278,
+    "fastf1_driver": "STR",
+    "fastf1_lap": 42,
+    "fastf1_points": 329,
+    "fastf1_path_length_m": 5258.162442027932,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 719,
+      "sample_count": 720,
+      "rmse_m": 7.04878253086749,
+      "p50_m": 4.6320669639199705,
+      "p95_m": 13.118114727137607,
+      "max_m": 23.14410889313656,
+      "scale_m_per_fastf1_unit": 0.09973187680536634,
+      "rotation_degrees": -1.4513647931738127
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "STR",
+        "lap": 42,
+        "path_length_m": 5258.162442027932,
+        "length_error_m": 15.148643531135349,
+        "rmse_m": 7.04878253086749,
+        "p95_m": 13.118114727137607
+      },
+      {
+        "driver": "ALO",
+        "lap": 15,
+        "path_length_m": 5259.785249244269,
+        "length_error_m": 13.525836314798653,
+        "rmse_m": 7.278454672221119,
+        "p95_m": 13.286196456592767
+      },
+      {
+        "driver": "ALO",
+        "lap": 10,
+        "path_length_m": 5264.468968571523,
+        "length_error_m": 8.842116987544614,
+        "rmse_m": 7.826255512275425,
+        "p95_m": 13.807851462102487
+      },
+      {
+        "driver": "STR",
+        "lap": 10,
+        "path_length_m": 5261.796471544436,
+        "length_error_m": 11.514614014631661,
+        "rmse_m": 8.025570926657704,
+        "p95_m": 16.58388570387757
+      },
+      {
+        "driver": "ANT",
+        "lap": 43,
+        "path_length_m": 5277.901000502018,
+        "length_error_m": 4.5899149429506,
+        "rmse_m": 8.11276689209623,
+        "p95_m": 16.088002351069044
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 7.239204108701122,
+      "p50_m": 4.739375659527019,
+      "p95_m": 13.862915893396734,
+      "max_m": 24.259318951937765
+    },
+    "lap_compliance_summary": {
+      "total_laps": 927,
+      "fitted_laps": 568,
+      "compliant_laps": 568,
+      "non_compliant_laps": 359,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 568,
+        "fastf1_inaccurate": 359,
+        "missing_lap_time": 69,
+        "path_length_outlier": 5,
+        "pit_lap": 132,
+        "too_few_position_samples": 2
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "NOR",
+        "lap_number": 43,
+        "lap_time_ms": 82167,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 322,
+        "path_length_m": 5240.302741234141,
+        "length_error_m": -33.00834432492684,
+        "length_error_pct": -0.006259510161522616,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 0,
+          "sample_count": 240,
+          "rmse_m": 9.997814430891754,
+          "p50_m": 8.183234709242733,
+          "p95_m": 17.136136111344214,
+          "max_m": 22.937086041135125,
+          "scale_m_per_fastf1_unit": 0.0998657444337471,
+          "rotation_degrees": -1.9192651696901268
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "NOR",
+        "lap_number": 43,
+        "lap_time_ms": 82167,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 322,
+        "path_length_m": 5240.302741234141,
+        "length_error_m": -33.00834432492684,
+        "length_error_pct": -0.006259510161522616,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 0,
+          "sample_count": 240,
+          "rmse_m": 9.997814430891754,
+          "p50_m": 8.183234709242733,
+          "p95_m": 17.136136111344214,
+          "max_m": 22.937086041135125,
+          "scale_m_per_fastf1_unit": 0.0998657444337471,
+          "rotation_degrees": -1.9192651696901268
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 123,
+      "encoded_chars": 389,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.40287705618538444,
+      "p95_m": 0.8146816616153376,
+      "max_m": 0.9979133147294087,
+      "source_length_m": 5219.993597138621,
+      "simplified_length_m": 5215.008720668335,
+      "length_delta_m": -4.984876470286508,
+      "length_delta_pct": -0.09549583495694335
+    },
+    "polyline_vs_source": {
+      "source_points": 146,
+      "simplified_points": 108,
+      "encoded_chars": 335,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.29759143347540673,
+      "p95_m": 0.7625736355777203,
+      "max_m": 0.9878318649971746,
+      "source_length_m": 5273.311085559068,
+      "simplified_length_m": 5272.406852023425,
+      "length_delta_m": -0.904233535642561,
+      "length_delta_pct": -0.01714735810141752
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 719,
+      "sample_count": 720,
+      "rmse_m": 7.037029602421684,
+      "p50_m": 4.653706752481112,
+      "p95_m": 13.168824007544275,
+      "max_m": 22.96095564748468,
+      "scale_m_per_fastf1_unit": 0.099726889155072,
+      "rotation_degrees": -1.445880176902836
+    },
+    "encoded_polyline": "~o_fF_eysZ_DhE_G~HSDG?q@_@]Ke@E[?u@HYL[RWV{ClEaCxCqBrB}@x@iAz@}CpBmAl@SAKIIWc@iFK]GGYI[AcILEC]_@sCaGWq@kAkFYyAcAmCAY?UFSX[T_@Vk@Nw@FgA@aADw@P}@Ru@b@{@Zi@h@g@r@e@t@Uf@KpG}@Z?b@Bd@N\\P~AxAr@\\^HdG|@dAF`BCn@Gx@Qt@SxAw@~AoAr@}@pCqER_@Vu@Hk@@i@AuDDa@L_@HUnFeJbAgAh@a@~@c@lAa@xFyA|Cw@nAOvCxMDj@A^K^Q`@MRURwDzBmBtAGJCZDLxBfCNPFRJp@Cj@G`@U`@mQ|U",
+    "averaged_fastf1_encoded_polyline": "bp_fF{dysZuIpLq@t@a@VYDYAyAYs@?e@Ho@X_@\\]^kBnC}ArBoAtAqArA_CpBoCrBm@^e@HYCKEQWG_@IqBGq@Qi@]a@WIg@GiDT_A?g@Ic@SUQ[a@_AgBu@qBYiA{AsGu@cCKm@@a@F]j@sAPk@N}@RqBL_AXkARi@`@q@Z_@ZWbAo@|@]p@Q~@OzAK~@@tBNr@LbE|AbCfA~@R~@FtBGxASp@Sp@WpAq@`Au@nAwAxAyB~@gBRi@Ho@IgEDo@H_@J[Ve@pBaDvA{Bv@cAt@q@bAo@fAe@vAc@lF{AjAWfBUX@JDJFLX^nCp@bH@p@En@K\\OXg@h@w@h@gClAa@V_@ZOXANB^LXRTt@n@PVRh@F\\B`@A^Kn@Qj@k@|@{IjLoD~E"
+  },
+  {
+    "round": 2,
+    "event_name": "Chinese Grand Prix",
+    "fastf1_location": "Shanghai",
+    "circuit_id": "cn-2004",
+    "circuit_name": "Shanghai International Circuit",
+    "repo_location": "Shanghai",
+    "declared_length_m": 5451,
+    "fastf1_driver": "GAS",
+    "fastf1_lap": 15,
+    "fastf1_points": 371,
+    "fastf1_path_length_m": 5381.126722674852,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 672,
+      "sample_count": 720,
+      "rmse_m": 9.463895686993324,
+      "p50_m": 8.785831420028469,
+      "p95_m": 15.874704735616447,
+      "max_m": 17.841773439284342,
+      "scale_m_per_fastf1_unit": 0.0998124728748966,
+      "rotation_degrees": 0.8210770376813067
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "GAS",
+        "lap": 15,
+        "path_length_m": 5381.126722674852,
+        "length_error_m": 66.73880888235362,
+        "rmse_m": 9.463895686993324,
+        "p95_m": 15.874704735616447
+      },
+      {
+        "driver": "NOR",
+        "lap": 43,
+        "path_length_m": 5381.2654541453,
+        "length_error_m": 66.60007741190566,
+        "rmse_m": 11.19069688849556,
+        "p95_m": 19.091500892958596
+      },
+      {
+        "driver": "SAI",
+        "lap": 31,
+        "path_length_m": 5380.943723531935,
+        "length_error_m": 66.92180802527128,
+        "rmse_m": 11.231096055583835,
+        "p95_m": 18.913886184476805
+      },
+      {
+        "driver": "ALB",
+        "lap": 23,
+        "path_length_m": 5382.245387731267,
+        "length_error_m": 65.62014382593861,
+        "rmse_m": 11.375242271259985,
+        "p95_m": 21.70058912603181
+      },
+      {
+        "driver": "HAD",
+        "lap": 9,
+        "path_length_m": 5383.527884122184,
+        "length_error_m": 64.33764743502161,
+        "rmse_m": 11.383805612235147,
+        "p95_m": 21.28479524984753
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 10.642150402587138,
+      "p50_m": 8.597470359136274,
+      "p95_m": 18.933551085126442,
+      "max_m": 21.15002762056772
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1065,
+      "fitted_laps": 995,
+      "compliant_laps": 995,
+      "non_compliant_laps": 70,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 995,
+        "fastf1_inaccurate": 70,
+        "pit_lap": 52
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "HAM",
+        "lap_number": 41,
+        "lap_time_ms": 95069,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 352,
+        "path_length_m": 5372.769319795338,
+        "length_error_m": -75.09621176186829,
+        "length_error_pct": -0.013784520070634517,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 224,
+          "sample_count": 240,
+          "rmse_m": 10.849779904125374,
+          "p50_m": 8.209955639433538,
+          "p95_m": 19.587066792923007,
+          "max_m": 21.916111843133706,
+          "scale_m_per_fastf1_unit": 0.09987904608189356,
+          "rotation_degrees": 0.5613698489754945
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "HAM",
+        "lap_number": 41,
+        "lap_time_ms": 95069,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 352,
+        "path_length_m": 5372.769319795338,
+        "length_error_m": -75.09621176186829,
+        "length_error_pct": -0.013784520070634517,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 224,
+          "sample_count": 240,
+          "rmse_m": 10.849779904125374,
+          "p50_m": 8.209955639433538,
+          "p95_m": 19.587066792923007,
+          "max_m": 21.916111843133706,
+          "scale_m_per_fastf1_unit": 0.09987904608189356,
+          "rotation_degrees": 0.5613698489754945
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 145,
+      "encoded_chars": 400,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.37955542564807165,
+      "p95_m": 0.7803142260230707,
+      "max_m": 0.9887929705271207,
+      "source_length_m": 5360.819286557588,
+      "simplified_length_m": 5356.356153156603,
+      "length_delta_m": -4.463133400985498,
+      "length_delta_pct": -0.0832546885543584
+    },
+    "polyline_vs_source": {
+      "source_points": 141,
+      "simplified_points": 117,
+      "encoded_chars": 337,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.24479477905865552,
+      "p95_m": 0.7079689800100858,
+      "max_m": 0.9371011984319156,
+      "source_length_m": 5447.865531557206,
+      "simplified_length_m": 5447.399776696378,
+      "length_delta_m": -0.46575486082838324,
+      "length_delta_pct": -0.008549309048295341
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 672,
+      "sample_count": 720,
+      "rmse_m": 9.423890530631839,
+      "p50_m": 8.785732157273449,
+      "p95_m": 15.927107170428348,
+      "max_m": 17.70286180517806,
+      "scale_m_per_fastf1_unit": 0.09981303770645153,
+      "rotation_degrees": 0.8179563574469324
+    },
+    "encoded_polyline": "gng~D{mzbVh@`EBlAS~@S`@QXUPq@X{@?m@KSOOUQm@?k@Ja@JMLIRAxAXNIRSJa@Ge@ISe@WYK[G_@A[Do@^i@f@}AfByAnAmCrCe@ZYJuGnB_AVO?KIGUDc@Re@V_@bAmAp@e@nFaDf@[\\]Xa@Pe@Li@Fi@?q@Gk@Mi@Uk@[g@_@_@_DwA[USWO[Ok@Ai@@c@H_@N[^e@pCwAPSF[CWGUaBwASKQ?QFwHtEgKvGERDRLRj@j@HRFVCXSX]^ULUH_@By@GYI_@[Q[Me@IgA?g@Jq@ZcAd@m@p@i@jQaMdPiLhD_CzL}IPKR@JNAVSr@e@|@uKxIENAZnGdi@",
+    "averaged_fastf1_encoded_polyline": "kng~DcozbVb@vDD|@?l@E^G\\Sh@Wb@_@ZWJYH[@YCWIWOSSGKI]?_@@MNYHIVKX?f@DZCTOFMBM?OG[OYUQWIYE[?YBq@Tm@`@s@p@yDjEs@p@k@b@eAl@aBr@cDdAUHY@KAWOGKC]@OH]^q@n@s@v@k@xE{B`@W^[d@k@NYRi@Lk@Dm@?}@M{@Yw@Yc@i@e@kB_Am@a@QUOYQi@E]A_@Dm@J[Ve@\\]hAe@VOXa@H]@]G]MYSUWOe@OYCY@s@Ry@b@oGhEkGtD[^K\\?NFZh@|@D\\A^IZGLQRWNg@Hg@AWIWM_@]We@Oi@Gm@@_AL{@Xu@b@o@r@q@t^aWhLiIhGsE`@WZAJBHHBL@NANKZ_@p@e@j@aAv@mErCkA|@STMXELE\\@n@Dl@lAlKrDfX"
+  },
+  {
+    "round": 3,
+    "event_name": "Japanese Grand Prix",
+    "fastf1_location": "Suzuka",
+    "circuit_id": "jp-1962",
+    "circuit_name": "Suzuka International Racing Course",
+    "repo_location": "Suzuka",
+    "declared_length_m": 5807,
+    "fastf1_driver": "STR",
+    "fastf1_lap": 40,
+    "fastf1_points": 346,
+    "fastf1_path_length_m": 5774.149528680431,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 694,
+      "sample_count": 720,
+      "rmse_m": 4.346708059362414,
+      "p50_m": 3.9261889957100617,
+      "p95_m": 6.757706835022226,
+      "max_m": 8.220954318024614,
+      "scale_m_per_fastf1_unit": 0.09995511214029441,
+      "rotation_degrees": -0.9921283683133133
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "STR",
+        "lap": 40,
+        "path_length_m": 5774.149528680431,
+        "length_error_m": 37.356754748135245,
+        "rmse_m": 4.346708059362414,
+        "p95_m": 6.757706835022226
+      },
+      {
+        "driver": "STR",
+        "lap": 7,
+        "path_length_m": 5774.787324674771,
+        "length_error_m": 36.71895875379505,
+        "rmse_m": 4.401102965199671,
+        "p95_m": 7.14139716209648
+      },
+      {
+        "driver": "LAW",
+        "lap": 6,
+        "path_length_m": 5773.687104802654,
+        "length_error_m": 37.81917862591217,
+        "rmse_m": 4.706485560004391,
+        "p95_m": 8.111068211717793
+      },
+      {
+        "driver": "NOR",
+        "lap": 7,
+        "path_length_m": 5777.437651454609,
+        "length_error_m": 34.068631973957054,
+        "rmse_m": 4.837909484295626,
+        "p95_m": 7.063913408777791
+      },
+      {
+        "driver": "SAI",
+        "lap": 19,
+        "path_length_m": 5779.623312419793,
+        "length_error_m": 31.882971008772984,
+        "rmse_m": 5.181134014814885,
+        "p95_m": 7.702196511365785
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 3.8760247771261644,
+      "p50_m": 3.4477120349690806,
+      "p95_m": 7.129008264410514,
+      "max_m": 9.329882621077633
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1059,
+      "fitted_laps": 997,
+      "compliant_laps": 997,
+      "non_compliant_laps": 62,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 997,
+        "fastf1_inaccurate": 62,
+        "pit_lap": 42
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "ANT",
+        "lap_number": 50,
+        "lap_time_ms": 90965,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 352,
+        "path_length_m": 5771.2840029685385,
+        "length_error_m": -40.22228046002783,
+        "length_error_pct": -0.006921145482492402,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 231,
+          "sample_count": 240,
+          "rmse_m": 12.144631154664939,
+          "p50_m": 11.972417736069385,
+          "p95_m": 16.06558478479065,
+          "max_m": 17.694871114151468,
+          "scale_m_per_fastf1_unit": 0.09992683255037951,
+          "rotation_degrees": -0.923149890188182
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "ANT",
+        "lap_number": 50,
+        "lap_time_ms": 90965,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 352,
+        "path_length_m": 5771.2840029685385,
+        "length_error_m": -40.22228046002783,
+        "length_error_pct": -0.006921145482492402,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 231,
+          "sample_count": 240,
+          "rmse_m": 12.144631154664939,
+          "p50_m": 11.972417736069385,
+          "p95_m": 16.06558478479065,
+          "max_m": 17.694871114151468,
+          "scale_m_per_fastf1_unit": 0.09992683255037951,
+          "rotation_degrees": -0.923149890188182
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 159,
+      "encoded_chars": 474,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.37105765431706855,
+      "p95_m": 0.7753673179073416,
+      "max_m": 0.987163670605435,
+      "source_length_m": 5762.750878138301,
+      "simplified_length_m": 5758.526606892237,
+      "length_delta_m": -4.224271246063836,
+      "length_delta_pct": -0.07330303418267002
+    },
+    "polyline_vs_source": {
+      "source_points": 172,
+      "simplified_points": 148,
+      "encoded_chars": 451,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.2309257885726503,
+      "p95_m": 0.688114778498816,
+      "max_m": 0.9633750575709628,
+      "source_length_m": 5811.506283428566,
+      "simplified_length_m": 5811.094155300095,
+      "length_delta_m": -0.41212812847152236,
+      "length_delta_pct": -0.007091588795949517
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 694,
+      "sample_count": 720,
+      "rmse_m": 4.348062651220906,
+      "p50_m": 3.9453472615747747,
+      "p95_m": 6.684050581466748,
+      "max_m": 8.197667316219698,
+      "scale_m_per_fastf1_unit": 0.0999545965471222,
+      "rotation_degrees": -0.9918299157417741
+    },
+    "encoded_polyline": "{itsEw_k`YdGiGvHuH^[`@O^G\\?VBzAb@VPPXHRDd@?`@Id@Wb@qGxEW`@G\\El@A|AIn@S`@YVWJcCj@c@P[ZS^Oh@Eh@AlBGr@M`@Ub@_@X_@N_@F[?YEwBu@YI_@?SD_@LYRWh@Un@Wz@Or@Id@Gt@@jBFh@\\pAVt@h@|@h@n@rErED^TdHARKRQFgDn@oIfAY@w@IaDoAK@KHGNCN?PHRtBtAtBzA\\\\n@fARn@Jp@HtABpACz@MhAQnA[xAUx@Wp@[l@c@n@m@p@g@`@i@\\aDfAeAf@[RUZK`@Ej@?p@L|ANj@Td@\\TZFb@At@WTYd@q@tAyBn@kA|AqDlA{DZ{Ah@uCt@cDv@gEr@eEd@gCv@oDFg@@i@OqAWkA[cA]y@e@{@iEgG[i@i@mAAIDMh@y@BUAQKU[e@Wg@Oo@Cw@@s@Hw@b@eB^{@f@s@r@w@vJuJ",
+    "averaged_fastf1_encoded_polyline": "_jtsEs_k`YjOmObA_AXQXMZGh@AZDv@PXNTRP\\H^@r@E`@M^QXWTmDzBa@^_@b@OZOn@KhBG`@K\\QZUVWNiCp@YP]b@Ul@G`@KxBIp@Sl@]f@UTYL[HM?i@I}Ao@g@Oi@Ci@PWP]d@M\\i@pBIp@Gr@Cr@?r@Dt@D`@Nn@Pn@Tl@Xh@\\b@|CxC`@`@Zf@DLFb@PzC@r@Cr@CNQZe@VuANoFx@_CXy@?i@K[KmAk@YM[AMFIHGN?N@PNZnBnAhBxAj@n@b@t@Rl@NbAFvAAvAGbAMbAg@bCe@|A_@x@[f@_@b@a@^o@b@yD~A_Af@c@^Wh@CNEb@Ar@Br@Hp@L^PZTRZJZBL?h@Od@Yh@m@l@cAlA}B|@wB~@gCr@}Bt@cDlG}[Fa@Da@As@UsAUaAi@{As@sA_BaCwBwCQ[M]Ia@?a@DOXi@BO@QGa@s@qAOo@CeA@c@Hq@Nq@Po@^y@Zg@t@{@|J_K"
+  },
+  {
+    "round": 4,
+    "event_name": "Bahrain Grand Prix",
+    "fastf1_location": "Sakhir",
+    "circuit_id": "bh-2002",
+    "circuit_name": "Bahrain International Circuit",
+    "repo_location": "Sakhir",
+    "declared_length_m": 5412,
+    "fastf1_driver": "BEA",
+    "fastf1_lap": 37,
+    "fastf1_points": 383,
+    "fastf1_path_length_m": 5352.171186670886,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 702,
+      "sample_count": 720,
+      "rmse_m": 7.2000252874593675,
+      "p50_m": 6.192164517307153,
+      "p95_m": 12.183316575016121,
+      "max_m": 14.657080441658524,
+      "scale_m_per_fastf1_unit": 0.10001701871360186,
+      "rotation_degrees": -0.4226688552466363
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "BEA",
+        "lap": 37,
+        "path_length_m": 5352.171186670886,
+        "length_error_m": 66.25897168738811,
+        "rmse_m": 7.2000252874593675,
+        "p95_m": 12.183316575016121
+      },
+      {
+        "driver": "HAM",
+        "lap": 3,
+        "path_length_m": 5352.472859724488,
+        "length_error_m": 65.95729863378529,
+        "rmse_m": 7.2289587738189205,
+        "p95_m": 12.215477768375534
+      },
+      {
+        "driver": "LAW",
+        "lap": 28,
+        "path_length_m": 5351.269181431311,
+        "length_error_m": 67.16097692696258,
+        "rmse_m": 8.163524121937199,
+        "p95_m": 13.6978200900471
+      },
+      {
+        "driver": "LEC",
+        "lap": 19,
+        "path_length_m": 5356.272746913062,
+        "length_error_m": 62.15741144521144,
+        "rmse_m": 8.277195635223741,
+        "p95_m": 16.45768795311354
+      },
+      {
+        "driver": "NOR",
+        "lap": 46,
+        "path_length_m": 5353.48541048418,
+        "length_error_m": 64.94474787409399,
+        "rmse_m": 8.557234852331895,
+        "p95_m": 15.25655883592895
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 9.935772348694945,
+      "p50_m": 8.75200004040942,
+      "p95_m": 18.414556099316464,
+      "max_m": 21.51432648512722
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1128,
+      "fitted_laps": 952,
+      "compliant_laps": 952,
+      "non_compliant_laps": 176,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 952,
+        "fastf1_inaccurate": 176,
+        "missing_lap_time": 13,
+        "path_length_outlier": 13,
+        "pit_lap": 84,
+        "too_few_position_samples": 12
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "PIA",
+        "lap_number": 36,
+        "lap_time_ms": 95140,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 360,
+        "path_length_m": 5337.7982390318875,
+        "length_error_m": -80.6319193263862,
+        "length_error_pct": -0.014881048010189137,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 9.996394475387426,
+          "p50_m": 8.33191036374427,
+          "p95_m": 17.753284918572355,
+          "max_m": 20.93585371439381,
+          "scale_m_per_fastf1_unit": 0.10012662350914592,
+          "rotation_degrees": -1.0997836161313144
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "PIA",
+        "lap_number": 36,
+        "lap_time_ms": 95140,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 360,
+        "path_length_m": 5337.7982390318875,
+        "length_error_m": -80.6319193263862,
+        "length_error_pct": -0.014881048010189137,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 9.996394475387426,
+          "p50_m": 8.33191036374427,
+          "p95_m": 17.753284918572355,
+          "max_m": 20.93585371439381,
+          "scale_m_per_fastf1_unit": 0.10012662350914592,
+          "rotation_degrees": -1.0997836161313144
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 123,
+      "encoded_chars": 340,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.36745223599492993,
+      "p95_m": 0.7450909874043196,
+      "max_m": 0.9887224011368386,
+      "source_length_m": 5337.472460882407,
+      "simplified_length_m": 5334.474997848592,
+      "length_delta_m": -2.9974630338156203,
+      "length_delta_pct": -0.05615884776518492
+    },
+    "polyline_vs_source": {
+      "source_points": 94,
+      "simplified_points": 84,
+      "encoded_chars": 244,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.1468989707149848,
+      "p95_m": 0.4032211368702428,
+      "max_m": 0.6788138107205003,
+      "source_length_m": 5418.430158358274,
+      "simplified_length_m": 5418.3594571139465,
+      "length_delta_m": -0.07070124432721059,
+      "length_delta_pct": -0.0013048289312754067
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 702,
+      "sample_count": 720,
+      "rmse_m": 7.218086532109675,
+      "p50_m": 6.1878677325770575,
+      "p95_m": 12.35374403025377,
+      "max_m": 14.748461454250068,
+      "scale_m_per_fastf1_unit": 0.10000735507189736,
+      "rotation_degrees": -0.42150806510535355
+    },
+    "encoded_polyline": "qi{}C{ihsH}QQkKQQGAQBSFMrAyAFYAYm@_DCe@@a@tDo_@Fc@PQVETBVJVTRXjB`DrBzB^RzAl@PNXl@Bd@OpB?^D^JXX\\fGfFPTB^MR[Fk@AiHw@_Fc@a@DWFYNiA~AEJBLLFdFb@lLXfPVh@EXQL]Fi@Ci@Gu@Wu@]m@g@m@i@YuBs@q@[]YYc@Wk@Ky@AaAHm@`B_FT_@X[p@_@V?VLVZXf@tR`f@?b@KNgBt@i@ByNOwMc@",
+    "averaged_fastf1_encoded_polyline": "ii{}CoihsHuTg@}FEYCYGKGGKCM?MDKPWj@q@LYF[?]C[WeBGi@A{@DcAbBsO|@_JJi@JYNWJGVGX?XF`@V^d@tAdCj@t@r@n@~AfA\\\\Tb@FZB\\?xA@j@Jh@Vt@V`@\\\\j@`@zA~@h@b@Z^FX?NCLUNWJg@@oAKoEu@{ASoAKu@Be@Jc@PULSRQVGZ?LBLHHVJXFpCP~Z|@r@?f@Af@IVKRSJYH[B]?]E[Mi@MYa@k@i@c@c@UmBu@a@W_@YYa@Uc@Uw@Ky@?k@Hy@Tu@hA_DVa@TSVIJCf@?XF`@VX`@Td@dDbJzJbWTt@Dj@?LEZOVUPUNYHYFg@Ds@AoFYoSe@"
+  },
+  {
+    "round": 5,
+    "event_name": "Saudi Arabian Grand Prix",
+    "fastf1_location": "Jeddah",
+    "circuit_id": "sa-2021",
+    "circuit_name": "Jeddah Corniche Circuit",
+    "repo_location": "Jeddah",
+    "declared_length_m": 6175,
+    "fastf1_driver": "SAI",
+    "fastf1_lap": 18,
+    "fastf1_points": 368,
+    "fastf1_path_length_m": 6116.4478793476555,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 716,
+      "sample_count": 720,
+      "rmse_m": 5.439267286813074,
+      "p50_m": 4.163969314630165,
+      "p95_m": 10.441659711666569,
+      "max_m": 14.82982916433775,
+      "scale_m_per_fastf1_unit": 0.10028928858212405,
+      "rotation_degrees": -0.0733221672072022
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "SAI",
+        "lap": 18,
+        "path_length_m": 6116.4478793476555,
+        "length_error_m": 79.85691407533523,
+        "rmse_m": 5.439267286813074,
+        "p95_m": 10.441659711666569
+      },
+      {
+        "driver": "RUS",
+        "lap": 6,
+        "path_length_m": 6116.565288700738,
+        "length_error_m": 79.7395047222526,
+        "rmse_m": 6.196923466372561,
+        "p95_m": 13.146203109350251
+      },
+      {
+        "driver": "ANT",
+        "lap": 15,
+        "path_length_m": 6124.00926693187,
+        "length_error_m": 72.29552649112065,
+        "rmse_m": 6.650576418539677,
+        "p95_m": 14.907298147980669
+      },
+      {
+        "driver": "DOO",
+        "lap": 25,
+        "path_length_m": 6116.577511506007,
+        "length_error_m": 79.72728191698388,
+        "rmse_m": 6.790118693861562,
+        "p95_m": 12.812151948066129
+      },
+      {
+        "driver": "SAI",
+        "lap": 36,
+        "path_length_m": 6121.004260311666,
+        "length_error_m": 75.30053311132451,
+        "rmse_m": 7.277438539448321,
+        "p95_m": 10.534341107682675
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 7.256590866619095,
+      "p50_m": 5.778711160175411,
+      "p95_m": 13.340736683455518,
+      "max_m": 17.128031969298927
+    },
+    "lap_compliance_summary": {
+      "total_laps": 898,
+      "fitted_laps": 810,
+      "compliant_laps": 809,
+      "non_compliant_laps": 89,
+      "shape_non_compliant_laps": 1,
+      "reason_counts": {
+        "compliant": 809,
+        "fastf1_inaccurate": 88,
+        "missing_lap_time": 37,
+        "path_length_outlier": 1,
+        "pit_lap": 39,
+        "shape_rmse_over_threshold": 1,
+        "too_few_position_samples": 1
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "NOR",
+        "lap_number": 41,
+        "lap_time_ms": 91778,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 358,
+        "path_length_m": 6110.086888705521,
+        "length_error_m": -86.21790471746954,
+        "length_error_pct": -0.013914406665240986,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 239,
+          "sample_count": 240,
+          "rmse_m": 6.9269433185097435,
+          "p50_m": 6.798172126596176,
+          "p95_m": 10.693725840158383,
+          "max_m": 11.827194226343828,
+          "scale_m_per_fastf1_unit": 0.1002890173010105,
+          "rotation_degrees": -0.09869269795504401
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "NOR",
+        "lap_number": 41,
+        "lap_time_ms": 91778,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 358,
+        "path_length_m": 6110.086888705521,
+        "length_error_m": -86.21790471746954,
+        "length_error_pct": -0.013914406665240986,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 239,
+          "sample_count": 240,
+          "rmse_m": 6.9269433185097435,
+          "p50_m": 6.798172126596176,
+          "p95_m": 10.693725840158383,
+          "max_m": 11.827194226343828,
+          "scale_m_per_fastf1_unit": 0.1002890173010105,
+          "rotation_degrees": -0.09869269795504401
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 156,
+      "encoded_chars": 442,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.42247312796480146,
+      "p95_m": 0.8456116972051771,
+      "max_m": 0.9983237636580534,
+      "source_length_m": 6122.078096891637,
+      "simplified_length_m": 6118.604072119829,
+      "length_delta_m": -3.4740247718082173,
+      "length_delta_pct": -0.056745842127889294
+    },
+    "polyline_vs_source": {
+      "source_points": 152,
+      "simplified_points": 129,
+      "encoded_chars": 394,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.23448361229130701,
+      "p95_m": 0.6002482160211313,
+      "max_m": 0.9898561713293933,
+      "source_length_m": 6196.304793422991,
+      "simplified_length_m": 6196.019168457559,
+      "length_delta_m": -0.28562496543145244,
+      "length_delta_pct": -0.004609601608601087
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 716,
+      "sample_count": 720,
+      "rmse_m": 5.439842179119978,
+      "p50_m": 4.129748761767765,
+      "p95_m": 10.473231900774676,
+      "max_m": 14.829202986596696,
+      "scale_m_per_fastf1_unit": 0.1002904508343946,
+      "rotation_degrees": -0.07457456454453301
+    },
+    "encoded_polyline": "ay_cCwutmFcVnGKNALP|@CNENOJSDw@IeCm@QEg@?sLlAcADUJW~@O\\STm@^o@Pw@@m@GYM{@k@a@Mc@Gs@ByATg@Zw@nAONi@JkDCe@Eo@g@S_@YkAISg@YiC[uA[u@UyAO{@CqIJ{ITUF[TQZMh@Fh@JZP\\h@Vx@Hr@Ah@IfB_An@a@fA]j@I~@GfBFz@ThDtA~@JlAAVLTPN^P`Ad@l@^TtARhB@dBK~@WvB{@zAg@lAUdAGjBDvA?`AKfAYl@UzBqAv@a@|@YxA[bAGjACdA@rCVv@RVAVGZSv@gAZWf@WnCa@d@?j@N|FjCz@XdATp@Fj@@dBIdDm@dCi@lAe@|Au@p@e@x@q@hAcAfAwAbD}FPo@G]O[[Q]@{Dj@cKvAsCj@kIrB",
+    "averaged_fastf1_encoded_polyline": "qx_cC_vtmFwJpCwGrAy@R[NIHILCNBn@?NCNIJMDO@m@AwBYkAE}@BiLv@MDUVYx@[f@e@Zi@P]F]@m@Ak@KcAc@]K]G]?]@iARk@NWR_@v@KHYPk@J}@@{@Cm@I[MWQUWo@sASWWSME]IyASaDo@gDSkBEwDDuEJiBPy@Pe@ZQXENE^@NDNNXVRZL\\F\\B^?z@Gj@MvBiAh@Q\\Gl@GjAE|@Bj@Fl@JZJjC~@l@LxAPZJVRFLDNHn@LZTTZNj@L\\BjBBxAGjAQx@SzCcAvAYjAMhCG|@Ej@Gz@MtAa@vBiAh@UfA[z@OxAOzAEhBDvCRh@CLEVQx@kAVUXOLEj@KzACl@Bl@Hv@V~DdBx@Vz@Nj@Fl@BjAA|@Ez@MxAU`Dq@rAe@t@a@b@[n@i@l@k@dC}CdDkFFOD_@G]SY[KMC_@BoFr@_MjB_Dr@cD|@"
+  },
+  {
+    "round": 6,
+    "event_name": "Miami Grand Prix",
+    "fastf1_location": "Miami Gardens",
+    "circuit_id": "us-2022",
+    "circuit_name": "Miami International Autodrome",
+    "repo_location": "Miami",
+    "declared_length_m": 5412,
+    "fastf1_driver": "LEC",
+    "fastf1_lap": 13,
+    "fastf1_points": 358,
+    "fastf1_path_length_m": 5355.880831581302,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 705,
+      "sample_count": 720,
+      "rmse_m": 5.462014061153659,
+      "p50_m": 4.159413417286192,
+      "p95_m": 10.173044336687052,
+      "max_m": 15.373206247329446,
+      "scale_m_per_fastf1_unit": 0.10016396172895094,
+      "rotation_degrees": -0.30579870064271264
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "LEC",
+        "lap": 13,
+        "path_length_m": 5355.880831581302,
+        "length_error_m": 59.542381150093206,
+        "rmse_m": 5.462014061153659,
+        "p95_m": 10.173044336687052
+      },
+      {
+        "driver": "STR",
+        "lap": 18,
+        "path_length_m": 5358.902373971145,
+        "length_error_m": 56.520838760250626,
+        "rmse_m": 5.49265659980532,
+        "p95_m": 10.430282221441303
+      },
+      {
+        "driver": "SAI",
+        "lap": 14,
+        "path_length_m": 5355.485339141738,
+        "length_error_m": 59.9378735896571,
+        "rmse_m": 5.496169424280201,
+        "p95_m": 11.059713000520109
+      },
+      {
+        "driver": "GAS",
+        "lap": 38,
+        "path_length_m": 5359.059683962209,
+        "length_error_m": 56.363528769185905,
+        "rmse_m": 5.966330755126941,
+        "p95_m": 10.728216250123866
+      },
+      {
+        "driver": "ALO",
+        "lap": 12,
+        "path_length_m": 5358.287098893718,
+        "length_error_m": 57.13611383767693,
+        "rmse_m": 6.127527200105106,
+        "p95_m": 11.668175481349305
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 6.4542001492435865,
+      "p50_m": 4.74640507236512,
+      "p95_m": 12.499346560635223,
+      "max_m": 18.825497365343374
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1005,
+      "fitted_laps": 861,
+      "compliant_laps": 861,
+      "non_compliant_laps": 144,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 861,
+        "fastf1_inaccurate": 144,
+        "missing_lap_time": 3,
+        "path_length_outlier": 4,
+        "pit_lap": 38,
+        "too_few_position_samples": 1
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "NOR",
+        "lap_number": 36,
+        "lap_time_ms": 89746,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 347,
+        "path_length_m": 5347.181844937449,
+        "length_error_m": -68.24136779394667,
+        "length_error_pct": -0.012601299125341588,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 8.478007918329906,
+          "p50_m": 7.356663104924621,
+          "p95_m": 13.10064866177624,
+          "max_m": 15.790923002849796,
+          "scale_m_per_fastf1_unit": 0.10020330571165585,
+          "rotation_degrees": -0.18911085827405236
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "NOR",
+        "lap_number": 36,
+        "lap_time_ms": 89746,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 347,
+        "path_length_m": 5347.181844937449,
+        "length_error_m": -68.24136779394667,
+        "length_error_pct": -0.012601299125341588,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 8.478007918329906,
+          "p50_m": 7.356663104924621,
+          "p95_m": 13.10064866177624,
+          "max_m": 15.790923002849796,
+          "scale_m_per_fastf1_unit": 0.10020330571165585,
+          "rotation_degrees": -0.18911085827405236
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 138,
+      "encoded_chars": 384,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.36972386431413445,
+      "p95_m": 0.7548937695540148,
+      "max_m": 0.9991461436478618,
+      "source_length_m": 5348.396400714771,
+      "simplified_length_m": 5344.94337416744,
+      "length_delta_m": -3.45302654733041,
+      "length_delta_pct": -0.0645619039544066
+    },
+    "polyline_vs_source": {
+      "source_points": 103,
+      "simplified_points": 96,
+      "encoded_chars": 296,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.14528179644992856,
+      "p95_m": 0.11230389649267392,
+      "max_m": 0.8029313563624318,
+      "source_length_m": 5415.423212731395,
+      "simplified_length_m": 5415.3598838531025,
+      "length_delta_m": -0.06332887829285028,
+      "length_delta_pct": -0.0011694169745398138
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 705,
+      "sample_count": 720,
+      "rmse_m": 5.4544008728388365,
+      "p50_m": 4.15246467601489,
+      "p95_m": 10.14901647629317,
+      "max_m": 15.338301507026761,
+      "scale_m_per_fastf1_unit": 0.10015851274406977,
+      "rotation_degrees": -0.3066848821955512
+    },
+    "encoded_polyline": "icm}CpjvhNdFyKNGNBTJx@vAXXn@Hp@I|@Hf@Rx@nAZxAJx@@tAKbA_@nAwFjMG~@B`@Jj@Rb@Xb@Vf@Fp@Cl@Up@iAvAUl@Gp@Fx@Nt@Pl@Z^l@^n@Jd@?ZIPONa@?g@Io@?w@z@_IQ_PXyA~@iEb@wBP_C@}BScCaCoKu@_D_@mA}AeE}@kBYSUDORYn@W`@a@Ra@Bi@KWYK]D{AEm@KS[_@kAo@OBIVMR[@mBe@Q@MPG|Ak@dj@k@ja@F^TFZK^e@f@{@\\_AJs@Ak@Sy@u@aCQgAGyAJyA^sAxDkI",
+    "averaged_fastf1_encoded_polyline": "kcm}CvjvhNrAyC~AcETc@RSJELCJ@LDRPx@|@`@Tf@Ht@@XDXFb@RRPPTTd@Nf@RfAFhAEhAMx@Of@Yr@kDlHc@nAMh@Ez@Bx@Lh@^`AHXD\\@j@A\\Of@Ud@i@r@OZMh@C\\@j@Lx@Nf@Vb@\\\\b@Rd@FZ?JC`@WNWBMB[FuCJwAXqCBiAEaEA_FDgBNgAn@yCZcBNgAJiAByACuBGyAQuAQgAgAoFy@gDo@yBy@eCg@mAa@o@QOUKKCMBUPk@t@SRWJM@YAMEUOOUEME[AiAE]Qe@]_@a@SYGM@Y^K@g@GkA[M@IFOXIh@Cj@WrX[dWKvOWhHDx@DLFJJFL?VGHGPW~@qBHYD]@MC]Ik@w@eCOy@Gk@AiABk@Fk@ReAZcAzCuG"
+  },
+  {
+    "round": 7,
+    "event_name": "Emilia Romagna Grand Prix",
+    "fastf1_location": "Imola",
+    "circuit_id": "it-1953",
+    "circuit_name": "Autodromo Enzo e Dino Ferrari",
+    "repo_location": "Imola",
+    "declared_length_m": 4909,
+    "fastf1_driver": "ALO",
+    "fastf1_lap": 10,
+    "fastf1_points": 313,
+    "fastf1_path_length_m": 4878.442294978162,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 692,
+      "sample_count": 720,
+      "rmse_m": 4.503542865471493,
+      "p50_m": 4.065530197523848,
+      "p95_m": 7.395395633891372,
+      "max_m": 9.477148366453747,
+      "scale_m_per_fastf1_unit": 0.09994693082893433,
+      "rotation_degrees": -1.580162506112068
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "ALO",
+        "lap": 10,
+        "path_length_m": 4878.442294978162,
+        "length_error_m": 19.719130128012694,
+        "rmse_m": 4.503542865471493,
+        "p95_m": 7.395395633891372
+      },
+      {
+        "driver": "PIA",
+        "lap": 38,
+        "path_length_m": 4872.11265503856,
+        "length_error_m": 26.048770067614896,
+        "rmse_m": 4.7577472638230365,
+        "p95_m": 7.352019481091761
+      },
+      {
+        "driver": "OCO",
+        "lap": 3,
+        "path_length_m": 4872.304298428378,
+        "length_error_m": 25.85712667779626,
+        "rmse_m": 5.0006053297322675,
+        "p95_m": 8.253048195307931
+      },
+      {
+        "driver": "HUL",
+        "lap": 41,
+        "path_length_m": 4873.551784548544,
+        "length_error_m": 24.609640557630883,
+        "rmse_m": 5.088638008727751,
+        "p95_m": 7.6759023110037115
+      },
+      {
+        "driver": "PIA",
+        "lap": 61,
+        "path_length_m": 4874.565829015236,
+        "length_error_m": 23.59559609093867,
+        "rmse_m": 5.558209180852273,
+        "p95_m": 9.851996505840523
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 4.841297642614741,
+      "p50_m": 4.3959702410835995,
+      "p95_m": 7.5327691121393165,
+      "max_m": 9.113151510855962
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1207,
+      "fitted_laps": 956,
+      "compliant_laps": 956,
+      "non_compliant_laps": 251,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 956,
+        "fastf1_inaccurate": 251,
+        "missing_lap_time": 2,
+        "path_length_outlier": 2,
+        "pit_lap": 75
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "VER",
+        "lap_number": 58,
+        "lap_time_ms": 77988,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 291,
+        "path_length_m": 4867.561861623473,
+        "length_error_m": -30.599563482701342,
+        "length_error_pct": -0.006247152926781716,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 230,
+          "sample_count": 240,
+          "rmse_m": 3.9467054605467777,
+          "p50_m": 3.5258132297454834,
+          "p95_m": 6.4217329037576985,
+          "max_m": 7.471465039301049,
+          "scale_m_per_fastf1_unit": 0.09984163111158409,
+          "rotation_degrees": -1.752830630011959
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "VER",
+        "lap_number": 58,
+        "lap_time_ms": 77988,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 291,
+        "path_length_m": 4867.561861623473,
+        "length_error_m": -30.599563482701342,
+        "length_error_pct": -0.006247152926781716,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 230,
+          "sample_count": 240,
+          "rmse_m": 3.9467054605467777,
+          "p50_m": 3.5258132297454834,
+          "p95_m": 6.4217329037576985,
+          "max_m": 7.471465039301049,
+          "scale_m_per_fastf1_unit": 0.09984163111158409,
+          "rotation_degrees": -1.752830630011959
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 108,
+      "encoded_chars": 330,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.360150703622913,
+      "p95_m": 0.7683726917233298,
+      "max_m": 0.9715737931533799,
+      "source_length_m": 4857.072377675833,
+      "simplified_length_m": 4854.238839793924,
+      "length_delta_m": -2.833537881909251,
+      "length_delta_pct": -0.05833839114551413
+    },
+    "polyline_vs_source": {
+      "source_points": 84,
+      "simplified_points": 75,
+      "encoded_chars": 228,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.09507487191829395,
+      "p95_m": 0.18377777980513602,
+      "max_m": 0.5318049908434104,
+      "source_length_m": 4898.161425106175,
+      "simplified_length_m": 4898.137190778577,
+      "length_delta_m": -0.024234327597696392,
+      "length_delta_pct": -0.0004947637591827852
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 692,
+      "sample_count": 720,
+      "rmse_m": 4.502404757428368,
+      "p50_m": 4.079192128942587,
+      "p95_m": 7.381515061679622,
+      "max_m": 9.46303670495617,
+      "scale_m_per_fastf1_unit": 0.09994804029420452,
+      "rotation_degrees": -1.5801757979351398
+    },
+    "encoded_polyline": "k}smGklofA?pAmA~NMtDAhB`@tOl@dGL`@LLhAVPLN`@vAnF\\b@nTdKRBT?hBi@P?RLLLzGlMNJPDTEVQJUDW?e@eAgVCsAD}BHyAh@{HEg@K_@[g@s@i@oB}@q@Mu@Ey@JqHzASAUKgCyBESC[b@wBB_@Em`@BMj@WBK?U}BkLSu@wAqDcAeBoFsIWq@Ss@cB{HOWYCSFoC|AMTEX?`@BXpDpSJfADn@A~T",
+    "averaged_fastf1_encoded_polyline": "_}smGolofAAbAIrA}@fIKrAItBChDDzEXpIPrB\\rCH\\NVbAd@Z`@Rh@fAnDVf@\\Zj@ZtLzFzC|Ab@JV@b@ErAUJ?VDZ\\`C~EzBzDPTTLVBJCJGFIL[F_@@a@CaAUyDSyEMiDEgC?eBBsA^oI?s@Io@Si@[_@iAw@y@[gAK{@@iALaF|@{@Dc@Kk@]q@m@We@EMCa@PaBDs@D_HCcLIaIF_@`@o@H]?a@E_@Q_Ay@gDo@{CWy@g@uAq@_Bq@kAgEoGq@iAUi@Ok@eA}FOm@GMQSKEWAc@Hm@Tu@d@OVM\\En@A`@B`@F^xAhH`AlFPpAFn@FdBDlL?jE"
+  },
+  {
+    "round": 8,
+    "event_name": "Monaco Grand Prix",
+    "fastf1_location": "Monaco",
+    "circuit_id": "mc-1929",
+    "circuit_name": "Circuit de Monaco",
+    "repo_location": "Monaco",
+    "declared_length_m": 3337,
+    "fastf1_driver": "ANT",
+    "fastf1_lap": 7,
+    "fastf1_points": 318,
+    "fastf1_path_length_m": 3294.160925744407,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 529,
+      "sample_count": 720,
+      "rmse_m": 6.2399799712459,
+      "p50_m": 4.748731888218234,
+      "p95_m": 14.467415873744645,
+      "max_m": 15.599525291991005,
+      "scale_m_per_fastf1_unit": 0.10011296268728159,
+      "rotation_degrees": 1.3730858579807697
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "ANT",
+        "lap": 7,
+        "path_length_m": 3294.160925744407,
+        "length_error_m": 30.113875637312958,
+        "rmse_m": 6.2399799712459,
+        "p95_m": 14.467415873744645
+      },
+      {
+        "driver": "LAW",
+        "lap": 52,
+        "path_length_m": 3286.422768262655,
+        "length_error_m": 37.8520331190648,
+        "rmse_m": 7.190318527135895,
+        "p95_m": 11.596238186930368
+      },
+      {
+        "driver": "SAI",
+        "lap": 32,
+        "path_length_m": 3291.254927735198,
+        "length_error_m": 33.01987364652177,
+        "rmse_m": 7.731800269820828,
+        "p95_m": 12.871585117155268
+      },
+      {
+        "driver": "COL",
+        "lap": 6,
+        "path_length_m": 3295.055746890096,
+        "length_error_m": 29.219054491623865,
+        "rmse_m": 8.142710616147212,
+        "p95_m": 13.448235242395002
+      },
+      {
+        "driver": "COL",
+        "lap": 8,
+        "path_length_m": 3296.3645924813995,
+        "length_error_m": 27.910208900320413,
+        "rmse_m": 8.196247963041886,
+        "p95_m": 16.109171350168772
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 6.093959216661325,
+      "p50_m": 4.349216817216723,
+      "p95_m": 10.943329056733532,
+      "max_m": 18.273516233311593
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1425,
+      "fitted_laps": 1271,
+      "compliant_laps": 1271,
+      "non_compliant_laps": 154,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 1271,
+        "fastf1_inaccurate": 154,
+        "missing_lap_time": 2,
+        "path_length_outlier": 9,
+        "pit_lap": 81
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "NOR",
+        "lap_number": 78,
+        "lap_time_ms": 73221,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 282,
+        "path_length_m": 3269.9215329395565,
+        "length_error_m": -54.353268442163426,
+        "length_error_pct": -0.016350413756279034,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 177,
+          "sample_count": 240,
+          "rmse_m": 8.591889276465958,
+          "p50_m": 5.871331231728062,
+          "p95_m": 15.03147688564775,
+          "max_m": 23.868201140928353,
+          "scale_m_per_fastf1_unit": 0.1000917623573699,
+          "rotation_degrees": 1.6451903457270076
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "NOR",
+        "lap_number": 78,
+        "lap_time_ms": 73221,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 282,
+        "path_length_m": 3269.9215329395565,
+        "length_error_m": -54.353268442163426,
+        "length_error_pct": -0.016350413756279034,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 177,
+          "sample_count": 240,
+          "rmse_m": 8.591889276465958,
+          "p50_m": 5.871331231728062,
+          "p95_m": 15.03147688564775,
+          "max_m": 23.868201140928353,
+          "scale_m_per_fastf1_unit": 0.1000917623573699,
+          "rotation_degrees": 1.6451903457270076
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 121,
+      "encoded_chars": 334,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.4263539275108119,
+      "p95_m": 0.8526864507252317,
+      "max_m": 0.9747028050282638,
+      "source_length_m": 3265.382649267772,
+      "simplified_length_m": 3258.744306132433,
+      "length_delta_m": -6.638343135339255,
+      "length_delta_pct": -0.20329449404123692
+    },
+    "polyline_vs_source": {
+      "source_points": 160,
+      "simplified_points": 117,
+      "encoded_chars": 323,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.29963471046102236,
+      "p95_m": 0.7975140965437789,
+      "max_m": 0.9851688687265068,
+      "source_length_m": 3324.27480138172,
+      "simplified_length_m": 3323.4768221510226,
+      "length_delta_m": -0.797979230697365,
+      "length_delta_pct": -0.02400461088131729
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 529,
+      "sample_count": 720,
+      "rmse_m": 6.23473668314625,
+      "p50_m": 4.736035740175044,
+      "p95_m": 14.341011548614453,
+      "max_m": 15.59464004622999,
+      "scale_m_per_fastf1_unit": 0.10009829385146225,
+      "rotation_degrees": 1.3795646815166867
+    },
+    "encoded_polyline": "gz}iG}ril@QBQEc@[iGoGCUB[JQPMp@ENKb@c@`@WFGBKCOGIKCIFIPs@v@KFK?QIIYGg@SmAAa@DQREvBDxBXlAXv@\\~@p@t@x@`ArAt@vBfApETzAVhCNdCHFPBHDDR@ZK\\?Pr@~N@TJL`Aj@^N~@LdA@NAJEJO\\q@LIfDe@b@KH?FHPf@HBRCrAk@\\Sb@c@`@m@^wAFITIJBFPLhADh@Cr@MVO?]Je@h@}@t@s@XyDdAwBX{AH}@?}AI}@Yc@Ig@@GGEOGi@EyAMgCs@}FIsACy@Kk@{@yDMqAMeCIe@Sk@]g@WUYI[@YD[LYRu@pASL",
+    "averaged_fastf1_encoded_polyline": "gz}iGqsil@UFO?WG]UsA{AcB_Bg@i@OWGU@IDUHOjAg@b@WX]FS?ICIECO@UPc@l@UHOGKMIQWgAEm@DSBILINGp@CbDPv@LtAd@xAt@t@r@`@p@Xx@nApEh@|B\\`CPfDD^HPZVDR@VEv@?`@X~EPtEBTJ\\HPXXb@Zf@Pv@Hp@@VENGf@g@ROv@Wv@Sv@Ih@CTHLLLHN?^Gt@[ZUX[Zi@h@aBJMLEVFDFFPD`@@l@?`@E^GPGFeA^{@x@q@`@cC|@gBb@wCTqA@aAEq@I_ASe@SSQI]U_Eu@}GUgDMs@a@{AOs@KaAS{CIk@K]Sc@Y[e@Q_@A_@H]PwAtA"
+  },
+  {
+    "round": 9,
+    "event_name": "Spanish Grand Prix",
+    "fastf1_location": "Barcelona",
+    "circuit_id": "es-1991",
+    "circuit_name": "Circuit de Barcelona-Catalunya",
+    "repo_location": "Barcelona",
+    "declared_length_m": 4655,
+    "fastf1_driver": "NOR",
+    "fastf1_lap": 27,
+    "fastf1_points": 303,
+    "fastf1_path_length_m": 4618.226498687508,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 705,
+      "sample_count": 720,
+      "rmse_m": 4.733453896171114,
+      "p50_m": 4.242437419204304,
+      "p95_m": 7.705957771736215,
+      "max_m": 9.525072512599348,
+      "scale_m_per_fastf1_unit": 0.10030028403884128,
+      "rotation_degrees": 0.556065486180354
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "NOR",
+        "lap": 27,
+        "path_length_m": 4618.226498687508,
+        "length_error_m": 46.08305632650172,
+        "rmse_m": 4.733453896171114,
+        "p95_m": 7.705957771736215
+      },
+      {
+        "driver": "ALO",
+        "lap": 27,
+        "path_length_m": 4617.05792843554,
+        "length_error_m": 47.25162657846977,
+        "rmse_m": 5.32377472852023,
+        "p95_m": 8.940195031982814
+      },
+      {
+        "driver": "HUL",
+        "lap": 2,
+        "path_length_m": 4618.4557544158615,
+        "length_error_m": 45.853800598148155,
+        "rmse_m": 5.503861325078086,
+        "p95_m": 8.61854453420284
+      },
+      {
+        "driver": "ALO",
+        "lap": 2,
+        "path_length_m": 4633.613439906126,
+        "length_error_m": 30.696115107883998,
+        "rmse_m": 5.6598818368996175,
+        "p95_m": 10.121498172224731
+      },
+      {
+        "driver": "OCO",
+        "lap": 17,
+        "path_length_m": 4618.364397214939,
+        "length_error_m": 45.94515779907033,
+        "rmse_m": 5.735196962936007,
+        "p95_m": 10.440991794474593
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 4.3715773896512715,
+      "p50_m": 3.3736624874577026,
+      "p95_m": 7.698799995273572,
+      "max_m": 10.177439031271208
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1203,
+      "fitted_laps": 990,
+      "compliant_laps": 990,
+      "non_compliant_laps": 213,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 990,
+        "fastf1_inaccurate": 213,
+        "missing_lap_time": 1,
+        "path_length_outlier": 1,
+        "pit_lap": 109
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "PIA",
+        "lap_number": 61,
+        "lap_time_ms": 75743,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 299,
+        "path_length_m": 4611.45200618517,
+        "length_error_m": -52.857548828839754,
+        "length_error_pct": -0.011332341519232849,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 18.522817639668467,
+          "p50_m": 17.03783850013064,
+          "p95_m": 27.690558184080956,
+          "max_m": 30.465096831750806,
+          "scale_m_per_fastf1_unit": 0.10019154640674226,
+          "rotation_degrees": 1.4044981510786863
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "PIA",
+        "lap_number": 61,
+        "lap_time_ms": 75743,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 299,
+        "path_length_m": 4611.45200618517,
+        "length_error_m": -52.857548828839754,
+        "length_error_pct": -0.011332341519232849,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 18.522817639668467,
+          "p50_m": 17.03783850013064,
+          "p95_m": 27.690558184080956,
+          "max_m": 30.465096831750806,
+          "scale_m_per_fastf1_unit": 0.10019154640674226,
+          "rotation_degrees": 1.4044981510786863
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 132,
+      "encoded_chars": 383,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.37125132962408725,
+      "p95_m": 0.734813459820317,
+      "max_m": 0.9940792240455785,
+      "source_length_m": 4617.4936564886475,
+      "simplified_length_m": 4613.445934618275,
+      "length_delta_m": -4.047721870372698,
+      "length_delta_pct": -0.08766058324053594
+    },
+    "polyline_vs_source": {
+      "source_points": 150,
+      "simplified_points": 111,
+      "encoded_chars": 315,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.31006041484270747,
+      "p95_m": 0.8028961753533503,
+      "max_m": 0.9914923622640244,
+      "source_length_m": 4664.30955501401,
+      "simplified_length_m": 4663.335715587726,
+      "length_delta_m": -0.9738394262840302,
+      "length_delta_pct": -0.020878533356285894
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 705,
+      "sample_count": 720,
+      "rmse_m": 4.6917708407875525,
+      "p50_m": 4.200068837032551,
+      "p95_m": 7.736589795136434,
+      "max_m": 9.455703268973954,
+      "scale_m_per_fastf1_unit": 0.10029191794829981,
+      "rotation_degrees": 0.5544066822553215
+    },
+    "encoded_polyline": "ucv|FssxLt_@jZZd@BNBXAXCPi@bBE`@?ZDh@HT~AjDXpA@^CxAG^Mf@a@t@k@j@_@Te@Ny@F_@Ac@Eu@Qm@Ua@U_KaIKQKWGo@Fu@JYP_@NSb@WZGh@AX@ZFdAl@|FvEPDL@PEVUFOFe@C[qBqIUm@Wk@_@m@]_@wCaCe@SYDUNQXYx@S`@a@`@aIvD[F]?k@Ig@_@Y]O]oKm_@Mc@OSMGQASDOJYj@Mh@CVE`A@^D^^lAZl@Vj@H\\@l@CZK`@QXi@\\a@D_@IWOQWgDoGM_@E[Ee@?e@Dc@F[pDqJ^c@RMr@Q`@?^Fr@`@pO~L",
+    "averaged_fastf1_encoded_polyline": "wcv|FysxLnH|FvK`JbGdEn@l@^j@Pd@Fl@Ej@]dBA\\@\\Px@x@pBVt@Nx@Dj@@^Cl@Kx@Oh@]n@[Z]Tk@Pa@Dc@Bm@Cw@Ko@Ok@U]UiB{AwB_BuAmAY_@OUOg@Em@Dm@Pg@V_@f@]`@K`@AV@`@Hf@ZfExD\\V\\RVFT?^OLUDMB]C]E]_AcDo@mCWs@c@}@_@i@w@w@cA{@]SUGc@?UD]Tq@rAc@f@]VoEdCu@Zk@Ho@Ck@M_@Q[YOUMWs@{CkBcHsCmJcAeEKYOUGIUGW@SHSNOTKZEZC|@Fz@Rv@f@lANf@Hj@B\\Al@GZELQRSLa@Fa@G_@Sc@c@wB}D[o@K[G[E}@@m@D]RgA`AqC~@_Cf@w@ZYj@S`@C`@@VF^N\\T~NjL"
+  },
+  {
+    "round": 10,
+    "event_name": "Canadian Grand Prix",
+    "fastf1_location": "Montr\u00e9al",
+    "circuit_id": "ca-1978",
+    "circuit_name": "Circuit Gilles-Villeneuve",
+    "repo_location": "Montreal",
+    "declared_length_m": 4361,
+    "fastf1_driver": "COL",
+    "fastf1_lap": 38,
+    "fastf1_points": 298,
+    "fastf1_path_length_m": 4340.672391109539,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 36,
+      "sample_count": 720,
+      "rmse_m": 5.009037246052343,
+      "p50_m": 3.6452527504353065,
+      "p95_m": 8.702454362002706,
+      "max_m": 14.372382133463207,
+      "scale_m_per_fastf1_unit": 0.10043862468908314,
+      "rotation_degrees": -0.9510676221901242
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "COL",
+        "lap": 38,
+        "path_length_m": 4340.672391109539,
+        "length_error_m": 24.366232564567326,
+        "rmse_m": 5.009037246052343,
+        "p95_m": 8.702454362002706
+      },
+      {
+        "driver": "ANT",
+        "lap": 4,
+        "path_length_m": 4358.317182701378,
+        "length_error_m": 6.721440972727578,
+        "rmse_m": 7.907842610840989,
+        "p95_m": 23.208710911462045
+      },
+      {
+        "driver": "COL",
+        "lap": 7,
+        "path_length_m": 4345.213379173703,
+        "length_error_m": 19.825244500402732,
+        "rmse_m": 7.980886985897354,
+        "p95_m": 14.106135531189903
+      },
+      {
+        "driver": "HAM",
+        "lap": 4,
+        "path_length_m": 4344.42484254592,
+        "length_error_m": 20.61378112818602,
+        "rmse_m": 8.476464873096038,
+        "p95_m": 23.893370210764736
+      },
+      {
+        "driver": "COL",
+        "lap": 46,
+        "path_length_m": 4355.546027133361,
+        "length_error_m": 9.492596540744671,
+        "rmse_m": 9.351830118912854,
+        "p95_m": 19.517594348697653
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 12.402062472233004,
+      "p50_m": 12.263090467088713,
+      "p95_m": 19.21745093781832,
+      "max_m": 21.059425385506337
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1349,
+      "fitted_laps": 1157,
+      "compliant_laps": 1157,
+      "non_compliant_laps": 192,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 1157,
+        "fastf1_inaccurate": 152,
+        "missing_lap_time": 3,
+        "path_length_outlier": 42,
+        "pit_lap": 131,
+        "too_few_position_samples": 1
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "RUS",
+        "lap_number": 63,
+        "lap_time_ms": 74119,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 283,
+        "path_length_m": 4311.968931658319,
+        "length_error_m": -53.06969201578704,
+        "length_error_pct": -0.012157897464631742,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 12,
+          "sample_count": 240,
+          "rmse_m": 5.537435613002777,
+          "p50_m": 4.996497820684375,
+          "p95_m": 8.506435302450543,
+          "max_m": 10.60573875089092,
+          "scale_m_per_fastf1_unit": 0.10031548122993743,
+          "rotation_degrees": -0.7872372855465978
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "RUS",
+        "lap_number": 63,
+        "lap_time_ms": 74119,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 283,
+        "path_length_m": 4311.968931658319,
+        "length_error_m": -53.06969201578704,
+        "length_error_pct": -0.012157897464631742,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 12,
+          "sample_count": 240,
+          "rmse_m": 5.537435613002777,
+          "p50_m": 4.996497820684375,
+          "p95_m": 8.506435302450543,
+          "max_m": 10.60573875089092,
+          "scale_m_per_fastf1_unit": 0.10031548122993743,
+          "rotation_degrees": -0.7872372855465978
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 99,
+      "encoded_chars": 287,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.4470927568171143,
+      "p95_m": 0.8419815296665332,
+      "max_m": 0.9880505765385028,
+      "source_length_m": 4315.292400413916,
+      "simplified_length_m": 4312.3349582743085,
+      "length_delta_m": -2.9574421396073376,
+      "length_delta_pct": -0.06853399179447642
+    },
+    "polyline_vs_source": {
+      "source_points": 102,
+      "simplified_points": 84,
+      "encoded_chars": 242,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.27544942457144705,
+      "p95_m": 0.8623673429510881,
+      "max_m": 0.9486890070794727,
+      "source_length_m": 4365.038623674106,
+      "simplified_length_m": 4364.645941148369,
+      "length_delta_m": -0.39268252573674545,
+      "length_delta_pct": -0.008996083645331408
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 36,
+      "sample_count": 720,
+      "rmse_m": 5.020223653013433,
+      "p50_m": 3.7138313836978663,
+      "p95_m": 8.661035975635853,
+      "max_m": 14.438865189112773,
+      "scale_m_per_fastf1_unit": 0.10043296396260386,
+      "rotation_degrees": -0.9481560614968757
+    },
+    "encoded_polyline": "kavtGh_w_MvIiBhBYxAAjFd@ZEP[^cBHSRITBRLNXHb@?j@_@fDQnA]lAa@fAeBhD_AdBUPOBQ?e@QUESBOJcD~DkAhCg@j@i@Vk@Na@DwGAOLMTEh@JvAGd@M`@OVSTQJc@PcB`@qFViBAuAC}AIeC[wGcBYOIWE}@G[I[U]YUa@SwGaBwCg@iBKqCEe@DwFhA[?MQC_@DSHMHCfDY^OjCaB|McGtd@gJNBLNDXLPJFRAjJmB",
+    "averaged_fastf1_encoded_polyline": "_avtG|~v_M|GaBt@Mz@It@Cv@BvD\\^@^ETGXYTa@Vq@FIPKR@PJLTHh@@|@IjAUvAYtA[`Am@vAyAzCe@v@QPQL_@D_AA_@J[ReAjAq@z@oA~B]j@YXg@Zi@Pi@Ju@@wCIk@F]NORIVC\\CxAE\\IXW^YX]Ri@Lu@JkBNoELaCCwCUiCc@oD_Ai@SSMMU[cBSe@W[]Ug@SoDaAeBYkBW_AIaBEkA?w@DuFbA_@COQCM?[DKZWh@M`BM~@WzMoGdBo@rBk@~_@eI^CT@RHn@b@TDj@?hAQ|F{A"
+  },
+  {
+    "round": 11,
+    "event_name": "Austrian Grand Prix",
+    "fastf1_location": "Spielberg",
+    "circuit_id": "at-1969",
+    "circuit_name": "Red Bull Ring",
+    "repo_location": "Spielberg",
+    "declared_length_m": 4318,
+    "fastf1_driver": "HAD",
+    "fastf1_lap": 14,
+    "fastf1_points": 279,
+    "fastf1_path_length_m": 4293.020415430884,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 704,
+      "sample_count": 720,
+      "rmse_m": 3.895454217170172,
+      "p50_m": 3.2527558138934722,
+      "p95_m": 6.709026759689831,
+      "max_m": 9.687859647630543,
+      "scale_m_per_fastf1_unit": 0.09968264604535651,
+      "rotation_degrees": 0.20831807232400826
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "HAD",
+        "lap": 14,
+        "path_length_m": 4293.020415430884,
+        "length_error_m": 9.209892789975129,
+        "rmse_m": 3.895454217170172,
+        "p95_m": 6.709026759689831
+      },
+      {
+        "driver": "TSU",
+        "lap": 17,
+        "path_length_m": 4293.723996103353,
+        "length_error_m": 8.50631211750624,
+        "rmse_m": 4.020167993420767,
+        "p95_m": 6.508642138539298
+      },
+      {
+        "driver": "PIA",
+        "lap": 40,
+        "path_length_m": 4294.158580926384,
+        "length_error_m": 8.07172729447484,
+        "rmse_m": 4.14020492170036,
+        "p95_m": 6.763213714860753
+      },
+      {
+        "driver": "TSU",
+        "lap": 4,
+        "path_length_m": 4294.374237381391,
+        "length_error_m": 7.856070839467975,
+        "rmse_m": 4.147791842987405,
+        "p95_m": 7.829048892648085
+      },
+      {
+        "driver": "TSU",
+        "lap": 5,
+        "path_length_m": 4295.4907059421685,
+        "length_error_m": 6.739602278690654,
+        "rmse_m": 4.325536179153629,
+        "p95_m": 6.59703713352817
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 3.579045020675143,
+      "p50_m": 2.9727593129074528,
+      "p95_m": 6.047215794154107,
+      "max_m": 7.960175086422783
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1126,
+      "fitted_laps": 1010,
+      "compliant_laps": 1010,
+      "non_compliant_laps": 116,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 1010,
+        "fastf1_inaccurate": 116,
+        "missing_lap_time": 2,
+        "path_length_outlier": 2,
+        "pit_lap": 65
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "PIA",
+        "lap_number": 59,
+        "lap_time_ms": 67924,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 265,
+        "path_length_m": 4291.559227875946,
+        "length_error_m": -10.671080344913207,
+        "length_error_pct": -0.0024803600877718046,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 3.5832194856838946,
+          "p50_m": 2.70651366758237,
+          "p95_m": 6.353938644330638,
+          "max_m": 7.528307925813904,
+          "scale_m_per_fastf1_unit": 0.09967268569768697,
+          "rotation_degrees": 0.22996984457636285
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "PIA",
+        "lap_number": 59,
+        "lap_time_ms": 67924,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 265,
+        "path_length_m": 4291.559227875946,
+        "length_error_m": -10.671080344913207,
+        "length_error_pct": -0.0024803600877718046,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 3.5832194856838946,
+          "p50_m": 2.70651366758237,
+          "p95_m": 6.353938644330638,
+          "max_m": 7.528307925813904,
+          "scale_m_per_fastf1_unit": 0.09967268569768697,
+          "rotation_degrees": 0.22996984457636285
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 92,
+      "encoded_chars": 284,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.348044003771848,
+      "p95_m": 0.7278492041090882,
+      "max_m": 0.9861322342876493,
+      "source_length_m": 4273.15041695641,
+      "simplified_length_m": 4270.855355345369,
+      "length_delta_m": -2.2950616110401825,
+      "length_delta_pct": -0.053708888924974024
+    },
+    "polyline_vs_source": {
+      "source_points": 81,
+      "simplified_points": 75,
+      "encoded_chars": 237,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.13540253951680664,
+      "p95_m": 0.18302013237810097,
+      "max_m": 0.9824987025736388,
+      "source_length_m": 4302.230308220859,
+      "simplified_length_m": 4302.19252189632,
+      "length_delta_m": -0.037786324539411,
+      "length_delta_pct": -0.0008782961820339443
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 704,
+      "sample_count": 720,
+      "rmse_m": 3.8691002502362055,
+      "p50_m": 3.13064025405586,
+      "p95_m": 6.679927530977987,
+      "max_m": 9.660922307576667,
+      "scale_m_per_fastf1_unit": 0.0996856443362265,
+      "rotation_degrees": 0.21282803856201646
+    },
+    "encoded_polyline": "cte_H_ybyApCxW@f@OXy@j@_ChCoCtCaCtB}BjBiI`FqAhA_BpByFnJOHOAGSEm@KoCCoC@uCFmCPcD`AuNTeFLoNFi@RWRITBTJn@p@^f@h@fA\\lAT~AHfBClBm@dLBv@Jl@Ph@X`@\\V`@J\\@^GVKrFmEXa@Vu@F_AA{@S_ASe@cAmA[g@Uq@Ww@QoAMqAQgc@@u@Js@Ti@Za@f@YjFgBRENDLJTf@Rt@l@pCTzAjCrV",
+    "averaged_fastf1_encoded_polyline": "ate_H}xbyAdCfUBl@An@E\\Of@QR_At@mHhHyArAiDdCeFbDiA~@eAhAo@|@kAnBwCjF[VS?IEMUG]K}BCkCBmDRiFv@oLN{CRiGHwKDm@Ng@PQHC^A\\Nb@`@f@r@Xp@Tt@RfAJz@Dn@B|AIzB]fGA|AB|@Hl@Nf@\\l@PNRJh@Fr@Er@Wd@[fAcAlAoAVa@Rc@Pw@B_@?]Em@Kk@Ws@cBcD_@_AWeAI{@Co@EkCCyLIgJ@}BDmAH}@Rw@Zm@X[RKjDoAh@K^@RFRJV\\Rd@Lh@b@bCzC|X"
+  },
+  {
+    "round": 12,
+    "event_name": "British Grand Prix",
+    "fastf1_location": "Silverstone",
+    "circuit_id": "gb-1948",
+    "circuit_name": "Silverstone Circuit",
+    "repo_location": "Silverstone",
+    "declared_length_m": 5891,
+    "fastf1_driver": "RUS",
+    "fastf1_lap": 29,
+    "fastf1_points": 387,
+    "fastf1_path_length_m": 5842.428286913662,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 374,
+      "sample_count": 720,
+      "rmse_m": 7.099875880103432,
+      "p50_m": 5.66719257050813,
+      "p95_m": 12.303672136746384,
+      "max_m": 18.751698872819862,
+      "scale_m_per_fastf1_unit": 0.0996831285889615,
+      "rotation_degrees": -0.8713091148485795
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "RUS",
+        "lap": 29,
+        "path_length_m": 5842.428286913662,
+        "length_error_m": 35.39628540308604,
+        "rmse_m": 7.099875880103432,
+        "p95_m": 12.303672136746384
+      },
+      {
+        "driver": "RUS",
+        "lap": 31,
+        "path_length_m": 5847.82769445669,
+        "length_error_m": 29.996877860058703,
+        "rmse_m": 7.451263997519579,
+        "p95_m": 12.49359908747854
+      },
+      {
+        "driver": "STR",
+        "lap": 9,
+        "path_length_m": 5858.064070918881,
+        "length_error_m": 19.7605013978673,
+        "rmse_m": 8.496257658023067,
+        "p95_m": 16.396597827994675
+      },
+      {
+        "driver": "RUS",
+        "lap": 12,
+        "path_length_m": 5859.607672474241,
+        "length_error_m": 18.2168998425077,
+        "rmse_m": 8.85300408095522,
+        "p95_m": 16.215308480166545
+      },
+      {
+        "driver": "ALO",
+        "lap": 25,
+        "path_length_m": 5857.363369298451,
+        "length_error_m": 20.461203018297056,
+        "rmse_m": 9.079874507289746,
+        "p95_m": 13.587020607062483
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 7.575692311339213,
+      "p50_m": 6.310606738726539,
+      "p95_m": 14.36415216409407,
+      "max_m": 16.6930134427887
+    },
+    "lap_compliance_summary": {
+      "total_laps": 825,
+      "fitted_laps": 496,
+      "compliant_laps": 495,
+      "non_compliant_laps": 330,
+      "shape_non_compliant_laps": 1,
+      "reason_counts": {
+        "compliant": 495,
+        "fastf1_inaccurate": 329,
+        "missing_lap_time": 91,
+        "path_length_outlier": 3,
+        "pit_lap": 76,
+        "shape_rmse_over_threshold": 1
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "PIA",
+        "lap_number": 51,
+        "lap_time_ms": 89337,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 343,
+        "path_length_m": 5826.87080473132,
+        "length_error_m": -50.95376758542807,
+        "length_error_pct": -0.00866881393932868,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 125,
+          "sample_count": 240,
+          "rmse_m": 10.924272564696645,
+          "p50_m": 9.71401564232375,
+          "p95_m": 17.880254318620842,
+          "max_m": 20.605816602255395,
+          "scale_m_per_fastf1_unit": 0.09970526291107899,
+          "rotation_degrees": -1.7888993336388694
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "PIA",
+        "lap_number": 51,
+        "lap_time_ms": 89337,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 343,
+        "path_length_m": 5826.87080473132,
+        "length_error_m": -50.95376758542807,
+        "length_error_pct": -0.00866881393932868,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 125,
+          "sample_count": 240,
+          "rmse_m": 10.924272564696645,
+          "p50_m": 9.71401564232375,
+          "p95_m": 17.880254318620842,
+          "max_m": 20.605816602255395,
+          "scale_m_per_fastf1_unit": 0.09970526291107899,
+          "rotation_degrees": -1.7888993336388694
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 158,
+      "encoded_chars": 493,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.40290686450386787,
+      "p95_m": 0.7824057084044472,
+      "max_m": 0.9884457941829333,
+      "source_length_m": 5793.053194777271,
+      "simplified_length_m": 5789.078875693997,
+      "length_delta_m": -3.974319083273258,
+      "length_delta_pct": -0.06860491263667848
+    },
+    "polyline_vs_source": {
+      "source_points": 135,
+      "simplified_points": 121,
+      "encoded_chars": 380,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.19934223686719962,
+      "p95_m": 0.6186484302846993,
+      "max_m": 0.8840065635120559,
+      "source_length_m": 5877.824572316748,
+      "simplified_length_m": 5877.592166543913,
+      "length_delta_m": -0.23240577283559105,
+      "length_delta_pct": -0.0039539419725143
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 374,
+      "sample_count": 720,
+      "rmse_m": 7.123818116780298,
+      "p50_m": 5.68450946058938,
+      "p95_m": 12.402636218570773,
+      "max_m": 18.806040828867545,
+      "scale_m_per_fastf1_unit": 0.09968028280488823,
+      "rotation_degrees": -0.8696312740548627
+    },
+    "encoded_polyline": "msz|H|heE]aPB_BNkARo@f@y@n@c@z@]fEsAjBYdAIdDMlCEv@Ir@a@fA_Ah@[^?b@JtC|Az@Dj@Ob@_@lA{Ab@Sj@Cd@Nh@v@^dA|@lD^r@|@|@zZpWnExEp@z@Zp@Px@Hz@Cv@G|@Mr@Ul@c@f@}AdAeA`A}AvBaBtC}CtEGTA\\F\\p@xAF\\A\\GXSd@Yd@g@p@i@`@i@Xq@RSBSE{@{@_SaXU]Uu@G_AAs@BgAVkG@cAEmAKgAU}@kEaLU{@Aa@DYLWLMxCgATSJ]@a@Ie@SWeAk@sAi@qAOk@DSLYb@uVdi@]vAE|@B`AR`APVXNhCZZNV^Lp@Dt@Iz@Qj@SXYRYB[Im@_@sEmDg@w@a@u@i@mA[_ASqAMcAKsC[sN",
+    "averaged_fastf1_encoded_polyline": "usz|H|heE[_M?eAFeAPyA^mARc@T]p@o@t@_@v@YfAYfASnCUjEIfAMbBg@xBgAx@Qx@FlCr@h@F\\AZIXOlAcAXQZK\\AZDZNXRVZZr@j@zBXv@r@pAz@dAvAnApTrPdDpCbBbBv@hAd@fALf@Hj@Dn@?l@En@O~@Wx@U`@m@v@qBdBcCtC_BzBaA|A_@n@Of@ETCj@Dl@\\nABl@?TGj@GTQb@m@x@q@b@q@Nk@Ai@K[Om@c@_@e@oCuDwCyDyCqDy@gA_A_Ba@kASwAGeA?uBJcD@_BAeAM{AS_AW{@Yu@gAwBo@yAa@iAIk@AWBm@BUPc@JMZOtAUXSRa@FSBUCUESSa@e@c@g@Yy@Wi@E]@i@Hi@Te@`@c@f@s@tAwBjFyCzGcI`Qc@hA[pAMbAAdA@VFj@Lh@HNd@b@ZNfAHZHXTR^HRHj@Al@ETQb@KLYRk@Hy@Ku@]s@i@_A{@y@gAs@qAm@{AWy@S_AYmBIeASyDUyJ"
+  },
+  {
+    "round": 13,
+    "event_name": "Belgian Grand Prix",
+    "fastf1_location": "Spa-Francorchamps",
+    "circuit_id": "be-1925",
+    "circuit_name": "Circuit de Spa-Francorchamps",
+    "repo_location": "Spa Francorchamps",
+    "declared_length_m": 7004,
+    "fastf1_driver": "ALO",
+    "fastf1_lap": 25,
+    "fastf1_points": 414,
+    "fastf1_path_length_m": 6967.953821300602,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 708,
+      "sample_count": 720,
+      "rmse_m": 7.1673590642785285,
+      "p50_m": 4.700257388575407,
+      "p95_m": 14.569288668641903,
+      "max_m": 16.63893731104692,
+      "scale_m_per_fastf1_unit": 0.10007601089250952,
+      "rotation_degrees": -2.297280463843671
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "ALO",
+        "lap": 25,
+        "path_length_m": 6967.953821300602,
+        "length_error_m": 10.401710066429587,
+        "rmse_m": 7.1673590642785285,
+        "p95_m": 14.569288668641903
+      },
+      {
+        "driver": "ANT",
+        "lap": 11,
+        "path_length_m": 6970.5020959972535,
+        "length_error_m": 7.853435369777799,
+        "rmse_m": 7.726730288032397,
+        "p95_m": 23.002636942030648
+      },
+      {
+        "driver": "ALO",
+        "lap": 42,
+        "path_length_m": 6968.209176018848,
+        "length_error_m": 10.146355348183533,
+        "rmse_m": 8.101683884032472,
+        "p95_m": 15.9213173650644
+      },
+      {
+        "driver": "TSU",
+        "lap": 5,
+        "path_length_m": 6968.289007483113,
+        "length_error_m": 10.066523883918308,
+        "rmse_m": 8.327165879984397,
+        "p95_m": 14.200928795328128
+      },
+      {
+        "driver": "ANT",
+        "lap": 6,
+        "path_length_m": 6969.315397868924,
+        "length_error_m": 9.040133498107025,
+        "rmse_m": 8.385453633965744,
+        "p95_m": 13.743200568093634
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 6.508573338408571,
+      "p50_m": 5.191263280899527,
+      "p95_m": 10.90673031502688,
+      "max_m": 12.699250106128943
+    },
+    "lap_compliance_summary": {
+      "total_laps": 879,
+      "fitted_laps": 747,
+      "compliant_laps": 672,
+      "non_compliant_laps": 207,
+      "shape_non_compliant_laps": 75,
+      "reason_counts": {
+        "compliant": 672,
+        "fastf1_inaccurate": 132,
+        "missing_lap_time": 60,
+        "pit_lap": 72,
+        "shape_p95_over_threshold": 2,
+        "shape_rmse_over_threshold": 75
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "ANT",
+        "lap_number": 32,
+        "lap_time_ms": 104861,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 389,
+        "path_length_m": 6946.610419215064,
+        "length_error_m": -31.745112151967078,
+        "length_error_pct": -0.004549082088075891,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 236,
+          "sample_count": 240,
+          "rmse_m": 9.836099834725363,
+          "p50_m": 7.548958901973148,
+          "p95_m": 17.148388403266203,
+          "max_m": 18.881340365536694,
+          "scale_m_per_fastf1_unit": 0.09997874133531873,
+          "rotation_degrees": -2.0106587279535795
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "ANT",
+        "lap_number": 32,
+        "lap_time_ms": 104861,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 389,
+        "path_length_m": 6946.610419215064,
+        "length_error_m": -31.745112151967078,
+        "length_error_pct": -0.004549082088075891,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 236,
+          "sample_count": 240,
+          "rmse_m": 9.836099834725363,
+          "p50_m": 7.548958901973148,
+          "p95_m": 17.148388403266203,
+          "max_m": 18.881340365536694,
+          "scale_m_per_fastf1_unit": 0.09997874133531873,
+          "rotation_degrees": -2.0106587279535795
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 170,
+      "encoded_chars": 556,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.3559031315811717,
+      "p95_m": 0.7802212251705423,
+      "max_m": 0.9951944691567283,
+      "source_length_m": 6931.483152254278,
+      "simplified_length_m": 6927.927545495196,
+      "length_delta_m": -3.555606759082366,
+      "length_delta_pct": -0.05129647841567646
+    },
+    "polyline_vs_source": {
+      "source_points": 153,
+      "simplified_points": 133,
+      "encoded_chars": 417,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.18367430832219128,
+      "p95_m": 0.5242764473063539,
+      "max_m": 0.8915829636468519,
+      "source_length_m": 6978.355531367031,
+      "simplified_length_m": 6978.189246140991,
+      "length_delta_m": -0.1662852260405998,
+      "length_delta_pct": -0.00238287122651123
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 708,
+      "sample_count": 720,
+      "rmse_m": 7.15749278692433,
+      "p50_m": 4.616753465183603,
+      "p95_m": 14.546189073286559,
+      "max_m": 16.60219853000483,
+      "scale_m_per_fastf1_unit": 0.10007748924991205,
+      "rotation_degrees": -2.298644341684732
+    },
+    "encoded_polyline": "qk{rHk`lc@cJ~HOBMMG]Da@nBgJn@{B|@_Cz@qB~@{ApJgNTa@`AeD\\m@f@e@b@Yf@ObBUVM^[rKiKdBeA|b@iOzCcAXCZFTTRb@Lh@NZRNZNZCfDy@\\?XH\\^Rd@fH`TJj@?h@Gj@Od@YXWHY@WKYWQa@sBgHS_@UOWG]BcFxB}Ad@_HtA_Er@]TYZYh@Sn@Kr@Et@GnDBbAJ|@P|@Rr@b@x@`@d@p@h@vNzHb@^Xd@Pr@Hr@?n@En@Kh@[dAKj@Et@Bt@Hp@Pj@r@z@nGpGNXJ`@Df@Aj@Kf@gCdHq@t@YP_@J_@@e@GkCqAgA}@_AgAkAiBmBqDs@gBa@wAwCgMYcA]}@c@y@kA_BiA}@eFaDc@Sc@Ko@Ci@J_KdF{Bj@qBTsFXOEKMCWBg@?i@C[MSMCSJwCpCqIlH",
+    "averaged_fastf1_encoded_polyline": "uk{rH_`lc@mF`F}@r@_@PQ?OCKMGUAYBYJq@ViAfB{Gf@yAj@sAx@eB|@}AbDaFlDcFd@w@Tg@l@uB^}@h@o@n@_@p@StAUp@YhB{AhEuExAuAlAy@`By@hc@sObAU`@A`@LLJ~@zALN^Rb@@NAbBm@b@IN?`@Hl@d@LNVf@fBzFvBjGb@|APjABZEr@Sj@KPOLODQ@a@M[]Wg@[cAo@qC_@_AMQ]Wa@Ia@Bs@RqCrAsAb@wBf@aHnAcAVo@`@i@n@a@|@GVKp@Gt@CjB?v@Bt@Fr@Nn@d@zATf@f@t@\\\\l@d@n@^vJvEl@`@j@l@Vf@Pl@Fr@@ZEt@Mp@WfAEVGt@?XBt@Lr@\\~@f@t@j@l@xBfBx@v@f@t@Rj@Hr@AZEr@Mr@c@xAk@tAc@x@i@n@o@^a@Js@As@Mq@W_@S}@q@k@m@u@aAs@gAs@qAo@oAk@uAe@yAk@uBkCyKg@wAm@qA{@qAyAuAkCiB_Ag@q@Wa@Ic@Ea@Bs@Hq@Tq@XcFdCqAj@s@PwB^kD^a@Bc@A_@MMOGUCu@EWISOI_@Bo@`@mLzK"
+  },
+  {
+    "round": 14,
+    "event_name": "Hungarian Grand Prix",
+    "fastf1_location": "Budapest",
+    "circuit_id": "hu-1986",
+    "circuit_name": "Hungaroring",
+    "repo_location": "Budapest",
+    "declared_length_m": 4381,
+    "fastf1_driver": "COL",
+    "fastf1_lap": 29,
+    "fastf1_points": 309,
+    "fastf1_path_length_m": 4334.949645329702,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 678,
+      "sample_count": 720,
+      "rmse_m": 4.39155675151677,
+      "p50_m": 3.4730745386949575,
+      "p95_m": 9.03170893942348,
+      "max_m": 12.980453650262314,
+      "scale_m_per_fastf1_unit": 0.09992853795896064,
+      "rotation_degrees": 1.3678124851894204
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "COL",
+        "lap": 29,
+        "path_length_m": 4334.949645329702,
+        "length_error_m": 41.09840427235031,
+        "rmse_m": 4.39155675151677,
+        "p95_m": 9.03170893942348
+      },
+      {
+        "driver": "GAS",
+        "lap": 57,
+        "path_length_m": 4334.757626824283,
+        "length_error_m": 41.29042277776989,
+        "rmse_m": 4.402600466948408,
+        "p95_m": 9.20618467282414
+      },
+      {
+        "driver": "RUS",
+        "lap": 10,
+        "path_length_m": 4336.744294097853,
+        "length_error_m": 39.303755504200126,
+        "rmse_m": 4.437118708008691,
+        "p95_m": 8.788393933043436
+      },
+      {
+        "driver": "GAS",
+        "lap": 12,
+        "path_length_m": 4335.897766624593,
+        "length_error_m": 40.15028297745994,
+        "rmse_m": 4.569957915093541,
+        "p95_m": 7.4169164291456475
+      },
+      {
+        "driver": "RUS",
+        "lap": 2,
+        "path_length_m": 4343.73228179951,
+        "length_error_m": 32.31576780254272,
+        "rmse_m": 4.736932856441372,
+        "p95_m": 8.452382079438248
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 6.5199013753883035,
+      "p50_m": 5.818694370200327,
+      "p95_m": 10.765913090116836,
+      "max_m": 13.48215897848474
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1368,
+      "fitted_laps": 1288,
+      "compliant_laps": 1288,
+      "non_compliant_laps": 80,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 1288,
+        "fastf1_inaccurate": 79,
+        "path_length_outlier": 1,
+        "pit_lap": 60
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "RUS",
+        "lap_number": 45,
+        "lap_time_ms": 79409,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 298,
+        "path_length_m": 4325.964913234293,
+        "length_error_m": -50.083136367759835,
+        "length_error_pct": -0.011444832369314198,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 225,
+          "sample_count": 240,
+          "rmse_m": 15.211013928112855,
+          "p50_m": 13.698577474805678,
+          "p95_m": 24.307490288479308,
+          "max_m": 30.054602522140637,
+          "scale_m_per_fastf1_unit": 0.0999069900787375,
+          "rotation_degrees": 2.574490144963835
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "RUS",
+        "lap_number": 45,
+        "lap_time_ms": 79409,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 298,
+        "path_length_m": 4325.964913234293,
+        "length_error_m": -50.083136367759835,
+        "length_error_pct": -0.011444832369314198,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 225,
+          "sample_count": 240,
+          "rmse_m": 15.211013928112855,
+          "p50_m": 13.698577474805678,
+          "p95_m": 24.307490288479308,
+          "max_m": 30.054602522140637,
+          "scale_m_per_fastf1_unit": 0.0999069900787375,
+          "rotation_degrees": 2.574490144963835
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 132,
+      "encoded_chars": 383,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.41163452469992134,
+      "p95_m": 0.8432573661296573,
+      "max_m": 0.9945995081101279,
+      "source_length_m": 4319.191484578928,
+      "simplified_length_m": 4315.017203673609,
+      "length_delta_m": -4.174280905318483,
+      "length_delta_pct": -0.0966449605261117
+    },
+    "polyline_vs_source": {
+      "source_points": 141,
+      "simplified_points": 110,
+      "encoded_chars": 305,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.2879417795331349,
+      "p95_m": 0.7416900707974354,
+      "max_m": 0.9950746667307507,
+      "source_length_m": 4376.048049602053,
+      "simplified_length_m": 4375.088886247602,
+      "length_delta_m": -0.9591633544505385,
+      "length_delta_pct": -0.021918483151430718
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 678,
+      "sample_count": 720,
+      "rmse_m": 4.321156196666937,
+      "p50_m": 3.418889150962915,
+      "p95_m": 8.92840127132968,
+      "max_m": 12.885874577526122,
+      "scale_m_per_fastf1_unit": 0.09993365096721164,
+      "rotation_degrees": 1.3666450885060302
+    },
+    "encoded_polyline": "s_laHy}mtBqJpT_@TQAMIIOESC]@eDHoANkARmAj@gBfFqLH_@D]?_@Ms@ISY]OKe@Ac@PmCzBYLS@QGk@SeO}Js@k@m@q@q@_A[UOCmHvBU@g@KSMOUM]K]A[?e@Da@Jk@b@qAj@sAhEwGNIXA`@l@HDNAdFwAZQJMR]BUTsEHa@Ri@POb@MR?`Fn@b@@TCl@UtDgDXQRAPAb@HPJNPzE`HfE~F`AvAFT@RAPENoC~DQZiAdCOn@AZ@XH^NR\\VP@RCNKNOlCgG\\o@NMVIXEVBf@XPTNd@Hd@Bf@Cj@If@Qb@yNp\\",
+    "averaged_fastf1_encoded_polyline": "s_laH}}mtBkGlOu@bB_@j@[V_@HSGMWI[C_@?o@H}BX{BXwAf@}At@eB`CkFb@oALk@Dm@Co@Qg@OQSKUCU@g@RuAfAq@\\SFk@Bs@KUKe@[}AmA}HuFu@q@aBcBe@]UIi@Ii@Di@PoB|@s@Ti@Bi@MSOOSMYG[Eo@?_@LkAZeAn@uAzC}Ej@o@RKRA|@`@RB`@AdDiAd@[Va@Ng@Fm@FoBFm@H[LY`@e@\\O^C^D~A^h@Jh@?j@Eh@Of@Wb@a@z@cAZW\\Q^I^A^D^NPN`@f@tFnItCzDT`@Nh@B^ALG\\KXUb@{BbDe@x@Qd@Mj@Cn@Fl@JVZVRBTEZU\\m@hA}CZq@^i@POTIRET@^HPNNTLVF\\Fl@@^Gx@Mj@Qf@mDpHyHpQ"
+  },
+  {
+    "round": 15,
+    "event_name": "Dutch Grand Prix",
+    "fastf1_location": "Zandvoort",
+    "circuit_id": "nl-1948",
+    "circuit_name": "Circuit Zandvoort",
+    "repo_location": "Zandvoort",
+    "declared_length_m": 4259,
+    "fastf1_driver": "ALO",
+    "fastf1_lap": 71,
+    "fastf1_points": 283,
+    "fastf1_path_length_m": 4239.304791853267,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 18,
+      "sample_count": 720,
+      "rmse_m": 8.211563359424632,
+      "p50_m": 7.095978618012502,
+      "p95_m": 13.463665172802171,
+      "max_m": 17.081079632934205,
+      "scale_m_per_fastf1_unit": 0.09966708590549504,
+      "rotation_degrees": -0.8056998115768857
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "ALO",
+        "lap": 71,
+        "path_length_m": 4239.304791853267,
+        "length_error_m": 16.135904438240686,
+        "rmse_m": 8.211563359424632,
+        "p95_m": 13.463665172802171
+      },
+      {
+        "driver": "GAS",
+        "lap": 3,
+        "path_length_m": 4241.876620431489,
+        "length_error_m": 13.56407586001842,
+        "rmse_m": 8.345267778857494,
+        "p95_m": 15.852934888078716
+      },
+      {
+        "driver": "ALO",
+        "lap": 27,
+        "path_length_m": 4239.212593474465,
+        "length_error_m": 16.228102817041872,
+        "rmse_m": 8.367828002948217,
+        "p95_m": 14.238036121896744
+      },
+      {
+        "driver": "ALO",
+        "lap": 61,
+        "path_length_m": 4249.35616006269,
+        "length_error_m": 6.084536228817342,
+        "rmse_m": 8.46486060871998,
+        "p95_m": 13.812289019908684
+      },
+      {
+        "driver": "ALO",
+        "lap": 9,
+        "path_length_m": 4246.352225298611,
+        "length_error_m": 9.088470992895964,
+        "rmse_m": 8.600229588109869,
+        "p95_m": 12.971570702608052
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 7.939310821627581,
+      "p50_m": 6.382373248307655,
+      "p95_m": 14.426876746225467,
+      "max_m": 16.633978703275595
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1364,
+      "fitted_laps": 1041,
+      "compliant_laps": 1041,
+      "non_compliant_laps": 323,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 1041,
+        "fastf1_inaccurate": 323,
+        "missing_lap_time": 2,
+        "path_length_outlier": 2,
+        "pit_lap": 80,
+        "too_few_position_samples": 1
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "PIA",
+        "lap_number": 60,
+        "lap_time_ms": 72271,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 280,
+        "path_length_m": 4213.431605021185,
+        "length_error_m": -42.00909127032264,
+        "length_error_pct": -0.00987185447254202,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 6,
+          "sample_count": 240,
+          "rmse_m": 7.221488381689281,
+          "p50_m": 5.511819121206025,
+          "p95_m": 13.456220436921496,
+          "max_m": 14.782747680021384,
+          "scale_m_per_fastf1_unit": 0.09959812838654307,
+          "rotation_degrees": -0.9930153319876781
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "PIA",
+        "lap_number": 60,
+        "lap_time_ms": 72271,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 280,
+        "path_length_m": 4213.431605021185,
+        "length_error_m": -42.00909127032264,
+        "length_error_pct": -0.00987185447254202,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 6,
+          "sample_count": 240,
+          "rmse_m": 7.221488381689281,
+          "p50_m": 5.511819121206025,
+          "p95_m": 13.456220436921496,
+          "max_m": 14.782747680021384,
+          "scale_m_per_fastf1_unit": 0.09959812838654307,
+          "rotation_degrees": -0.9930153319876781
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 130,
+      "encoded_chars": 367,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.4207805171046107,
+      "p95_m": 0.8086071315587923,
+      "max_m": 0.9870616303347417,
+      "source_length_m": 4189.87578309083,
+      "simplified_length_m": 4185.180665871674,
+      "length_delta_m": -4.695117219155691,
+      "length_delta_pct": -0.11205862565434217
+    },
+    "polyline_vs_source": {
+      "source_points": 119,
+      "simplified_points": 111,
+      "encoded_chars": 336,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.15629967190596994,
+      "p95_m": 0.2123598143056356,
+      "max_m": 0.9621635789970787,
+      "source_length_m": 4255.440696291507,
+      "simplified_length_m": 4255.354309952162,
+      "length_delta_m": -0.08638633934515383,
+      "length_delta_pct": -0.0020300209898457054
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 18,
+      "sample_count": 720,
+      "rmse_m": 8.221119366832545,
+      "p50_m": 7.13301487499166,
+      "p95_m": 13.513407083895135,
+      "max_m": 17.07334234245854,
+      "scale_m_per_fastf1_unit": 0.09964633616334022,
+      "rotation_degrees": -0.810388612810062
+    },
+    "encoded_polyline": "qbw~HayuZeS{LSYKe@Ai@Bc@Nc@PYVKVAhEhCdA^hALdAGZJPVVp@p@hENf@XHV?VMN]Hc@?u@u@oGM_CAkBB_BH{AJ_ALkBBaBUwC]eBo@uBWoAKgAE}A?iAJuHHeARcAXm@v@{@`@Ob@Cb@Db@Nf@d@tBlCt@r@zCvBJv@DdAAbAInAOpAYvAe@vAc@t@WHUI]_@So@MgAKwBQsBWiBYy@]Wa@A_@P]p@Ij@ObF?dFPtF^lEV~B^lCb@dCf@lBHf@C\\UXa@\\Md@Ar@Lp@TXVJxL{BXAZJTRLRRl@Fp@?~FE~@K`AOt@a@dAe@n@_@\\k@Vg@F}@Gm@Q}McI",
+    "averaged_fastf1_encoded_polyline": "wbw~HeyuZmLcHuCoA]QQOUa@K]Cq@Fq@Tc@ZS^C\\Hf@T~BxAp@Zh@H|AE^DZXLVJZj@nDH\\LVZVR@RGV_@Jo@?q@QuBi@uEGcAEuABiC\\oG@s@AeAGcAM_AkAcFQqAKuBAoEByBDsAHq@R}@Zq@NUROn@Yh@Er@N\\RvCxC~CdCNVPf@Hp@Br@@bAGtAIbASnAMj@[t@_@`@[HQEY[Sg@Ok@S_BMoCIcAM_AQi@OUSIUASDSLORSh@E^Gp@IdBIxCBzCJxC\\hEf@vEj@`Er@|DD`@?NG^[r@I\\Ar@D^JZFJRJRB~@KtI_Bj@?RDPLX^LXF\\D`@@`@ChCEtAIbAQnA[hAMXW`@k@l@g@Z]Hi@Cg@QgOuI"
+  },
+  {
+    "round": 16,
+    "event_name": "Italian Grand Prix",
+    "fastf1_location": "Monza",
+    "circuit_id": "it-1922",
+    "circuit_name": "Autodromo Nazionale Monza",
+    "repo_location": "Monza",
+    "declared_length_m": 5793,
+    "fastf1_driver": "HAM",
+    "fastf1_lap": 6,
+    "fastf1_points": 331,
+    "fastf1_path_length_m": 5778.972206569091,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 684,
+      "sample_count": 720,
+      "rmse_m": 6.110502879628138,
+      "p50_m": 3.946652858610215,
+      "p95_m": 13.261304359805221,
+      "max_m": 13.748474431028662,
+      "scale_m_per_fastf1_unit": 0.09996545996542619,
+      "rotation_degrees": -0.1756515757243963
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "HAM",
+        "lap": 6,
+        "path_length_m": 5778.972206569091,
+        "length_error_m": 7.563203799451003,
+        "rmse_m": 6.110502879628138,
+        "p95_m": 13.261304359805221
+      },
+      {
+        "driver": "HAM",
+        "lap": 12,
+        "path_length_m": 5781.037276811661,
+        "length_error_m": 5.49813355688093,
+        "rmse_m": 6.638298966872573,
+        "p95_m": 12.544147911930814
+      },
+      {
+        "driver": "SAI",
+        "lap": 10,
+        "path_length_m": 5778.782332442599,
+        "length_error_m": 7.7530779259432165,
+        "rmse_m": 6.834339374084584,
+        "p95_m": 12.410777985864886
+      },
+      {
+        "driver": "OCO",
+        "lap": 7,
+        "path_length_m": 5781.033252354598,
+        "length_error_m": 5.502158013944609,
+        "rmse_m": 7.109681349944322,
+        "p95_m": 17.177508073481633
+      },
+      {
+        "driver": "LEC",
+        "lap": 5,
+        "path_length_m": 5780.102963705362,
+        "length_error_m": 6.432446663180599,
+        "rmse_m": 7.3219354912582295,
+        "p95_m": 17.80364161136187
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 4.72409365206726,
+      "p50_m": 4.082013905576735,
+      "p95_m": 8.240203868823789,
+      "max_m": 9.435571868437654
+    },
+    "lap_compliance_summary": {
+      "total_laps": 974,
+      "fitted_laps": 916,
+      "compliant_laps": 912,
+      "non_compliant_laps": 62,
+      "shape_non_compliant_laps": 4,
+      "reason_counts": {
+        "compliant": 912,
+        "fastf1_inaccurate": 58,
+        "pit_lap": 41,
+        "shape_p95_over_threshold": 4,
+        "shape_rmse_over_threshold": 1
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "NOR",
+        "lap_number": 53,
+        "lap_time_ms": 80901,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 305,
+        "path_length_m": 5759.781361514493,
+        "length_error_m": -26.75404885404896,
+        "length_error_pct": -0.004623500412027204,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 228,
+          "sample_count": 240,
+          "rmse_m": 3.902187995178488,
+          "p50_m": 3.5878260880228456,
+          "p95_m": 6.024006330867822,
+          "max_m": 7.343739594495973,
+          "scale_m_per_fastf1_unit": 0.09988917534367252,
+          "rotation_degrees": -0.0048788303167331465
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "NOR",
+        "lap_number": 53,
+        "lap_time_ms": 80901,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 305,
+        "path_length_m": 5759.781361514493,
+        "length_error_m": -26.75404885404896,
+        "length_error_pct": -0.004623500412027204,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 228,
+          "sample_count": 240,
+          "rmse_m": 3.902187995178488,
+          "p50_m": 3.5878260880228456,
+          "p95_m": 6.024006330867822,
+          "max_m": 7.343739594495973,
+          "scale_m_per_fastf1_unit": 0.09988917534367252,
+          "rotation_degrees": -0.0048788303167331465
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 94,
+      "encoded_chars": 299,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.3669600859185518,
+      "p95_m": 0.7685110139191533,
+      "max_m": 0.9910592285342071,
+      "source_length_m": 5749.34583281149,
+      "simplified_length_m": 5746.942436473733,
+      "length_delta_m": -2.4033963377569307,
+      "length_delta_pct": -0.041802953025381756
+    },
+    "polyline_vs_source": {
+      "source_points": 125,
+      "simplified_points": 90,
+      "encoded_chars": 277,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.3082425431657873,
+      "p95_m": 0.8572120279745671,
+      "max_m": 0.9775489289085529,
+      "source_length_m": 5786.535410368542,
+      "simplified_length_m": 5785.801750314819,
+      "length_delta_m": -0.7336600537228151,
+      "length_delta_pct": -0.012678744735722416
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 684,
+      "sample_count": 720,
+      "rmse_m": 6.115758641385829,
+      "p50_m": 3.989540453866808,
+      "p95_m": 13.332302292833255,
+      "max_m": 13.677231343715915,
+      "scale_m_per_fastf1_unit": 0.09996177590417173,
+      "rotation_degrees": -0.17904790177966923
+    },
+    "encoded_polyline": "s}luGsvsw@ea@gCMEEKAQ@w@OUIAG?oD`Ao@Hk@BuG]gAUmAg@g@[k@g@c@i@i@w@e@{@_@cA]gA[qASoAQyAKeB_@}NUoOEMIMg@OKGEKY_DcCyPEg@?e@Bc@FYTq@T[PQTKVE`Ly@V@ZNTj@nG~T\\jAh@rA^z@`E`IxB~DlKfSV`@NJ^@f@Gr@Af@LVLXTX^d@bAJLPJ\\JfHp@`k@pETFVNb@p@Nb@Hf@Dl@Af@Eb@Ih@Mh@a@bA_@f@y@t@kAh@g@LwAN_HF}AAaOiAgD[",
+    "averaged_fastf1_encoded_polyline": "s}luGivsw@y_@cC[IWSIMOw@GMMGMC[BkCn@gANw@BiAA_COuAWoAg@mAw@eAgA_@k@[m@q@cBm@_CUmAKy@SmCMwDQsHKqLE{@Gg@Ma@m@o@Q_@EQIg@SkCQoAwAqJI{@A}@Jy@Tu@^g@d@[h@Oj@GzHa@Z@ZHb@^R\\N`@tB~HvBpHr@zBh@rApApCpQt]p@hATXLFh@Lx@?h@Dh@PXNVVjAzAf@Xv@T|j@|DpBPfANdA\\XNTVZn@Jb@Df@?|@Iz@YfAe@~@k@p@s@f@aAb@eAVy@HgABsBAqBEwEUsOaA"
+  },
+  {
+    "round": 17,
+    "event_name": "Azerbaijan Grand Prix",
+    "fastf1_location": "Baku",
+    "circuit_id": "az-2016",
+    "circuit_name": "Baku City Circuit",
+    "repo_location": "Baku",
+    "declared_length_m": 6003,
+    "fastf1_driver": "OCO",
+    "fastf1_lap": 8,
+    "fastf1_points": 411,
+    "fastf1_path_length_m": 5955.476449364072,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 707,
+      "sample_count": 720,
+      "rmse_m": 4.695537165389476,
+      "p50_m": 3.3501296749605496,
+      "p95_m": 8.321425858879767,
+      "max_m": 15.721708103692697,
+      "scale_m_per_fastf1_unit": 0.0999845387285073,
+      "rotation_degrees": 0.8829347528269251
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "OCO",
+        "lap": 8,
+        "path_length_m": 5955.476449364072,
+        "length_error_m": 13.479999131045588,
+        "rmse_m": 4.695537165389476,
+        "p95_m": 8.321425858879767
+      },
+      {
+        "driver": "ANT",
+        "lap": 41,
+        "path_length_m": 5955.911379407704,
+        "length_error_m": 13.914929174677127,
+        "rmse_m": 4.830229920309392,
+        "p95_m": 7.753648884181798
+      },
+      {
+        "driver": "COL",
+        "lap": 24,
+        "path_length_m": 5955.626244208172,
+        "length_error_m": 13.629793975144821,
+        "rmse_m": 4.87834068639019,
+        "p95_m": 8.632531936107402
+      },
+      {
+        "driver": "HUL",
+        "lap": 50,
+        "path_length_m": 5955.406803426158,
+        "length_error_m": 13.410353193131414,
+        "rmse_m": 4.889826988937139,
+        "p95_m": 9.213365841218778
+      },
+      {
+        "driver": "BEA",
+        "lap": 15,
+        "path_length_m": 5955.83403880364,
+        "length_error_m": 13.837588570613661,
+        "rmse_m": 4.983035893910032,
+        "p95_m": 9.777371553120929
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 4.62320166229048,
+      "p50_m": 3.401713733514095,
+      "p95_m": 8.013275151794815,
+      "max_m": 15.026655171548063
+    },
+    "lap_compliance_summary": {
+      "total_laps": 968,
+      "fitted_laps": 855,
+      "compliant_laps": 853,
+      "non_compliant_laps": 115,
+      "shape_non_compliant_laps": 2,
+      "reason_counts": {
+        "compliant": 853,
+        "fastf1_inaccurate": 113,
+        "missing_lap_time": 58,
+        "path_length_outlier": 4,
+        "pit_lap": 41,
+        "shape_p95_over_threshold": 2,
+        "shape_rmse_over_threshold": 2
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "VER",
+        "lap_number": 50,
+        "lap_time_ms": 103388,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 393,
+        "path_length_m": 5958.803986049137,
+        "length_error_m": 16.80753581611043,
+        "length_error_pct": 0.002828600783740167,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 18.0378265044787,
+          "p50_m": 18.357424962602906,
+          "p95_m": 22.374538920296285,
+          "max_m": 24.479834735269357,
+          "scale_m_per_fastf1_unit": 0.09997440056286457,
+          "rotation_degrees": 0.43611701878484666
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "VER",
+        "lap_number": 50,
+        "lap_time_ms": 103388,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 393,
+        "path_length_m": 5958.803986049137,
+        "length_error_m": 16.80753581611043,
+        "length_error_pct": 0.002828600783740167,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 18.0378265044787,
+          "p50_m": 18.357424962602906,
+          "p95_m": 22.374538920296285,
+          "max_m": 24.479834735269357,
+          "scale_m_per_fastf1_unit": 0.09997440056286457,
+          "rotation_degrees": 0.43611701878484666
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 107,
+      "encoded_chars": 319,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.32112951073931245,
+      "p95_m": 0.6675599637032447,
+      "max_m": 0.9812959520098153,
+      "source_length_m": 5949.636225494099,
+      "simplified_length_m": 5947.344625208009,
+      "length_delta_m": -2.291600286089306,
+      "length_delta_pct": -0.03851664537522201
+    },
+    "polyline_vs_source": {
+      "source_points": 86,
+      "simplified_points": 79,
+      "encoded_chars": 254,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.19256530562230378,
+      "p95_m": 0.4150870542089081,
+      "max_m": 0.9567166559939408,
+      "source_length_m": 5941.996450233027,
+      "simplified_length_m": 5941.944431367446,
+      "length_delta_m": -0.052018865580976126,
+      "length_delta_pct": -0.0008754442385931771
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 707,
+      "sample_count": 720,
+      "rmse_m": 4.676712663460696,
+      "p50_m": 3.3317321045814356,
+      "p95_m": 8.398047546434421,
+      "max_m": 15.706042789473418,
+      "scale_m_per_fastf1_unit": 0.09998487222592028,
+      "rotation_degrees": 0.881671475723485
+    },
+    "encoded_polyline": "ihluFy}goHsBaJISQKOAWDmCfAsDxBmDdBGNCR`FrVlJ~_@X^`@?zH_DV?TVbBtG`A|CfBrEJJRCx@c@P@`A`B|G`Nv@pAP`@?`@W\\_H~BKLCV?^Sl@EZ@x@G\\SNaAXMLGPA\\t@hEvBdIbBtEXh@`@`@n@\\nGhBb@DvJa@VIVYnDwLf@yBRcABe@Ek@O]OSeFcDc@c@eGyJ_@]_@OmD_@_@M_@]W_@_I_Pe@iA}@_DmAsFmAyEmDsOiAuEeHq[",
+    "averaged_fastf1_encoded_polyline": "ehluF_~goHiBaIQ_@IK[OMA]FYLcL|FYPILEPBf@Hb@hE~S`ExPnDnNN`@HJLFL?ZKt@c@`Bm@|Ay@f@U\\CLDJJTp@ZxAbAbExBjGRZJJLHLBZGh@WL@VRz@nBjIfPDNBRAPILKJw@ZsEvA[LKJM^Ib@Ef@EjAId@GLMJi@FMFILCR@x@Hv@Nv@v@~CfB`GlAdDXl@`@d@f@XbFxAx@NhABnEUvBFZEJKFOfBwGdCgIJc@Fc@?SIc@S[KI{DwBq@e@q@m@k@s@eBmC_CaDe@]i@SoCo@g@WWWi@u@mH{NWq@YeA{D}PcFgTyC{N_DcN"
+  },
+  {
+    "round": 18,
+    "event_name": "Singapore Grand Prix",
+    "fastf1_location": "Marina Bay",
+    "circuit_id": "sg-2008",
+    "circuit_name": "Marina Bay Street Circuit",
+    "repo_location": "Singapore",
+    "declared_length_m": 4928,
+    "fastf1_driver": "SAI",
+    "fastf1_lap": 53,
+    "fastf1_points": 369,
+    "fastf1_path_length_m": 4930.24426354506,
+    "repo_vs_fastf1": {
+      "direction": "reversed",
+      "start_offset_samples": 705,
+      "sample_count": 720,
+      "rmse_m": 13.533705049964764,
+      "p50_m": 10.288232974241815,
+      "p95_m": 27.832213439990575,
+      "max_m": 28.89378382537647,
+      "scale_m_per_fastf1_unit": 0.09993768383728112,
+      "rotation_degrees": 1.110492688704775
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "SAI",
+        "lap": 53,
+        "path_length_m": 4930.24426354506,
+        "length_error_m": 12.380219679698712,
+        "rmse_m": 13.533705049964764,
+        "p95_m": 27.832213439990575
+      },
+      {
+        "driver": "RUS",
+        "lap": 2,
+        "path_length_m": 4917.178178401201,
+        "length_error_m": 25.44630482355751,
+        "rmse_m": 17.630329135918963,
+        "p95_m": 32.000853561761865
+      },
+      {
+        "driver": "ALO",
+        "lap": 26,
+        "path_length_m": 4917.909287486394,
+        "length_error_m": 24.715195738364855,
+        "rmse_m": 19.470573796948408,
+        "p95_m": 30.59059610251432
+      },
+      {
+        "driver": "COL",
+        "lap": 3,
+        "path_length_m": 4922.716874849264,
+        "length_error_m": 19.90760837549442,
+        "rmse_m": 20.161182512233335,
+        "p95_m": 31.082412157265612
+      },
+      {
+        "driver": "GAS",
+        "lap": 12,
+        "path_length_m": 4919.690566755813,
+        "length_error_m": 22.933916468945426,
+        "rmse_m": 20.438192618397867,
+        "p95_m": 31.605241925972
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 10.61737002496692,
+      "p50_m": 9.231881582265798,
+      "p95_m": 17.795419176542808,
+      "max_m": 20.520507643168123
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1229,
+      "fitted_laps": 1163,
+      "compliant_laps": 1158,
+      "non_compliant_laps": 71,
+      "shape_non_compliant_laps": 5,
+      "reason_counts": {
+        "compliant": 1158,
+        "fastf1_inaccurate": 66,
+        "pit_lap": 48,
+        "shape_p95_over_threshold": 2,
+        "shape_rmse_over_threshold": 5
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "HAM",
+        "lap_number": 48,
+        "lap_time_ms": 93808,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 352,
+        "path_length_m": 4860.832025531036,
+        "length_error_m": -81.7924576937221,
+        "length_error_pct": -0.016548385978203538,
+        "fit": {
+          "direction": "reversed",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 9.002655665692103,
+          "p50_m": 7.922648192778222,
+          "p95_m": 15.938588874859473,
+          "max_m": 20.82046487559232,
+          "scale_m_per_fastf1_unit": 0.09987213846940161,
+          "rotation_degrees": 1.16015467764865
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "HAM",
+        "lap_number": 48,
+        "lap_time_ms": 93808,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 352,
+        "path_length_m": 4860.832025531036,
+        "length_error_m": -81.7924576937221,
+        "length_error_pct": -0.016548385978203538,
+        "fit": {
+          "direction": "reversed",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 9.002655665692103,
+          "p50_m": 7.922648192778222,
+          "p95_m": 15.938588874859473,
+          "max_m": 20.82046487559232,
+          "scale_m_per_fastf1_unit": 0.09987213846940161,
+          "rotation_degrees": 1.16015467764865
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 129,
+      "encoded_chars": 359,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.3929800952800258,
+      "p95_m": 0.8026830774376139,
+      "max_m": 0.9881499752706404,
+      "source_length_m": 4845.372797822312,
+      "simplified_length_m": 4833.238379267213,
+      "length_delta_m": -12.134418555099728,
+      "length_delta_pct": -0.2504331258175507
+    },
+    "polyline_vs_source": {
+      "source_points": 116,
+      "simplified_points": 90,
+      "encoded_chars": 254,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.26197787994760674,
+      "p95_m": 0.700853867734613,
+      "max_m": 0.9480106597103437,
+      "source_length_m": 4942.6244832247585,
+      "simplified_length_m": 4942.193343481111,
+      "length_delta_m": -0.4311397436476909,
+      "length_delta_pct": -0.008722890948138523
+    },
+    "polyline_vs_fastf1": {
+      "direction": "reversed",
+      "start_offset_samples": 705,
+      "sample_count": 720,
+      "rmse_m": 13.537645537357188,
+      "p50_m": 10.350330584350168,
+      "p95_m": 27.855882389108217,
+      "max_m": 28.851263143693444,
+      "scale_m_per_fastf1_unit": 0.09994099107778949,
+      "rotation_degrees": 1.1057629259790431
+    },
+    "encoded_polyline": "ih{F{}|xRxLw@VBTLpBhADJ?NIbEYtFG^KRQNa@Js@@KDg@|VG~@Kh@Ul@kFnGCRBTV\\bB^hAPlTdCPJHJ@L?PCFYT]Ra@NOP_AlA{@~@SNs@Lk@EUIMDQv@S^[d@Y\\UJ{@D}QsI_@c@Gc@n@gAlDeDFMCKsCmAsCuAWOEOJ[tG_N\\kAHs@d@mSEYM_@S[_@Q]CgADaBP{Cv@}@Xa@Dk@?_BIg@OUWAQBQp@g@NQRg@Hc@Ci@FWNIXGvEQnGc@",
+    "averaged_fastf1_encoded_polyline": "yg{Fg~|xRfHq@|@Cz@Fb@H^N^TPNLPJTDTDb@E~HG|@M`@UZ[Rm@RQLSXI`@ChAC`GO~HEhAGn@Wv@_@r@c@p@oB`C]f@KRETATBHBHPN^N|A^zA\\rAPdCVxEb@~CRVDTHLP@HCJEHQNq@b@[VeBzB_@PsAPa@LON[bA[h@[Tm@PW@KAc@KsBcAkEqB{D{A_@S[UQQMa@AWBWTk@p@u@|AoANQFU@KCIGISMoCaAgAo@QOOSIUAWFc@Rm@dBaDlB_EXw@Py@Hq@FsA^wN?q@Ac@Gc@Ka@S]_@Qc@G}@@o@H{@Pw@TuBp@m@No@Jc@@o@Cc@ISKEIGS?KDSd@{@JUPy@FWVY\\Q`@Kb@GhL}@"
+  },
+  {
+    "round": 19,
+    "event_name": "United States Grand Prix",
+    "fastf1_location": "Austin",
+    "circuit_id": "us-2012",
+    "circuit_name": "Circuit of the Americas",
+    "repo_location": "Austin",
+    "declared_length_m": 5514,
+    "fastf1_driver": "RUS",
+    "fastf1_lap": 11,
+    "fastf1_points": 390,
+    "fastf1_path_length_m": 5441.720162904768,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 683,
+      "sample_count": 720,
+      "rmse_m": 6.7345473222832775,
+      "p50_m": 5.917167131568459,
+      "p95_m": 10.794038641063059,
+      "max_m": 14.306817447300475,
+      "scale_m_per_fastf1_unit": 0.09989736176076883,
+      "rotation_degrees": -0.4077803421356998
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "RUS",
+        "lap": 11,
+        "path_length_m": 5441.720162904768,
+        "length_error_m": 77.93214202387026,
+        "rmse_m": 6.7345473222832775,
+        "p95_m": 10.794038641063059
+      },
+      {
+        "driver": "ANT",
+        "lap": 19,
+        "path_length_m": 5441.37189954748,
+        "length_error_m": 78.28040538115783,
+        "rmse_m": 7.118702269951718,
+        "p95_m": 11.7718279919608
+      },
+      {
+        "driver": "STR",
+        "lap": 2,
+        "path_length_m": 5449.206467959215,
+        "length_error_m": 70.445836969423,
+        "rmse_m": 8.31911049456312,
+        "p95_m": 13.755180419809442
+      },
+      {
+        "driver": "ALO",
+        "lap": 6,
+        "path_length_m": 5438.56666001313,
+        "length_error_m": 81.08564491550806,
+        "rmse_m": 8.854223491141425,
+        "p95_m": 14.602331061152155
+      },
+      {
+        "driver": "ALO",
+        "lap": 3,
+        "path_length_m": 5453.283287733338,
+        "length_error_m": 66.36901719530033,
+        "rmse_m": 9.14004771430999,
+        "p95_m": 14.743425185649148
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 6.4113585594924,
+      "p50_m": 5.088435543193926,
+      "p95_m": 11.392684186299057,
+      "max_m": 16.191873238623412
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1067,
+      "fitted_laps": 963,
+      "compliant_laps": 961,
+      "non_compliant_laps": 106,
+      "shape_non_compliant_laps": 2,
+      "reason_counts": {
+        "compliant": 961,
+        "fastf1_inaccurate": 104,
+        "missing_lap_time": 1,
+        "pit_lap": 42,
+        "shape_p95_over_threshold": 2,
+        "shape_rmse_over_threshold": 2
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "ANT",
+        "lap_number": 33,
+        "lap_time_ms": 97577,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 369,
+        "path_length_m": 5423.525193657189,
+        "length_error_m": -96.12711127144848,
+        "length_error_pct": -0.017415428719235473,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 227,
+          "sample_count": 240,
+          "rmse_m": 13.667214856196487,
+          "p50_m": 13.432774189819181,
+          "p95_m": 20.24407687950621,
+          "max_m": 22.113881599911057,
+          "scale_m_per_fastf1_unit": 0.09976483189456871,
+          "rotation_degrees": -0.8601451335627077
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "ANT",
+        "lap_number": 33,
+        "lap_time_ms": 97577,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 369,
+        "path_length_m": 5423.525193657189,
+        "length_error_m": -96.12711127144848,
+        "length_error_pct": -0.017415428719235473,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 227,
+          "sample_count": 240,
+          "rmse_m": 13.667214856196487,
+          "p50_m": 13.432774189819181,
+          "p95_m": 20.24407687950621,
+          "max_m": 22.113881599911057,
+          "scale_m_per_fastf1_unit": 0.09976483189456871,
+          "rotation_degrees": -0.8601451335627077
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 158,
+      "encoded_chars": 444,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.379008865231675,
+      "p95_m": 0.7703631856880491,
+      "max_m": 0.9793839891991906,
+      "source_length_m": 5402.347198480331,
+      "simplified_length_m": 5397.945749892073,
+      "length_delta_m": -4.401448588258063,
+      "length_delta_pct": -0.0814728936617806
+    },
+    "polyline_vs_source": {
+      "source_points": 171,
+      "simplified_points": 131,
+      "encoded_chars": 361,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.2854532164888746,
+      "p95_m": 0.7329153146639023,
+      "max_m": 0.9848457650293002,
+      "source_length_m": 5519.652304928638,
+      "simplified_length_m": 5518.6090772159405,
+      "length_delta_m": -1.043227712697444,
+      "length_delta_pct": -0.01890024325927051
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 683,
+      "sample_count": 720,
+      "rmse_m": 6.699550639146554,
+      "p50_m": 5.8233924138304705,
+      "p95_m": 10.871849165801198,
+      "max_m": 14.25358573580164,
+      "scale_m_per_fastf1_unit": 0.099899049980658,
+      "rotation_degrees": -0.40652530882373183
+    },
+    "encoded_polyline": "ob|vDxf}rQjFuIx@_Bd@iALe@AIEKIEGCI?oGjBYDo@?w@Oq@a@YWO[kD}HMQa@[yAi@c@_@Ui@Oo@Oc@MSMMSKuAOYESIe@[QOQWQ][}@E]?i@F]tAwE?S[u@_@m@[a@_Ay@OUGYCQ?[D]JWZ]\\SJMDO?OcAcJEUOWwKeKkAeAm@[KAIBKPAJ?JjBlK~@fG|@`Hz@zIv@bLx@nQH`ABHH@F?n@o@~CeCpA{@LCPBJFFNBL@VGlBCHORMFiA^QNgApAEXEfA?LDFFFJBJElEgCxAw@VCV?f@Hb@Nh@TNLLVv@hCBV@TGnAWnAc@|@WN{C~BmBdBIJIb@?PDVPv@zC|KLVLHLBHCRUvCyE|IeO",
+    "averaged_fastf1_encoded_polyline": "qb|vDxf}rQhFyItAuBFMF]A]EMIIWGu@Fg@JoBv@s@NYB[?g@Ge@MWMm@c@QUYc@]u@w@{Bw@wA[a@KI{A_Aa@[Yc@_@cAYc@m@_@oAWc@Qa@W]a@Ug@Qg@I]Ao@B]D]Nk@^eAH[Fm@A_@Oi@We@aBkBOYG]?]D]Tg@b@m@J[Dm@E_AI{@[yBSy@_@eAc@m@g@i@{FoF{ByBWOWIM?KBIHIZA^Fl@jBrJf@dDdA~Hx@`Ip@bJPzDb@tMB\\F\\PVJFX@XITOTS~AmB^[VOXIXALBVLNVDL?\\A^ELKZ]`@UNqAt@_@^OTSh@C\\D\\NXJDL@JAXKp@e@tAkAl@]r@Qt@Eh@DXFVJ`@VRTVd@LXLj@F\\Bl@A^El@Oz@IZUf@Yb@i@f@UP}A|@aAx@a@n@KZE\\?l@L|@v@lC`AzDRh@PTVLXBJCVO\\_@Vc@rAoCtI{N"
+  },
+  {
+    "round": 20,
+    "event_name": "Mexico City Grand Prix",
+    "fastf1_location": "Mexico City",
+    "circuit_id": "mx-1962",
+    "circuit_name": "Aut\u00f3dromo Hermanos Rodr\u00edguez",
+    "repo_location": "Mexico City",
+    "declared_length_m": 4304,
+    "fastf1_driver": "COL",
+    "fastf1_lap": 37,
+    "fastf1_points": 322,
+    "fastf1_path_length_m": 4252.4827874190705,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 713,
+      "sample_count": 720,
+      "rmse_m": 6.1291535773631995,
+      "p50_m": 4.99032059169167,
+      "p95_m": 12.067680906017944,
+      "max_m": 12.886917947725085,
+      "scale_m_per_fastf1_unit": 0.10017149587315032,
+      "rotation_degrees": -0.2179571883259991
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "COL",
+        "lap": 37,
+        "path_length_m": 4252.4827874190705,
+        "length_error_m": 49.95969673145828,
+        "rmse_m": 6.1291535773631995,
+        "p95_m": 12.067680906017944
+      },
+      {
+        "driver": "ALB",
+        "lap": 6,
+        "path_length_m": 4251.618666713507,
+        "length_error_m": 50.82381743702172,
+        "rmse_m": 6.16502320047545,
+        "p95_m": 11.081756665840127
+      },
+      {
+        "driver": "HAM",
+        "lap": 4,
+        "path_length_m": 4251.231094443545,
+        "length_error_m": 51.21138970698394,
+        "rmse_m": 6.198201393160692,
+        "p95_m": 11.260352383024827
+      },
+      {
+        "driver": "SAI",
+        "lap": 16,
+        "path_length_m": 4250.488044899651,
+        "length_error_m": 51.95443925087784,
+        "rmse_m": 6.313312815379643,
+        "p95_m": 12.769289584855965
+      },
+      {
+        "driver": "ANT",
+        "lap": 41,
+        "path_length_m": 4248.9100403815955,
+        "length_error_m": 53.53244376893326,
+        "rmse_m": 6.47443001458825,
+        "p95_m": 12.407082350516303
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 5.475142626072909,
+      "p50_m": 4.960508839009327,
+      "p95_m": 8.828262323686166,
+      "max_m": 11.788721452862625
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1263,
+      "fitted_laps": 1153,
+      "compliant_laps": 1153,
+      "non_compliant_laps": 110,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 1153,
+        "fastf1_inaccurate": 110,
+        "missing_lap_time": 1,
+        "pit_lap": 57
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "RUS",
+        "lap_number": 50,
+        "lap_time_ms": 80052,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 296,
+        "path_length_m": 4244.5244654563985,
+        "length_error_m": -57.918018694130296,
+        "length_error_pct": -0.01346166018662434,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 238,
+          "sample_count": 240,
+          "rmse_m": 7.384057622126999,
+          "p50_m": 6.557696614307358,
+          "p95_m": 11.93359934917327,
+          "max_m": 19.988640938458545,
+          "scale_m_per_fastf1_unit": 0.1002357533200107,
+          "rotation_degrees": 0.17481553312067682
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "RUS",
+        "lap_number": 50,
+        "lap_time_ms": 80052,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 296,
+        "path_length_m": 4244.5244654563985,
+        "length_error_m": -57.918018694130296,
+        "length_error_pct": -0.01346166018662434,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 238,
+          "sample_count": 240,
+          "rmse_m": 7.384057622126999,
+          "p50_m": 6.557696614307358,
+          "p95_m": 11.93359934917327,
+          "max_m": 19.988640938458545,
+          "scale_m_per_fastf1_unit": 0.1002357533200107,
+          "rotation_degrees": 0.17481553312067682
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 108,
+      "encoded_chars": 292,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.3428818663194034,
+      "p95_m": 0.7112607468855022,
+      "max_m": 0.9969599797490192,
+      "source_length_m": 4249.385604646904,
+      "simplified_length_m": 4246.210971006837,
+      "length_delta_m": -3.1746336400665314,
+      "length_delta_pct": -0.07470806218656457
+    },
+    "polyline_vs_source": {
+      "source_points": 101,
+      "simplified_points": 87,
+      "encoded_chars": 237,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.23142306509919933,
+      "p95_m": 0.6990437616426289,
+      "max_m": 0.8961681451587976,
+      "source_length_m": 4302.442484150529,
+      "simplified_length_m": 4302.0038296839675,
+      "length_delta_m": -0.4386544665612746,
+      "length_delta_pct": -0.010195475434644474
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 713,
+      "sample_count": 720,
+      "rmse_m": 6.118507367759742,
+      "p50_m": 5.058692149360539,
+      "p95_m": 12.118001518319488,
+      "max_m": 12.880030680157745,
+      "scale_m_per_fastf1_unit": 0.10017092346249656,
+      "rotation_degrees": -0.21855600805823844
+    },
+    "encoded_polyline": "}gmuBrjy{QtBg[RiFr@qKdAyNRgBDQFGVEtBPHAHE`@cAJGtAH`AN~@Xv@\\rJfFvLfHP@LCHGn@qAFGJAHDxBhDFL@LCJQZIBW?iOeAO?MFMHy@bBk@n@_@Nm@R[PSTMVM^c@~FGZWXMD_B`@SHQPUf@aB|DSt@QnAwAxRCLSJiDJiBLKBGHEJ@PLN^VHJDNAPQj@ETKjBEPEFKDK@]Ee@O_@Sg@]Ya@Sk@Ig@Ag@b@oG",
+    "averaged_fastf1_encoded_polyline": "chmuBfjy{Qd@sF~@}L`AeQ|AsVFk@H_@N]LOZORChAFTCPIFG^k@FGRGRAT?r@L`Bf@tAn@zD~BtHdEzBvAtA~@b@Vh@JRCHCNOZm@NMHAT@NLjAjBN\\BT?TIROL_@Fi@?wJiAi@Ci@B]J[PSXk@~@UV_@Z}@j@m@n@OZOh@Gj@EzBG`@M\\SXWR[NmAd@YPONSZYn@[z@W~@_@hBUnBQxBc@zIE^I^SZMNSHSFs@B_CEi@HOJEHATFR\\l@BT@TWnCGRGFQHUB_@CSE[MYUUWQ[M]OaAEmADeBRiC"
+  },
+  {
+    "round": 21,
+    "event_name": "S\u00e3o Paulo Grand Prix",
+    "fastf1_location": "S\u00e3o Paulo",
+    "circuit_id": "br-1940",
+    "circuit_name": "Aut\u00f3dromo Jos\u00e9 Carlos Pace - Interlagos",
+    "repo_location": "Sao Paulo",
+    "declared_length_m": 4309,
+    "fastf1_driver": "RUS",
+    "fastf1_lap": 65,
+    "fastf1_points": 284,
+    "fastf1_path_length_m": 4258.805567565604,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 715,
+      "sample_count": 720,
+      "rmse_m": 9.358708164058863,
+      "p50_m": 8.140492104553886,
+      "p95_m": 15.105966778834649,
+      "max_m": 18.767717978901064,
+      "scale_m_per_fastf1_unit": 0.100176709643936,
+      "rotation_degrees": -1.496476967063882
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "RUS",
+        "lap": 65,
+        "path_length_m": 4258.805567565604,
+        "length_error_m": 38.884426103379155,
+        "rmse_m": 9.358708164058863,
+        "p95_m": 15.105966778834649
+      },
+      {
+        "driver": "SAI",
+        "lap": 9,
+        "path_length_m": 4259.789621846588,
+        "length_error_m": 37.900371822395755,
+        "rmse_m": 9.65750496255948,
+        "p95_m": 15.700356899476601
+      },
+      {
+        "driver": "ALO",
+        "lap": 25,
+        "path_length_m": 4262.9814012704965,
+        "length_error_m": 34.70859239848687,
+        "rmse_m": 10.402094244802614,
+        "p95_m": 16.69364727992007
+      },
+      {
+        "driver": "BEA",
+        "lap": 6,
+        "path_length_m": 4259.447497595233,
+        "length_error_m": 38.24249607375077,
+        "rmse_m": 10.949094638445033,
+        "p95_m": 15.220154516361607
+      },
+      {
+        "driver": "SAI",
+        "lap": 13,
+        "path_length_m": 4272.404654074539,
+        "length_error_m": 25.28533959444394,
+        "rmse_m": 11.97864042640454,
+        "p95_m": 18.84088656985598
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 9.999709873776562,
+      "p50_m": 9.60287659332094,
+      "p95_m": 14.934415505646772,
+      "max_m": 16.097743353081732
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1251,
+      "fitted_laps": 1049,
+      "compliant_laps": 1049,
+      "non_compliant_laps": 202,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 1049,
+        "fastf1_inaccurate": 202,
+        "missing_lap_time": 2,
+        "path_length_outlier": 2,
+        "pit_lap": 77
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "ALB",
+        "lap_number": 59,
+        "lap_time_ms": 72400,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 276,
+        "path_length_m": 4230.736365070971,
+        "length_error_m": -66.95362859801207,
+        "length_error_pct": -0.015578980498044964,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 239,
+          "sample_count": 240,
+          "rmse_m": 6.936818573249281,
+          "p50_m": 5.88987769683076,
+          "p95_m": 11.840936707215707,
+          "max_m": 15.100954435455137,
+          "scale_m_per_fastf1_unit": 0.10013768788255457,
+          "rotation_degrees": -0.35006375644186666
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "ALB",
+        "lap_number": 59,
+        "lap_time_ms": 72400,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 276,
+        "path_length_m": 4230.736365070971,
+        "length_error_m": -66.95362859801207,
+        "length_error_pct": -0.015578980498044964,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 239,
+          "sample_count": 240,
+          "rmse_m": 6.936818573249281,
+          "p50_m": 5.88987769683076,
+          "p95_m": 11.840936707215707,
+          "max_m": 15.100954435455137,
+          "scale_m_per_fastf1_unit": 0.10013768788255457,
+          "rotation_degrees": -0.35006375644186666
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 127,
+      "encoded_chars": 369,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.40462885300666696,
+      "p95_m": 0.7844422956546617,
+      "max_m": 0.9941584168877783,
+      "source_length_m": 4235.577087994898,
+      "simplified_length_m": 4231.652810718508,
+      "length_delta_m": -3.9242772763900575,
+      "length_delta_pct": -0.09265035660696219
+    },
+    "polyline_vs_source": {
+      "source_points": 171,
+      "simplified_points": 121,
+      "encoded_chars": 334,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.3172157399052372,
+      "p95_m": 0.8204283500762184,
+      "max_m": 0.9942364929599419,
+      "source_length_m": 4297.689993668983,
+      "simplified_length_m": 4296.435208020086,
+      "length_delta_m": -1.2547856488972684,
+      "length_delta_pct": -0.029196746409017853
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 715,
+      "sample_count": 720,
+      "rmse_m": 9.265768380468389,
+      "p50_m": 8.204088270233642,
+      "p95_m": 14.982617737924823,
+      "max_m": 18.380507125031173,
+      "scale_m_per_fastf1_unit": 0.10015885424809537,
+      "rotation_degrees": -1.5028523941317575
+    },
+    "encoded_polyline": "jstoCja`|GbM}BVKd@[HMFS?SCWCI_@c@c@c@GMEQAQFY^w@Nk@Fa@Dy@IeAMg@Qc@Ya@[]w@e@_@MeDw@sKmB_OsCUCS@MDQJMTGX[rCCj@Dx@F^Zt@RX`Ax@hCnB~CxBpCvBPPHPHZ@\\?l@C\\Ol@Sd@MPMJUJ]FqATgAJ{@@UGOUEYBODOh@}@BMB]AMEUQWSMSGQ?S@i@ZgAlA_@^]Tg@No@Jy@FUAWOEWF[nCkCVc@Lg@Dk@?WEe@G]O]W]SQ_BcAoDuBWCYHKLO^o@nCGh@JzAPzAj@xBb@fAP\\f@n@TRXPbA\\~Cj@rALjEx@`@Bl@@v@Cf@EzLuB",
+    "averaged_fastf1_encoded_polyline": "vstoC`b`|G`HkAfB_@d@Qd@UVWHSBI?UEUGSk@aAGSCUBa@^uAJw@@y@Gy@W_Ae@w@g@g@_Ai@[K}@UyLeCuMuCs@G_@@]HYRSXQh@Mv@Cl@?t@?GBr@Lj@Ph@f@v@TXVThDjChFvDNNXb@Pf@Hl@Ax@Mj@IRSZi@b@e@Rs@N}@Hi@@i@G]OKQCI@WDU`@gABU?WEUKQQKSE_@?g@Pa@XqAjAa@Xe@Ri@N]D_@A]MEICUBUHSd@i@r@g@^]LQN]Jk@By@Em@Mk@]o@m@o@oCcBaAg@SESA_@FWTWf@Sr@Kl@GnA@l@Fx@Jx@Nt@Nj@Vr@Vd@Xd@d@f@VTj@`@d@Tn@Tz@VzCj@pBT~BJtBCrBO|BYxEs@"
+  },
+  {
+    "round": 22,
+    "event_name": "Las Vegas Grand Prix",
+    "fastf1_location": "Las Vegas",
+    "circuit_id": "us-2023",
+    "circuit_name": "Las Vegas Street Circuit",
+    "repo_location": "Las Vegas",
+    "declared_length_m": 6201,
+    "fastf1_driver": "TSU",
+    "fastf1_lap": 25,
+    "fastf1_points": 361,
+    "fastf1_path_length_m": 6179.519486739674,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 704,
+      "sample_count": 720,
+      "rmse_m": 7.054356657125108,
+      "p50_m": 5.257671581066381,
+      "p95_m": 12.689984479279305,
+      "max_m": 21.95347977269868,
+      "scale_m_per_fastf1_unit": 0.10027456601276287,
+      "rotation_degrees": -0.7838694861637855
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "TSU",
+        "lap": 25,
+        "path_length_m": 6179.519486739674,
+        "length_error_m": 41.09312967311416,
+        "rmse_m": 7.054356657125108,
+        "p95_m": 12.689984479279305
+      },
+      {
+        "driver": "BEA",
+        "lap": 15,
+        "path_length_m": 6175.607193649671,
+        "length_error_m": 45.00542276311717,
+        "rmse_m": 9.575000972410876,
+        "p95_m": 18.55412035967497
+      },
+      {
+        "driver": "TSU",
+        "lap": 23,
+        "path_length_m": 6176.08682578856,
+        "length_error_m": 44.52579062422774,
+        "rmse_m": 11.389446129958618,
+        "p95_m": 19.872998211374412
+      },
+      {
+        "driver": "ALO",
+        "lap": 39,
+        "path_length_m": 6175.870607557699,
+        "length_error_m": 44.7420088550889,
+        "rmse_m": 11.544343335153107,
+        "p95_m": 20.466654061865285
+      },
+      {
+        "driver": "ANT",
+        "lap": 49,
+        "path_length_m": 6178.331761874433,
+        "length_error_m": 42.280854538355015,
+        "rmse_m": 12.371628452762344,
+        "p95_m": 26.07454662235032
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 10.942042834641425,
+      "p50_m": 9.49933531226722,
+      "p95_m": 18.216596943331666,
+      "max_m": 20.87463316876317
+    },
+    "lap_compliance_summary": {
+      "total_laps": 886,
+      "fitted_laps": 760,
+      "compliant_laps": 758,
+      "non_compliant_laps": 128,
+      "shape_non_compliant_laps": 2,
+      "reason_counts": {
+        "compliant": 758,
+        "fastf1_inaccurate": 126,
+        "missing_lap_time": 2,
+        "path_length_outlier": 1,
+        "pit_lap": 45,
+        "shape_p95_over_threshold": 1,
+        "shape_rmse_over_threshold": 2
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "VER",
+        "lap_number": 50,
+        "lap_time_ms": 93365,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 351,
+        "path_length_m": 6152.631691865608,
+        "length_error_m": -67.98092454717971,
+        "length_error_pct": -0.010928332744562055,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 12.147725353796064,
+          "p50_m": 8.703063719460747,
+          "p95_m": 24.77148332695948,
+          "max_m": 31.395169081330593,
+          "scale_m_per_fastf1_unit": 0.10013885742865776,
+          "rotation_degrees": -0.5741697419012382
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "VER",
+        "lap_number": 50,
+        "lap_time_ms": 93365,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 351,
+        "path_length_m": 6152.631691865608,
+        "length_error_m": -67.98092454717971,
+        "length_error_pct": -0.010928332744562055,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 12.147725353796064,
+          "p50_m": 8.703063719460747,
+          "p95_m": 24.77148332695948,
+          "max_m": 31.395169081330593,
+          "scale_m_per_fastf1_unit": 0.10013885742865776,
+          "rotation_degrees": -0.5741697419012382
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 123,
+      "encoded_chars": 363,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.42104072330393283,
+      "p95_m": 0.7906097485917667,
+      "max_m": 0.9893374374651865,
+      "source_length_m": 6144.5852386859015,
+      "simplified_length_m": 6141.900865652976,
+      "length_delta_m": -2.6843730329255777,
+      "length_delta_pct": -0.043686806003193565
+    },
+    "polyline_vs_source": {
+      "source_points": 100,
+      "simplified_points": 88,
+      "encoded_chars": 274,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.22586191942620748,
+      "p95_m": 0.6890177780376783,
+      "max_m": 0.9842320201515938,
+      "source_length_m": 6220.612616412788,
+      "simplified_length_m": 6220.470766699071,
+      "length_delta_m": -0.14184971371741995,
+      "length_delta_pct": -0.002280317429559209
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 704,
+      "sample_count": 720,
+      "rmse_m": 7.0479329879062105,
+      "p50_m": 5.223704817400528,
+      "p95_m": 12.697891220113211,
+      "max_m": 21.953017382983727,
+      "scale_m_per_fastf1_unit": 0.10027531651964881,
+      "rotation_degrees": -0.7814015383091889
+    },
+    "encoded_polyline": "{uk{Enl{}TgCsCYQ]EYLQXMn@Ej@@h@Hf@h@tA~@pAP\\JbA?b@SbAOb@U`@}@v@s@Tio@NWKKUDkK?uBK}@gA}Ac@_@gAg@k@Ku@E]@KRCx@IRUPa@DWAmAw@w@a@c@HWj@GrAMpRYdF]lAeArAuBfAqElB{@fAi@hAUhA]tBUdCBPHPd@JVLzI~EpFhDrCpApIxBzAV|ARhCRnDHfOCjQXjHFvC?rDFNKBQ?g@F_@v@cAZ{@JmAD{ICcM@uJAuDQuCU{COg@O_@SYiHgI",
+    "averaged_fastf1_encoded_polyline": "guk{Erl{}T}BoCe@]]COB[NSXM`@Ed@?d@Fb@J`@Xn@|@tAP^J`@BP?d@Cd@Ib@M`@Q\\UZWVYP]J]Fm@FgEJcd@Z_@Ei@SKKIMEOCe@@yHGiASiASq@Yo@k@u@c@c@g@[i@Um@I]@WJUVSp@ILKJMDO@[GcAm@]K]CMBMFKHGNEb@@jJGpHGhAIv@Mv@Qr@Up@[l@UXc@d@aAn@gD|Ai@Zo@l@k@t@m@jAM`@Qt@OfAMjAGn@?b@L`@JJLFhA\\hCrA|IrFzBjApBv@`D|@fCl@vB^jALjBPzAFzADjPFfa@`@l@Aj@MXSHMFQHw@DOv@{AHc@Be@BeCEcRFiMAkDCwCGy@SgASq@c@_A]i@sFsG"
+  },
+  {
+    "round": 23,
+    "event_name": "Qatar Grand Prix",
+    "fastf1_location": "Lusail",
+    "circuit_id": "qa-2004",
+    "circuit_name": "Losail International Circuit",
+    "repo_location": "Lusail",
+    "declared_length_m": 5380,
+    "fastf1_driver": "COL",
+    "fastf1_lap": 21,
+    "fastf1_points": 330,
+    "fastf1_path_length_m": 5401.577134624939,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 687,
+      "sample_count": 720,
+      "rmse_m": 4.913808703894966,
+      "p50_m": 3.9727329141667207,
+      "p95_m": 9.276442965431967,
+      "max_m": 11.114809188841148,
+      "scale_m_per_fastf1_unit": 0.10010736692667004,
+      "rotation_degrees": -0.026214216751704662
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "COL",
+        "lap": 21,
+        "path_length_m": 5401.577134624939,
+        "length_error_m": 19.12680953236122,
+        "rmse_m": 4.913808703894966,
+        "p95_m": 9.276442965431967
+      },
+      {
+        "driver": "BEA",
+        "lap": 17,
+        "path_length_m": 5400.179811587475,
+        "length_error_m": 20.52413256982527,
+        "rmse_m": 5.155393937186352,
+        "p95_m": 9.405143608799465
+      },
+      {
+        "driver": "ALO",
+        "lap": 4,
+        "path_length_m": 5405.1185971407795,
+        "length_error_m": 15.585347016521155,
+        "rmse_m": 6.480527280478207,
+        "p95_m": 10.416377218089547
+      },
+      {
+        "driver": "COL",
+        "lap": 22,
+        "path_length_m": 5408.093023790482,
+        "length_error_m": 12.610920366818391,
+        "rmse_m": 6.60623194047105,
+        "p95_m": 13.724046849802638
+      },
+      {
+        "driver": "LEC",
+        "lap": 4,
+        "path_length_m": 5400.259361569442,
+        "length_error_m": 20.44458258785835,
+        "rmse_m": 6.666048761207443,
+        "p95_m": 12.28237909083062
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 4.070748872128689,
+      "p50_m": 3.8824196886887723,
+      "p95_m": 6.231638517149546,
+      "max_m": 8.015416215001165
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1067,
+      "fitted_laps": 922,
+      "compliant_laps": 920,
+      "non_compliant_laps": 147,
+      "shape_non_compliant_laps": 2,
+      "reason_counts": {
+        "compliant": 920,
+        "fastf1_inaccurate": 145,
+        "missing_lap_time": 3,
+        "path_length_outlier": 1,
+        "pit_lap": 84,
+        "shape_p95_over_threshold": 1,
+        "shape_rmse_over_threshold": 2,
+        "too_few_position_samples": 1
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "PIA",
+        "lap_number": 44,
+        "lap_time_ms": 82996,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 304,
+        "path_length_m": 5387.188967147517,
+        "length_error_m": -33.51497700978325,
+        "length_error_pct": -0.006182772081826629,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 229,
+          "sample_count": 240,
+          "rmse_m": 10.8098546578633,
+          "p50_m": 10.356875860326632,
+          "p95_m": 16.07761441689575,
+          "max_m": 17.2332150426374,
+          "scale_m_per_fastf1_unit": 0.10002566877206343,
+          "rotation_degrees": 0.5208365109941746
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "PIA",
+        "lap_number": 44,
+        "lap_time_ms": 82996,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 304,
+        "path_length_m": 5387.188967147517,
+        "length_error_m": -33.51497700978325,
+        "length_error_pct": -0.006182772081826629,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 229,
+          "sample_count": 240,
+          "rmse_m": 10.8098546578633,
+          "p50_m": 10.356875860326632,
+          "p95_m": 16.07761441689575,
+          "max_m": 17.2332150426374,
+          "scale_m_per_fastf1_unit": 0.10002566877206343,
+          "rotation_degrees": 0.5208365109941746
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 137,
+      "encoded_chars": 382,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.4202729610122491,
+      "p95_m": 0.8092868368027003,
+      "max_m": 0.9895758667256787,
+      "source_length_m": 5380.810434371095,
+      "simplified_length_m": 5377.010660766782,
+      "length_delta_m": -3.799773604312577,
+      "length_delta_pct": -0.07061712451419397
+    },
+    "polyline_vs_source": {
+      "source_points": 107,
+      "simplified_points": 101,
+      "encoded_chars": 289,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.13482522638675595,
+      "p95_m": 0.2874718297625491,
+      "max_m": 0.7666393417568782,
+      "source_length_m": 5420.703944157301,
+      "simplified_length_m": 5420.637835035111,
+      "length_delta_m": -0.06610912219002785,
+      "length_delta_pct": -0.0012195671055100414
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 687,
+      "sample_count": 720,
+      "rmse_m": 4.884428340860803,
+      "p50_m": 3.9545226757068033,
+      "p95_m": 9.320266947247427,
+      "max_m": 10.912960209506405,
+      "scale_m_per_fastf1_unit": 0.10010554910811621,
+      "rotation_degrees": -0.025923898566655033
+    },
+    "encoded_polyline": "wiqzCow_yHaUlLe@Fe@E]OUWSc@Ek@Fg@fDsHF[?g@Kk@]c@a@S_@EsFF_@E[I[MmMmMQWGc@Cc@He@L[pBaCTM`@GZ@ZFVRzGzGRLT?RENMHUB[ES}DkOA_@Bg@La@VY\\O\\EX?XH\\Rh@v@l@h@j@b@n@\\|Ad@bAN\\JVRLVL\\|@zGJVNRXHVBb@Cb@_@n@s@v@qAj@sAZuANwAFsAs@aOFg@Rk@Va@f@_@bDcBZGX?XDb@R|EvCNRJZF\\Ad@wAfN?`@F`@R\\TRpQpI\\ZN\\Dl@A`@M^Y`@m^dR",
+    "averaged_fastf1_encoded_polyline": "wiqzCmw_yHaR~J}@^e@Lg@Bg@G_@WWc@EMC]@k@F[Rg@tBgEVu@F[?]E[MY[_@UMYGi@CmDBi@As@Mo@Y_@Ys@o@}IaJOUMYC]?]B[Ni@^m@d@k@^[b@SXGf@?XF`@VlC~CdAdA^Xb@TXDLAJEFIFMD[C]G[u@yCgBcGQw@C]?k@F[LYPSVOVIZCXDVJTPjArA^Xl@^hAd@dBb@`@VZ^Rd@TvA\\~CFZFJFJTPJDXFXAXKJGh@e@Z_@^o@Zq@Vu@Ru@VeBFiAAiBi@oKD{@Ji@JYXc@Z_@j@_@z@c@|@]f@GXAf@LVJpAp@lBtAZ`@HXHj@EhAy@dHQzB?\\DZHZLX\\\\v@f@xGrCxCxAfAj@\\XV`@HX@l@Gh@MX[^_@X{\\bQ"
+  },
+  {
+    "round": 24,
+    "event_name": "Abu Dhabi Grand Prix",
+    "fastf1_location": "Yas Island",
+    "circuit_id": "ae-2009",
+    "circuit_name": "Yas Marina Circuit",
+    "repo_location": "Yas Marina",
+    "declared_length_m": 5281,
+    "fastf1_driver": "ANT",
+    "fastf1_lap": 31,
+    "fastf1_points": 345,
+    "fastf1_path_length_m": 5305.940530776228,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 705,
+      "sample_count": 720,
+      "rmse_m": 6.221779501599883,
+      "p50_m": 4.388245793245934,
+      "p95_m": 10.774155935471093,
+      "max_m": 20.895174627210235,
+      "scale_m_per_fastf1_unit": 0.10009375272893119,
+      "rotation_degrees": 0.8897481291970706
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "ANT",
+        "lap": 31,
+        "path_length_m": 5305.940530776228,
+        "length_error_m": 13.191766081286005,
+        "rmse_m": 6.221779501599883,
+        "p95_m": 10.774155935471093
+      },
+      {
+        "driver": "ANT",
+        "lap": 12,
+        "path_length_m": 5291.778452265154,
+        "length_error_m": 0.9703124297884642,
+        "rmse_m": 8.822905114480303,
+        "p95_m": 14.517344071740403
+      },
+      {
+        "driver": "ANT",
+        "lap": 47,
+        "path_length_m": 5278.236563386012,
+        "length_error_m": 14.512201308930344,
+        "rmse_m": 12.395893087416438,
+        "p95_m": 22.889710324878042
+      },
+      {
+        "driver": "SAI",
+        "lap": 33,
+        "path_length_m": 5277.838570479184,
+        "length_error_m": 14.910194215757656,
+        "rmse_m": 13.505639005532917,
+        "p95_m": 26.32637015192033
+      },
+      {
+        "driver": "RUS",
+        "lap": 22,
+        "path_length_m": 5277.689271394111,
+        "length_error_m": 15.059493300831491,
+        "rmse_m": 13.668633060744124,
+        "p95_m": 23.17738770571577
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 7.503765703809708,
+      "p50_m": 6.217791340917627,
+      "p95_m": 12.72290760067952,
+      "max_m": 16.143804915188653
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1156,
+      "fitted_laps": 1082,
+      "compliant_laps": 1073,
+      "non_compliant_laps": 83,
+      "shape_non_compliant_laps": 9,
+      "reason_counts": {
+        "compliant": 1073,
+        "fastf1_inaccurate": 74,
+        "pit_lap": 54,
+        "shape_p95_over_threshold": 4,
+        "shape_rmse_over_threshold": 9
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "LEC",
+        "lap_number": 45,
+        "lap_time_ms": 86725,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 335,
+        "path_length_m": 5229.071808540103,
+        "length_error_m": -63.67695615483899,
+        "length_error_pct": -0.012030980306413456,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 8.279950641047163,
+          "p50_m": 7.74701646053787,
+          "p95_m": 12.514215358317347,
+          "max_m": 13.207874726030566,
+          "scale_m_per_fastf1_unit": 0.10043226199842388,
+          "rotation_degrees": 0.5333504660167238
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "LEC",
+        "lap_number": 45,
+        "lap_time_ms": 86725,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 335,
+        "path_length_m": 5229.071808540103,
+        "length_error_m": -63.67695615483899,
+        "length_error_pct": -0.012030980306413456,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 235,
+          "sample_count": 240,
+          "rmse_m": 8.279950641047163,
+          "p50_m": 7.74701646053787,
+          "p95_m": 12.514215358317347,
+          "max_m": 13.207874726030566,
+          "scale_m_per_fastf1_unit": 0.10043226199842388,
+          "rotation_degrees": 0.5333504660167238
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 126,
+      "encoded_chars": 353,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.3754423815756567,
+      "p95_m": 0.7663108736515899,
+      "max_m": 0.9719702298539306,
+      "source_length_m": 5226.880036536337,
+      "simplified_length_m": 5222.942720281353,
+      "length_delta_m": -3.9373162549836707,
+      "length_delta_pct": -0.07532823075068673
+    },
+    "polyline_vs_source": {
+      "source_points": 133,
+      "simplified_points": 106,
+      "encoded_chars": 302,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.2895320914553867,
+      "p95_m": 0.8264651901359864,
+      "max_m": 0.9598692601826112,
+      "source_length_m": 5292.748764694942,
+      "simplified_length_m": 5292.012461005587,
+      "length_delta_m": -0.7363036893548269,
+      "length_delta_pct": -0.013911555641301355
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 705,
+      "sample_count": 720,
+      "rmse_m": 6.226281489243661,
+      "p50_m": 4.447697483852361,
+      "p95_m": 10.760077443562638,
+      "max_m": 20.899038152414946,
+      "scale_m_per_fastf1_unit": 0.10008754437961641,
+      "rotation_degrees": 0.8932932134231989
+    },
+    "encoded_polyline": "ihjtCcchlIy@yMGYQQWKWC_IrA_@JWPU\\KVc@dCUl@S^Y\\k@f@k@Ra@Fe@?k@GaDo@uAK}@AeIj@_E\\OBQLQVE^H^HL\\PnAZrBZd_@|JhBd@dCf@tFrArFxAN@HAFG@UG{ALKnDs@z@[j@WdAu@~@{@z@kA|GkKpAeCb@aAtC}IT}@?c@Ec@Qa@OQOKUKk@Ka@Bq@PUNQTQZK\\Ch@YrIGz@EPgBtDKROJ]JsDj@MCIICMSwCM[IKSKYC}B?SJMJKp@Cx@@^j@zH?z@C`@GV[^oCtAaAj@QHYDo@BQEMKEMgA{O",
+    "averaged_fastf1_encoded_polyline": "ihjtC{bhlIm@cLGi@CMMWSQWKe@Cg@@g@DgBVeB^c@NUN]ZUb@s@dDKXW^SR_@Ve@Ps@Dg@?_AIkD[aAGiB?wCFyDRs@Fe@JYLUNMVEXDXNT^Xb@NbJxBb]bJtLhDxAXX@X?VKDGBY?i@@MBKPS`@QhCk@z@[hAo@fAaAb@g@j@w@lHuKx@uAv@cBb@mAr@eC~@}DDi@C]IYMW[[c@MSAg@DWHm@\\Y^MVKf@Q~COxEMdA]`Ak@fAa@j@_@Xq@T_ANs@Be@EUMKWC[?y@E[KW[]c@OYCg@?YDUHYVSb@EZCZDx@h@zG@ZEj@St@MVQRu@h@oAr@}@Ze@FY@[ASESQEIG[GgAK_D]cG"
+  }
+]

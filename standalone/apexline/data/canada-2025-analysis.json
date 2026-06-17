@@ -1,0 +1,185 @@
+[
+  {
+    "round": 10,
+    "event_name": "Canadian Grand Prix",
+    "fastf1_location": "Montr\u00e9al",
+    "circuit_id": "ca-1978",
+    "circuit_name": "Circuit Gilles-Villeneuve",
+    "repo_location": "Montreal",
+    "declared_length_m": 4361,
+    "fastf1_driver": "COL",
+    "fastf1_lap": 38,
+    "fastf1_points": 298,
+    "fastf1_path_length_m": 4340.672391109539,
+    "repo_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 36,
+      "sample_count": 720,
+      "rmse_m": 5.009037246052343,
+      "p50_m": 3.6452527504353065,
+      "p95_m": 8.702454362002706,
+      "max_m": 14.372382133463207,
+      "scale_m_per_fastf1_unit": 0.10043862468908314,
+      "rotation_degrees": -0.9510676221901242
+    },
+    "averaged_fastf1_laps": [
+      {
+        "driver": "COL",
+        "lap": 38,
+        "path_length_m": 4340.672391109539,
+        "length_error_m": 24.366232564567326,
+        "rmse_m": 5.009037246052343,
+        "p95_m": 8.702454362002706
+      },
+      {
+        "driver": "ANT",
+        "lap": 4,
+        "path_length_m": 4358.317182701378,
+        "length_error_m": 6.721440972727578,
+        "rmse_m": 7.907842610840989,
+        "p95_m": 23.208710911462045
+      },
+      {
+        "driver": "COL",
+        "lap": 7,
+        "path_length_m": 4345.213379173703,
+        "length_error_m": 19.825244500402732,
+        "rmse_m": 7.980886985897354,
+        "p95_m": 14.106135531189903
+      },
+      {
+        "driver": "HAM",
+        "lap": 4,
+        "path_length_m": 4344.42484254592,
+        "length_error_m": 20.61378112818602,
+        "rmse_m": 8.476464873096038,
+        "p95_m": 23.893370210764736
+      },
+      {
+        "driver": "COL",
+        "lap": 46,
+        "path_length_m": 4355.546027133361,
+        "length_error_m": 9.492596540744671,
+        "rmse_m": 9.351830118912854,
+        "p95_m": 19.517594348697653
+      }
+    ],
+    "repo_vs_fastf1_average": {
+      "sample_count": 720,
+      "rmse_m": 12.402062472233004,
+      "p50_m": 12.263090467088713,
+      "p95_m": 19.21745093781832,
+      "max_m": 21.059425385506337
+    },
+    "lap_compliance_summary": {
+      "total_laps": 1349,
+      "fitted_laps": 1157,
+      "compliant_laps": 1157,
+      "non_compliant_laps": 192,
+      "shape_non_compliant_laps": 0,
+      "reason_counts": {
+        "compliant": 1157,
+        "fastf1_inaccurate": 152,
+        "missing_lap_time": 3,
+        "path_length_outlier": 42,
+        "pit_lap": 131,
+        "too_few_position_samples": 1
+      },
+      "thresholds": {
+        "length_tolerance_pct": 0.05,
+        "rmse_threshold_m": 25.0,
+        "p95_threshold_m": 50.0,
+        "min_position_samples": 100,
+        "validation_samples": 240,
+        "validation_offset_step": 8
+      },
+      "fastest_lap_with_position": {
+        "driver": "RUS",
+        "lap_number": 63,
+        "lap_time_ms": 74119,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 283,
+        "path_length_m": 4311.968931658319,
+        "length_error_m": -53.06969201578704,
+        "length_error_pct": -0.012157897464631742,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 12,
+          "sample_count": 240,
+          "rmse_m": 5.537435613002777,
+          "p50_m": 4.996497820684375,
+          "p95_m": 8.506435302450543,
+          "max_m": 10.60573875089092,
+          "scale_m_per_fastf1_unit": 0.10031548122993743,
+          "rotation_degrees": -0.7872372855465978
+        },
+        "compliant": true,
+        "reasons": []
+      },
+      "fastest_compliant_lap": {
+        "driver": "RUS",
+        "lap_number": 63,
+        "lap_time_ms": 74119,
+        "is_accurate": true,
+        "is_pit_lap": false,
+        "position_samples": 283,
+        "path_length_m": 4311.968931658319,
+        "length_error_m": -53.06969201578704,
+        "length_error_pct": -0.012157897464631742,
+        "fit": {
+          "direction": "forward",
+          "start_offset_samples": 12,
+          "sample_count": 240,
+          "rmse_m": 5.537435613002777,
+          "p50_m": 4.996497820684375,
+          "p95_m": 8.506435302450543,
+          "max_m": 10.60573875089092,
+          "scale_m_per_fastf1_unit": 0.10031548122993743,
+          "rotation_degrees": -0.7872372855465978
+        },
+        "compliant": true,
+        "reasons": []
+      }
+    },
+    "averaged_fastf1_polyline_vs_source": {
+      "source_points": 721,
+      "simplified_points": 99,
+      "encoded_chars": 287,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.4470927568171143,
+      "p95_m": 0.8419815296665332,
+      "max_m": 0.9880505765385028,
+      "source_length_m": 4315.292400413916,
+      "simplified_length_m": 4312.3349582743085,
+      "length_delta_m": -2.9574421396073376,
+      "length_delta_pct": -0.06853399179447642
+    },
+    "polyline_vs_source": {
+      "source_points": 102,
+      "simplified_points": 84,
+      "encoded_chars": 242,
+      "tolerance_m": 1.0,
+      "rmse_m": 0.27544942457144705,
+      "p95_m": 0.8623673429510881,
+      "max_m": 0.9486890070794727,
+      "source_length_m": 4365.038623674106,
+      "simplified_length_m": 4364.645941148369,
+      "length_delta_m": -0.39268252573674545,
+      "length_delta_pct": -0.008996083645331408
+    },
+    "polyline_vs_fastf1": {
+      "direction": "forward",
+      "start_offset_samples": 36,
+      "sample_count": 720,
+      "rmse_m": 5.020223653013433,
+      "p50_m": 3.7138313836978663,
+      "p95_m": 8.661035975635853,
+      "max_m": 14.438865189112773,
+      "scale_m_per_fastf1_unit": 0.10043296396260386,
+      "rotation_degrees": -0.9481560614968757
+    },
+    "encoded_polyline": "kavtGh_w_MvIiBhBYxAAjFd@ZEP[^cBHSRITBRLNXHb@?j@_@fDQnA]lAa@fAeBhD_AdBUPOBQ?e@QUESBOJcD~DkAhCg@j@i@Vk@Na@DwGAOLMTEh@JvAGd@M`@OVSTQJc@PcB`@qFViBAuAC}AIeC[wGcBYOIWE}@G[I[U]YUa@SwGaBwCg@iBKqCEe@DwFhA[?MQC_@DSHMHCfDY^OjCaB|McGtd@gJNBLNDXLPJFRAjJmB",
+    "averaged_fastf1_encoded_polyline": "_avtG|~v_M|GaBt@Mz@It@Cv@BvD\\^@^ETGXYTa@Vq@FIPKR@PJLTHh@@|@IjAUvAYtA[`Am@vAyAzCe@v@QPQL_@D_AA_@J[ReAjAq@z@oA~B]j@YXg@Zi@Pi@Ju@@wCIk@F]NORIVC\\CxAE\\IXW^YX]Ri@Lu@JkBNoELaCCwCUiCc@oD_Ai@SSMMU[cBSe@W[]Ug@SoDaAeBYkBW_AIaBEkA?w@DuFbA_@COQCM?[DKZWh@M`BM~@WzMoGdBo@rBk@~_@eI^CT@RHn@b@TDj@?hAQ|F{A"
+  }
+]

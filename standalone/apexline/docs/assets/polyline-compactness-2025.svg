@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620" viewBox="0 0 1000 620">
+<rect width="100%" height="100%" fill="#101418"/>
+<text x="40" y="35" fill="#f3f7fb" font-family="Inter,Arial" font-size="24" font-weight="700">Encoded polyline compactness</text>
+<text x="40" y="58" fill="#9fb0bf" font-family="Inter,Arial" font-size="13">1 m RDP tolerance preserves chicanes while producing short strings.</text>
+<line x1="90" y1="525.0" x2="960" y2="525.0" stroke="#24313c"/>
+<text x="80" y="529.0" fill="#8da0af" font-family="JetBrains Mono,monospace" font-size="11" text-anchor="end">0</text>
+<line x1="90" y1="431.3" x2="960" y2="431.3" stroke="#24313c"/>
+<text x="80" y="435.3" fill="#8da0af" font-family="JetBrains Mono,monospace" font-size="11" text-anchor="end">100</text>
+<line x1="90" y1="337.5" x2="960" y2="337.5" stroke="#24313c"/>
+<text x="80" y="341.5" fill="#8da0af" font-family="JetBrains Mono,monospace" font-size="11" text-anchor="end">200</text>
+<line x1="90" y1="243.8" x2="960" y2="243.8" stroke="#24313c"/>
+<text x="80" y="247.8" fill="#8da0af" font-family="JetBrains Mono,monospace" font-size="11" text-anchor="end">300</text>
+<line x1="90" y1="150.1" x2="960" y2="150.1" stroke="#24313c"/>
+<text x="80" y="154.1" fill="#8da0af" font-family="JetBrains Mono,monospace" font-size="11" text-anchor="end">400</text>
+<circle cx="667.1" cy="211.0" r="6" fill="#ffb000" opacity="0.9"><title>Australian Grand Prix: 108 pts, 335 chars</title></circle>
+<circle cx="715.2" cy="209.1" r="6" fill="#35c2ff" opacity="0.9"><title>Chinese Grand Prix: 117 pts, 337 chars</title></circle>
+<circle cx="880.9" cy="102.3" r="6" fill="#35c2ff" opacity="0.9"><title>Japanese Grand Prix: 148 pts, 451 chars</title></circle>
+<circle cx="538.9" cy="296.3" r="6" fill="#35c2ff" opacity="0.9"><title>Bahrain Grand Prix: 84 pts, 244 chars</title></circle>
+<circle cx="779.4" cy="155.7" r="6" fill="#ffb000" opacity="0.9"><title>Saudi Arabian Grand Prix: 129 pts, 394 chars</title></circle>
+<circle cx="603.0" cy="247.6" r="6" fill="#35c2ff" opacity="0.9"><title>Miami Grand Prix: 96 pts, 296 chars</title></circle>
+<circle cx="490.8" cy="311.3" r="6" fill="#35c2ff" opacity="0.9"><title>Emilia Romagna Grand Prix: 75 pts, 228 chars</title></circle>
+<circle cx="715.2" cy="222.2" r="6" fill="#ffb000" opacity="0.9"><title>Monaco Grand Prix: 117 pts, 323 chars</title></circle>
+<circle cx="683.2" cy="229.7" r="6" fill="#ffb000" opacity="0.9"><title>Spanish Grand Prix: 111 pts, 315 chars</title></circle>
+<circle cx="538.9" cy="298.2" r="6" fill="#35c2ff" opacity="0.9"><title>Canadian Grand Prix: 84 pts, 242 chars</title></circle>
+<circle cx="490.8" cy="302.9" r="6" fill="#ffb000" opacity="0.9"><title>Austrian Grand Prix: 75 pts, 237 chars</title></circle>
+<circle cx="736.6" cy="168.8" r="6" fill="#35c2ff" opacity="0.9"><title>British Grand Prix: 121 pts, 380 chars</title></circle>
+<circle cx="800.7" cy="134.1" r="6" fill="#35c2ff" opacity="0.9"><title>Belgian Grand Prix: 133 pts, 417 chars</title></circle>
+<circle cx="677.8" cy="239.1" r="6" fill="#ffb000" opacity="0.9"><title>Hungarian Grand Prix: 110 pts, 305 chars</title></circle>
+<circle cx="683.2" cy="210.1" r="6" fill="#35c2ff" opacity="0.9"><title>Dutch Grand Prix: 111 pts, 336 chars</title></circle>
+<circle cx="571.0" cy="265.4" r="6" fill="#35c2ff" opacity="0.9"><title>Italian Grand Prix: 90 pts, 277 chars</title></circle>
+<circle cx="512.2" cy="286.9" r="6" fill="#35c2ff" opacity="0.9"><title>Azerbaijan Grand Prix: 79 pts, 254 chars</title></circle>
+<circle cx="571.0" cy="286.9" r="6" fill="#35c2ff" opacity="0.9"><title>Singapore Grand Prix: 90 pts, 254 chars</title></circle>
+<circle cx="790.1" cy="186.6" r="6" fill="#ffb000" opacity="0.9"><title>United States Grand Prix: 131 pts, 361 chars</title></circle>
+<circle cx="554.9" cy="302.9" r="6" fill="#35c2ff" opacity="0.9"><title>Mexico City Grand Prix: 87 pts, 237 chars</title></circle>
+<circle cx="736.6" cy="211.9" r="6" fill="#ffb000" opacity="0.9"><title>São Paulo Grand Prix: 121 pts, 334 chars</title></circle>
+<circle cx="560.3" cy="268.2" r="6" fill="#ffb000" opacity="0.9"><title>Las Vegas Grand Prix: 88 pts, 274 chars</title></circle>
+<circle cx="629.7" cy="254.1" r="6" fill="#35c2ff" opacity="0.9"><title>Qatar Grand Prix: 101 pts, 289 chars</title></circle>
+<circle cx="656.5" cy="241.9" r="6" fill="#35c2ff" opacity="0.9"><title>Abu Dhabi Grand Prix: 106 pts, 302 chars</title></circle>
+<line x1="90" y1="525" x2="960" y2="525" stroke="#617282"/>
+<line x1="90" y1="60" x2="90" y2="525" stroke="#617282"/>
+<text x="500.0" y="590" fill="#9fb0bf" font-family="Inter,Arial" font-size="13" text-anchor="middle">Simplified points</text>
+<text x="24" y="292.5" transform="rotate(-90 24 292.5)" fill="#9fb0bf" font-family="Inter,Arial" font-size="13" text-anchor="middle">Encoded characters</text>
+<text x="670" y="94" fill="#dce8f1" font-family="Inter,Arial" font-size="12">Blue: max simplification error &lt;= 0.98 m</text>
+<text x="670" y="116" fill="#dce8f1" font-family="Inter,Arial" font-size="12">Amber: close to the 1 m tolerance</text>
+</svg>

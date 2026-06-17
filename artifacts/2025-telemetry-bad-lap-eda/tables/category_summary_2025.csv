@@ -1,0 +1,11 @@
+category,laps,pct_of_all_laps
+import_or_source_data_anomaly,3929,14.721420810071564
+shape_mismatch_against_comparable_laps,3224,12.079883097905505
+pit_lane_or_safety_car_influenced,3199,11.986211547828693
+timing_session_boundary_artifact,369,1.3825920791337254
+incomplete_lap_window,352,1.3188954250814944
+position_trace_discontinuity,142,0.5320544044362846
+unknown_needs_inspection,54,0.20233054816591106
+implausible_channel_values,4,0.014987448012289706
+distance_reset_or_non_monotonic_distance,0,0.0
+missing_or_sparse_telemetry,0,0.0

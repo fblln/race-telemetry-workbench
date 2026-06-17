@@ -1,0 +1,28 @@
+{
+  "scope": "imported race sessions",
+  "session_count": 32,
+  "years": [
+    2024,
+    2025,
+    2026
+  ],
+  "skrub_version": "0.9.0",
+  "thresholds": {
+    "expected_min_drivers": 15,
+    "min_weather_samples": 2,
+    "weather_max_gap_ms": 180000,
+    "min_corner_markers": 5,
+    "max_car_median_delta_ms": 400.0,
+    "max_position_median_delta_ms": 400.0,
+    "min_raw_driver_streams": 10,
+    "max_aligned_non_ok_pct": 5.0
+  },
+  "figure_paths": [
+    "artifacts/race-database-surface-eda/figures/surface_availability_heatmap.svg",
+    "artifacts/race-database-surface-eda/figures/surface_issue_counts.svg",
+    "artifacts/race-database-surface-eda/figures/context_density_by_session.svg",
+    "artifacts/race-database-surface-eda/figures/ingestion_frequency_by_stream.svg",
+    "artifacts/race-database-surface-eda/figures/race_control_category_mix.svg"
+  ],
+  "report_path": "artifacts/race-database-surface-eda/skrub_database_surface_report.html"
+}

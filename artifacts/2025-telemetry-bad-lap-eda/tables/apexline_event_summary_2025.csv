@@ -1,0 +1,25 @@
+event_name,event_round,apexline_total_laps,apexline_bad_laps,apexline_good_pct,apexline_shape_bad_laps,apexline_fastf1_inaccurate,apexline_pit_lap,apexline_missing_lap_time,apexline_path_length_outlier
+Australian Grand Prix,1,927,359,61.272923408845735,0,359,132,69,5
+Chinese Grand Prix,2,1065,70,93.42723004694837,0,70,52,0,0
+Japanese Grand Prix,3,1059,62,94.14542020774316,0,62,42,0,0
+Bahrain Grand Prix,4,1128,176,84.39716312056737,0,176,84,13,13
+Saudi Arabian Grand Prix,5,898,89,90.0890868596882,1,88,39,37,1
+Miami Grand Prix,6,1005,144,85.67164179104478,0,144,38,3,4
+Emilia Romagna Grand Prix,7,1207,251,79.2046396023198,0,251,75,2,2
+Monaco Grand Prix,8,1425,154,89.19298245614034,0,154,81,2,9
+Spanish Grand Prix,9,1203,213,82.29426433915212,0,213,109,1,1
+Canadian Grand Prix,10,1349,192,85.76723498888065,0,152,131,3,42
+Austrian Grand Prix,11,1126,116,89.69804618117229,0,116,65,2,2
+British Grand Prix,12,825,330,60.0,1,329,76,91,3
+Belgian Grand Prix,13,879,207,76.45051194539249,75,132,72,60,0
+Hungarian Grand Prix,14,1368,80,94.15204678362574,0,79,60,0,1
+Dutch Grand Prix,15,1364,323,76.31964809384164,0,323,80,2,2
+Italian Grand Prix,16,974,62,93.63449691991786,4,58,41,0,0
+Azerbaijan Grand Prix,17,968,115,88.1198347107438,2,113,41,58,4
+Singapore Grand Prix,18,1229,71,94.22294548413345,5,66,48,0,0
+United States Grand Prix,19,1067,106,90.06560449859418,2,104,42,1,0
+Mexico City Grand Prix,20,1263,110,91.29057798891527,0,110,57,1,0
+São Paulo Grand Prix,21,1251,202,83.85291766586731,0,202,77,2,2
+Las Vegas Grand Prix,22,886,128,85.55304740406321,2,126,45,2,1
+Qatar Grand Prix,23,1067,147,86.22305529522023,2,145,84,3,1
+Abu Dhabi Grand Prix,24,1156,83,92.82006920415225,9,74,54,0,0
