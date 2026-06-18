@@ -40,7 +40,22 @@ for turning this into a mature data-quality program lives in
 2025 import contains 24 race sessions and 26,689 laps; the EDA flags 5,497 laps
 (20.6%) with at least one telemetry/timing/position/context quality signal. Raw
 FastF1 `Distance` is not currently imported, so distance reset and non-monotonic
-distance checks remain explicitly unavailable rather than inferred.
+distance checks remain explicitly unavailable rather than inferred. The bad-lap
+EDA now includes category-overlap, decision-waterfall, primary-category
+race-decomposition, selected-race drilldown, `reason_count`/`reason_set`,
+quality-lens, safety-flag, severity-score, recommendation, driver/race matrix,
+Parquet, threshold, metadata, threshold-sensitivity, and borderline-lap outputs.
+The threshold pass uses near-baseline perturbations across sample counts,
+coverage, telemetry gaps, path tolerance, and speed-shape limits; the current
+borderline review table contains 179 laps whose classification, recommendation,
+or safety labels change under at least one scenario. The remaining near-term EDA
+follow-ups are to persist and join per-lap Apexline geometry diagnostics, add
+deeper shape baseline robustness checks, and decide whether distance should be
+imported.
+The speed-shape EDA now compares shape outliers against clean green-flag
+same-race speed-profile quantile bands, writes representative shape examples,
+cluster exemplars, and sampled cluster-stability results. Equal-time bins remain
+an explicit limitation until raw/derived distance is imported.
 
 A broader imported race-session database surface EDA now exists in
 `notebooks/race_database_surface_eda.ipynb`, with supporting code in
@@ -57,19 +72,84 @@ to 2025 race sessions only, following
 `docs/data-quality/2025-race-database-surface-eda-backlog.md`, unless another
 scope is explicitly requested and documented as a comparison baseline.
 
+The database-surface EDA has been reframed to the 2025 race-only scope in the
+same notebook/support module, with guarded outputs under
+`artifacts/2025-race-database-surface-eda/` and
+`docs/data-quality/2025-race-database-surface-eda-summary.md`. The guardrail
+requires exactly 24 2025 race sessions before season conclusions are generated.
+The scoped pass finds no raw telemetry, raw position, aligned replay, weather,
+status, driver metadata, or circuit marker session-level coverage flags, while
+ingestion diagnostics, missing lap times, and race-control timing/sparsity remain
+the main follow-up surfaces.
+
+The database-surface EDA now includes an aligned replay quality deep dive:
+stable `quality_flags` family decoding, race/driver/lap/30-second-window
+aggregates, complete consecutive degraded-segment extraction, pit/status/race
+control context overlap, representative replay-quality strips, a driver/race
+heatmap, and a desktop replay quality watchlist. The 2025 pass finds 458,158
+non-OK aligned rows out of 24,477,559 aligned rows (1.87%). Severe 30-second
+windows are rare (133 windows at 10%+ non-OK rows), and the current desktop
+guidance is to expose aligned quality primarily as a diagnostics overlay, with
+warnings reserved for sustained or repeated degraded windows.
+
+The database-surface EDA also derives 2025 race session duration and surface
+coverage windows from imported samples and status events. `session_end_utc` is
+missing for all 24 sessions, but `session_status_events` provides a complete
+derived duration for every race. Weather and session-status surfaces cover the
+aligned active replay window, while race-control and track-status should be
+treated as event timelines rather than continuous context. The raw-position
+coverage window is currently approximated from UTC timestamps because
+`position_samples` lacks `session_time_ms`; add that column during a future
+schema/importer pass before using raw-position coverage as a user-facing warning.
+
+The database-surface EDA now includes a deterministic context-surface pass:
+race-control message taxonomy, duplicate/near-duplicate message groups,
+representative examples by taxonomy bucket, track-status intervals,
+status/race-control overlap, weather cadence and value-jump checks, rainfall
+transitions, 5-minute context-density bins, and a replay/context correlation
+summary. Race-control messages fall into 8 deterministic buckets; the current
+pass identifies 308 repeated-message groups, mostly sector flag and blue-flag
+families that should be deduplicated or grouped in desktop timelines. Weather
+cadence is stable at roughly one sample per minute; real rainfall transitions
+are concentrated in Australian, Belgian, British, Miami, Canadian, and Singapore
+2025 races. Context-event bins have a higher degraded-window rate than
+no-context bins, but current evidence is correlation only and does not justify
+blaming race events for aligned replay quality degradation.
+
+The database-surface EDA now converts the 2025 race-only metrics into
+product-readiness labels for catalog, raw streams, aligned replay, context, and
+circuit context, plus a primary desktop/API recommendation table. All 24 races
+currently need UI labeling rather than reimport or inspection, with a separate
+schema/importer follow-up for missing `session_end_utc` and raw-position
+coverage windows inferred from UTC offsets. Circuit marker QA compares marker
+coordinates against imported position bounds and finds no implausible marker
+coordinates in the 2025 race set. The same pass adds race-control TF-IDF/KMeans
+text clusters and per-race weather trend panels for rainfall or large-shift
+races. The implementation backlog for backend and desktop changes is tracked in
+`docs/data-quality/eda-driven-product-change-backlog.md`.
+
+The standalone Apexline geometry-validation work is ready to be extracted into
+its own sibling repository at `/Users/fabio/Workspace/apexline`. The migration
+handoff backlog lives in
+`docs/data-quality/apexline-repo-migration-backlog.md`.
+
 ## Next Recommended Work
 
 1. Add focused real-database tests for Query API analytical endpoints.
-2. Build the high-performance .NET MAUI desktop replay surface against the
+2. Implement the EDA-driven backend/desktop changes in
+   `docs/data-quality/eda-driven-product-change-backlog.md`, starting with
+   readiness and replay-quality contracts.
+3. Build the high-performance .NET MAUI desktop replay surface against the
    stable Query API ports.
-3. Add deeper performance validation against larger imported datasets.
-4. Improve position-aware corner matching for telemetry windows.
-5. Persist per-lap geometry diagnostics from the standalone Apexline workflow if
+4. Add deeper performance validation against larger imported datasets.
+5. Improve position-aware corner matching for telemetry windows.
+6. Persist per-lap geometry diagnostics from the standalone Apexline workflow if
    bad-lap quality flags become part of the Query API or desktop analysis
    surface.
-6. Decode aligned telemetry `quality_flags` by session, driver, lap, and time
-   window, because replay quality depends on interpolation quality in addition
-   to raw sample coverage.
+7. Add raw stream ingestion severity tables that separate normal FastF1 cadence
+   from importer/source problems.
+8. Consider adding `session_time_ms` to `position_samples` so raw position
+   coverage diagnostics do not have to infer session-relative windows from UTC.
 
 Keep the next work focused on the Query API data path before starting the MAUI
 desktop UI surface.

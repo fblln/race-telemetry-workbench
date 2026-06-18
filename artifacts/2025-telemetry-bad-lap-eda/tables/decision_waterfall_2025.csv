@@ -1,0 +1,10 @@
+step,laps,pct_of_all_laps,remaining_laps_after_step
+total_laps,26689,100.0,26689
+source_or_timing_excluded,3943,14.773876878114578,22746
+missing_or_incomplete_telemetry,0,0.0,22746
+implausible_channel_values,0,0.0,22746
+position_trace_discontinuity,45,0.1686087901382592,22701
+race_context_influenced,1455,5.45168421447038,21246
+atypical_speed_profile,54,0.20233054816591106,21192
+other_or_manual_review,0,0.0,21192
+clean_after_waterfall,21192,79.40349956911086,0

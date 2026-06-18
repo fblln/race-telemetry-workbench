@@ -1,0 +1,16 @@
+scenario,bad_laps,bad_pct,replay_unsafe_laps,lap_comparison_unsafe_laps,manual_review_laps,exclude_laps,context_label_laps,bad_laps_delta_vs_baseline,replay_unsafe_laps_delta_vs_baseline,lap_comparison_unsafe_laps_delta_vs_baseline,manual_review_laps_delta_vs_baseline,exclude_laps_delta_vs_baseline,context_label_laps_delta_vs_baseline,bad_flag_changed_laps,replay_safety_changed_laps,lap_comparison_safety_changed_laps,recommendation_changed_laps,primary_category_changed_laps
+baseline,5497,20.59650043088913,477,5497,58,477,4966,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0
+min_car_samples_loose,5497,20.59650043088913,477,5497,58,477,4966,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0
+min_car_samples_strict,5497,20.59650043088913,477,5497,58,477,4966,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0
+min_position_samples_loose,5497,20.59650043088913,477,5497,58,477,4966,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0
+min_position_samples_strict,5497,20.59650043088913,477,5497,58,477,4966,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0
+lap_coverage_loose,5497,20.59650043088913,477,5497,58,477,4966,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0
+lap_coverage_strict,5497,20.59650043088913,477,5497,58,477,4966,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0
+p95_gap_loose,5497,20.59650043088913,477,5497,58,477,4966,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0
+p95_gap_strict,5504,20.622728464910637,493,5504,58,493,4957,7,16,7,0,16,-9,7.0,16.0,7.0,16.0,16.0
+max_gap_loose,5483,20.54404436284612,460,5483,58,460,4969,-14,-17,-14,0,-17,3,14.0,17.0,14.0,17.0,17.0
+max_gap_strict,5513,20.65645022293829,493,5513,58,493,4966,16,16,16,0,16,0,16.0,16.0,16.0,16.0,16.0
+path_tolerance_loose,5493,20.58151298287684,457,5493,58,457,4982,-4,-20,-4,0,-20,16,4.0,20.0,4.0,20.0,20.0
+path_tolerance_strict,5502,20.61523474090449,516,5502,58,516,4932,5,39,5,0,39,-34,5.0,39.0,5.0,39.0,39.0
+shape_rms_loose,5474,20.510322604818466,477,5474,35,477,4966,-23,0,-23,-23,0,0,23.0,0.0,23.0,23.0,36.0
+shape_rms_strict,5522,20.69017198096594,477,5522,83,477,4966,25,0,25,25,0,0,25.0,0.0,25.0,25.0,35.0

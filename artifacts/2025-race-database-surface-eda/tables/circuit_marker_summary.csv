@@ -1,0 +1,25 @@
+session_id,year,event_name,circuit_metadata_present,rotation_present,position_xy_samples,position_driver_count,marker_count,corner_markers,marshal_light_markers,marshal_sector_markers,marker_distance_nulls,markers_outside_position_bounds,markers_outside_core_bounds,circuit_context_readiness,circuit_context_recommendation
+2025-australian-grand-prix-r,2025,Australian Grand Prix,True,True,380930,20,54,14,20,20,0,0,0,ready,no_action
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,True,True,398411,20,56,16,20,20,0,0,0,ready,no_action
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,True,True,379525,20,62,18,22,22,0,0,0,ready,no_action
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,True,True,436990,20,51,15,18,18,0,0,0,ready,no_action
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,True,True,336779,20,69,27,21,21,0,0,0,ready,no_action
+2025-miami-grand-prix-r,2025,Miami Grand Prix,True,True,362855,20,58,19,19,20,0,0,0,ready,no_action
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,True,True,400409,20,57,19,19,19,0,0,0,ready,no_action
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,True,True,429303,20,57,19,19,19,0,0,0,ready,no_action
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,True,True,388975,19,46,14,16,16,0,0,0,ready,no_action
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,True,True,407524,20,44,14,15,15,0,0,0,ready,no_action
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,True,True,314417,19,42,10,16,16,0,0,0,ready,no_action
+2025-british-grand-prix-r,2025,British Grand Prix,True,True,359209,19,51,18,17,16,0,0,0,ready,no_action
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,True,True,394553,20,61,19,21,21,0,0,0,ready,no_action
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,True,True,431568,20,54,16,19,19,0,0,0,ready,no_action
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,True,True,426422,20,52,14,19,19,0,0,0,ready,no_action
+2025-italian-grand-prix-r,2025,Italian Grand Prix,True,True,312764,19,45,11,17,17,0,0,0,ready,no_action
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,True,True,403191,20,62,20,21,21,0,0,0,ready,no_action
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,True,True,463509,20,51,19,16,16,0,0,0,ready,no_action
+2025-united-states-grand-prix-r,2025,United States Grand Prix,True,True,417891,20,60,20,20,20,0,0,0,ready,no_action
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,True,True,401381,20,49,17,16,16,0,0,0,ready,no_action
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,True,True,372745,20,47,15,16,16,0,0,0,ready,no_action
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,True,True,334193,20,59,17,21,21,0,0,0,ready,no_action
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,True,True,365582,20,56,16,20,20,0,0,0,ready,no_action
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,True,True,394965,20,56,16,20,20,0,0,0,ready,no_action

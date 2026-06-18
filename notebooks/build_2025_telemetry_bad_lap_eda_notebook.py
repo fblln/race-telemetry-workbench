@@ -65,6 +65,8 @@ def build_notebook():
             import sys
 
             REPO_ROOT = Path.cwd()
+            if not (REPO_ROOT / "notebooks").exists() and REPO_ROOT.name == "notebooks":
+                REPO_ROOT = REPO_ROOT.parent
             if str(REPO_ROOT) not in sys.path:
                 sys.path.insert(0, str(REPO_ROOT))
 
@@ -144,9 +146,27 @@ def build_notebook():
             result = eda.run_analysis(write_outputs=True)
 
             classified = result["classified"]
+            thresholds_df = result["thresholds_df"]
             category_summary = result["category_summary"]
             primary_summary = result["primary_summary"]
+            lens_summary = result["lens_summary"]
+            safety_summary = result["safety_summary"]
+            recommendation_summary = result["recommendation_summary"]
+            intersections = result["intersections"]
+            waterfall = result["waterfall"]
             race_summary = result["race_summary"]
+            primary_by_race = result["primary_by_race"]
+            race_drilldowns = result["race_drilldowns"]
+            primary_audit = result["primary_audit"]
+            driver_race_matrix = result["driver_race_matrix"]
+            threshold_summary = result["threshold_summary"]
+            threshold_by_race = result["threshold_by_race"]
+            threshold_by_driver = result["threshold_by_driver"]
+            borderline_laps = result["borderline_laps"]
+            speed_profile_baselines = result["speed_profile_baselines"]
+            shape_profile_examples = result["shape_profile_examples"]
+            shape_cluster_exemplars = result["shape_cluster_exemplars"]
+            shape_cluster_stability = result["shape_cluster_stability"]
             driver_summary = result["driver_summary"]
             examples = result["examples"]
             cluster_profile = result["cluster_profile"]
@@ -156,7 +176,23 @@ def build_notebook():
             print(f"any-category bad laps: {classified['bad_lap_any_category'].sum():,}")
             print(f"summary path: {result['summary_path']}")
             print(f"skrub report path: {result['report_path']}")
+            print(f"metadata path: {result['metadata_path']}")
             """
+        ),
+        markdown(
+            """
+            ## Thresholds And Quality Lenses
+
+            Thresholds are explicit because each flag should map to a known
+            failure mode. The derived quality lenses separate data-integrity
+            failures from race context and exploratory speed-shape outliers.
+            """
+        ),
+        code(
+            "display(thresholds_df)\n"
+            "display(lens_summary)\n"
+            "display(safety_summary)\n"
+            "display(recommendation_summary)"
         ),
         markdown(
             """
@@ -164,20 +200,90 @@ def build_notebook():
 
             Reason columns are intentionally not mutually exclusive. For example,
             a pit lap can also be FastF1-inaccurate and have an incomplete
-            telemetry window.
+            telemetry window. The speed-shape outlier category is reported as
+            `atypical_speed_profile`; the compatibility source column remains
+            `shape_mismatch_against_comparable_laps`.
             """
         ),
         code("display(category_summary)\ndisplay(primary_summary)"),
+        markdown(
+            """
+            ## Category Overlap And Waterfall
+
+            `reason_count` and `reason_set` are persisted on the classified-lap
+            table. The intersection table shows the most common overlapping
+            reason sets, while the waterfall assigns laps once in a deterministic
+            product-review order.
+            """
+        ),
+        code("display(intersections.head(20))\ndisplay(waterfall)"),
         markdown(
             """
             ## Race and Driver Concentration
 
             These tables separate "how much bad data exists" from "where it is
             concentrated." The category columns are counts; `bad_pct` is the
-            percentage of laps with at least one category flag.
+            percentage of laps with at least one category flag. The primary-by-race
+            table powers the stacked race-decomposition figure.
             """
         ),
-        code("display(race_summary.head(12))\ndisplay(driver_summary.head(15))"),
+        code(
+            "display(race_summary.head(12))\n"
+            "display(primary_by_race[primary_by_race['primary_category'] != 'clean'].head(80))\n"
+            "display(driver_summary.head(15))"
+        ),
+        markdown(
+            """
+            ## Selected Race Drilldowns
+
+            British, Belgian, Australian, Dutch, and Sao Paulo are expanded because
+            they dominate the first-pass bad-rate table. Rows are grouped by race,
+            lap number, and deterministic primary category.
+            """
+        ),
+        code("display(race_drilldowns[race_drilldowns['flagged_laps'] > 0].head(100))"),
+        markdown(
+            """
+            ## Driver/Race Matrix And Primary-Category Audit
+
+            The driver/race matrix separates all flags from integrity-only and
+            context-only rates. The audit table surfaces multi-reason laps where
+            the primary category may hide a useful secondary explanation.
+            """
+        ),
+        code("display(driver_race_matrix.head(80))\ndisplay(primary_audit.head(80))"),
+        markdown(
+            """
+            ## Threshold Sensitivity And Borderline Laps
+
+            Sensitivity scenarios loosen and tighten the main sample-count,
+            coverage, gap, path-ratio, and speed-shape thresholds. Borderline
+            laps are the laps whose bad flag, recommendation, safety, or primary
+            category changes under at least one scenario.
+            """
+        ),
+        code(
+            "display(threshold_summary)\n"
+            "display(threshold_by_race.head(12))\n"
+            "display(threshold_by_driver.head(12))\n"
+            "display(borderline_laps.head(80))"
+        ),
+        markdown(
+            """
+            ## Speed-Shape Baselines And Cluster Stability
+
+            Shape examples are compared against clean green-flag same-race median
+            profiles with 10th-90th percentile bands. Cluster exemplars and
+            stability checks keep the exploratory clustering from being treated
+            as stronger evidence than it deserves.
+            """
+        ),
+        code(
+            "display(speed_profile_baselines.head(40))\n"
+            "display(shape_profile_examples.head(20))\n"
+            "display(shape_cluster_exemplars.head(40))\n"
+            "display(shape_cluster_stability)"
+        ),
         markdown(
             """
             ## Representative Examples
@@ -242,6 +348,12 @@ def build_notebook():
             - `docs/data-quality/2025-telemetry-bad-lap-eda-summary.md`
             - `artifacts/2025-telemetry-bad-lap-eda/skrub_lap_quality_table_report.html`
             - `artifacts/2025-telemetry-bad-lap-eda/tables/*.csv`
+            - `artifacts/2025-telemetry-bad-lap-eda/tables/classified_laps_2025.parquet`
+            - `artifacts/2025-telemetry-bad-lap-eda/metadata.json`
+            - `artifacts/2025-telemetry-bad-lap-eda/tables/threshold_sensitivity_2025.csv`
+            - `artifacts/2025-telemetry-bad-lap-eda/tables/borderline_laps_2025.csv`
+            - `artifacts/2025-telemetry-bad-lap-eda/tables/speed_profile_baselines_2025.csv`
+            - `artifacts/2025-telemetry-bad-lap-eda/tables/shape_cluster_stability_2025.csv`
             - `artifacts/2025-telemetry-bad-lap-eda/figures/*.svg`
 
             The most important limitation is explicit: raw FastF1 `Distance` is

@@ -1,0 +1,131 @@
+event_round,event_name,primary_category,laps,race_laps,pct_of_race_laps
+1,Australian Grand Prix,atypical_speed_profile,150,927,16.181229773462782
+1,Australian Grand Prix,clean,517,927,55.77130528586839
+1,Australian Grand Prix,import_or_source_data_anomaly,11,927,1.186623516720604
+1,Australian Grand Prix,pit_lane_or_safety_car_influenced,180,927,19.41747572815534
+1,Australian Grand Prix,timing_session_boundary_artifact,69,927,7.443365695792881
+2,Chinese Grand Prix,atypical_speed_profile,18,1065,1.6901408450704223
+2,Chinese Grand Prix,clean,992,1065,93.1455399061033
+2,Chinese Grand Prix,import_or_source_data_anomaly,3,1065,0.28169014084507044
+2,Chinese Grand Prix,pit_lane_or_safety_car_influenced,51,1065,4.788732394366197
+2,Chinese Grand Prix,position_trace_discontinuity,1,1065,0.09389671361502347
+3,Japanese Grand Prix,atypical_speed_profile,21,1059,1.9830028328611897
+3,Japanese Grand Prix,clean,988,1059,93.29556185080264
+3,Japanese Grand Prix,import_or_source_data_anomaly,8,1059,0.7554296506137866
+3,Japanese Grand Prix,pit_lane_or_safety_car_influenced,42,1059,3.9660056657223794
+4,Bahrain Grand Prix,atypical_speed_profile,69,1128,6.117021276595745
+4,Bahrain Grand Prix,clean,920,1128,81.56028368794325
+4,Bahrain Grand Prix,import_or_source_data_anomaly,38,1128,3.368794326241135
+4,Bahrain Grand Prix,pit_lane_or_safety_car_influenced,71,1128,6.294326241134751
+4,Bahrain Grand Prix,position_trace_discontinuity,17,1128,1.5070921985815602
+4,Bahrain Grand Prix,timing_session_boundary_artifact,13,1128,1.152482269503546
+5,Saudi Arabian Grand Prix,atypical_speed_profile,16,898,1.7817371937639197
+5,Saudi Arabian Grand Prix,clean,719,898,80.06681514476614
+5,Saudi Arabian Grand Prix,import_or_source_data_anomaly,12,898,1.3363028953229399
+5,Saudi Arabian Grand Prix,pit_lane_or_safety_car_influenced,114,898,12.694877505567929
+5,Saudi Arabian Grand Prix,timing_session_boundary_artifact,37,898,4.120267260579064
+6,Miami Grand Prix,atypical_speed_profile,101,1005,10.049751243781095
+6,Miami Grand Prix,clean,809,1005,80.49751243781095
+6,Miami Grand Prix,import_or_source_data_anomaly,6,1005,0.5970149253731344
+6,Miami Grand Prix,pit_lane_or_safety_car_influenced,84,1005,8.358208955223882
+6,Miami Grand Prix,position_trace_discontinuity,2,1005,0.1990049751243781
+6,Miami Grand Prix,timing_session_boundary_artifact,3,1005,0.2985074626865672
+7,Emilia Romagna Grand Prix,atypical_speed_profile,167,1207,13.835956917978459
+7,Emilia Romagna Grand Prix,clean,935,1207,77.46478873239437
+7,Emilia Romagna Grand Prix,import_or_source_data_anomaly,10,1207,0.8285004142502072
+7,Emilia Romagna Grand Prix,pit_lane_or_safety_car_influenced,92,1207,7.622203811101906
+7,Emilia Romagna Grand Prix,position_trace_discontinuity,1,1207,0.08285004142502071
+7,Emilia Romagna Grand Prix,timing_session_boundary_artifact,2,1207,0.16570008285004142
+8,Monaco Grand Prix,atypical_speed_profile,87,1425,6.105263157894736
+8,Monaco Grand Prix,clean,1159,1425,81.33333333333333
+8,Monaco Grand Prix,implausible_channel_values,1,1425,0.07017543859649122
+8,Monaco Grand Prix,import_or_source_data_anomaly,12,1425,0.8421052631578947
+8,Monaco Grand Prix,pit_lane_or_safety_car_influenced,161,1425,11.298245614035087
+8,Monaco Grand Prix,position_trace_discontinuity,3,1425,0.21052631578947367
+8,Monaco Grand Prix,timing_session_boundary_artifact,2,1425,0.14035087719298245
+9,Spanish Grand Prix,atypical_speed_profile,88,1203,7.315045719035744
+9,Spanish Grand Prix,clean,981,1203,81.54613466334165
+9,Spanish Grand Prix,import_or_source_data_anomaly,24,1203,1.99501246882793
+9,Spanish Grand Prix,pit_lane_or_safety_car_influenced,108,1203,8.977556109725686
+9,Spanish Grand Prix,position_trace_discontinuity,1,1203,0.0831255195344971
+9,Spanish Grand Prix,timing_session_boundary_artifact,1,1203,0.0831255195344971
+10,Canadian Grand Prix,atypical_speed_profile,2,1349,0.14825796886582654
+10,Canadian Grand Prix,clean,1148,1349,85.10007412898443
+10,Canadian Grand Prix,import_or_source_data_anomaly,8,1349,0.5930318754633062
+10,Canadian Grand Prix,pit_lane_or_safety_car_influenced,127,1349,9.414381022979985
+10,Canadian Grand Prix,position_trace_discontinuity,61,1349,4.52186805040771
+10,Canadian Grand Prix,timing_session_boundary_artifact,3,1349,0.2223869532987398
+11,Austrian Grand Prix,atypical_speed_profile,51,1126,4.529307282415631
+11,Austrian Grand Prix,clean,930,1126,82.59325044404974
+11,Austrian Grand Prix,import_or_source_data_anomaly,9,1126,0.7992895204262878
+11,Austrian Grand Prix,pit_lane_or_safety_car_influenced,134,1126,11.900532859680284
+11,Austrian Grand Prix,timing_session_boundary_artifact,2,1126,0.17761989342806395
+12,British Grand Prix,atypical_speed_profile,105,825,12.727272727272727
+12,British Grand Prix,clean,224,825,27.151515151515156
+12,British Grand Prix,import_or_source_data_anomaly,64,825,7.757575757575758
+12,British Grand Prix,pit_lane_or_safety_car_influenced,335,825,40.60606060606061
+12,British Grand Prix,position_trace_discontinuity,6,825,0.7272727272727273
+12,British Grand Prix,timing_session_boundary_artifact,91,825,11.030303030303031
+13,Belgian Grand Prix,clean,483,879,54.94880546075085
+13,Belgian Grand Prix,import_or_source_data_anomaly,4,879,0.4550625711035267
+13,Belgian Grand Prix,pit_lane_or_safety_car_influenced,332,879,37.770193401592714
+13,Belgian Grand Prix,timing_session_boundary_artifact,60,879,6.825938566552901
+14,Hungarian Grand Prix,atypical_speed_profile,19,1368,1.3888888888888888
+14,Hungarian Grand Prix,clean,1274,1368,93.12865497076024
+14,Hungarian Grand Prix,import_or_source_data_anomaly,14,1368,1.023391812865497
+14,Hungarian Grand Prix,pit_lane_or_safety_car_influenced,60,1368,4.385964912280701
+14,Hungarian Grand Prix,position_trace_discontinuity,1,1368,0.07309941520467836
+15,Dutch Grand Prix,atypical_speed_profile,208,1364,15.249266862170089
+15,Dutch Grand Prix,clean,932,1364,68.32844574780059
+15,Dutch Grand Prix,import_or_source_data_anomaly,9,1364,0.6598240469208211
+15,Dutch Grand Prix,pit_lane_or_safety_car_influenced,212,1364,15.542521994134898
+15,Dutch Grand Prix,position_trace_discontinuity,1,1364,0.07331378299120235
+15,Dutch Grand Prix,timing_session_boundary_artifact,2,1364,0.1466275659824047
+16,Italian Grand Prix,atypical_speed_profile,29,974,2.97741273100616
+16,Italian Grand Prix,clean,885,974,90.86242299794661
+16,Italian Grand Prix,import_or_source_data_anomaly,19,974,1.9507186858316223
+16,Italian Grand Prix,pit_lane_or_safety_car_influenced,38,974,3.9014373716632447
+16,Italian Grand Prix,position_trace_discontinuity,3,974,0.3080082135523614
+17,Azerbaijan Grand Prix,atypical_speed_profile,25,968,2.5826446280991737
+17,Azerbaijan Grand Prix,clean,735,968,75.92975206611571
+17,Azerbaijan Grand Prix,import_or_source_data_anomaly,1,968,0.10330578512396695
+17,Azerbaijan Grand Prix,pit_lane_or_safety_car_influenced,147,968,15.18595041322314
+17,Azerbaijan Grand Prix,position_trace_discontinuity,2,968,0.2066115702479339
+17,Azerbaijan Grand Prix,timing_session_boundary_artifact,58,968,5.991735537190083
+18,Singapore Grand Prix,atypical_speed_profile,20,1229,1.627339300244101
+18,Singapore Grand Prix,clean,1143,1229,93.00244100895037
+18,Singapore Grand Prix,import_or_source_data_anomaly,18,1229,1.4646053702196908
+18,Singapore Grand Prix,pit_lane_or_safety_car_influenced,46,1229,3.7428803905614325
+18,Singapore Grand Prix,position_trace_discontinuity,2,1229,0.16273393002441008
+19,United States Grand Prix,atypical_speed_profile,60,1067,5.623242736644799
+19,United States Grand Prix,clean,874,1067,81.91190253045923
+19,United States Grand Prix,import_or_source_data_anomaly,30,1067,2.8116213683223994
+19,United States Grand Prix,pit_lane_or_safety_car_influenced,100,1067,9.372071227741332
+19,United States Grand Prix,position_trace_discontinuity,2,1067,0.18744142455482662
+19,United States Grand Prix,timing_session_boundary_artifact,1,1067,0.09372071227741331
+20,Mexico City Grand Prix,atypical_speed_profile,50,1263,3.95882818685669
+20,Mexico City Grand Prix,clean,1146,1263,90.73634204275535
+20,Mexico City Grand Prix,import_or_source_data_anomaly,9,1263,0.7125890736342043
+20,Mexico City Grand Prix,pit_lane_or_safety_car_influenced,57,1263,4.513064133016627
+20,Mexico City Grand Prix,timing_session_boundary_artifact,1,1263,0.0791765637371338
+21,São Paulo Grand Prix,atypical_speed_profile,123,1251,9.832134292565947
+21,São Paulo Grand Prix,clean,892,1251,71.30295763389289
+21,São Paulo Grand Prix,import_or_source_data_anomaly,1,1251,0.07993605115907274
+21,São Paulo Grand Prix,pit_lane_or_safety_car_influenced,231,1251,18.465227817745802
+21,São Paulo Grand Prix,position_trace_discontinuity,2,1251,0.15987210231814547
+21,São Paulo Grand Prix,timing_session_boundary_artifact,2,1251,0.15987210231814547
+22,Las Vegas Grand Prix,atypical_speed_profile,71,886,8.01354401805869
+22,Las Vegas Grand Prix,clean,667,886,75.2821670428894
+22,Las Vegas Grand Prix,import_or_source_data_anomaly,9,886,1.0158013544018059
+22,Las Vegas Grand Prix,pit_lane_or_safety_car_influenced,120,886,13.544018058690746
+22,Las Vegas Grand Prix,timing_session_boundary_artifact,19,886,2.144469525959368
+23,Qatar Grand Prix,atypical_speed_profile,59,1067,5.5295220243673855
+23,Qatar Grand Prix,clean,795,1067,74.50796626054358
+23,Qatar Grand Prix,import_or_source_data_anomaly,17,1067,1.5932521087160263
+23,Qatar Grand Prix,pit_lane_or_safety_car_influenced,191,1067,17.90065604498594
+23,Qatar Grand Prix,position_trace_discontinuity,2,1067,0.18744142455482662
+23,Qatar Grand Prix,timing_session_boundary_artifact,3,1067,0.28116213683223995
+24,Abu Dhabi Grand Prix,atypical_speed_profile,20,1156,1.7301038062283738
+24,Abu Dhabi Grand Prix,clean,1044,1156,90.3114186851211
+24,Abu Dhabi Grand Prix,import_or_source_data_anomaly,38,1156,3.2871972318339098
+24,Abu Dhabi Grand Prix,pit_lane_or_safety_car_influenced,54,1156,4.671280276816609

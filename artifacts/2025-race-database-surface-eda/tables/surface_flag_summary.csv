@@ -1,0 +1,12 @@
+surface_flag,sessions,pct_sessions
+ingestion_diagnostic_warning,24,100.0
+lap_metadata_incomplete,18,75.0
+race_control_sparse_or_untimed,14,58.333333333333336
+aligned_replay_quality_issue,0,0.0
+circuit_annotation_issue,0,0.0
+driver_metadata_sparse,0,0.0
+raw_position_coverage_issue,0,0.0
+raw_telemetry_coverage_issue,0,0.0
+session_metadata_incomplete,0,0.0
+status_timeline_sparse,0,0.0
+weather_surface_issue,0,0.0

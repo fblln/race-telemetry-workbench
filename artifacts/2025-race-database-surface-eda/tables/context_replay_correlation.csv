@@ -1,0 +1,7 @@
+bin_bucket,bins,median_degraded_window_rate,p95_degraded_window_rate,median_max_non_ok_pct,p95_max_non_ok_pct,severe_driver_windows
+all_bins,466,50.0,78.51761460101868,4.666666666666667,9.0,133
+context_event_bins,225,50.0,80.0,5.0,9.0,97
+no_context_event_bins,241,40.88050314465409,70.0,4.666666666666667,9.0,36
+race_control_incident_bins,168,50.0,80.0,5.0,8.666666666666668,58
+status_bins,96,50.0,82.5,5.0,9.833333333333332,78
+rainfall_transition_bins,15,40.0,71.99999999999996,6.666666666666667,8.966666666666667,0

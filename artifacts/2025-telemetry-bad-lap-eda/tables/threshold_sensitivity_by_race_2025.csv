@@ -1,0 +1,25 @@
+event_round,event_name,total_laps,threshold_sensitive_laps,bad_flag_sensitive_laps,recommendation_sensitive_laps,threshold_sensitive_pct
+22,Las Vegas Grand Prix,886,19,14,17,2.144469525959368
+8,Monaco Grand Prix,1425,25,17,24,1.7543859649122806
+6,Miami Grand Prix,1005,17,16,17,1.691542288557214
+17,Azerbaijan Grand Prix,968,15,14,15,1.5495867768595042
+15,Dutch Grand Prix,1364,17,3,14,1.2463343108504399
+19,United States Grand Prix,1067,11,0,7,1.0309278350515463
+16,Italian Grand Prix,974,9,1,9,0.9240246406570842
+1,Australian Grand Prix,927,7,6,6,0.7551240560949299
+4,Bahrain Grand Prix,1128,7,0,1,0.6205673758865249
+24,Abu Dhabi Grand Prix,1156,7,7,7,0.6055363321799307
+18,Singapore Grand Prix,1229,7,3,5,0.5695687550854354
+3,Japanese Grand Prix,1059,6,0,6,0.56657223796034
+13,Belgian Grand Prix,879,4,0,4,0.4550625711035267
+20,Mexico City Grand Prix,1263,5,1,4,0.395882818685669
+23,Qatar Grand Prix,1067,4,2,4,0.37488284910965325
+10,Canadian Grand Prix,1349,5,5,5,0.37064492216456635
+12,British Grand Prix,825,3,0,3,0.36363636363636365
+5,Saudi Arabian Grand Prix,898,2,2,2,0.22271714922048996
+11,Austrian Grand Prix,1126,2,2,2,0.17761989342806395
+9,Spanish Grand Prix,1203,2,1,2,0.1662510390689942
+7,Emilia Romagna Grand Prix,1207,2,0,0,0.16570008285004142
+2,Chinese Grand Prix,1065,1,0,1,0.09389671361502347
+21,São Paulo Grand Prix,1251,1,0,0,0.07993605115907274
+14,Hungarian Grand Prix,1368,1,0,1,0.07309941520467836

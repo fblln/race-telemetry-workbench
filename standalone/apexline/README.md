@@ -1,5 +1,8 @@
 # Apexline
 
+> Moved to `/Users/fabio/Workspace/apexline`. Treat this copy as a migration
+> snapshot; make new Apexline changes in the standalone repository.
+
 **Apexline validates Formula 1 circuit GPS outlines against real FastF1 lap
 position data, identifies laps that are unsafe to use as geometry references,
 and exports compact encoded polylines for maps and spatial tooling.**

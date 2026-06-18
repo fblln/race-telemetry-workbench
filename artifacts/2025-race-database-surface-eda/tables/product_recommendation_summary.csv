@@ -1,0 +1,6 @@
+final_recommendation,sessions,max_readiness_score,affected_drivers,affected_rows,severe_replay_windows,marker_coordinate_issues,schema_importer_follow_up_sessions
+no_action,0,0,0,0,0,0,0
+label_in_ui,24,2,476,458158,133,0,24
+inspect,0,0,0,0,0,0,0
+reimport,0,0,0,0,0,0,0
+schema_importer_change,0,0,0,0,0,0,0

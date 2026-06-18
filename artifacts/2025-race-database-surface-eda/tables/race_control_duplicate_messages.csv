@@ -1,0 +1,309 @@
+session_id,event_name,normalized_message,messages,first_session_time_ms,last_session_time_ms,taxonomy,example_message,span_ms
+2025-belgian-grand-prix-r,Belgian Grand Prix,clear in track sector #,39,3376000.0,10186000.0,flags,CLEAR IN TRACK SECTOR 4,6810000.0
+2025-british-grand-prix-r,British Grand Prix,clear in track sector #,37,279000.0,5474000.0,flags,CLEAR IN TRACK SECTOR 5,5195000.0
+2025-british-grand-prix-r,British Grand Prix,yellow in track sector #,32,263000.0,5291000.0,flags,YELLOW IN TRACK SECTOR 5,5028000.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,double yellow in track sector #,22,3346000.0,10139000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 4,6793000.0
+2025-australian-grand-prix-r,Australian Grand Prix,clear in track sector #,20,317000.0,6420000.0,flags,CLEAR IN TRACK SECTOR 2,6103000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (hul) timed at #:#:#,18,2423000.0,5295000.0,flags,WAVED BLUE FLAG FOR CAR 27 (HUL) TIMED AT 15:40:23,2872000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,double yellow in track sector #,18,1907000.0,6810000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 5,4903000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (bea) timed at #:#:#,15,2276000.0,5611000.0,flags,WAVED BLUE FLAG FOR CAR 87 (BEA) TIMED AT 15:37:55,3335000.0
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear in track sector #,14,636000.0,6175000.0,flags,CLEAR IN TRACK SECTOR 6,5539000.0
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,double yellow in track sector #,14,293000.0,6153000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 7,5860000.0
+2025-australian-grand-prix-r,Australian Grand Prix,double yellow in track sector #,14,59000.0,6060000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 2,6001000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (str) timed at #:#:#,13,2331000.0,4493000.0,flags,WAVED BLUE FLAG FOR CAR 18 (STR) TIMED AT 15:38:50,2162000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (bor) timed at #:#:#,13,2440000.0,5373000.0,flags,WAVED BLUE FLAG FOR CAR 5 (BOR) TIMED AT 15:40:39,2933000.0
+2025-miami-grand-prix-r,Miami Grand Prix,clear in track sector #,12,244000.0,532000.0,flags,CLEAR IN TRACK SECTOR 2,288000.0
+2025-miami-grand-prix-r,Miami Grand Prix,double yellow in track sector #,12,236000.0,531000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 2,295000.0
+2025-british-grand-prix-r,British Grand Prix,double yellow in track sector #,12,312000.0,2525000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 6,2213000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (tsu) timed at #:#:#,12,2600000.0,5698000.0,flags,WAVED BLUE FLAG FOR CAR 22 (TSU) TIMED AT 15:43:19,3098000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (col) timed at #:#:#,12,2383000.0,5544000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 15:39:42,3161000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear in track sector #,12,1237000.0,6549000.0,flags,CLEAR IN TRACK SECTOR 15,5312000.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,track surface slippery in track sector #,12,,,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 11,
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (law) timed at #:#:#,11,3188000.0,4271000.0,flags,WAVED BLUE FLAG FOR CAR 30 (LAW) TIMED AT 14:53:07,1083000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,waved blue flag for car # (oco) timed at #:#:#,11,4459000.0,5545000.0,flags,WAVED BLUE FLAG FOR CAR 31 (OCO) TIMED AT 21:14:18,1086000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (alb) timed at #:#:#,10,2832000.0,4642000.0,flags,WAVED BLUE FLAG FOR CAR 23 (ALB) TIMED AT 15:47:12,1810000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (ant) timed at #:#:#,10,2620000.0,4521000.0,flags,WAVED BLUE FLAG FOR CAR 12 (ANT) TIMED AT 15:43:40,1901000.0
+2025-chinese-grand-prix-r,Chinese Grand Prix,clear in track sector #,9,281000.0,789000.0,flags,CLEAR IN TRACK SECTOR 10,508000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,waved blue flag for car # (bor) timed at #:#:#,9,4582000.0,5684000.0,flags,WAVED BLUE FLAG FOR CAR 5 (BOR) TIMED AT 21:16:22,1102000.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,clear in track sector #,9,274000.0,1840000.0,flags,CLEAR IN TRACK SECTOR 2,1566000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (oco) timed at #:#:#,9,3314000.0,5396000.0,flags,WAVED BLUE FLAG FOR CAR 31 (OCO) TIMED AT 15:55:14,2082000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (sai) timed at #:#:#,9,2777000.0,4887000.0,flags,WAVED BLUE FLAG FOR CAR 55 (SAI) TIMED AT 15:46:16,2110000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (law) timed at #:#:#,9,2862000.0,5320000.0,flags,WAVED BLUE FLAG FOR CAR 30 (LAW) TIMED AT 15:47:42,2458000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,clear in track sector #,9,101000.0,6492000.0,flags,CLEAR IN TRACK SECTOR 16,6391000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (col) timed at #:#:#,8,2870000.0,4155000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 15:47:50,1285000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (gas) timed at #:#:#,8,3140000.0,4446000.0,flags,WAVED BLUE FLAG FOR CAR 10 (GAS) TIMED AT 15:52:19,1306000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (tsu) timed at #:#:#,8,4502000.0,5980000.0,flags,WAVED BLUE FLAG FOR CAR 22 (TSU) TIMED AT 16:15:02,1478000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (had) timed at #:#:#,8,3484000.0,5447000.0,flags,WAVED BLUE FLAG FOR CAR 6 (HAD) TIMED AT 15:58:04,1963000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,waved blue flag for car # (rus) timed at #:#:#,8,2646000.0,4681000.0,flags,WAVED BLUE FLAG FOR CAR 63 (RUS) TIMED AT 15:44:05,2035000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,yellow in track sector #,8,91000.0,6377000.0,flags,YELLOW IN TRACK SECTOR 16,6286000.0
+2025-italian-grand-prix-r,Italian Grand Prix,clear in track sector #,7,3568000.0,3570000.0,flags,CLEAR IN TRACK SECTOR 7,2000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,waved blue flag for car # (col) timed at #:#:#,7,5248000.0,5337000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 18:27:28,89000.0
+2025-australian-grand-prix-r,Australian Grand Prix,yellow in track sector #,7,5808000.0,6054000.0,flags,YELLOW IN TRACK SECTOR 19,246000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,waved blue flag for car # (had) timed at #:#:#,7,5180000.0,5684000.0,flags,WAVED BLUE FLAG FOR CAR 6 (HAD) TIMED AT 21:26:20,504000.0
+2025-chinese-grand-prix-r,Chinese Grand Prix,double yellow in track sector #,7,270000.0,783000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 10,513000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,waved blue flag for car # (col) timed at #:#:#,7,3367000.0,4319000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 15:56:07,952000.0
+2025-united-states-grand-prix-r,United States Grand Prix,clear in track sector #,7,304000.0,3714000.0,flags,CLEAR IN TRACK SECTOR 14,3410000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,yellow in track sector #,7,1908000.0,5412000.0,flags,YELLOW IN TRACK SECTOR 4,3504000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,clear in track sector #,7,429000.0,5643000.0,flags,CLEAR IN TRACK SECTOR 13,5214000.0
+2025-italian-grand-prix-r,Italian Grand Prix,yellow in track sector #,6,3564000.0,3564000.0,flags,YELLOW IN TRACK SECTOR 6,0.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (bea) timed at #:#:#,6,4483000.0,4586000.0,flags,WAVED BLUE FLAG FOR CAR 87 (BEA) TIMED AT 15:14:42,103000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,double yellow in track sector #,6,265000.0,377000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 4,112000.0
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,clear in track sector #,6,552000.0,991000.0,flags,CLEAR IN TRACK SECTOR 11,439000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (col) timed at #:#:#,6,4522000.0,4984000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 15:15:21,462000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (had) timed at #:#:#,6,4372000.0,4951000.0,flags,WAVED BLUE FLAG FOR CAR 6 (HAD) TIMED AT 15:12:52,579000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,waved blue flag for car # (str) timed at #:#:#,6,4211000.0,4833000.0,flags,WAVED BLUE FLAG FOR CAR 18 (STR) TIMED AT 21:10:11,622000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,waved blue flag for car # (gas) timed at #:#:#,6,4519000.0,5290000.0,flags,WAVED BLUE FLAG FOR CAR 10 (GAS) TIMED AT 21:15:18,771000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,waved blue flag for car # (alb) timed at #:#:#,6,4071000.0,4959000.0,flags,WAVED BLUE FLAG FOR CAR 23 (ALB) TIMED AT 16:07:50,888000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (str) timed at #:#:#,6,4066000.0,5300000.0,flags,WAVED BLUE FLAG FOR CAR 18 (STR) TIMED AT 16:07:46,1234000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,waved blue flag for car # (col) timed at #:#:#,6,4706000.0,6083000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 21:18:26,1377000.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,double yellow in track sector #,6,262000.0,1805000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 2,1543000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (col) timed at #:#:#,6,3981000.0,5725000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 16:06:21,1744000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,waved blue flag for car # (hul) timed at #:#:#,6,3661000.0,5742000.0,flags,WAVED BLUE FLAG FOR CAR 27 (HUL) TIMED AT 16:01:01,2081000.0
+2025-australian-grand-prix-r,Australian Grand Prix,track surface slippery in track sector #,6,3065000.0,5834000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 15,2769000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,clear in track sector #,6,258000.0,3182000.0,flags,CLEAR IN TRACK SECTOR 10,2924000.0
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,drs disabled in zone #,5,6102000.0,6102000.0,drs,DRS DISABLED IN ZONE 2,0.0
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,drs enabled in zone #,5,6119000.0,6119000.0,drs,DRS ENABLED IN ZONE 2,0.0
+2025-british-grand-prix-r,British Grand Prix,drs disabled in zone #,5,5242000.0,5292000.0,drs,DRS DISABLED IN ZONE 1,50000.0
+2025-british-grand-prix-r,British Grand Prix,drs enabled in zone #,5,5251000.0,5303000.0,drs,DRS ENABLED IN ZONE 1,52000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (tsu) timed at #:#:#,5,3537000.0,4038000.0,flags,WAVED BLUE FLAG FOR CAR 22 (TSU) TIMED AT 15:58:56,501000.0
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,double yellow in track sector #,5,256000.0,769000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 11,513000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,waved blue flag for car # (gas) timed at #:#:#,5,4424000.0,5077000.0,flags,WAVED BLUE FLAG FOR CAR 10 (GAS) TIMED AT 16:13:44,653000.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,yellow in track sector #,5,3643000.0,4395000.0,flags,YELLOW IN TRACK SECTOR 12,752000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,waved blue flag for car # (oco) timed at #:#:#,5,4457000.0,5300000.0,flags,WAVED BLUE FLAG FOR CAR 31 (OCO) TIMED AT 16:14:17,843000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (gas) timed at #:#:#,5,5046000.0,5961000.0,flags,WAVED BLUE FLAG FOR CAR 10 (GAS) TIMED AT 16:24:05,915000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (bor) timed at #:#:#,5,3683000.0,4602000.0,flags,WAVED BLUE FLAG FOR CAR 5 (BOR) TIMED AT 16:01:23,919000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (bea) timed at #:#:#,5,3228000.0,4360000.0,flags,WAVED BLUE FLAG FOR CAR 87 (BEA) TIMED AT 15:53:48,1132000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (hul) timed at #:#:#,5,4422000.0,5678000.0,flags,WAVED BLUE FLAG FOR CAR 27 (HUL) TIMED AT 16:13:41,1256000.0
+2025-australian-grand-prix-r,Australian Grand Prix,waved blue flag for car # (bea) timed at #:#:#,5,4068000.0,6026000.0,flags,WAVED BLUE FLAG FOR CAR 87 (BEA) TIMED AT 16:07:48,1958000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,waved blue flag for car # (col) timed at #:#:#,5,3830000.0,5870000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 15:03:49,2040000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,drs disabled in zone #,5,3323000.0,6378000.0,drs,DRS DISABLED IN ZONE 2,3055000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,drs enabled in zone #,5,3326000.0,6452000.0,drs,DRS ENABLED IN ZONE 2,3126000.0
+2025-united-states-grand-prix-r,United States Grand Prix,double yellow in track sector #,5,295000.0,3711000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 14,3416000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,drs enabled in zone #,5,897000.0,4538000.0,drs,DRS ENABLED IN ZONE 1,3641000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,clear in track sector #,5,896000.0,4538000.0,flags,CLEAR IN TRACK SECTOR 5,3642000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,drs disabled in zone #,5,880000.0,4529000.0,drs,DRS DISABLED IN ZONE 1,3649000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,clear in track sector #,5,1735000.0,6808000.0,flags,CLEAR IN TRACK SECTOR 10,5073000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,drs enabled,5,280000.0,5892000.0,drs,DRS ENABLED,5612000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,double yellow in track sector #,4,879000.0,879000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 5,0.0
+2025-chinese-grand-prix-r,Chinese Grand Prix,yellow in track sector #,4,279000.0,289000.0,flags,YELLOW IN TRACK SECTOR 10,10000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,waved blue flag for car # (law) timed at #:#:#,4,2476000.0,2516000.0,flags,WAVED BLUE FLAG FOR CAR 30 (LAW) TIMED AT 15:41:15,40000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,car # (ham) time #:#.# deleted - track limits at turn # lap # #:#:#,4,6208000.0,6253000.0,other,CAR 44 (HAM) TIME 1:40.466 DELETED - TRACK LIMITS AT TURN 2 LAP 60 21:41:28,45000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (alb) timed at #:#:#,4,3780000.0,3841000.0,flags,WAVED BLUE FLAG FOR CAR 23 (ALB) TIMED AT 15:02:59,61000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (law) timed at #:#:#,4,4261000.0,4353000.0,flags,WAVED BLUE FLAG FOR CAR 30 (LAW) TIMED AT 16:11:01,92000.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,waved blue flag for car # (had) timed at #:#:#,4,9318000.0,9473000.0,flags,WAVED BLUE FLAG FOR CAR 6 (HAD) TIMED AT 17:35:18,155000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,waved blue flag for car # (bor) timed at #:#:#,4,4721000.0,4898000.0,flags,WAVED BLUE FLAG FOR CAR 5 (BOR) TIMED AT 21:18:40,177000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (oco) timed at #:#:#,4,3392000.0,3645000.0,flags,WAVED BLUE FLAG FOR CAR 31 (OCO) TIMED AT 15:56:31,253000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,clear in track sector #,4,270000.0,579000.0,flags,CLEAR IN TRACK SECTOR 2,309000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,waved blue flag for car # (doo) timed at #:#:#,4,4254000.0,4639000.0,flags,WAVED BLUE FLAG FOR CAR 7 (DOO) TIMED AT 21:10:53,385000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,waved blue flag for car # (tsu) timed at #:#:#,4,3893000.0,4500000.0,flags,WAVED BLUE FLAG FOR CAR 22 (TSU) TIMED AT 16:04:53,607000.0
+2025-chinese-grand-prix-r,Chinese Grand Prix,waved blue flag for car # (hul) timed at #:#:#,4,4957000.0,5577000.0,flags,WAVED BLUE FLAG FOR CAR 27 (HUL) TIMED AT 16:22:36,620000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (bea) timed at #:#:#,4,5238000.0,5921000.0,flags,WAVED BLUE FLAG FOR CAR 87 (BEA) TIMED AT 16:27:17,683000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,double yellow in track sector #,4,297000.0,999000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 10,702000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (had) timed at #:#:#,4,5389000.0,6131000.0,flags,WAVED BLUE FLAG FOR CAR 6 (HAD) TIMED AT 16:29:48,742000.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,track surface slippery in track sector #,4,275000.0,1648000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 3,1373000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,yellow in track sector #,4,3864000.0,5243000.0,flags,YELLOW IN TRACK SECTOR 11,1379000.0
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,clear in track sector #,4,2759000.0,4641000.0,flags,CLEAR IN TRACK SECTOR 8,1882000.0
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow in track sector #,4,287000.0,2249000.0,flags,YELLOW IN TRACK SECTOR 7,1962000.0
+2025-british-grand-prix-r,British Grand Prix,track clear,4,631000.0,2968000.0,flags,TRACK CLEAR,2337000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,waved blue flag for car # (gas) timed at #:#:#,4,3236000.0,5874000.0,flags,WAVED BLUE FLAG FOR CAR 10 (GAS) TIMED AT 14:53:55,2638000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,track clear,4,2307000.0,5808000.0,flags,TRACK CLEAR,3501000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (gas) time #:#.# deleted - track limits at turn # lap # #:#:#,4,704000.0,4239000.0,other,CAR 10 (GAS) TIME 1:32.010 DELETED - TRACK LIMITS AT TURN 6 LAP 2 17:05:53,3535000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,4,1052000.0,4714000.0,other,CAR 12 (ANT) TIME 1:39.197 DELETED - TRACK LIMITS AT TURN 13 LAP 8 18:16:44,3662000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,clear in track sector #,4,1073000.0,5439000.0,flags,CLEAR IN TRACK SECTOR 3,4366000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (doo) time #:#.# deleted - track limits at turn # lap # #:#:#,4,1391000.0,6141000.0,other,CAR 7 (DOO) TIME 1:37.745 DELETED - TRACK LIMITS AT TURN 13 LAP 11 18:22:09,4750000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,clear in track sector #,4,587000.0,6047000.0,flags,CLEAR IN TRACK SECTOR 3,5460000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,drs disabled in zone #,4,,,drs,DRS DISABLED IN ZONE 1,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,drs enabled in zone #,4,,,drs,DRS ENABLED IN ZONE 1,
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,yellow in track sector #,3,268000.0,271000.0,flags,YELLOW IN TRACK SECTOR 2,3000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,waved blue flag for car # (col) timed at #:#:#,3,5083000.0,5102000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 20:24:43,19000.0
+2025-united-states-grand-prix-r,United States Grand Prix,waved blue flag for car # (col) timed at #:#:#,3,5741000.0,5761000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 15:35:41,20000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,waved blue flag for car # (str) timed at #:#:#,3,4314000.0,4336000.0,flags,WAVED BLUE FLAG FOR CAR 18 (STR) TIMED AT 15:11:53,22000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,waved blue flag for car # (alb) timed at #:#:#,3,5471000.0,5518000.0,flags,WAVED BLUE FLAG FOR CAR 23 (ALB) TIMED AT 15:31:11,47000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (had) time #:#.# deleted - track limits at turn # lap # #:#:#,3,648000.0,741000.0,other,CAR 6 (HAD) TIME 1:43.071 DELETED - TRACK LIMITS AT TURN 19 LAP 3 14:08:49,93000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (alo) timed at #:#:#,3,4216000.0,4324000.0,flags,WAVED BLUE FLAG FOR CAR 14 (ALO) TIMED AT 16:10:16,108000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (gas) timed at #:#:#,3,4237000.0,4352000.0,flags,WAVED BLUE FLAG FOR CAR 10 (GAS) TIMED AT 15:10:37,115000.0
+2025-miami-grand-prix-r,Miami Grand Prix,waved blue flag for car # (alo) timed at #:#:#,3,4683000.0,4813000.0,flags,WAVED BLUE FLAG FOR CAR 14 (ALO) TIMED AT 17:18:03,130000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,waved blue flag for car # (str) timed at #:#:#,3,4691000.0,4891000.0,flags,WAVED BLUE FLAG FOR CAR 18 (STR) TIMED AT 21:18:11,200000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,waved blue flag for car # (tsu) timed at #:#:#,3,5136000.0,5436000.0,flags,WAVED BLUE FLAG FOR CAR 22 (TSU) TIMED AT 21:25:35,300000.0
+2025-chinese-grand-prix-r,Chinese Grand Prix,waved blue flag for car # (bor) timed at #:#:#,3,5164000.0,5676000.0,flags,WAVED BLUE FLAG FOR CAR 5 (BOR) TIMED AT 16:26:03,512000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (col) time #:#.# deleted - track limits at turn # lap # #:#:#,3,2529000.0,3129000.0,other,CAR 43 (COL) TIME 1:30.138 DELETED - TRACK LIMITS AT TURN 1 LAP 25 17:40:23,600000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (nor) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1604000.0,2288000.0,other,CAR 4 (NOR) TIME 1:39.712 DELETED - TRACK LIMITS AT TURN 20 LAP 13 14:26:21,684000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,car # (alb) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1459000.0,2156000.0,other,CAR 23 (ALB) TIME 1:28.247 DELETED - TRACK LIMITS AT TURN 10 LAP 11 19:21:58,697000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (had) time #:#.# deleted - track limits at turn # lap # #:#:#,3,760000.0,1466000.0,other,CAR 6 (HAD) TIME 1:39.603 DELETED - TRACK LIMITS AT TURN 13 LAP 2 18:06:57,706000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1958000.0,2889000.0,other,CAR 12 (ANT) TIME 1:31.119 DELETED - TRACK LIMITS AT TURN 1 LAP 19 17:30:59,931000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,car # (rus) time #:#.# deleted - track limits at turn # lap # #:#:#,3,3105000.0,4072000.0,other,CAR 63 (RUS) TIME 1:26.633 DELETED - TRACK LIMITS AT TURN 10 LAP 31 19:51:03,967000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (ver) time #:#.# deleted - track limits at turn # lap # #:#:#,3,4874000.0,5856000.0,other,CAR 1 (VER) TIME 1:37.385 DELETED - TRACK LIMITS AT TURN 13 LAP 45 19:20:09,982000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,car # (bea) time #:#.# deleted - track limits at turn # lap # #:#:#,3,3511000.0,4621000.0,other,CAR 87 (BEA) TIME 1:16.813 DELETED - TRACK LIMITS AT TURN 14 LAP 41 14:56:28,1110000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (bor) timed at #:#:#,3,4721000.0,6034000.0,flags,WAVED BLUE FLAG FOR CAR 5 (BOR) TIMED AT 16:18:41,1313000.0
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,yellow in track sector #,3,2531000.0,3967000.0,flags,YELLOW IN TRACK SECTOR 8,1436000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (law) time #:#.# deleted - track limits at turn # lap # #:#:#,3,633000.0,2138000.0,other,CAR 30 (LAW) TIME 1:30.661 DELETED - TRACK LIMITS AT TURN 1 LAP 4 17:08:15,1505000.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,drs enabled,3,349000.0,1859000.0,drs,DRS ENABLED,1510000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,waved blue flag for car # (hul) timed at #:#:#,3,4558000.0,6110000.0,flags,WAVED BLUE FLAG FOR CAR 27 (HUL) TIMED AT 21:15:58,1552000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,track surface slippery in track sector #,3,1676000.0,3259000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 10,1583000.0
+2025-italian-grand-prix-r,Italian Grand Prix,car # (gas) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1524000.0,3139000.0,other,CAR 10 (GAS) TIME 1:25.448 DELETED - TRACK LIMITS AT TURN 5 LAP 15 15:24:13,1615000.0
+2025-italian-grand-prix-r,Italian Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,3,976000.0,2611000.0,other,CAR 12 (ANT) TIME 1:25.080 DELETED - TRACK LIMITS AT TURN 5 LAP 6 15:11:21,1635000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,waved blue flag for car # (ham) timed at #:#:#,3,3732000.0,5418000.0,flags,WAVED BLUE FLAG FOR CAR 44 (HAM) TIMED AT 16:02:12,1686000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,waved blue flag for car # (sai) timed at #:#:#,3,2479000.0,4283000.0,flags,WAVED BLUE FLAG FOR CAR 55 (SAI) TIMED AT 15:41:19,1804000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (ham) time #:#.# deleted - track limits at turn # lap # #:#:#,3,852000.0,2675000.0,other,CAR 44 (HAM) TIME 1:30.229 DELETED - TRACK LIMITS AT TURN 1 LAP 5 17:09:47,1823000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,track surface slippery in track sector #,3,1149000.0,2973000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 15,1824000.0
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,double yellow in track sector #,3,2557000.0,4458000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 8,1901000.0
+2025-italian-grand-prix-r,Italian Grand Prix,car # (sai) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1740000.0,3865000.0,other,CAR 55 (SAI) TIME 1:24.342 DELETED - TRACK LIMITS AT TURN 4 LAP 17 15:26:50,2125000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (hul) time #:#.# deleted - track limits at turn # lap # #:#:#,3,634000.0,2871000.0,other,CAR 27 (HUL) TIME 1:30.573 DELETED - TRACK LIMITS AT TURN 1 LAP 4 17:08:19,2237000.0
+2025-miami-grand-prix-r,Miami Grand Prix,drs enabled,3,549000.0,3404000.0,drs,DRS ENABLED,2855000.0
+2025-miami-grand-prix-r,Miami Grand Prix,track clear,3,548000.0,3404000.0,flags,TRACK CLEAR,2856000.0
+2025-miami-grand-prix-r,Miami Grand Prix,virtual safety car ending,3,535000.0,3391000.0,safety_car,VIRTUAL SAFETY CAR ENDING,2856000.0
+2025-united-states-grand-prix-r,United States Grand Prix,yellow in track sector #,3,810000.0,3704000.0,flags,YELLOW IN TRACK SECTOR 16,2894000.0
+2025-miami-grand-prix-r,Miami Grand Prix,virtual safety car deployed,3,363000.0,3309000.0,safety_car,VIRTUAL SAFETY CAR DEPLOYED,2946000.0
+2025-british-grand-prix-r,British Grand Prix,car # (lec) time #:#.# deleted - track limits at turn # lap # #:#:#,3,998000.0,4158000.0,other,CAR 16 (LEC) TIME 1:58.458 DELETED - TRACK LIMITS AT TURN 1 LAP 5 15:12:36,3160000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (bor) time #:#.# deleted - track limits at turn # lap # #:#:#,3,693000.0,3995000.0,other,CAR 5 (BOR) TIME 1:42.033 DELETED - TRACK LIMITS AT TURN 12 LAP 3 14:08:17,3302000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (ham) time #:#.# deleted - track limits at turn # lap # #:#:#,3,2698000.0,6012000.0,other,CAR 44 (HAM) TIME 1:40.418 DELETED - TRACK LIMITS AT TURN 19 LAP 24 14:44:40,3314000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (alb) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1787000.0,5123000.0,other,CAR 23 (ALB) TIME 1:30.133 DELETED - TRACK LIMITS AT TURN 1 LAP 17 17:28:08,3336000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,3,773000.0,4271000.0,other,CAR 12 (ANT) TIME 1:40.784 DELETED - TRACK LIMITS AT TURN 12 LAP 4 14:09:52,3498000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,safety car deployed,3,1922000.0,5428000.0,safety_car,SAFETY CAR DEPLOYED,3506000.0
+2025-british-grand-prix-r,British Grand Prix,car # (ham) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1683000.0,5208000.0,other,CAR 44 (HAM) TIME 2:07.044 DELETED - TRACK LIMITS AT TURN 6 LAP 12 15:26:18,3525000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,recovery vehicle on track at turn #,3,2016000.0,5546000.0,other,RECOVERY VEHICLE ON TRACK AT TURN 3,3530000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,safety car in this lap,3,2229000.0,5768000.0,safety_car,SAFETY CAR IN THIS LAP,3539000.0
+2025-italian-grand-prix-r,Italian Grand Prix,car # (col) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1092000.0,4676000.0,other,CAR 43 (COL) TIME 1:24.816 DELETED - TRACK LIMITS AT TURN 5 LAP 9 15:15:41,3584000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (lec) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1134000.0,4985000.0,other,CAR 16 (LEC) TIME 1:29.654 DELETED - TRACK LIMITS AT TURN 1 LAP 9 17:15:39,3851000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,car # (hul) time #:#.# deleted - track limits at turn # lap # #:#:#,3,543000.0,4438000.0,other,CAR 27 (HUL) TIME 1:24.397 DELETED - TRACK LIMITS AT TURN 1 LAP 4 15:07:43,3895000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (nor) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1483000.0,5540000.0,other,CAR 4 (NOR) TIME 1:41.534 DELETED - TRACK LIMITS AT TURN 13 LAP 10 18:19:57,4057000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,car # (bea) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1703000.0,5849000.0,other,CAR 87 (BEA) TIME 1:38.526 DELETED - TRACK LIMITS AT TURN 19 LAP 14 20:26:48,4146000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,track surface slippery in track sector #,3,350000.0,4724000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 13,4374000.0
+2025-australian-grand-prix-r,Australian Grand Prix,drs enabled,3,2526000.0,6931000.0,drs,DRS ENABLED,4405000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,car # (ham) time #:#.# deleted - track limits at turn # lap # #:#:#,3,998000.0,5483000.0,other,CAR 44 (HAM) TIME 1:25.860 DELETED - TRACK LIMITS AT TURN 1 LAP 6 14:10:31,4485000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (tsu) time #:#.# deleted - track limits at turn # lap # #:#:#,3,1184000.0,5688000.0,other,CAR 22 (TSU) TIME 1:40.727 DELETED - TRACK LIMITS AT TURN 13 LAP 9 18:18:29,4504000.0
+2025-australian-grand-prix-r,Australian Grand Prix,safety car in this lap,3,2034000.0,6582000.0,safety_car,SAFETY CAR IN THIS LAP,4548000.0
+2025-australian-grand-prix-r,Australian Grand Prix,track clear,3,2112000.0,6677000.0,flags,TRACK CLEAR,4565000.0
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,drs enabled,3,308000.0,5013000.0,drs,DRS ENABLED,4705000.0
+2025-australian-grand-prix-r,Australian Grand Prix,safety car deployed,3,1171000.0,6066000.0,safety_car,SAFETY CAR DEPLOYED,4895000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (col) time #:#.# deleted - track limits at turn # lap # #:#:#,3,786000.0,5780000.0,other,CAR 43 (COL) TIME 1:41.843 DELETED - TRACK LIMITS AT TURN 12 LAP 4 14:10:01,4994000.0
+2025-british-grand-prix-r,British Grand Prix,track surface slippery in track sector #,3,286000.0,5287000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 5,5001000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,drs disabled in zone #,3,409000.0,5903000.0,drs,DRS DISABLED IN ZONE 2,5494000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,yellow in track sector #,3,408000.0,5902000.0,flags,YELLOW IN TRACK SECTOR 3,5494000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,green light - pit exit open,2,208000.0,208000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-australian-grand-prix-r,Australian Grand Prix,green light - pit exit open,2,1103000.0,1103000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,green light - pit exit open,2,1081000.0,1081000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,green light - pit exit open,2,234000.0,234000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,green light - pit exit open,2,229000.0,229000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,awnings may be used,2,548000.0,548000.0,other,AWNINGS MAY BE USED,0.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,green light - pit exit open,2,4800000.0,4800000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-british-grand-prix-r,British Grand Prix,drs disabled,2,1403000.0,1403000.0,drs,DRS DISABLED,0.0
+2025-british-grand-prix-r,British Grand Prix,green light - pit exit open,2,230000.0,230000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-british-grand-prix-r,British Grand Prix,low grip conditions,2,1414000.0,1414000.0,other,LOW GRIP CONDITIONS,0.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,green light - pit exit open,2,185000.0,185000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-chinese-grand-prix-r,Chinese Grand Prix,green light - pit exit open,2,219000.0,219000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,green light - pit exit open,2,201000.0,201000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,green light - pit exit open,2,213000.0,213000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,green light - pit exit open,2,186000.0,186000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-italian-grand-prix-r,Italian Grand Prix,green light - pit exit open,2,215000.0,215000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-japanese-grand-prix-r,Japanese Grand Prix,green light - pit exit open,2,227000.0,227000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,green light - pit exit open,2,249000.0,249000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,green light - pit exit open,2,196000.0,196000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-miami-grand-prix-r,Miami Grand Prix,green light - pit exit open,2,222000.0,222000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,green light - pit exit open,2,189000.0,189000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,green light - pit exit open,2,207000.0,207000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,green light - pit exit open,2,235000.0,235000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,green light - pit exit open,2,212000.0,212000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,green light - pit exit open,2,198000.0,198000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,drs disabled in zone #,2,787000.0,787000.0,drs,DRS DISABLED IN ZONE 1,0.0
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,green light - pit exit open,2,194000.0,194000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-united-states-grand-prix-r,United States Grand Prix,green light - pit exit open,2,220000.0,220000.0,pit_entry_exit,GREEN LIGHT - PIT EXIT OPEN,0.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,track surface slippery in track sector #,2,5153000.0,5155000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 1,2000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,waved blue flag for car # (gas) timed at #:#:#,2,4947000.0,4950000.0,flags,WAVED BLUE FLAG FOR CAR 10 (GAS) TIMED AT 20:22:26,3000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (oco) timed at #:#:#,2,4632000.0,4640000.0,flags,WAVED BLUE FLAG FOR CAR 31 (OCO) TIMED AT 15:17:11,8000.0
+2025-japanese-grand-prix-r,Japanese Grand Prix,waved blue flag for car # (str) timed at #:#:#,2,4423000.0,4431000.0,flags,WAVED BLUE FLAG FOR CAR 18 (STR) TIMED AT 15:13:43,8000.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,waved blue flag for car # (alb) timed at #:#:#,2,3722000.0,3730000.0,flags,WAVED BLUE FLAG FOR CAR 23 (ALB) TIMED AT 21:02:02,8000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,double yellow in track sector #,2,5225000.0,5239000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 1,14000.0
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,yellow in track sector #,2,759000.0,775000.0,flags,YELLOW IN TRACK SECTOR 5,16000.0
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,waved blue flag for car # (gas) timed at #:#:#,2,3962000.0,3981000.0,flags,WAVED BLUE FLAG FOR CAR 10 (GAS) TIMED AT 16:06:01,19000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (tsu) timed at #:#:#,2,4893000.0,4915000.0,flags,WAVED BLUE FLAG FOR CAR 22 (TSU) TIMED AT 15:21:32,22000.0
+2025-australian-grand-prix-r,Australian Grand Prix,waved blue flag for car # (pia) timed at #:#:#,2,6009000.0,6033000.0,flags,WAVED BLUE FLAG FOR CAR 81 (PIA) TIMED AT 16:40:09,24000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,waved blue flag for car # (hul) timed at #:#:#,2,5018000.0,5042000.0,flags,WAVED BLUE FLAG FOR CAR 27 (HUL) TIMED AT 21:23:38,24000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,waved blue flag for car # (oco) timed at #:#:#,2,5512000.0,5537000.0,flags,WAVED BLUE FLAG FOR CAR 31 (OCO) TIMED AT 16:31:51,25000.0
+2025-australian-grand-prix-r,Australian Grand Prix,waved blue flag for car # (law) timed at #:#:#,2,4381000.0,4418000.0,flags,WAVED BLUE FLAG FOR CAR 30 (LAW) TIMED AT 16:13:00,37000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,waved blue flag for car # (had) timed at #:#:#,2,5481000.0,5519000.0,flags,WAVED BLUE FLAG FOR CAR 6 (HAD) TIMED AT 16:31:21,38000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,double yellow in track sector #,2,6754000.0,6807000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 1,53000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,double yellow in track sector #,2,1109000.0,1168000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 6,59000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (bea) time #:#.# deleted - track limits at turn # lap # #:#:#,2,5667000.0,5734000.0,other,CAR 87 (BEA) TIME 1:38.548 DELETED - TRACK LIMITS AT TURN 13 LAP 52 19:31:42,67000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,track surface slippery in track sector #,2,371000.0,440000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 3,69000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,car # (ver) time #:#.# deleted - track limits at turn # lap # #:#:#,2,3853000.0,3929000.0,other,CAR 1 (VER) TIME 1:36.420 DELETED - TRACK LIMITS AT TURN 2 LAP 37 21:02:16,76000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,car # (rus) time #:#.# deleted - track limits at turn # lap # #:#:#,2,4029000.0,4108000.0,other,CAR 63 (RUS) TIME 1:19.959 DELETED - TRACK LIMITS AT TURN 10 LAP 47 16:06:25,79000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,car # (oco) time #:#.# deleted - track limits at turn # lap # #:#:#,2,5225000.0,5305000.0,other,CAR 31 (OCO) TIME 1:40.651 DELETED - TRACK LIMITS AT TURN 19 LAP 50 21:26:31,80000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,waved blue flag for car # (hul) timed at #:#:#,2,4525000.0,4612000.0,flags,WAVED BLUE FLAG FOR CAR 27 (HUL) TIMED AT 16:15:24,87000.0
+2025-miami-grand-prix-r,Miami Grand Prix,waved blue flag for car # (str) timed at #:#:#,2,4503000.0,4594000.0,flags,WAVED BLUE FLAG FOR CAR 18 (STR) TIMED AT 17:15:02,91000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,car # (hul) lap deleted - track limits at turn # lap # #:#:# (pit),2,4617000.0,4714000.0,other,CAR 27 (HUL) LAP DELETED - TRACK LIMITS AT TURN 7 LAP 44 21:15:26 (PIT),97000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,double yellow in track sector #,2,4606000.0,4744000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 12,138000.0
+2025-miami-grand-prix-r,Miami Grand Prix,waved blue flag for car # (law) timed at #:#:#,2,3519000.0,3685000.0,flags,WAVED BLUE FLAG FOR CAR 30 (LAW) TIMED AT 16:58:38,166000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (tsu) time #:#.# deleted - track limits at turn # lap # #:#:#,2,961000.0,1137000.0,other,CAR 22 (TSU) TIME 1:30.395 DELETED - TRACK LIMITS AT TURN 1 LAP 8 17:14:16,176000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (ant) lap deleted - track limits at turn # lap # #:#:#,2,387000.0,585000.0,other,CAR 12 (ANT) LAP DELETED - TRACK LIMITS AT TURN 7 LAP 1 18:04:28,198000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,drs enabled in zone #,2,440000.0,653000.0,drs,DRS ENABLED IN ZONE 2,213000.0
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,drs enabled,2,785000.0,999000.0,drs,DRS ENABLED,214000.0
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,waved blue flag for car # (ham) timed at #:#:#,2,3024000.0,3247000.0,flags,WAVED BLUE FLAG FOR CAR 44 (HAM) TIMED AT 14:50:23,223000.0
+2025-australian-grand-prix-r,Australian Grand Prix,car # (tsu) time #:#.# deleted - track limits at turn # lap # #:#:#,2,6168000.0,6392000.0,other,CAR 22 (TSU) TIME 1:35.983 DELETED - TRACK LIMITS AT TURN 12 LAP 45 16:38:17,224000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,car # (had) time #:#.# deleted - track limits at turn # lap # #:#:#,2,3835000.0,4074000.0,other,CAR 6 (HAD) TIME 1:18.101 DELETED - TRACK LIMITS AT TURN 14 LAP 45 15:01:37,239000.0
+2025-british-grand-prix-r,British Grand Prix,car # (ver) time #:#.# deleted - track limits at turn # lap # #:#:#,2,5334000.0,5596000.0,other,CAR 1 (VER) TIME 1:39.479 DELETED - TRACK LIMITS AT TURN 2 LAP 43 16:26:43,262000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,car # (ver) time #:#.# deleted - track limits at turn # lap # #:#:#,2,906000.0,1182000.0,other,CAR 1 (VER) TIME 1:28.329 DELETED - TRACK LIMITS AT TURN 3 LAP 6 14:10:36,276000.0
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,track clear,2,702000.0,998000.0,flags,TRACK CLEAR,296000.0
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,car # (gas) time #:#.# deleted - track limits at turn # lap # #:#:#,2,512000.0,827000.0,other,CAR 10 (GAS) TIME 1:25.766 DELETED - TRACK LIMITS AT TURN 10 LAP 3 15:07:09,315000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (ver) time #:#.# deleted - track limits at turn # lap # #:#:#,2,4436000.0,4766000.0,other,CAR 1 (VER) TIME 1:27.752 DELETED - TRACK LIMITS AT TURN 1 LAP 45 18:09:08,330000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (bor) time #:#.# deleted - track limits at turn # lap # #:#:#,2,4025000.0,4386000.0,other,CAR 5 (BOR) TIME 1:30.115 DELETED - TRACK LIMITS AT TURN 1 LAP 39 18:01:09,361000.0
+2025-british-grand-prix-r,British Grand Prix,virtual safety car ending,2,618000.0,1024000.0,safety_car,VIRTUAL SAFETY CAR ENDING,406000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,car # (law) time #:#.# deleted - track limits at turn # lap # #:#:#,2,1645000.0,2093000.0,other,CAR 30 (LAW) TIME 1:43.984 DELETED - TRACK LIMITS AT TURN 13 LAP 14 18:26:59,448000.0
+2025-british-grand-prix-r,British Grand Prix,virtual safety car deployed,2,348000.0,819000.0,safety_car,VIRTUAL SAFETY CAR DEPLOYED,471000.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,car # (had) time #:#.# deleted - track limits at turn # lap # #:#:#,2,6009000.0,6507000.0,other,CAR 6 (HAD) TIME 2:02.837 DELETED - TRACK LIMITS AT TURN 4 LAP 8 16:38:24,498000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (alb) time #:#.# deleted - track limits at turn # lap # #:#:#,2,3405000.0,3917000.0,other,CAR 23 (ALB) TIME 1:40.263 DELETED - TRACK LIMITS AT TURN 12 LAP 28 14:51:36,512000.0
+2025-canadian-grand-prix-r,Canadian Grand Prix,waved blue flag for car # (bor) timed at #:#:#,2,4065000.0,4680000.0,flags,WAVED BLUE FLAG FOR CAR 5 (BOR) TIMED AT 15:07:45,615000.0
+2025-british-grand-prix-r,British Grand Prix,safety car in this lap,2,2316000.0,2942000.0,safety_car,SAFETY CAR IN THIS LAP,626000.0
+2025-british-grand-prix-r,British Grand Prix,safety car deployed,2,1754000.0,2475000.0,safety_car,SAFETY CAR DEPLOYED,721000.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,car # (sai) time #:#.# deleted - track limits at turn # lap # #:#:#,2,5651000.0,6395000.0,other,CAR 55 (SAI) TIME 2:03.311 DELETED - TRACK LIMITS AT TURN 6 LAP 5 16:32:41,744000.0
+2025-japanese-grand-prix-r,Japanese Grand Prix,fia stewards: turn # incident involving car # (sai) reviewed no further investigation - leaving the track and gaining an advantage,2,2126000.0,2874000.0,investigations_noted,FIA STEWARDS: TURN 17 INCIDENT INVOLVING CAR 55 (SAI) REVIEWED NO FURTHER INVESTIGATION - LEAVING THE TRACK AND GAINING AN ADVANTAGE,748000.0
+2025-united-states-grand-prix-r,United States Grand Prix,drs enabled,2,336000.0,1089000.0,drs,DRS ENABLED,753000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,2,3562000.0,4338000.0,other,CAR 12 (ANT) TIME 1:18.060 DELETED - TRACK LIMITS AT TURN 10 LAP 41 15:58:34,776000.0
+2025-british-grand-prix-r,British Grand Prix,car # (pia) time #:#.# deleted - track limits at turn # lap # #:#:#,2,5513000.0,6295000.0,other,CAR 81 (PIA) TIME 1:34.870 DELETED - TRACK LIMITS AT TURN 11 LAP 45 16:30:03,782000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,fia stewards: turn # incident involving cars # (tsu) and # (sai) reviewed no further investigation - causing a collision,2,3883000.0,4730000.0,investigations_noted,FIA STEWARDS: TURN 1 INCIDENT INVOLVING CARS 22 (TSU) AND 55 (SAI) REVIEWED NO FURTHER INVESTIGATION - CAUSING A COLLISION,847000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,car # (had) time #:#.# deleted - track limits at turn # lap # #:#:#,2,2520000.0,3374000.0,other,CAR 6 (HAD) TIME 1:36.137 DELETED - TRACK LIMITS AT TURN 2 LAP 22 20:40:29,854000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (pia) time #:#.# deleted - track limits at turn # lap # #:#:#,2,647000.0,1535000.0,other,CAR 81 (PIA) TIME 1:40.371 DELETED - TRACK LIMITS AT TURN 9 LAP 3 14:07:39,888000.0
+2025-italian-grand-prix-r,Italian Grand Prix,waved blue flag for car # (col) timed at #:#:#,2,3474000.0,4366000.0,flags,WAVED BLUE FLAG FOR CAR 43 (COL) TIMED AT 15:57:53,892000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,car # (hul) time #:#.# deleted - track limits at turn # lap # #:#:#,2,4480000.0,5375000.0,other,CAR 27 (HUL) TIME 1:20.376 DELETED - TRACK LIMITS AT TURN 10 LAP 52 16:13:08,895000.0
+2025-japanese-grand-prix-r,Japanese Grand Prix,car # (sai) time #:#.# deleted - track limits at turn # lap # #:#:#,2,1795000.0,2715000.0,other,CAR 55 (SAI) TIME 1:34.451 DELETED - TRACK LIMITS AT TURN 17 LAP 15 14:27:34,920000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,car # (law) time #:#.# deleted - track limits at turn # lap # #:#:#,2,2190000.0,3151000.0,other,CAR 30 (LAW) TIME 1:35.162 DELETED - TRACK LIMITS AT TURN 11 LAP 18 20:34:35,961000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,turn # incident involving cars # (tsu) and # (sai) noted - causing a collision,2,3613000.0,4586000.0,investigations_noted,TURN 1 INCIDENT INVOLVING CARS 22 (TSU) AND 55 (SAI) NOTED - CAUSING A COLLISION,973000.0
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,car # (bor) time #:#.# deleted - track limits at turn # lap # #:#:#,2,1403000.0,2443000.0,other,CAR 5 (BOR) TIME 1:36.994 DELETED - TRACK LIMITS AT TURN 17 LAP 8 20:19:07,1040000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,drs enabled,2,321000.0,1370000.0,drs,DRS ENABLED,1049000.0
+2025-belgian-grand-prix-r,Belgian Grand Prix,car # (col) time #:#.# deleted - track limits at turn # lap # #:#:#,2,6019000.0,7093000.0,other,CAR 43 (COL) TIME 2:04.446 DELETED - TRACK LIMITS AT TURN 4 LAP 8 16:38:33,1074000.0
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,track surface slippery in track sector #,2,2259000.0,3357000.0,other,TRACK SURFACE SLIPPERY IN TRACK SECTOR 7,1098000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,fia stewards: # second time penalty for car # (law) - causing a collision,2,4385000.0,5635000.0,penalties,FIA STEWARDS: 5 SECOND TIME PENALTY FOR CAR 30 (LAW) - CAUSING A COLLISION,1250000.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,track clear,2,606000.0,1856000.0,flags,TRACK CLEAR,1250000.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,virtual safety car ending,2,593000.0,1843000.0,safety_car,VIRTUAL SAFETY CAR ENDING,1250000.0
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,virtual safety car deployed,2,428000.0,1780000.0,safety_car,VIRTUAL SAFETY CAR DEPLOYED,1352000.0
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,car # (had) time #:#.# deleted - track limits at turn # lap # #:#:#,2,2528000.0,3941000.0,other,CAR 6 (HAD) TIME 1:30.078 DELETED - TRACK LIMITS AT TURN 6 LAP 23 17:37:47,1413000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,car # (tsu) time #:#.# deleted - track limits at turn # lap # #:#:#,2,412000.0,1892000.0,other,CAR 22 (TSU) TIME 1:29.251 DELETED - TRACK LIMITS AT TURN 10 LAP 2 19:05:58,1480000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,car # (pia) time #:#.# deleted - track limits at turn # lap # #:#:#,2,4575000.0,6117000.0,other,CAR 81 (PIA) TIME 1:10.621 DELETED - TRACK LIMITS AT TURN 1 LAP 48 16:15:08,1542000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,car # (nor) time #:#.# deleted - track limits at turn # lap # #:#:#,2,1361000.0,2925000.0,other,CAR 4 (NOR) TIME 1:25.639 DELETED - TRACK LIMITS AT TURN 10 LAP 11 19:21:51,1564000.0
+2025-austrian-grand-prix-r,Austrian Grand Prix,car # (bea) time #:#.# deleted - track limits at turn # lap # #:#:#,2,1630000.0,3283000.0,other,CAR 87 (BEA) TIME 1:12.690 DELETED - TRACK LIMITS AT TURN 3 LAP 4 15:23:46,1653000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,car # (col) time #:#.# deleted - track limits at turn # lap # #:#:#,2,4506000.0,6185000.0,other,CAR 43 (COL) TIME 1:41.546 DELETED - TRACK LIMITS AT TURN 7 LAP 42 21:12:07,1679000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,car # (bea) time #:#.# deleted - track limits at turn # lap # #:#:#,2,2799000.0,4582000.0,other,CAR 87 (BEA) TIME 1:23.130 DELETED - TRACK LIMITS AT TURN 2 LAP 31 15:45:05,1783000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,car # (col) time #:#.# deleted - track limits at turn # lap # #:#:#,2,2476000.0,4319000.0,other,CAR 43 (COL) TIME 1:22.421 DELETED - TRACK LIMITS AT TURN 7 LAP 27 15:40:30,1843000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,2,1390000.0,3257000.0,other,CAR 12 (ANT) TIME 1:22.313 DELETED - TRACK LIMITS AT TURN 10 LAP 14 15:22:08,1867000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,car # (bea) time #:#.# deleted - track limits at turn # lap # #:#:#,2,4477000.0,6353000.0,other,CAR 87 (BEA) TIME 1:22.205 DELETED - TRACK LIMITS AT TURN 10 LAP 51 16:11:44,1876000.0
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,track clear,2,2774000.0,4902000.0,flags,TRACK CLEAR,2128000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,incident involving car # (sai) noted - speeding in the pit lane,2,2334000.0,4497000.0,investigations_noted,INCIDENT INVOLVING CAR 55 (SAI) NOTED - SPEEDING IN THE PIT LANE,2163000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,fia stewards: incident involving car # (sai) under investigation - speeding in the pit lane,2,2338000.0,4503000.0,investigations_noted,FIA STEWARDS: INCIDENT INVOLVING CAR 55 (SAI) UNDER INVESTIGATION - SPEEDING IN THE PIT LANE,2165000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (bea) time #:#.# deleted - track limits at turn # lap # #:#:#,2,1612000.0,3898000.0,other,CAR 87 (BEA) TIME 1:40.635 DELETED - TRACK LIMITS AT TURN 19 LAP 13 14:26:26,2286000.0
+2025-dutch-grand-prix-r,Dutch Grand Prix,car # (lec) time #:#.# deleted - track limits at turn # lap # #:#:#,2,370000.0,2967000.0,other,CAR 16 (LEC) TIME 1:17.076 DELETED - TRACK LIMITS AT TURN 3 LAP 2 15:04:59,2597000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,2,2069000.0,4781000.0,other,CAR 12 (ANT) TIME 1:43.212 DELETED - TRACK LIMITS AT TURN 7 LAP 22 15:33:42,2712000.0
+2025-monaco-grand-prix-r,Monaco Grand Prix,yellow in track sector #,2,241000.0,3175000.0,flags,YELLOW IN TRACK SECTOR 10,2934000.0
+2025-united-states-grand-prix-r,United States Grand Prix,car # (str) time #:#.# deleted - track limits at turn # lap # #:#:#,2,910000.0,4023000.0,other,CAR 18 (STR) TIME 1:43.008 DELETED - TRACK LIMITS AT TURN 19 LAP 6 14:13:53,3113000.0
+2025-british-grand-prix-r,British Grand Prix,drs enabled,2,1092000.0,4302000.0,drs,DRS ENABLED,3210000.0
+2025-british-grand-prix-r,British Grand Prix,normal grip conditions,2,1095000.0,4307000.0,other,NORMAL GRIP CONDITIONS,3212000.0
+2025-australian-grand-prix-r,Australian Grand Prix,recovery vehicle on track at turn #,2,1464000.0,4882000.0,other,RECOVERY VEHICLE ON TRACK AT TURN 14,3418000.0
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,drs enabled,2,328000.0,3949000.0,drs,DRS ENABLED,3621000.0
+2025-british-grand-prix-r,British Grand Prix,car # (bea) time #:#.# deleted - track limits at turn # lap # #:#:#,2,998000.0,4679000.0,other,CAR 87 (BEA) TIME 2:00.293 DELETED - TRACK LIMITS AT TURN 1 LAP 5 15:12:41,3681000.0
+2025-japanese-grand-prix-r,Japanese Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,2,496000.0,4695000.0,other,CAR 12 (ANT) TIME 1:34.531 DELETED - TRACK LIMITS AT TURN 17 LAP 2 14:06:57,4199000.0
+2025-singapore-grand-prix-r,Singapore Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,2,736000.0,5063000.0,other,CAR 12 (ANT) TIME 1:38.206 DELETED - TRACK LIMITS AT TURN 2 LAP 4 20:08:48,4327000.0
+2025-qatar-grand-prix-r,Qatar Grand Prix,car # (ant) time #:#.# deleted - track limits at turn # lap # #:#:#,2,601000.0,5293000.0,other,CAR 12 (ANT) TIME 1:27.737 DELETED - TRACK LIMITS AT TURN 10 LAP 3 19:07:18,4692000.0
+2025-spanish-grand-prix-r,Spanish Grand Prix,drs enabled,2,281000.0,5392000.0,drs,DRS ENABLED,5111000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,car # (gas) time #:#.# deleted - track limits at turn # lap # #:#:#,2,397000.0,5715000.0,other,CAR 10 (GAS) TIME 1:25.330 DELETED - TRACK LIMITS AT TURN 1 LAP 2 15:04:55,5318000.0
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,double yellow in track sector #,2,414000.0,5894000.0,flags,DOUBLE YELLOW IN TRACK SECTOR 3,5480000.0
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,clear in track sector #,2,,,flags,CLEAR IN TRACK SECTOR 3,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,yellow in track sector #,2,,,flags,YELLOW IN TRACK SECTOR 3,

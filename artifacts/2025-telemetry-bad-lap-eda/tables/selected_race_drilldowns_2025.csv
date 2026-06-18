@@ -1,0 +1,437 @@
+event_round,event_name,lap_number,primary_category,drivers,flagged_laps,median_lap_time_ms,median_speed_shape_rms_kmh,median_car_max_gap_ms,pit_sc_context_laps,source_anomaly_laps
+1,Australian Grand Prix,1,atypical_speed_profile,15,15,132883.0,86.18808657527629,1080.0,0,15
+1,Australian Grand Prix,1,pit_lane_or_safety_car_influenced,2,2,149104.0,105.45027545148965,1080.0,2,2
+1,Australian Grand Prix,1,timing_session_boundary_artifact,3,3,,,1080.0,0,3
+1,Australian Grand Prix,2,timing_session_boundary_artifact,17,17,,,1359.0,17,17
+1,Australian Grand Prix,3,timing_session_boundary_artifact,17,17,,,1280.0,17,17
+1,Australian Grand Prix,4,timing_session_boundary_artifact,17,17,,,961.0,17,17
+1,Australian Grand Prix,5,pit_lane_or_safety_car_influenced,17,17,141441.0,88.13014055143923,1200.0,17,17
+1,Australian Grand Prix,6,atypical_speed_profile,17,17,140418.0,82.82558843399387,1120.0,0,17
+1,Australian Grand Prix,7,atypical_speed_profile,17,17,126733.0,73.20867662078383,920.0,0,17
+1,Australian Grand Prix,8,clean,17,0,98441.0,20.759321540005057,1121.0,0,0
+1,Australian Grand Prix,9,clean,17,0,96253.0,14.820370397403694,800.0,0,0
+1,Australian Grand Prix,10,clean,17,0,95107.0,10.850743073071884,921.0,0,0
+1,Australian Grand Prix,11,clean,17,0,94655.0,9.421666703806556,1238.0,0,0
+1,Australian Grand Prix,12,clean,17,0,94064.0,9.6050654320019,959.0,0,0
+1,Australian Grand Prix,13,clean,17,0,93275.0,8.300590583507276,840.0,0,0
+1,Australian Grand Prix,14,clean,17,0,92859.0,7.153941334404209,1120.0,0,0
+1,Australian Grand Prix,15,clean,17,0,92545.0,7.412512120599047,760.0,0,0
+1,Australian Grand Prix,16,atypical_speed_profile,1,1,97326.0,40.28351413741805,1040.0,0,1
+1,Australian Grand Prix,16,clean,16,0,92492.5,7.720375479289048,1040.0,0,0
+1,Australian Grand Prix,17,clean,17,0,92966.0,7.368805856264581,960.0,0,0
+1,Australian Grand Prix,18,clean,17,0,92981.0,7.009799256257359,1081.0,0,0
+1,Australian Grand Prix,19,clean,17,0,92684.0,6.317987994048049,1159.0,0,0
+1,Australian Grand Prix,20,clean,17,0,92356.0,6.822049873540426,1080.0,0,0
+1,Australian Grand Prix,21,clean,17,0,92079.0,6.0022711949990954,1041.0,0,0
+1,Australian Grand Prix,22,clean,17,0,92053.0,5.914963521121515,1281.0,0,0
+1,Australian Grand Prix,23,clean,17,0,91793.0,5.365539471072969,1039.0,0,0
+1,Australian Grand Prix,24,clean,17,0,91852.0,5.181969616294808,520.0,0,0
+1,Australian Grand Prix,25,clean,17,0,91380.0,4.733116133837397,1120.0,0,0
+1,Australian Grand Prix,26,clean,17,0,91299.0,5.8262290388857725,1039.0,0,0
+1,Australian Grand Prix,27,clean,17,0,90755.0,5.85838894763344,1040.0,0,0
+1,Australian Grand Prix,28,clean,16,0,90517.0,6.658146917195901,1120.0,0,0
+1,Australian Grand Prix,28,import_or_source_data_anomaly,1,1,91084.0,8.011114168116736,1000.0,0,1
+1,Australian Grand Prix,29,clean,17,0,90031.0,6.761454489407969,640.0,0,0
+1,Australian Grand Prix,30,clean,17,0,89794.0,7.752284337581806,1080.0,0,0
+1,Australian Grand Prix,31,clean,3,0,87916.0,12.757299643964357,1000.0,0,0
+1,Australian Grand Prix,31,pit_lane_or_safety_car_influenced,14,14,90076.5,7.160182053051152,1241.0,14,0
+1,Australian Grand Prix,32,pit_lane_or_safety_car_influenced,17,17,89830.0,8.711662557669229,1000.0,17,1
+1,Australian Grand Prix,33,pit_lane_or_safety_car_influenced,16,16,110975.5,82.30324142631662,1080.0,16,13
+1,Australian Grand Prix,33,timing_session_boundary_artifact,1,1,,,1080.0,0,1
+1,Australian Grand Prix,34,pit_lane_or_safety_car_influenced,16,16,127811.5,91.14608687234471,1180.5,16,16
+1,Australian Grand Prix,35,pit_lane_or_safety_car_influenced,16,16,123614.5,76.04833143699722,1120.0,16,16
+1,Australian Grand Prix,36,pit_lane_or_safety_car_influenced,12,12,102418.5,69.92313363353657,1001.0,12,12
+1,Australian Grand Prix,36,timing_session_boundary_artifact,4,4,,,1081.0,0,4
+1,Australian Grand Prix,37,pit_lane_or_safety_car_influenced,12,12,129910.0,93.07686667837558,1081.0,12,12
+1,Australian Grand Prix,37,timing_session_boundary_artifact,4,4,,,1081.0,0,4
+1,Australian Grand Prix,38,pit_lane_or_safety_car_influenced,16,16,139014.5,89.83057204553373,880.0,16,16
+1,Australian Grand Prix,39,atypical_speed_profile,2,2,108578.5,58.63666077486141,999.0,0,2
+1,Australian Grand Prix,39,pit_lane_or_safety_car_influenced,14,14,131940.0,82.1204953923399,1000.0,14,14
+1,Australian Grand Prix,40,atypical_speed_profile,12,12,131452.5,82.39352629182312,999.0,0,12
+1,Australian Grand Prix,40,import_or_source_data_anomaly,2,2,91744.0,21.15903203369514,1240.0,0,2
+1,Australian Grand Prix,40,pit_lane_or_safety_car_influenced,2,2,107928.5,79.24511389790538,1240.0,2,2
+1,Australian Grand Prix,41,atypical_speed_profile,12,12,127334.5,78.34303545338615,1280.0,0,12
+1,Australian Grand Prix,41,import_or_source_data_anomaly,4,4,88637.0,19.718500757040733,1280.0,0,4
+1,Australian Grand Prix,42,clean,16,0,86979.0,19.06680444497239,1120.0,0,0
+1,Australian Grand Prix,43,clean,16,0,84749.0,20.348933984518062,961.0,0,0
+1,Australian Grand Prix,44,atypical_speed_profile,3,3,93574.0,43.96066997502264,1201.0,0,0
+1,Australian Grand Prix,44,clean,4,0,87520.5,25.53810048074735,1201.0,0,0
+1,Australian Grand Prix,44,pit_lane_or_safety_car_influenced,8,8,106467.0,82.91778301751052,1201.0,8,8
+1,Australian Grand Prix,44,timing_session_boundary_artifact,1,1,,,1201.0,1,1
+1,Australian Grand Prix,45,atypical_speed_profile,7,7,93045.0,47.740098244647974,920.0,0,1
+1,Australian Grand Prix,45,pit_lane_or_safety_car_influenced,9,9,96573.0,56.7433858235047,920.0,9,9
+1,Australian Grand Prix,46,atypical_speed_profile,6,6,100217.5,53.64245329829871,1060.5,0,2
+1,Australian Grand Prix,46,clean,6,0,91718.5,14.551097931928837,1200.0,0,0
+1,Australian Grand Prix,46,pit_lane_or_safety_car_influenced,3,3,116069.0,88.70828862958848,1200.0,3,3
+1,Australian Grand Prix,46,timing_session_boundary_artifact,1,1,,,1200.0,0,1
+1,Australian Grand Prix,47,atypical_speed_profile,8,8,123809.0,68.37471657635072,1120.0,0,8
+1,Australian Grand Prix,47,pit_lane_or_safety_car_influenced,3,3,127213.0,69.55062138816686,1120.0,3,3
+1,Australian Grand Prix,47,timing_session_boundary_artifact,4,4,,,1200.0,3,4
+1,Australian Grand Prix,48,atypical_speed_profile,10,10,120930.0,68.87661591796687,1240.0,0,10
+1,Australian Grand Prix,48,import_or_source_data_anomaly,1,1,102413.0,28.23325301478922,1080.0,0,1
+1,Australian Grand Prix,48,pit_lane_or_safety_car_influenced,3,3,116286.0,62.80705684079628,1240.0,3,3
+1,Australian Grand Prix,49,atypical_speed_profile,14,14,144618.5,83.73701273706303,1160.0,0,14
+1,Australian Grand Prix,50,atypical_speed_profile,13,13,139782.0,81.59953083687435,880.0,0,13
+1,Australian Grand Prix,50,import_or_source_data_anomaly,1,1,96187.0,11.27456330676817,880.0,0,1
+1,Australian Grand Prix,51,atypical_speed_profile,13,13,132717.0,72.46133539146092,1120.0,0,13
+1,Australian Grand Prix,51,import_or_source_data_anomaly,1,1,94937.0,8.282966390065127,1120.0,0,1
+1,Australian Grand Prix,52,clean,14,0,95665.0,16.48041547360149,1079.0,0,0
+1,Australian Grand Prix,53,clean,14,0,91812.0,8.03838372355595,1200.0,0,0
+1,Australian Grand Prix,54,clean,13,0,90794.0,8.711347039469018,1041.0,0,0
+1,Australian Grand Prix,54,import_or_source_data_anomaly,1,1,94967.0,23.563965105114082,1041.0,0,1
+1,Australian Grand Prix,55,clean,14,0,90344.0,9.023799173357633,1039.0,0,0
+1,Australian Grand Prix,56,clean,14,0,90160.5,10.956521449363569,959.0,0,0
+1,Australian Grand Prix,57,clean,14,0,90706.5,10.12689109099492,1080.0,0,0
+12,British Grand Prix,1,atypical_speed_profile,6,6,113165.0,67.11302258041084,1000.0,0,6
+12,British Grand Prix,1,import_or_source_data_anomaly,7,7,108827.0,59.072429253313274,1000.0,0,7
+12,British Grand Prix,1,position_trace_discontinuity,5,5,133171.0,108.65295470954969,1000.0,5,5
+12,British Grand Prix,1,timing_session_boundary_artifact,1,1,,,1000.0,0,1
+12,British Grand Prix,2,atypical_speed_profile,16,16,137972.5,71.58973041305637,960.0,0,16
+12,British Grand Prix,2,import_or_source_data_anomaly,1,1,135598.0,58.88867893846706,960.0,0,1
+12,British Grand Prix,2,pit_lane_or_safety_car_influenced,1,1,133229.0,91.2356371554317,960.0,1,1
+12,British Grand Prix,3,atypical_speed_profile,15,15,136656.0,66.66570774588746,1161.0,0,15
+12,British Grand Prix,3,import_or_source_data_anomaly,2,2,135996.5,59.51221877369026,1120.0,0,2
+12,British Grand Prix,3,timing_session_boundary_artifact,1,1,,,1161.0,1,1
+12,British Grand Prix,4,clean,4,0,112474.0,40.30177445399728,1040.0,0,0
+12,British Grand Prix,4,import_or_source_data_anomaly,13,13,106016.0,31.095562142879846,1040.0,0,13
+12,British Grand Prix,4,timing_session_boundary_artifact,1,1,,,1040.0,0,1
+12,British Grand Prix,5,atypical_speed_profile,3,3,119848.0,63.26894244490295,1000.0,0,3
+12,British Grand Prix,5,import_or_source_data_anomaly,14,14,110752.5,55.220446529845475,1000.0,0,14
+12,British Grand Prix,6,atypical_speed_profile,16,16,136694.0,67.1638641613931,880.0,0,16
+12,British Grand Prix,6,pit_lane_or_safety_car_influenced,1,1,131987.0,77.2159416217884,880.0,1,1
+12,British Grand Prix,7,atypical_speed_profile,9,9,122547.0,69.1949283980559,1080.0,0,9
+12,British Grand Prix,7,import_or_source_data_anomaly,7,7,113675.0,52.342195746477515,1080.0,0,7
+12,British Grand Prix,7,pit_lane_or_safety_car_influenced,1,1,131823.0,102.2068638264936,1080.0,1,1
+12,British Grand Prix,8,clean,17,0,105834.0,22.56799245756834,919.0,0,0
+12,British Grand Prix,9,clean,15,0,106326.0,23.111412183854938,1080.0,0,0
+12,British Grand Prix,9,pit_lane_or_safety_car_influenced,2,2,102607.5,32.88375866043158,1080.0,2,2
+12,British Grand Prix,10,clean,10,0,108741.0,22.055202675651778,1080.0,0,0
+12,British Grand Prix,10,pit_lane_or_safety_car_influenced,7,7,102691.0,34.54483719818983,1080.0,7,7
+12,British Grand Prix,11,clean,4,0,110152.5,22.551323986658275,1160.0,0,0
+12,British Grand Prix,11,pit_lane_or_safety_car_influenced,13,13,110497.0,40.17988374019547,1160.0,13,13
+12,British Grand Prix,12,clean,8,0,107856.5,17.6329499219111,1041.0,0,0
+12,British Grand Prix,12,pit_lane_or_safety_car_influenced,9,9,127044.0,104.63196764390878,1041.0,9,9
+12,British Grand Prix,13,atypical_speed_profile,3,3,119779.0,64.25372270979344,1081.0,0,3
+12,British Grand Prix,13,clean,3,0,109605.0,26.963431184090936,1081.0,0,0
+12,British Grand Prix,13,import_or_source_data_anomaly,10,10,119330.0,55.94940856209909,1081.0,0,10
+12,British Grand Prix,13,pit_lane_or_safety_car_influenced,1,1,138760.0,98.03107276108472,1081.0,1,1
+12,British Grand Prix,14,atypical_speed_profile,12,12,136598.0,66.31416341393066,1040.0,0,12
+12,British Grand Prix,14,import_or_source_data_anomaly,5,5,135810.0,60.58835209466105,1040.0,0,5
+12,British Grand Prix,15,atypical_speed_profile,12,12,144507.5,78.10408773229798,1000.0,0,12
+12,British Grand Prix,15,timing_session_boundary_artifact,5,5,,,1000.0,0,5
+12,British Grand Prix,16,timing_session_boundary_artifact,17,17,,,1161.0,0,17
+12,British Grand Prix,17,timing_session_boundary_artifact,17,17,,,999.0,0,17
+12,British Grand Prix,18,atypical_speed_profile,13,13,127029.0,64.82208403386065,1000.0,0,13
+12,British Grand Prix,18,import_or_source_data_anomaly,2,2,120370.5,60.16178313515947,1000.0,0,2
+12,British Grand Prix,18,pit_lane_or_safety_car_influenced,1,1,123452.0,62.202134795632944,1000.0,1,1
+12,British Grand Prix,18,timing_session_boundary_artifact,1,1,,,1000.0,0,1
+12,British Grand Prix,19,timing_session_boundary_artifact,16,16,,,1000.0,1,16
+12,British Grand Prix,20,timing_session_boundary_artifact,16,16,,,1200.0,1,16
+12,British Grand Prix,21,timing_session_boundary_artifact,16,16,,,1040.0,1,16
+12,British Grand Prix,22,clean,15,0,110388.0,24.572652937495878,1080.0,0,0
+12,British Grand Prix,22,position_trace_discontinuity,1,1,114756.0,37.87457311926028,1080.0,0,0
+12,British Grand Prix,23,clean,15,0,105863.0,13.869337111168123,1200.0,0,0
+12,British Grand Prix,23,pit_lane_or_safety_car_influenced,1,1,116700.0,43.48657858643363,1200.0,1,1
+12,British Grand Prix,24,clean,14,0,104726.0,10.766268651735007,721.0,0,0
+12,British Grand Prix,24,import_or_source_data_anomaly,1,1,105853.0,17.147776823176187,721.0,0,1
+12,British Grand Prix,25,clean,15,0,104158.0,8.787501553732898,1239.0,0,0
+12,British Grand Prix,26,pit_lane_or_safety_car_influenced,15,15,104130.0,8.185236094420445,1121.0,15,0
+12,British Grand Prix,27,pit_lane_or_safety_car_influenced,15,15,103748.0,6.83218116857887,1281.0,15,0
+12,British Grand Prix,28,pit_lane_or_safety_car_influenced,15,15,103779.0,6.727180900972478,1040.0,15,0
+12,British Grand Prix,29,pit_lane_or_safety_car_influenced,15,15,104379.0,7.421860793888348,481.0,15,0
+12,British Grand Prix,30,clean,15,0,104388.0,7.539546811919926,920.0,0,0
+12,British Grand Prix,31,pit_lane_or_safety_car_influenced,15,15,104509.0,7.764546745845842,1040.0,15,0
+12,British Grand Prix,32,pit_lane_or_safety_car_influenced,15,15,104277.0,7.7306104602321914,1080.0,15,1
+12,British Grand Prix,33,pit_lane_or_safety_car_influenced,15,15,104063.0,7.155065913265892,1120.0,15,0
+12,British Grand Prix,34,clean,15,0,104039.0,7.9952403297368635,960.0,0,0
+12,British Grand Prix,35,clean,15,0,103238.0,8.422631545094097,1040.0,0,0
+12,British Grand Prix,36,clean,15,0,102516.0,6.756609874753388,1000.0,0,0
+12,British Grand Prix,37,clean,13,0,101850.0,7.485486608094343,920.0,0,0
+12,British Grand Prix,37,import_or_source_data_anomaly,1,1,103169.0,8.418237952974678,920.0,0,1
+12,British Grand Prix,37,pit_lane_or_safety_car_influenced,1,1,100138.0,30.221558731147056,920.0,1,1
+12,British Grand Prix,38,clean,13,0,102457.0,7.698346968583313,481.0,0,0
+12,British Grand Prix,38,pit_lane_or_safety_car_influenced,2,2,118989.5,69.68522011362339,480.5,2,2
+12,British Grand Prix,39,clean,12,0,101460.0,9.519636578768065,1120.0,0,0
+12,British Grand Prix,39,pit_lane_or_safety_car_influenced,3,3,107666.0,18.563537737318843,1120.0,3,1
+12,British Grand Prix,40,pit_lane_or_safety_car_influenced,15,15,102143.0,8.599449047020359,1000.0,15,0
+12,British Grand Prix,41,pit_lane_or_safety_car_influenced,15,15,100670.0,16.495392739891415,1080.0,15,7
+12,British Grand Prix,42,pit_lane_or_safety_car_influenced,15,15,102920.0,48.25543332425218,1240.0,15,11
+12,British Grand Prix,43,pit_lane_or_safety_car_influenced,15,15,99479.0,24.92371315169128,1040.0,15,6
+12,British Grand Prix,44,pit_lane_or_safety_car_influenced,15,15,95710.0,17.377076835272494,1200.0,15,2
+12,British Grand Prix,45,pit_lane_or_safety_car_influenced,15,15,93795.0,22.74271955805105,920.0,15,2
+12,British Grand Prix,46,clean,6,0,92270.5,23.57195291869203,1040.0,0,0
+12,British Grand Prix,46,import_or_source_data_anomaly,1,1,94080.0,23.742961610981883,1040.0,0,1
+12,British Grand Prix,46,pit_lane_or_safety_car_influenced,8,8,92698.0,25.346571492984417,921.0,8,0
+12,British Grand Prix,47,pit_lane_or_safety_car_influenced,15,15,91822.0,25.269034026775028,1240.0,15,0
+12,British Grand Prix,48,pit_lane_or_safety_car_influenced,15,15,90823.0,27.027695967783913,1200.0,15,0
+12,British Grand Prix,49,pit_lane_or_safety_car_influenced,15,15,90873.0,27.748537432220928,1000.0,15,0
+12,British Grand Prix,50,pit_lane_or_safety_car_influenced,15,15,90943.0,27.57640535679122,1160.0,15,0
+12,British Grand Prix,51,pit_lane_or_safety_car_influenced,15,15,90973.0,27.067831068568317,841.0,15,0
+12,British Grand Prix,52,pit_lane_or_safety_car_influenced,14,14,91683.5,25.44375808240197,920.0,14,1
+13,Belgian Grand Prix,1,pit_lane_or_safety_car_influenced,20,20,200514.5,149.96584029071266,1241.0,20,20
+13,Belgian Grand Prix,2,timing_session_boundary_artifact,20,20,,,1160.0,0,20
+13,Belgian Grand Prix,3,timing_session_boundary_artifact,20,20,,,1080.0,0,20
+13,Belgian Grand Prix,4,timing_session_boundary_artifact,20,20,,,1079.0,0,20
+13,Belgian Grand Prix,5,pit_lane_or_safety_car_influenced,20,20,123058.5,33.20271543416674,1081.0,20,1
+13,Belgian Grand Prix,6,pit_lane_or_safety_car_influenced,20,20,121665.0,29.064203052701608,1240.0,20,0
+13,Belgian Grand Prix,7,pit_lane_or_safety_car_influenced,20,20,121751.5,30.935936347182928,920.0,20,2
+13,Belgian Grand Prix,8,pit_lane_or_safety_car_influenced,20,20,122791.5,32.065153722571445,1000.0,20,2
+13,Belgian Grand Prix,9,pit_lane_or_safety_car_influenced,20,20,124225.0,35.48691062507092,1239.0,20,1
+13,Belgian Grand Prix,10,pit_lane_or_safety_car_influenced,20,20,124906.5,35.55760590920504,1120.0,20,0
+13,Belgian Grand Prix,11,pit_lane_or_safety_car_influenced,20,20,124465.0,34.78963697417471,1080.0,20,5
+13,Belgian Grand Prix,12,pit_lane_or_safety_car_influenced,20,20,127174.5,49.257640916520884,920.0,20,17
+13,Belgian Grand Prix,13,pit_lane_or_safety_car_influenced,20,20,130480.5,97.7197464297395,1000.0,20,16
+13,Belgian Grand Prix,14,clean,16,0,110345.0,11.629211810931455,1000.0,0,0
+13,Belgian Grand Prix,14,pit_lane_or_safety_car_influenced,4,4,131868.5,99.68634982256577,1000.0,4,4
+13,Belgian Grand Prix,15,clean,20,0,109000.5,6.749838623204337,1120.0,0,0
+13,Belgian Grand Prix,16,clean,20,0,108986.5,6.1771716533035415,960.0,0,0
+13,Belgian Grand Prix,17,clean,19,0,108403.0,6.415202520203495,1000.0,0,0
+13,Belgian Grand Prix,17,import_or_source_data_anomaly,1,1,109645.0,8.232569868650177,1040.0,0,1
+13,Belgian Grand Prix,18,clean,20,0,108037.0,5.21248856637342,1040.0,0,0
+13,Belgian Grand Prix,19,clean,20,0,108107.5,5.0288691912852315,1161.0,0,0
+13,Belgian Grand Prix,20,clean,19,0,108049.0,5.363407639625199,1240.0,0,0
+13,Belgian Grand Prix,20,pit_lane_or_safety_car_influenced,1,1,114281.0,35.34760065629306,1240.0,1,1
+13,Belgian Grand Prix,21,clean,19,0,108108.0,4.509413106144613,1080.0,0,0
+13,Belgian Grand Prix,21,pit_lane_or_safety_car_influenced,1,1,126369.0,97.75912182664727,1080.0,1,1
+13,Belgian Grand Prix,22,clean,20,0,107900.0,5.525567518004726,1280.0,0,0
+13,Belgian Grand Prix,23,clean,20,0,108057.5,4.822285413375955,1000.0,0,0
+13,Belgian Grand Prix,24,clean,20,0,107799.5,5.268683861037514,999.0,0,0
+13,Belgian Grand Prix,25,clean,20,0,107912.0,4.9886282552661445,1239.0,0,0
+13,Belgian Grand Prix,26,clean,18,0,107664.5,4.520645882324582,1281.0,0,0
+13,Belgian Grand Prix,26,import_or_source_data_anomaly,1,1,107660.0,12.533159724663552,1281.0,0,1
+13,Belgian Grand Prix,26,pit_lane_or_safety_car_influenced,1,1,113275.0,39.47464724630778,1281.0,1,1
+13,Belgian Grand Prix,27,clean,17,0,107432.0,4.749521482537331,1040.0,0,0
+13,Belgian Grand Prix,27,pit_lane_or_safety_car_influenced,3,3,108684.0,4.991675732702752,1080.0,3,1
+13,Belgian Grand Prix,28,pit_lane_or_safety_car_influenced,20,20,107673.0,5.0707126042151,1040.0,20,2
+13,Belgian Grand Prix,29,pit_lane_or_safety_car_influenced,20,20,107645.5,4.809622019574158,1040.0,20,2
+13,Belgian Grand Prix,30,pit_lane_or_safety_car_influenced,20,20,107355.0,4.850930201247423,1239.0,20,2
+13,Belgian Grand Prix,31,pit_lane_or_safety_car_influenced,20,20,107225.5,5.335927262267102,1040.0,20,1
+13,Belgian Grand Prix,32,pit_lane_or_safety_car_influenced,20,20,107089.5,4.853486272895514,880.0,20,1
+13,Belgian Grand Prix,33,pit_lane_or_safety_car_influenced,20,20,107146.0,5.107370158258997,840.0,20,1
+13,Belgian Grand Prix,34,clean,18,0,107284.0,5.4190585195777405,960.0,0,0
+13,Belgian Grand Prix,34,pit_lane_or_safety_car_influenced,2,2,106739.0,6.288080466692109,840.0,2,0
+13,Belgian Grand Prix,35,clean,20,0,107092.0,5.050300089345499,959.0,0,0
+13,Belgian Grand Prix,36,clean,20,0,107212.5,4.819619959205285,1000.0,0,0
+13,Belgian Grand Prix,37,clean,20,0,107123.5,5.193007102364282,1119.0,0,0
+13,Belgian Grand Prix,38,clean,20,0,106919.5,4.916238419829465,1041.0,0,0
+13,Belgian Grand Prix,39,clean,20,0,107060.5,5.357794252165778,840.0,0,0
+13,Belgian Grand Prix,40,clean,20,0,107046.0,5.041192549025638,1120.0,0,0
+13,Belgian Grand Prix,41,clean,20,0,107055.0,5.342972634055078,1160.0,0,0
+13,Belgian Grand Prix,42,clean,20,0,107047.0,5.171124357043508,1120.0,0,0
+13,Belgian Grand Prix,43,clean,20,0,106880.5,5.813646379164325,1160.0,0,0
+13,Belgian Grand Prix,44,clean,17,0,107072.0,6.238289393927831,1160.0,0,0
+13,Belgian Grand Prix,44,import_or_source_data_anomaly,2,2,107813.5,5.006858352352343,1160.0,0,2
+15,Dutch Grand Prix,1,atypical_speed_profile,19,19,84528.0,68.03432790478186,1120.0,0,19
+15,Dutch Grand Prix,1,position_trace_discontinuity,1,1,91422.0,100.94596378695991,1120.0,1,1
+15,Dutch Grand Prix,2,clean,19,0,77145.0,8.142793907211736,960.0,0,0
+15,Dutch Grand Prix,2,import_or_source_data_anomaly,1,1,77076.0,8.773708905403153,960.0,0,1
+15,Dutch Grand Prix,3,clean,20,0,76706.5,7.060021974813113,1040.0,0,0
+15,Dutch Grand Prix,4,clean,19,0,76813.0,6.808936805050504,961.0,0,0
+15,Dutch Grand Prix,4,import_or_source_data_anomaly,1,1,77528.0,8.880961160291223,961.0,0,1
+15,Dutch Grand Prix,5,clean,20,0,76861.0,7.315000784757331,1000.0,0,0
+15,Dutch Grand Prix,6,clean,20,0,76615.5,6.003800031408554,1120.0,0,0
+15,Dutch Grand Prix,7,clean,20,0,76603.0,6.355044393933255,1240.0,0,0
+15,Dutch Grand Prix,8,clean,19,0,76641.0,5.714304992132309,1000.0,0,0
+15,Dutch Grand Prix,8,pit_lane_or_safety_car_influenced,1,1,79763.0,51.723517534946645,1000.0,1,1
+15,Dutch Grand Prix,9,clean,19,0,76593.0,5.542807164522632,1200.0,0,0
+15,Dutch Grand Prix,9,pit_lane_or_safety_car_influenced,1,1,91542.0,90.63133168773003,1200.0,1,1
+15,Dutch Grand Prix,10,clean,20,0,76494.0,5.381181210608684,1080.0,0,0
+15,Dutch Grand Prix,11,clean,20,0,76584.0,5.9388157317941035,1120.0,0,0
+15,Dutch Grand Prix,12,clean,20,0,76604.5,4.952578758599067,1240.0,0,0
+15,Dutch Grand Prix,13,clean,19,0,76621.0,5.551993697802893,1040.0,0,0
+15,Dutch Grand Prix,13,import_or_source_data_anomaly,1,1,76228.0,2.2542251972839757,1040.0,0,1
+15,Dutch Grand Prix,14,clean,20,0,76791.0,5.633294160327839,879.0,0,0
+15,Dutch Grand Prix,15,clean,20,0,76760.0,5.343408956214141,920.0,0,0
+15,Dutch Grand Prix,16,clean,20,0,76810.5,5.303954683032659,1240.0,0,0
+15,Dutch Grand Prix,17,clean,20,0,76704.5,5.230924651172676,960.0,0,0
+15,Dutch Grand Prix,18,clean,19,0,76528.0,4.807914776338787,960.0,0,0
+15,Dutch Grand Prix,18,pit_lane_or_safety_car_influenced,1,1,79636.0,47.87778907338626,960.0,1,1
+15,Dutch Grand Prix,19,clean,16,0,76540.0,5.491806587645645,1120.0,0,0
+15,Dutch Grand Prix,19,pit_lane_or_safety_car_influenced,4,4,79758.0,47.12440038245879,1120.0,4,4
+15,Dutch Grand Prix,20,clean,17,0,76704.0,5.526903011513205,1041.0,0,0
+15,Dutch Grand Prix,20,pit_lane_or_safety_car_influenced,3,3,93433.0,92.72602312728978,1120.0,3,3
+15,Dutch Grand Prix,21,clean,19,0,76700.0,5.20767404151856,1241.0,0,0
+15,Dutch Grand Prix,21,import_or_source_data_anomaly,1,1,76107.0,6.533566615624699,1241.0,0,1
+15,Dutch Grand Prix,22,atypical_speed_profile,1,1,78421.0,38.6769208579459,1001.0,0,1
+15,Dutch Grand Prix,22,clean,17,0,76513.0,5.323261958860122,1001.0,0,0
+15,Dutch Grand Prix,22,pit_lane_or_safety_car_influenced,2,2,79545.5,46.873823842707566,1101.0,2,2
+15,Dutch Grand Prix,23,atypical_speed_profile,7,7,102442.0,70.5283913141229,640.0,0,7
+15,Dutch Grand Prix,23,pit_lane_or_safety_car_influenced,12,12,96877.0,71.6205865113464,960.0,12,12
+15,Dutch Grand Prix,23,timing_session_boundary_artifact,1,1,,,1080.0,0,1
+15,Dutch Grand Prix,24,atypical_speed_profile,9,9,105162.0,66.4137026355106,1120.0,0,9
+15,Dutch Grand Prix,24,pit_lane_or_safety_car_influenced,10,10,118320.5,103.36156309904769,1120.0,10,10
+15,Dutch Grand Prix,25,atypical_speed_profile,18,18,93244.0,54.53320778226947,1241.0,0,18
+15,Dutch Grand Prix,25,import_or_source_data_anomaly,1,1,86576.0,29.489624734825746,1241.0,0,1
+15,Dutch Grand Prix,26,atypical_speed_profile,19,19,110623.0,76.9181750406993,1041.0,0,19
+15,Dutch Grand Prix,27,clean,17,0,77934.0,8.43602416681432,1080.0,0,0
+15,Dutch Grand Prix,27,pit_lane_or_safety_car_influenced,2,2,123958.5,96.87122126266507,1120.0,2,2
+15,Dutch Grand Prix,28,clean,17,0,76039.0,6.690376451412037,1161.0,0,0
+15,Dutch Grand Prix,28,pit_lane_or_safety_car_influenced,2,2,106227.5,110.70805841735844,1161.0,2,2
+15,Dutch Grand Prix,29,clean,19,0,75911.0,6.49953262527188,1120.0,0,0
+15,Dutch Grand Prix,30,atypical_speed_profile,2,2,88521.0,68.51892430212686,840.0,0,2
+15,Dutch Grand Prix,30,clean,17,0,76012.0,6.135524150079751,920.0,0,0
+15,Dutch Grand Prix,31,atypical_speed_profile,19,19,88013.0,57.55521868135841,840.0,0,19
+15,Dutch Grand Prix,32,atypical_speed_profile,17,17,86185.0,56.05953410232686,920.0,0,17
+15,Dutch Grand Prix,32,clean,2,0,75232.5,5.740111096286473,1200.0,0,0
+15,Dutch Grand Prix,33,clean,19,0,75634.0,6.035559757270896,1160.0,0,0
+15,Dutch Grand Prix,34,clean,19,0,75873.0,5.439051406714047,1119.0,0,0
+15,Dutch Grand Prix,35,clean,19,0,75742.0,4.9243824996673045,520.0,0,0
+15,Dutch Grand Prix,36,clean,19,0,75706.0,5.178036350404947,1120.0,0,0
+15,Dutch Grand Prix,37,clean,19,0,75805.0,5.392036559417684,1120.0,0,0
+15,Dutch Grand Prix,38,clean,19,0,75739.0,5.511451026286139,1040.0,0,0
+15,Dutch Grand Prix,39,clean,19,0,75580.0,5.654507791671243,1120.0,0,0
+15,Dutch Grand Prix,40,clean,18,0,75622.5,5.030810853887786,920.0,0,0
+15,Dutch Grand Prix,40,pit_lane_or_safety_car_influenced,1,1,79102.0,47.816577508825624,1119.0,1,1
+15,Dutch Grand Prix,41,clean,18,0,75833.5,5.520666909200554,1120.0,0,0
+15,Dutch Grand Prix,41,pit_lane_or_safety_car_influenced,1,1,89306.0,90.6114942579366,1120.0,1,1
+15,Dutch Grand Prix,42,clean,19,0,75697.0,5.53420851706794,1320.0,0,0
+15,Dutch Grand Prix,43,clean,19,0,75783.0,5.921296822105954,1120.0,0,0
+15,Dutch Grand Prix,44,clean,19,0,75881.0,6.219762868078791,840.0,0,0
+15,Dutch Grand Prix,45,clean,19,0,75821.0,5.295490676237396,760.0,0,0
+15,Dutch Grand Prix,46,clean,19,0,75603.0,5.5661791594363805,1081.0,0,0
+15,Dutch Grand Prix,47,clean,19,0,75588.0,5.671719130340111,921.0,0,0
+15,Dutch Grand Prix,48,clean,19,0,76083.0,6.2043018600385835,921.0,0,0
+15,Dutch Grand Prix,49,clean,19,0,76017.0,6.663324339474033,1201.0,0,0
+15,Dutch Grand Prix,50,clean,19,0,76213.0,6.521877791401189,1200.0,0,0
+15,Dutch Grand Prix,51,clean,17,0,76460.0,6.986040254518484,1001.0,0,0
+15,Dutch Grand Prix,51,pit_lane_or_safety_car_influenced,2,2,78706.5,50.013180427331605,999.5,2,2
+15,Dutch Grand Prix,52,clean,13,0,76534.0,7.0227556525410275,1080.0,0,0
+15,Dutch Grand Prix,52,pit_lane_or_safety_car_influenced,6,6,84384.5,63.0551748161997,1080.0,6,6
+15,Dutch Grand Prix,53,atypical_speed_profile,4,4,103852.5,71.88889519747423,961.0,0,4
+15,Dutch Grand Prix,53,pit_lane_or_safety_car_influenced,14,14,103602.5,77.09603486021015,961.0,14,14
+15,Dutch Grand Prix,54,atypical_speed_profile,7,7,103421.0,65.00211147722172,961.0,0,7
+15,Dutch Grand Prix,54,pit_lane_or_safety_car_influenced,11,11,118475.0,105.52023871155411,961.0,11,11
+15,Dutch Grand Prix,55,atypical_speed_profile,18,18,95390.0,60.50488226759005,1041.0,0,18
+15,Dutch Grand Prix,56,atypical_speed_profile,16,16,117846.5,84.48231398297989,1120.0,0,16
+15,Dutch Grand Prix,56,import_or_source_data_anomaly,2,2,76166.0,10.76252612043001,840.0,0,2
+15,Dutch Grand Prix,57,atypical_speed_profile,16,16,109965.0,74.51316615605995,920.0,0,16
+15,Dutch Grand Prix,57,import_or_source_data_anomaly,2,2,74392.0,6.73922138435548,920.0,0,2
+15,Dutch Grand Prix,58,clean,18,0,76043.0,7.429370834816146,920.0,0,0
+15,Dutch Grand Prix,59,clean,18,0,74705.0,9.169190262017416,1160.0,0,0
+15,Dutch Grand Prix,60,clean,17,0,74167.0,7.838623706575654,799.0,0,0
+15,Dutch Grand Prix,60,pit_lane_or_safety_car_influenced,1,1,81060.0,47.40817642699948,799.0,1,1
+15,Dutch Grand Prix,61,pit_lane_or_safety_car_influenced,18,18,74636.0,7.493277028097454,1400.0,18,1
+15,Dutch Grand Prix,62,pit_lane_or_safety_car_influenced,18,18,74506.0,8.224239435845426,1280.0,18,0
+15,Dutch Grand Prix,63,pit_lane_or_safety_car_influenced,18,18,74390.0,7.71512213023094,880.0,18,0
+15,Dutch Grand Prix,64,pit_lane_or_safety_car_influenced,18,18,74097.0,8.011164496187495,880.0,18,0
+15,Dutch Grand Prix,65,pit_lane_or_safety_car_influenced,17,17,93296.0,66.50328049664763,1280.0,17,17
+15,Dutch Grand Prix,65,timing_session_boundary_artifact,1,1,,,1280.0,0,1
+15,Dutch Grand Prix,66,atypical_speed_profile,2,2,103541.5,59.168201451341865,1120.0,0,2
+15,Dutch Grand Prix,66,pit_lane_or_safety_car_influenced,15,15,110171.0,70.36078706097481,1160.0,15,15
+15,Dutch Grand Prix,67,atypical_speed_profile,17,17,117070.0,81.73464140159845,1080.0,0,17
+15,Dutch Grand Prix,68,atypical_speed_profile,17,17,115323.0,76.21470427336615,1080.0,0,17
+15,Dutch Grand Prix,69,pit_lane_or_safety_car_influenced,17,17,76213.0,9.392875628234972,1079.0,17,3
+15,Dutch Grand Prix,70,pit_lane_or_safety_car_influenced,17,17,74351.0,8.944753968591451,1040.0,17,0
+15,Dutch Grand Prix,71,clean,17,0,74122.0,9.086303683413753,1160.0,0,0
+15,Dutch Grand Prix,72,clean,17,0,74469.0,8.703736851540933,1080.0,0,0
+21,São Paulo Grand Prix,1,atypical_speed_profile,17,17,83362.0,77.40204056071381,960.0,0,17
+21,São Paulo Grand Prix,1,position_trace_discontinuity,2,2,87786.0,109.16213096718562,960.0,2,2
+21,São Paulo Grand Prix,1,timing_session_boundary_artifact,1,1,,,960.0,0,1
+21,São Paulo Grand Prix,2,atypical_speed_profile,17,17,111123.0,94.79187322922115,1240.0,0,17
+21,São Paulo Grand Prix,2,pit_lane_or_safety_car_influenced,2,2,122708.0,105.05441527102073,1240.0,2,2
+21,São Paulo Grand Prix,3,atypical_speed_profile,17,17,112479.0,82.68017613214796,1121.0,0,17
+21,São Paulo Grand Prix,3,pit_lane_or_safety_car_influenced,2,2,117617.0,118.62198996446665,1121.0,2,2
+21,São Paulo Grand Prix,4,atypical_speed_profile,19,19,108514.0,75.52831875261015,1040.0,0,19
+21,São Paulo Grand Prix,5,atypical_speed_profile,19,19,113761.0,83.85780654245302,920.0,0,19
+21,São Paulo Grand Prix,6,atypical_speed_profile,1,1,88766.0,55.99906926893188,1000.0,0,1
+21,São Paulo Grand Prix,6,clean,16,0,78266.0,18.056582745399382,1000.0,0,0
+21,São Paulo Grand Prix,6,import_or_source_data_anomaly,1,1,76547.0,29.848761533859587,1000.0,0,1
+21,São Paulo Grand Prix,6,timing_session_boundary_artifact,1,1,,,1000.0,0,1
+21,São Paulo Grand Prix,7,atypical_speed_profile,17,17,103396.0,81.06155122980765,1000.0,0,17
+21,São Paulo Grand Prix,7,pit_lane_or_safety_car_influenced,1,1,107461.0,96.65779905413184,1000.0,1,1
+21,São Paulo Grand Prix,8,atypical_speed_profile,16,16,99205.0,63.91620429075476,1199.0,0,16
+21,São Paulo Grand Prix,8,pit_lane_or_safety_car_influenced,2,2,103130.0,88.65672868914328,1199.0,2,2
+21,São Paulo Grand Prix,9,clean,17,0,74982.0,8.531354210521371,1040.0,0,0
+21,São Paulo Grand Prix,9,pit_lane_or_safety_car_influenced,1,1,93352.0,106.708305007412,1040.0,1,1
+21,São Paulo Grand Prix,10,clean,18,0,74530.5,7.010411539801051,960.0,0,0
+21,São Paulo Grand Prix,11,clean,18,0,74694.5,6.3663989746635785,1080.0,0,0
+21,São Paulo Grand Prix,12,clean,18,0,75384.0,6.561745466921042,1120.0,0,0
+21,São Paulo Grand Prix,13,clean,18,0,75736.5,7.238382973940988,841.0,0,0
+21,São Paulo Grand Prix,14,clean,17,0,75644.0,6.052463813436694,840.0,0,0
+21,São Paulo Grand Prix,14,pit_lane_or_safety_car_influenced,1,1,80101.0,65.98539197747066,840.0,1,1
+21,São Paulo Grand Prix,15,clean,17,0,75823.0,5.169341357902589,679.0,0,0
+21,São Paulo Grand Prix,15,pit_lane_or_safety_car_influenced,1,1,92848.0,104.48921876667995,679.0,1,1
+21,São Paulo Grand Prix,16,clean,18,0,75833.5,5.945955213942631,1159.0,0,0
+21,São Paulo Grand Prix,17,clean,16,0,75902.5,6.138174506317981,1160.0,0,0
+21,São Paulo Grand Prix,17,pit_lane_or_safety_car_influenced,2,2,80114.5,64.12119142735318,1160.0,2,2
+21,São Paulo Grand Prix,18,clean,14,0,75566.0,4.755696434467001,879.0,0,0
+21,São Paulo Grand Prix,18,pit_lane_or_safety_car_influenced,4,4,85758.5,86.44805111560261,959.0,4,4
+21,São Paulo Grand Prix,19,clean,15,0,75294.0,5.054055705319377,1039.0,0,0
+21,São Paulo Grand Prix,19,pit_lane_or_safety_car_influenced,3,3,92147.0,104.6517101632439,1039.0,3,3
+21,São Paulo Grand Prix,20,clean,17,0,75216.0,5.410473904157643,880.0,0,0
+21,São Paulo Grand Prix,20,pit_lane_or_safety_car_influenced,1,1,92394.0,104.56922640333012,920.0,1,1
+21,São Paulo Grand Prix,21,clean,17,0,75064.0,5.086063627335926,920.0,0,0
+21,São Paulo Grand Prix,21,pit_lane_or_safety_car_influenced,1,1,79328.0,68.85652772939451,920.0,1,1
+21,São Paulo Grand Prix,22,clean,17,0,75409.0,5.4967391486353225,1040.0,0,0
+21,São Paulo Grand Prix,22,pit_lane_or_safety_car_influenced,1,1,92750.0,103.39721145365485,1040.0,1,1
+21,São Paulo Grand Prix,23,clean,18,0,75167.0,5.590931414524068,1120.0,0,0
+21,São Paulo Grand Prix,24,clean,17,0,75033.0,3.967504890944464,681.0,0,0
+21,São Paulo Grand Prix,24,pit_lane_or_safety_car_influenced,1,1,79809.0,65.93145479523056,681.0,1,1
+21,São Paulo Grand Prix,25,clean,17,0,75368.0,5.66434618817298,1079.0,0,0
+21,São Paulo Grand Prix,25,pit_lane_or_safety_car_influenced,1,1,104172.0,123.4078837692363,1079.0,1,1
+21,São Paulo Grand Prix,26,clean,18,0,75173.0,5.5981496028226525,880.0,0,0
+21,São Paulo Grand Prix,27,clean,18,0,75462.0,4.89914024148419,800.0,0,0
+21,São Paulo Grand Prix,28,clean,17,0,75412.0,4.986800778068883,960.0,0,0
+21,São Paulo Grand Prix,28,pit_lane_or_safety_car_influenced,1,1,79939.0,66.15834977479047,960.0,1,1
+21,São Paulo Grand Prix,29,clean,15,0,75179.0,5.081566232757395,1120.0,0,0
+21,São Paulo Grand Prix,29,pit_lane_or_safety_car_influenced,3,3,79686.0,66.04778050354817,1120.0,3,3
+21,São Paulo Grand Prix,30,clean,15,0,75140.0,4.870550734333489,1080.0,0,0
+21,São Paulo Grand Prix,30,pit_lane_or_safety_car_influenced,3,3,92679.0,103.92205853525138,1160.0,3,3
+21,São Paulo Grand Prix,31,clean,17,0,75114.0,5.374658663254096,1160.0,0,0
+21,São Paulo Grand Prix,31,pit_lane_or_safety_car_influenced,1,1,92876.0,105.34373199303785,1160.0,1,1
+21,São Paulo Grand Prix,32,clean,17,0,75148.0,5.190023694452489,1080.0,0,0
+21,São Paulo Grand Prix,32,pit_lane_or_safety_car_influenced,1,1,80294.0,68.73554013356087,1080.0,1,1
+21,São Paulo Grand Prix,33,clean,17,0,74870.0,4.549036801393396,920.0,0,0
+21,São Paulo Grand Prix,33,pit_lane_or_safety_car_influenced,1,1,101262.0,116.36410573714332,1120.0,1,1
+21,São Paulo Grand Prix,34,clean,16,0,75297.0,5.245899188998315,1199.0,0,0
+21,São Paulo Grand Prix,34,pit_lane_or_safety_car_influenced,2,2,79282.0,66.38434236947698,1120.0,2,2
+21,São Paulo Grand Prix,35,clean,15,0,74929.0,5.01913350905858,1199.0,0,0
+21,São Paulo Grand Prix,35,pit_lane_or_safety_car_influenced,3,3,91337.0,103.26903615980196,1199.0,3,3
+21,São Paulo Grand Prix,36,clean,16,0,74759.5,4.734495811625214,480.0,0,0
+21,São Paulo Grand Prix,36,pit_lane_or_safety_car_influenced,2,2,85308.0,85.85497489988154,480.0,2,2
+21,São Paulo Grand Prix,37,clean,15,0,74809.0,4.549952678941399,919.0,0,0
+21,São Paulo Grand Prix,37,pit_lane_or_safety_car_influenced,3,3,84144.0,82.14799941852942,919.0,3,3
+21,São Paulo Grand Prix,38,clean,14,0,74742.0,4.787136621951362,1040.0,0,0
+21,São Paulo Grand Prix,38,pit_lane_or_safety_car_influenced,3,3,80264.0,72.92051596122778,1040.0,3,3
+21,São Paulo Grand Prix,39,clean,14,0,74508.0,4.4829555225837066,1121.0,0,0
+21,São Paulo Grand Prix,39,pit_lane_or_safety_car_influenced,3,3,90500.0,106.22995464768931,1121.0,3,3
+21,São Paulo Grand Prix,40,clean,16,0,74532.5,5.280037090542015,1060.0,0,0
+21,São Paulo Grand Prix,40,pit_lane_or_safety_car_influenced,1,1,92407.0,105.55309131858805,1120.0,1,1
+21,São Paulo Grand Prix,41,clean,9,0,74390.0,4.844946897450725,1120.0,0,0
+21,São Paulo Grand Prix,41,pit_lane_or_safety_car_influenced,8,8,74911.0,6.782203235045465,841.0,8,0
+21,São Paulo Grand Prix,42,pit_lane_or_safety_car_influenced,17,17,74493.0,5.866794418753495,1121.0,17,1
+21,São Paulo Grand Prix,43,pit_lane_or_safety_car_influenced,17,17,74548.0,5.989745777244076,760.0,17,2
+21,São Paulo Grand Prix,44,pit_lane_or_safety_car_influenced,17,17,74383.0,4.578065203084974,1039.0,17,1
+21,São Paulo Grand Prix,45,pit_lane_or_safety_car_influenced,17,17,74431.0,5.920565081160434,1120.0,17,0
+21,São Paulo Grand Prix,46,pit_lane_or_safety_car_influenced,17,17,74457.0,5.2366012081948,1200.0,17,1
+21,São Paulo Grand Prix,47,pit_lane_or_safety_car_influenced,17,17,74653.0,5.208301889295993,920.0,17,4
+21,São Paulo Grand Prix,48,clean,4,0,74098.0,4.722102157134348,520.0,0,0
+21,São Paulo Grand Prix,48,pit_lane_or_safety_car_influenced,13,13,74753.0,7.109427205002643,520.0,13,4
+21,São Paulo Grand Prix,49,pit_lane_or_safety_car_influenced,17,17,74774.0,6.429390716604695,1040.0,17,1
+21,São Paulo Grand Prix,50,pit_lane_or_safety_car_influenced,17,17,74083.0,6.808745298927091,1040.0,17,1
+21,São Paulo Grand Prix,51,clean,1,0,73458.0,6.475676403863721,1079.0,0,0
+21,São Paulo Grand Prix,51,pit_lane_or_safety_car_influenced,16,16,74626.5,5.4788091048100895,720.0,16,2
+21,São Paulo Grand Prix,52,clean,16,0,74102.5,4.924027043765534,1079.0,0,0
+21,São Paulo Grand Prix,52,pit_lane_or_safety_car_influenced,1,1,91571.0,104.39292623859531,1079.0,1,1
+21,São Paulo Grand Prix,53,clean,17,0,74124.0,5.805802393623766,840.0,0,0
+21,São Paulo Grand Prix,54,clean,15,0,74202.0,6.173106748441206,1040.0,0,0
+21,São Paulo Grand Prix,54,pit_lane_or_safety_car_influenced,2,2,78480.5,66.38410456281665,940.0,2,2
+21,São Paulo Grand Prix,55,clean,14,0,74135.5,5.66818444643083,1040.0,0,0
+21,São Paulo Grand Prix,55,pit_lane_or_safety_car_influenced,3,3,90317.0,103.06639828263452,920.0,3,3
+21,São Paulo Grand Prix,56,clean,16,0,73890.5,4.704025784951752,1080.0,0,0
+21,São Paulo Grand Prix,56,pit_lane_or_safety_car_influenced,1,1,91062.0,106.77673587777545,1080.0,1,1
+21,São Paulo Grand Prix,57,clean,17,0,73923.0,5.111465341589555,1161.0,0,0
+21,São Paulo Grand Prix,58,clean,17,0,73967.0,5.273698286573996,799.0,0,0
+21,São Paulo Grand Prix,59,clean,17,0,73970.0,5.778300404259246,839.0,0,0
+21,São Paulo Grand Prix,60,clean,17,0,74040.0,5.3705600925067305,840.0,0,0
+21,São Paulo Grand Prix,61,clean,17,0,73867.0,5.1989694424350255,840.0,0,0
+21,São Paulo Grand Prix,62,clean,17,0,73867.0,5.178371277798942,880.0,0,0
+21,São Paulo Grand Prix,63,clean,17,0,74014.0,5.1722196114594805,959.0,0,0
+21,São Paulo Grand Prix,64,clean,17,0,73960.0,5.520807595156274,480.0,0,0
+21,São Paulo Grand Prix,65,clean,17,0,74002.0,5.750394572434912,1121.0,0,0
+21,São Paulo Grand Prix,66,clean,17,0,74003.0,6.488256401976159,1040.0,0,0
+21,São Paulo Grand Prix,67,clean,17,0,74285.0,6.72358715124936,1200.0,0,0
+21,São Paulo Grand Prix,68,clean,17,0,74002.0,6.066556228762651,1000.0,0,0
+21,São Paulo Grand Prix,69,clean,17,0,74272.0,6.246509604142669,1000.0,0,0
+21,São Paulo Grand Prix,70,clean,17,0,74754.0,6.715752654739138,1121.0,0,0
+21,São Paulo Grand Prix,71,clean,17,0,74996.0,10.080647642074217,1039.0,0,0

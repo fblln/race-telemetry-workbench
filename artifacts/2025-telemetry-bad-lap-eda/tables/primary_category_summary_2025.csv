@@ -1,7 +1,7 @@
 primary_category,laps,pct_of_all_laps
 clean,21192,79.40349956911086
 pit_lane_or_safety_car_influenced,3087,11.566563003484582
-shape_mismatch_against_comparable_laps,1559,5.841357862789914
+atypical_speed_profile,1559,5.841357862789914
 import_or_source_data_anomaly,374,1.4013263891490875
 timing_session_boundary_artifact,369,1.3825920791337254
 position_trace_discontinuity,107,0.4009142343287497

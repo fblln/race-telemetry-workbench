@@ -1,0 +1,41 @@
+taxonomy,event_name,session_time_ms,lap_number,driver_code,category,flag,scope,message
+drs,Canadian Grand Prix,267000.0,2,,Drs,,,DRS ENABLED
+drs,Hungarian Grand Prix,274000.0,2,,Drs,,,DRS ENABLED
+drs,Dutch Grand Prix,280000.0,2,,Drs,,,DRS ENABLED
+drs,Spanish Grand Prix,281000.0,2,,Drs,,,DRS ENABLED
+drs,Abu Dhabi Grand Prix,307000.0,2,,Drs,,,DRS ENABLED
+flags,Australian Grand Prix,59000.0,1,,Flag,DOUBLE YELLOW,Sector,DOUBLE YELLOW IN TRACK SECTOR 2
+flags,Austrian Grand Prix,91000.0,1,,Flag,YELLOW,Sector,YELLOW IN TRACK SECTOR 16
+flags,Austrian Grand Prix,101000.0,1,,Flag,CLEAR,Sector,CLEAR IN TRACK SECTOR 16
+flags,Miami Grand Prix,236000.0,1,,Flag,DOUBLE YELLOW,Sector,DOUBLE YELLOW IN TRACK SECTOR 2
+flags,Monaco Grand Prix,241000.0,1,,Flag,YELLOW,Sector,YELLOW IN TRACK SECTOR 10
+investigations_noted,Italian Grand Prix,293000.0,1,,Other,,,TURN 1 INCIDENT INVOLVING CARS 1 (VER) AND 4 (NOR) NOTED
+investigations_noted,Abu Dhabi Grand Prix,329000.0,2,,Other,,,INCIDENT INVOLVING CAR 43 (COL) NOTED - STARTING PROCEDURE INFRINGEMENT
+investigations_noted,Singapore Grand Prix,331000.0,2,,Other,,,TURN 1 INCIDENT INVOLVING CARS 6 (HAD) AND 87 (BEA) NOTED - CAUSING A COLLISION
+investigations_noted,Italian Grand Prix,338000.0,2,,Other,,,FIA STEWARDS: TURN 1 INCIDENT INVOLVING CARS 1 (VER) AND 4 (NOR) REVIEWED NO FURTHER INVESTIGATION
+investigations_noted,Mexico City Grand Prix,345000.0,2,,Other,,,LAP 1 TURN 1 INCIDENT NOTED
+other,British Grand Prix,55000.0,1,,Other,,,STANDING START
+other,Austrian Grand Prix,96000.0,1,,Other,,,ABORTED START
+other,Belgian Grand Prix,104000.0,1,,Other,,,STARTING PROCEDURE SUSPENDED
+other,Australian Grand Prix,137000.0,1,,Other,,,ABORTED START
+other,Australian Grand Prix,255000.0,1,,Other,,,FORMATION LAP WILL START AT 15:15
+penalties,Saudi Arabian Grand Prix,686000.0,3,,Other,,,FIA STEWARDS: 5 SECOND TIME PENALTY FOR CAR 1 (VER) - LEAVING THE TRACK AND GAINING AN ADVANTAGE
+penalties,Bahrain Grand Prix,891000.0,7,,Other,,,FIA STEWARDS: 5 SECOND TIME PENALTY FOR CAR 4 (NOR) - FALSE START - OUT OF POSITION
+penalties,Azerbaijan Grand Prix,898000.0,5,,Other,,,FIA STEWARDS: 5 SECOND TIME PENALTY FOR CAR 81 (PIA) - FALSE START - MOVING BEFORE SIGNAL
+penalties,Hungarian Grand Prix,906000.0,9,,Other,,,FIA STEWARDS: 5 SECOND TIME PENALTY FOR CAR 27 (HUL) - FALSE START - MOVING BEFORE SIGNAL
+penalties,Qatar Grand Prix,912000.0,8,,Other,,,FIA STEWARDS: 5 SECOND TIME PENALTY FOR CAR 31 (OCO) - FALSE START - MOVING BEFORE SIGNAL
+pit_entry_exit,Canadian Grand Prix,185000.0,1,,Flag,GREEN,Track,GREEN LIGHT - PIT EXIT OPEN
+pit_entry_exit,Hungarian Grand Prix,186000.0,1,,Flag,GREEN,Track,GREEN LIGHT - PIT EXIT OPEN
+pit_entry_exit,Monaco Grand Prix,189000.0,1,,Flag,GREEN,Track,GREEN LIGHT - PIT EXIT OPEN
+pit_entry_exit,São Paulo Grand Prix,194000.0,1,,Flag,GREEN,Track,GREEN LIGHT - PIT EXIT OPEN
+pit_entry_exit,Mexico City Grand Prix,196000.0,1,,Flag,GREEN,Track,GREEN LIGHT - PIT EXIT OPEN
+red_flag,Belgian Grand Prix,118000.0,1,,Flag,RED,Track,RED FLAG
+red_flag,Italian Grand Prix,4619000.0,53,,Flag,CHEQUERED,Track,CHEQUERED FLAG
+red_flag,Saudi Arabian Grand Prix,5102000.0,50,,Flag,CHEQUERED,Track,CHEQUERED FLAG
+red_flag,Las Vegas Grand Prix,5117000.0,50,,Flag,CHEQUERED,Track,CHEQUERED FLAG
+red_flag,Japanese Grand Prix,5153000.0,53,,Flag,CHEQUERED,Track,CHEQUERED FLAG
+safety_car,Monaco Grand Prix,283000.0,2,,SafetyCar,,,VIRTUAL SAFETY CAR DEPLOYED
+safety_car,São Paulo Grand Prix,298000.0,2,,SafetyCar,,,SAFETY CAR DEPLOYED
+safety_car,Saudi Arabian Grand Prix,302000.0,1,,SafetyCar,,,SAFETY CAR DEPLOYED
+safety_car,Azerbaijan Grand Prix,316000.0,1,,SafetyCar,,,SAFETY CAR DEPLOYED
+safety_car,British Grand Prix,348000.0,2,,SafetyCar,,,VIRTUAL SAFETY CAR DEPLOYED

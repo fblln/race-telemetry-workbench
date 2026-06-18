@@ -1,0 +1,121 @@
+session_id,year,event_name,quality_flag,rows
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,OK,1024064
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,LOCATION_GAP_TOO_LARGE,12530
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,CAR_GAP_TOO_LARGE,10712
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,CAR_SAMPLE_TOO_OLD,5816
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,LOCATION_SAMPLE_TOO_OLD,5456
+2025-australian-grand-prix-r,2025,Australian Grand Prix,OK,982157
+2025-australian-grand-prix-r,2025,Australian Grand Prix,CAR_GAP_TOO_LARGE,11226
+2025-australian-grand-prix-r,2025,Australian Grand Prix,LOCATION_GAP_TOO_LARGE,9026
+2025-australian-grand-prix-r,2025,Australian Grand Prix,CAR_SAMPLE_TOO_OLD,5928
+2025-australian-grand-prix-r,2025,Australian Grand Prix,LOCATION_SAMPLE_TOO_OLD,5447
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,OK,799506
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,CAR_GAP_TOO_LARGE,10525
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,LOCATION_GAP_TOO_LARGE,8491
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,CAR_SAMPLE_TOO_OLD,5223
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,LOCATION_SAMPLE_TOO_OLD,4383
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,OK,1058197
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,CAR_GAP_TOO_LARGE,9405
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,LOCATION_GAP_TOO_LARGE,8836
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,CAR_SAMPLE_TOO_OLD,5301
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,LOCATION_SAMPLE_TOO_OLD,4711
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,OK,1128100
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,LOCATION_GAP_TOO_LARGE,10104
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,CAR_GAP_TOO_LARGE,9233
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,CAR_SAMPLE_TOO_OLD,5828
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,LOCATION_SAMPLE_TOO_OLD,5262
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,OK,1011352
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,LOCATION_GAP_TOO_LARGE,10303
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,CAR_GAP_TOO_LARGE,9390
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,LOCATION_SAMPLE_TOO_OLD,5949
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,CAR_SAMPLE_TOO_OLD,5570
+2025-british-grand-prix-r,2025,British Grand Prix,OK,919339
+2025-british-grand-prix-r,2025,British Grand Prix,CAR_GAP_TOO_LARGE,9997
+2025-british-grand-prix-r,2025,British Grand Prix,LOCATION_GAP_TOO_LARGE,9555
+2025-british-grand-prix-r,2025,British Grand Prix,CAR_SAMPLE_TOO_OLD,5479
+2025-british-grand-prix-r,2025,British Grand Prix,LOCATION_SAMPLE_TOO_OLD,5130
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,OK,1050551
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,LOCATION_GAP_TOO_LARGE,11625
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,CAR_GAP_TOO_LARGE,11612
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,CAR_SAMPLE_TOO_OLD,6459
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,LOCATION_SAMPLE_TOO_OLD,6075
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,OK,1031270
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,CAR_GAP_TOO_LARGE,10935
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,LOCATION_GAP_TOO_LARGE,10197
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,CAR_SAMPLE_TOO_OLD,5600
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,LOCATION_SAMPLE_TOO_OLD,5583
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,OK,1087807
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,CAR_GAP_TOO_LARGE,15265
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,LOCATION_GAP_TOO_LARGE,11437
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,CAR_SAMPLE_TOO_OLD,7425
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,LOCATION_SAMPLE_TOO_OLD,6300
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,OK,1038369
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,CAR_GAP_TOO_LARGE,10796
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,LOCATION_GAP_TOO_LARGE,8982
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,CAR_SAMPLE_TOO_OLD,5704
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,LOCATION_SAMPLE_TOO_OLD,4826
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,OK,1107085
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,CAR_GAP_TOO_LARGE,12300
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,LOCATION_GAP_TOO_LARGE,10387
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,CAR_SAMPLE_TOO_OLD,6965
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,LOCATION_SAMPLE_TOO_OLD,5449
+2025-italian-grand-prix-r,2025,Italian Grand Prix,OK,804939
+2025-italian-grand-prix-r,2025,Italian Grand Prix,CAR_GAP_TOO_LARGE,9731
+2025-italian-grand-prix-r,2025,Italian Grand Prix,LOCATION_GAP_TOO_LARGE,9269
+2025-italian-grand-prix-r,2025,Italian Grand Prix,CAR_SAMPLE_TOO_OLD,5124
+2025-italian-grand-prix-r,2025,Italian Grand Prix,LOCATION_SAMPLE_TOO_OLD,4288
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,OK,978548
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,CAR_GAP_TOO_LARGE,9843
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,LOCATION_GAP_TOO_LARGE,9187
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,CAR_SAMPLE_TOO_OLD,5398
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,LOCATION_SAMPLE_TOO_OLD,5130
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,OK,859960
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,CAR_GAP_TOO_LARGE,9140
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,LOCATION_GAP_TOO_LARGE,7790
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,CAR_SAMPLE_TOO_OLD,4887
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,LOCATION_SAMPLE_TOO_OLD,4729
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,OK,1038495
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,CAR_GAP_TOO_LARGE,14466
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,LOCATION_GAP_TOO_LARGE,9687
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,CAR_SAMPLE_TOO_OLD,7461
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,LOCATION_SAMPLE_TOO_OLD,6148
+2025-miami-grand-prix-r,2025,Miami Grand Prix,OK,937537
+2025-miami-grand-prix-r,2025,Miami Grand Prix,CAR_GAP_TOO_LARGE,10514
+2025-miami-grand-prix-r,2025,Miami Grand Prix,LOCATION_GAP_TOO_LARGE,9995
+2025-miami-grand-prix-r,2025,Miami Grand Prix,CAR_SAMPLE_TOO_OLD,5785
+2025-miami-grand-prix-r,2025,Miami Grand Prix,LOCATION_SAMPLE_TOO_OLD,5156
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,OK,1108532
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,CAR_GAP_TOO_LARGE,14257
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,LOCATION_GAP_TOO_LARGE,12641
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,CAR_SAMPLE_TOO_OLD,7997
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,LOCATION_SAMPLE_TOO_OLD,6441
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,OK,947098
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,LOCATION_GAP_TOO_LARGE,9740
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,CAR_GAP_TOO_LARGE,9667
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,CAR_SAMPLE_TOO_OLD,5790
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,LOCATION_SAMPLE_TOO_OLD,5434
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,OK,871185
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,CAR_GAP_TOO_LARGE,9251
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,LOCATION_GAP_TOO_LARGE,8912
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,CAR_SAMPLE_TOO_OLD,4779
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,LOCATION_SAMPLE_TOO_OLD,4252
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,OK,1193991
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,CAR_GAP_TOO_LARGE,11821
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,LOCATION_GAP_TOO_LARGE,8563
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,CAR_SAMPLE_TOO_OLD,6225
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,LOCATION_SAMPLE_TOO_OLD,5025
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,OK,1004830
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,CAR_GAP_TOO_LARGE,10062
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,LOCATION_GAP_TOO_LARGE,7805
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,CAR_SAMPLE_TOO_OLD,5045
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,LOCATION_SAMPLE_TOO_OLD,4263
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,OK,968456
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,CAR_GAP_TOO_LARGE,9769
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,LOCATION_GAP_TOO_LARGE,8811
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,LOCATION_SAMPLE_TOO_OLD,5088
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,CAR_SAMPLE_TOO_OLD,4949
+2025-united-states-grand-prix-r,2025,United States Grand Prix,OK,1068033
+2025-united-states-grand-prix-r,2025,United States Grand Prix,CAR_GAP_TOO_LARGE,12224
+2025-united-states-grand-prix-r,2025,United States Grand Prix,LOCATION_GAP_TOO_LARGE,7595
+2025-united-states-grand-prix-r,2025,United States Grand Prix,CAR_SAMPLE_TOO_OLD,6145
+2025-united-states-grand-prix-r,2025,United States Grand Prix,LOCATION_SAMPLE_TOO_OLD,5434

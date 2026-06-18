@@ -1,0 +1,9 @@
+taxonomy,messages,missing_session_time,missing_lap_scope,missing_driver_scope,driver_scoped,lap_scoped,sessions,missing_session_time_pct,missing_lap_scope_pct,missing_driver_scope_pct,driver_scoped_pct,lap_scoped_pct
+flags,1008,146,0,501,507,1008,24,14.484126984126986,0.0,49.702380952380956,50.297619047619044,100.0
+other,431,47,0,431,0,431,24,10.904872389791183,0.0,100.0,0.0,100.0
+investigations_noted,318,25,0,318,0,318,23,7.861635220125786,0.0,100.0,0.0,100.0
+drs,139,68,0,139,0,139,24,48.92086330935252,0.0,100.0,0.0,100.0
+safety_car,92,2,0,92,0,92,18,2.1739130434782608,0.0,100.0,0.0,100.0
+pit_entry_exit,89,48,0,89,0,89,24,53.93258426966292,0.0,100.0,0.0,100.0
+penalties,76,0,0,76,0,76,19,0.0,0.0,100.0,0.0,100.0
+red_flag,25,0,0,25,0,25,24,0.0,0.0,100.0,0.0,100.0

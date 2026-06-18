@@ -1,0 +1,180 @@
+session_id,event_round,event_name,driver_code,lap_number,bad_flag_flip_count,replay_safety_flip_count,lap_comparison_safety_flip_count,recommendation_flip_count,primary_category_flip_count,baseline_bad_lap_any_category,baseline_safe_for_replay,baseline_safe_for_lap_comparison,baseline_product_recommendation,baseline_primary_category,any_sensitivity_flip_count
+2025-miami-grand-prix-r,6,Miami Grand Prix,ALB,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,ALO,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,ANT,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,GAS,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,HAD,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,HAM,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,HUL,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,LEC,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,NOR,54,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,OCO,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,PIA,54,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,RUS,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,SAI,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,STR,52,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,TSU,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-miami-grand-prix-r,6,Miami Grand Prix,VER,53,1,1,1,1,1,False,True,True,keep,clean,5
+2025-spanish-grand-prix-r,9,Spanish Grand Prix,PIA,9,1,1,1,1,1,False,True,True,keep,clean,5
+2025-canadian-grand-prix-r,10,Canadian Grand Prix,BEA,2,1,1,1,1,1,True,False,False,exclude,position_trace_discontinuity,5
+2025-canadian-grand-prix-r,10,Canadian Grand Prix,HAD,2,1,1,1,1,1,True,False,False,exclude,position_trace_discontinuity,5
+2025-canadian-grand-prix-r,10,Canadian Grand Prix,SAI,2,1,1,1,1,1,True,False,False,exclude,position_trace_discontinuity,5
+2025-canadian-grand-prix-r,10,Canadian Grand Prix,TSU,2,1,1,1,1,1,True,False,False,exclude,position_trace_discontinuity,5
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,HAM,6,1,1,1,1,1,False,True,True,keep,clean,5
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,LAW,6,1,1,1,1,1,False,True,True,keep,clean,5
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,RUS,6,1,1,1,1,1,False,True,True,keep,clean,5
+2025-mexico-city-grand-prix-r,20,Mexico City Grand Prix,LEC,57,1,1,1,1,1,False,True,True,keep,clean,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,ALB,21,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,ALO,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,ANT,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,BEA,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,COL,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,GAS,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,HAD,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,HAM,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,HUL,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,LEC,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,OCO,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,RUS,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,TSU,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,VER,22,1,1,1,1,1,True,False,False,exclude,timing_session_boundary_artifact,5
+2025-qatar-grand-prix-r,23,Qatar Grand Prix,LAW,57,1,1,1,1,1,False,True,True,keep,clean,5
+2025-abu-dhabi-grand-prix-r,24,Abu Dhabi Grand Prix,ANT,4,1,1,1,1,1,False,True,True,keep,clean,5
+2025-abu-dhabi-grand-prix-r,24,Abu Dhabi Grand Prix,ANT,5,1,1,1,1,1,False,True,True,keep,clean,5
+2025-abu-dhabi-grand-prix-r,24,Abu Dhabi Grand Prix,ANT,6,1,1,1,1,1,False,True,True,keep,clean,5
+2025-abu-dhabi-grand-prix-r,24,Abu Dhabi Grand Prix,ANT,21,1,1,1,1,1,False,True,True,keep,clean,5
+2025-abu-dhabi-grand-prix-r,24,Abu Dhabi Grand Prix,ANT,29,1,1,1,1,1,False,True,True,keep,clean,5
+2025-abu-dhabi-grand-prix-r,24,Abu Dhabi Grand Prix,HUL,48,1,1,1,1,1,False,True,True,keep,clean,5
+2025-australian-grand-prix-r,1,Australian Grand Prix,GAS,45,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-australian-grand-prix-r,1,Australian Grand Prix,HAM,44,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-australian-grand-prix-r,1,Australian Grand Prix,HAM,52,1,0,1,1,1,False,True,True,keep,clean,4
+2025-australian-grand-prix-r,1,Australian Grand Prix,NOR,42,1,0,1,1,1,False,True,True,keep,clean,4
+2025-australian-grand-prix-r,1,Australian Grand Prix,PIA,52,1,0,1,1,1,False,True,True,keep,clean,4
+2025-australian-grand-prix-r,1,Australian Grand Prix,VER,44,1,0,1,1,1,False,True,True,keep,clean,4
+2025-saudi-arabian-grand-prix-r,5,Saudi Arabian Grand Prix,BOR,47,1,0,1,1,1,False,True,True,keep,clean,4
+2025-saudi-arabian-grand-prix-r,5,Saudi Arabian Grand Prix,OCO,50,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,ALB,9,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,ANT,9,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,BEA,8,1,0,1,1,1,False,True,True,keep,clean,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,COL,9,1,0,1,1,1,False,True,True,keep,clean,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,HAM,10,1,0,1,1,1,False,True,True,keep,clean,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,HUL,9,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,HUL,62,1,0,1,1,1,False,True,True,keep,clean,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,LEC,9,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,LEC,10,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,LEC,11,1,0,1,1,1,False,True,True,keep,clean,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,NOR,10,1,0,1,1,1,False,True,True,keep,clean,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,NOR,11,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,OCO,10,1,0,1,1,1,False,True,True,keep,clean,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,PIA,9,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,RUS,9,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,SAI,9,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,VER,9,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-canadian-grand-prix-r,10,Canadian Grand Prix,COL,59,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-austrian-grand-prix-r,11,Austrian Grand Prix,STR,13,1,0,1,1,1,False,True,True,keep,clean,4
+2025-austrian-grand-prix-r,11,Austrian Grand Prix,TSU,67,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-italian-grand-prix-r,16,Italian Grand Prix,PIA,49,1,0,1,1,1,False,True,True,keep,clean,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,ALB,5,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,ALO,5,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,BEA,5,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,BOR,5,1,0,1,1,1,False,True,True,keep,clean,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,COL,5,1,0,1,1,1,False,True,True,keep,clean,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,GAS,5,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,HAD,5,1,0,1,1,1,False,True,True,keep,clean,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,HAM,5,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,HUL,5,1,0,1,1,1,False,True,True,keep,clean,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,NOR,5,1,0,1,1,1,False,True,True,keep,clean,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,OCO,5,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,RUS,5,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,STR,5,1,0,1,1,1,True,True,False,manual_review,atypical_speed_profile,4
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,STR,51,1,0,1,1,1,False,True,True,keep,clean,4
+2025-singapore-grand-prix-r,18,Singapore Grand Prix,HAM,62,1,0,1,1,1,False,True,True,keep,clean,4
+2025-singapore-grand-prix-r,18,Singapore Grand Prix,STR,47,1,0,1,1,1,False,True,True,keep,clean,4
+2025-singapore-grand-prix-r,18,Singapore Grand Prix,TSU,52,1,0,1,1,1,False,True,True,keep,clean,4
+2025-qatar-grand-prix-r,23,Qatar Grand Prix,ALO,41,1,0,1,1,1,False,True,True,keep,clean,4
+2025-abu-dhabi-grand-prix-r,24,Abu Dhabi Grand Prix,HAD,57,1,0,1,1,1,False,True,True,keep,clean,4
+2025-chinese-grand-prix-r,2,Chinese Grand Prix,LAW,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-japanese-grand-prix-r,3,Japanese Grand Prix,ANT,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-japanese-grand-prix-r,3,Japanese Grand Prix,LEC,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-japanese-grand-prix-r,3,Japanese Grand Prix,NOR,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-japanese-grand-prix-r,3,Japanese Grand Prix,PIA,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-japanese-grand-prix-r,3,Japanese Grand Prix,RUS,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-japanese-grand-prix-r,3,Japanese Grand Prix,VER,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-bahrain-grand-prix-r,4,Bahrain Grand Prix,PIA,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-miami-grand-prix-r,6,Miami Grand Prix,GAS,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,ANT,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,COL,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,GAS,1,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,HUL,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,RUS,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,STR,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,TSU,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-spanish-grand-prix-r,9,Spanish Grand Prix,TSU,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-british-grand-prix-r,12,British Grand Prix,BEA,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-british-grand-prix-r,12,British Grand Prix,BOR,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-british-grand-prix-r,12,British Grand Prix,HAD,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-belgian-grand-prix-r,13,Belgian Grand Prix,LEC,1,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-belgian-grand-prix-r,13,Belgian Grand Prix,NOR,1,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-belgian-grand-prix-r,13,Belgian Grand Prix,PIA,1,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-belgian-grand-prix-r,13,Belgian Grand Prix,VER,1,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-hungarian-grand-prix-r,14,Hungarian Grand Prix,TSU,1,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,ALB,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,ANT,53,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,ANT,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,BEA,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,COL,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,HAD,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,HUL,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,OCO,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,RUS,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,TSU,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,VER,63,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-italian-grand-prix-r,16,Italian Grand Prix,ANT,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-italian-grand-prix-r,16,Italian Grand Prix,GAS,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-italian-grand-prix-r,16,Italian Grand Prix,HAD,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-italian-grand-prix-r,16,Italian Grand Prix,LEC,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-italian-grand-prix-r,16,Italian Grand Prix,NOR,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-italian-grand-prix-r,16,Italian Grand Prix,PIA,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-italian-grand-prix-r,16,Italian Grand Prix,RUS,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-italian-grand-prix-r,16,Italian Grand Prix,VER,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-azerbaijan-grand-prix-r,17,Azerbaijan Grand Prix,STR,37,0,1,0,1,1,True,True,False,keep_with_context_label,pit_lane_or_safety_car_influenced,3
+2025-singapore-grand-prix-r,18,Singapore Grand Prix,ALB,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-singapore-grand-prix-r,18,Singapore Grand Prix,GAS,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-united-states-grand-prix-r,19,United States Grand Prix,ANT,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-united-states-grand-prix-r,19,United States Grand Prix,HAM,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-united-states-grand-prix-r,19,United States Grand Prix,LEC,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-united-states-grand-prix-r,19,United States Grand Prix,NOR,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-united-states-grand-prix-r,19,United States Grand Prix,PIA,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-united-states-grand-prix-r,19,United States Grand Prix,RUS,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-united-states-grand-prix-r,19,United States Grand Prix,VER,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-mexico-city-grand-prix-r,20,Mexico City Grand Prix,HAM,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-mexico-city-grand-prix-r,20,Mexico City Grand Prix,NOR,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-mexico-city-grand-prix-r,20,Mexico City Grand Prix,RUS,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,NOR,22,0,1,0,1,1,True,False,False,exclude,timing_session_boundary_artifact,3
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,PIA,22,0,1,0,1,1,True,False,False,exclude,timing_session_boundary_artifact,3
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,SAI,22,0,1,0,1,1,True,False,False,exclude,timing_session_boundary_artifact,3
+2025-qatar-grand-prix-r,23,Qatar Grand Prix,NOR,1,0,1,0,1,1,True,True,False,keep_with_context_label,atypical_speed_profile,3
+2025-qatar-grand-prix-r,23,Qatar Grand Prix,PIA,1,0,1,0,1,1,True,False,False,exclude,position_trace_discontinuity,3
+2025-australian-grand-prix-r,1,Australian Grand Prix,PIA,49,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-bahrain-grand-prix-r,4,Bahrain Grand Prix,ALO,34,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-bahrain-grand-prix-r,4,Bahrain Grand Prix,BOR,34,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-bahrain-grand-prix-r,4,Bahrain Grand Prix,HAD,34,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-bahrain-grand-prix-r,4,Bahrain Grand Prix,HUL,34,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-bahrain-grand-prix-r,4,Bahrain Grand Prix,LAW,34,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-bahrain-grand-prix-r,4,Bahrain Grand Prix,STR,34,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-emilia-romagna-grand-prix-r,7,Emilia Romagna Grand Prix,COL,28,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-emilia-romagna-grand-prix-r,7,Emilia Romagna Grand Prix,GAS,3,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-monaco-grand-prix-r,8,Monaco Grand Prix,TSU,8,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,BOR,25,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,HUL,25,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-dutch-grand-prix-r,15,Dutch Grand Prix,TSU,55,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-singapore-grand-prix-r,18,Singapore Grand Prix,GAS,50,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-singapore-grand-prix-r,18,Singapore Grand Prix,OCO,50,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-united-states-grand-prix-r,19,United States Grand Prix,HAM,9,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-united-states-grand-prix-r,19,United States Grand Prix,LEC,9,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-united-states-grand-prix-r,19,United States Grand Prix,NOR,9,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-united-states-grand-prix-r,19,United States Grand Prix,VER,9,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-mexico-city-grand-prix-r,20,Mexico City Grand Prix,BOR,69,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-s-o-paulo-grand-prix-r,21,São Paulo Grand Prix,ANT,6,0,0,0,0,1,True,True,False,keep_with_context_label,import_or_source_data_anomaly,1
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,HAD,4,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1
+2025-las-vegas-grand-prix-r,22,Las Vegas Grand Prix,NOR,4,0,0,0,0,1,True,True,False,keep_with_context_label,atypical_speed_profile,1

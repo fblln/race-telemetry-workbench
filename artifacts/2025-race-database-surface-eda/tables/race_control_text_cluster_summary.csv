@@ -1,0 +1,11 @@
+text_cluster,cluster_terms,messages,sessions,taxonomy_mix,driver_scoped_pct,lap_scoped_pct,example_message,cluster_method
+3,"blue flag, waved, timed, waved blue, blue, flag car",480,23,"flags,red_flag",99.79166666666667,100.0,WAVED BLUE FLAG FOR CAR 87 (BEA) TIMED AT 16:07:48,tfidf_kmeans
+0,"car, safety car, safety, involving car, penalty, fia",405,24,"drs,flags,investigations_noted,other,penalties,pit_entry_exit,red_flag,safety_car",6.91358024691358,100.0,ABORTED START,tfidf_kmeans
+4,"lap, turn lap, deleted track, deleted, limits turn, time deleted",324,23,other,0.0,100.0,CAR 12 (ANT) TIME 1:37.326 DELETED - TRACK LIMITS AT TURN 4 LAP 16 15:48:48,tfidf_kmeans
+1,"clear, clear track, sector, track sector, track, track clear",255,23,flags,0.0,100.0,CLEAR IN TRACK SECTOR 2,tfidf_kmeans
+5,"yellow track, yellow, sector, track sector, double yellow, double",245,23,flags,0.0,100.0,DOUBLE YELLOW IN TRACK SECTOR 2,tfidf_kmeans
+7,"turn incident, involving cars, cars, incident, incident involving, involving",217,23,"investigations_noted,safety_car",0.0,100.0,INCIDENT INVOLVING CARS 5 (BOR) AND 30 (LAW) NOTED - UNSAFE RELEASE,tfidf_kmeans
+2,"drs enabled, enabled, drs, enabled zone, zone, drs disabled",74,24,drs,0.0,100.0,DRS ENABLED,tfidf_kmeans
+6,"pit exit, exit, pit, green light, green, light pit",72,24,pit_entry_exit,0.0,100.0,GREEN LIGHT - PIT EXIT OPEN,tfidf_kmeans
+8,"drs disabled, disabled, drs, disabled zone, zone, entry incident",63,24,drs,0.0,100.0,DRS DISABLED IN ZONE 3,tfidf_kmeans
+9,"slippery track, slippery, surface slippery, surface, track surface, track",43,13,other,0.0,100.0,TRACK SURFACE SLIPPERY IN TRACK SECTOR 15,tfidf_kmeans

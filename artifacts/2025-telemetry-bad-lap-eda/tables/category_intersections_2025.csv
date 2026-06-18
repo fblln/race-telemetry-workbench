@@ -1,0 +1,22 @@
+reason_set,reason_count,laps,races,drivers,pct_of_bad_laps,pct_of_all_laps
+atypical_speed_profile + pit_lane_or_safety_car_influenced + import_or_source_data_anomaly,3,1510,24,21,27.469528833909408,5.657761624639365
+atypical_speed_profile + import_or_source_data_anomaly,2,1505,23,21,27.37857012916136,5.639027314624003
+pit_lane_or_safety_car_influenced,1,1367,14,21,24.868109878115334,5.121960358200008
+import_or_source_data_anomaly,1,374,24,21,6.803711115153719,1.4013263891490875
+incomplete_lap_window + timing_session_boundary_artifact + import_or_source_data_anomaly,3,238,5,21,4.329634346006913,0.8917531567312376
+pit_lane_or_safety_car_influenced + import_or_source_data_anomaly,2,122,11,20,2.219392395852283,0.45711716437483607
+atypical_speed_profile + pit_lane_or_safety_car_influenced,2,88,1,18,1.6008732035655813,0.3297238562703736
+incomplete_lap_window + pit_lane_or_safety_car_influenced + timing_session_boundary_artifact + import_or_source_data_anomaly,4,80,7,20,1.45533927596871,0.29974896024579417
+atypical_speed_profile + unknown_needs_inspection,2,54,11,19,0.9823540112788794,0.20233054816591106
+position_trace_discontinuity,1,43,3,20,0.7822448608331818,0.16111506613211435
+atypical_speed_profile + position_trace_discontinuity + import_or_source_data_anomaly,3,36,6,18,0.6549026741859196,0.13488703211060737
+incomplete_lap_window + position_trace_discontinuity + timing_session_boundary_artifact + import_or_source_data_anomaly,4,29,15,17,0.5275604875386575,0.10865899808910039
+atypical_speed_profile + position_trace_discontinuity + pit_lane_or_safety_car_influenced + import_or_source_data_anomaly,4,25,13,14,0.45479352374022197,0.09367155007681068
+timing_session_boundary_artifact,1,14,1,14,0.25468437329452426,0.052456068043013976
+atypical_speed_profile + pit_lane_or_safety_car_influenced + timing_session_boundary_artifact + import_or_source_data_anomaly,4,3,1,3,0.054575222848826634,0.01124058600921728
+atypical_speed_profile + position_trace_discontinuity,2,2,2,1,0.03638348189921776,0.007493724006144853
+incomplete_lap_window + implausible_channel_values + position_trace_discontinuity + timing_session_boundary_artifact + import_or_source_data_anomaly,5,2,2,2,0.03638348189921776,0.007493724006144853
+incomplete_lap_window + position_trace_discontinuity + pit_lane_or_safety_car_influenced + timing_session_boundary_artifact + import_or_source_data_anomaly,5,2,2,2,0.03638348189921776,0.007493724006144853
+position_trace_discontinuity + import_or_source_data_anomaly,2,1,1,1,0.01819174094960888,0.0037468620030724265
+implausible_channel_values + atypical_speed_profile + position_trace_discontinuity + pit_lane_or_safety_car_influenced + import_or_source_data_anomaly,5,1,1,1,0.01819174094960888,0.0037468620030724265
+incomplete_lap_window + implausible_channel_values + position_trace_discontinuity + pit_lane_or_safety_car_influenced + timing_session_boundary_artifact + import_or_source_data_anomaly,6,1,1,1,0.01819174094960888,0.0037468620030724265

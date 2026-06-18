@@ -1,0 +1,230 @@
+session_id,year,event_name,category,flag,scope,messages,missing_session_time,lap_scoped,driver_scoped
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,Other,missing,missing,84,4,84,0
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,Flag,BLUE,Driver,9,0,9,9
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,Flag,BLACK AND WHITE,Driver,7,0,7,7
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,Drs,missing,missing,2,1,2,0
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,Flag,CLEAR,Sector,1,1,1,0
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,Flag,DOUBLE YELLOW,Sector,1,1,1,0
+2025-abu-dhabi-grand-prix-r,2025,Abu Dhabi Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Other,missing,missing,45,3,45,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Flag,CLEAR,Sector,20,4,20,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Flag,DOUBLE YELLOW,Sector,14,2,14,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Flag,BLUE,Driver,10,0,10,10
+2025-australian-grand-prix-r,2025,Australian Grand Prix,SafetyCar,missing,missing,7,0,7,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Flag,YELLOW,Sector,7,2,7,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Drs,missing,missing,4,1,4,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Flag,CLEAR,Track,3,0,3,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-australian-grand-prix-r,2025,Australian Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Other,missing,missing,46,8,46,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Flag,BLUE,Driver,44,0,44,44
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Flag,CLEAR,Sector,9,2,9,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Flag,YELLOW,Sector,8,2,8,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Drs,missing,missing,2,1,2,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Flag,DOUBLE YELLOW,Sector,2,0,2,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-austrian-grand-prix-r,2025,Austrian Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Other,missing,missing,29,10,29,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Flag,CLEAR,Sector,14,7,14,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Flag,DOUBLE YELLOW,Sector,14,7,14,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Flag,YELLOW,Sector,4,1,4,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Flag,BLUE,Driver,2,0,2,2
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Drs,missing,missing,2,1,2,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-azerbaijan-grand-prix-r,2025,Azerbaijan Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,Other,missing,missing,69,2,69,0
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,Flag,BLACK AND WHITE,Driver,6,0,6,6
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,Flag,CLEAR,Sector,5,0,5,0
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,Drs,missing,missing,3,1,3,0
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,Flag,DOUBLE YELLOW,Sector,2,0,2,0
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-bahrain-grand-prix-r,2025,Bahrain Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,CLEAR,Sector,39,12,39,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Other,missing,missing,38,17,38,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,DOUBLE YELLOW,Sector,22,0,22,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,YELLOW,Sector,5,0,5,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,BLUE,Driver,4,0,4,4
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Drs,missing,missing,2,1,2,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,RED,Track,1,0,1,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,BLACK AND WHITE,Driver,1,0,1,1
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-belgian-grand-prix-r,2025,Belgian Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-british-grand-prix-r,2025,British Grand Prix,Other,missing,missing,57,11,57,0
+2025-british-grand-prix-r,2025,British Grand Prix,Flag,CLEAR,Sector,37,20,37,0
+2025-british-grand-prix-r,2025,British Grand Prix,Flag,YELLOW,Sector,32,20,32,0
+2025-british-grand-prix-r,2025,British Grand Prix,Flag,DOUBLE YELLOW,Sector,12,7,12,0
+2025-british-grand-prix-r,2025,British Grand Prix,SafetyCar,missing,missing,8,0,8,0
+2025-british-grand-prix-r,2025,British Grand Prix,Flag,CLEAR,Track,4,0,4,0
+2025-british-grand-prix-r,2025,British Grand Prix,Drs,missing,missing,4,1,4,0
+2025-british-grand-prix-r,2025,British Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-british-grand-prix-r,2025,British Grand Prix,Flag,BLUE,Driver,1,0,1,1
+2025-british-grand-prix-r,2025,British Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Flag,BLUE,Driver,42,0,42,42
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Other,missing,missing,35,3,35,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Flag,CLEAR,Sector,7,0,7,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Flag,YELLOW,Sector,4,0,4,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Flag,DOUBLE YELLOW,Sector,2,0,2,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Drs,missing,missing,2,1,2,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,SafetyCar,missing,missing,1,0,1,0
+2025-canadian-grand-prix-r,2025,Canadian Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,Other,missing,missing,23,12,23,0
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,Flag,CLEAR,Sector,9,3,9,0
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,Flag,BLUE,Driver,8,0,8,8
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,Flag,DOUBLE YELLOW,Sector,7,3,7,0
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,Flag,YELLOW,Sector,4,1,4,0
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,Drs,missing,missing,2,1,2,0
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-chinese-grand-prix-r,2025,Chinese Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Other,missing,missing,43,6,43,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Flag,DOUBLE YELLOW,Sector,18,5,18,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Flag,CLEAR,Sector,12,3,12,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,SafetyCar,missing,missing,8,0,8,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Flag,YELLOW,Sector,7,3,7,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Flag,BLUE,Driver,7,0,7,7
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Drs,missing,missing,6,1,6,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Flag,CLEAR,Track,4,0,4,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-dutch-grand-prix-r,2025,Dutch Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Other,missing,missing,16,2,16,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Flag,BLUE,Driver,5,0,5,5
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Drs,missing,missing,4,1,4,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,SafetyCar,missing,missing,4,0,4,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Flag,CLEAR,Sector,4,0,4,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Flag,DOUBLE YELLOW,Sector,3,0,3,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Flag,YELLOW,Sector,3,0,3,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Flag,CLEAR,Track,2,0,2,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-emilia-romagna-grand-prix-r,2025,Emilia Romagna Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,Other,missing,missing,46,11,46,0
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,Flag,BLUE,Driver,41,0,41,41
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,Drs,missing,missing,2,1,2,0
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,Flag,YELLOW,Sector,2,2,2,0
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,Flag,CLEAR,Sector,2,2,2,0
+2025-hungarian-grand-prix-r,2025,Hungarian Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Other,missing,missing,47,8,47,0
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Flag,CLEAR,Sector,7,5,7,0
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Flag,YELLOW,Sector,6,5,6,0
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Flag,BLUE,Driver,3,0,3,3
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Drs,missing,missing,2,1,2,0
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Flag,BLACK AND WHITE,Driver,2,0,2,2
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Flag,DOUBLE YELLOW,Sector,1,0,1,0
+2025-italian-grand-prix-r,2025,Italian Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,Other,missing,missing,16,2,16,0
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,Drs,missing,missing,2,1,2,0
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,Flag,BLUE,Driver,2,0,2,2
+2025-japanese-grand-prix-r,2025,Japanese Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Other,missing,missing,28,7,28,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Flag,CLEAR,Sector,9,1,9,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Flag,DOUBLE YELLOW,Sector,6,1,6,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Drs,missing,missing,4,1,4,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,SafetyCar,missing,missing,4,0,4,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Flag,BLUE,Driver,4,0,4,4
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Flag,CLEAR,Track,2,0,2,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Flag,YELLOW,Sector,1,0,1,0
+2025-las-vegas-grand-prix-r,2025,Las Vegas Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Other,missing,missing,45,2,45,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Flag,BLUE,Driver,16,0,16,16
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Flag,CLEAR,Sector,4,0,4,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Flag,YELLOW,Sector,3,0,3,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Flag,DOUBLE YELLOW,Sector,2,0,2,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Drs,missing,missing,2,1,2,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-mexico-city-grand-prix-r,2025,Mexico City Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Other,missing,missing,27,5,27,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Flag,DOUBLE YELLOW,Sector,12,6,12,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Flag,CLEAR,Sector,12,6,12,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Flag,BLUE,Driver,9,0,9,9
+2025-miami-grand-prix-r,2025,Miami Grand Prix,SafetyCar,missing,missing,6,0,6,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Drs,missing,missing,4,1,4,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Flag,CLEAR,Track,3,0,3,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Flag,YELLOW,Sector,1,0,1,0
+2025-miami-grand-prix-r,2025,Miami Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Flag,BLUE,Driver,146,0,146,146
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Other,missing,missing,30,4,30,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Flag,CLEAR,Sector,6,1,6,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Flag,DOUBLE YELLOW,Sector,4,1,4,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Flag,YELLOW,Sector,2,0,2,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Drs,missing,missing,2,1,2,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-monaco-grand-prix-r,2025,Monaco Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Other,missing,missing,53,3,53,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Flag,BLUE,Driver,8,0,8,8
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Flag,CLEAR,Sector,4,0,4,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Flag,BLACK AND WHITE,Driver,3,0,3,3
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Drs,missing,missing,3,1,3,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Flag,DOUBLE YELLOW,Sector,1,0,1,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Flag,YELLOW,Sector,1,0,1,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-qatar-grand-prix-r,2025,Qatar Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Other,missing,missing,30,2,30,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Flag,BLUE,Driver,13,0,13,13
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Flag,DOUBLE YELLOW,Sector,6,0,6,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Flag,CLEAR,Sector,4,0,4,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Flag,YELLOW,Sector,3,0,3,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Drs,missing,missing,2,1,2,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Flag,BLACK AND WHITE,Driver,1,0,1,1
+2025-saudi-arabian-grand-prix-r,2025,Saudi Arabian Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Flag,BLUE,Driver,53,0,53,53
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Other,missing,missing,49,10,49,0
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Flag,CLEAR,Sector,5,3,5,0
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Flag,DOUBLE YELLOW,Sector,4,3,4,0
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Flag,BLACK AND WHITE,Driver,2,0,2,2
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Drs,missing,missing,2,1,2,0
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-singapore-grand-prix-r,2025,Singapore Grand Prix,Flag,YELLOW,Sector,1,0,1,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Flag,BLUE,Driver,45,0,45,45
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Other,missing,missing,42,3,42,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Drs,missing,missing,3,1,3,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Flag,DOUBLE YELLOW,Sector,2,0,2,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Flag,YELLOW,Sector,1,0,1,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Flag,CLEAR,Sector,1,0,1,0
+2025-spanish-grand-prix-r,2025,Spanish Grand Prix,Flag,CLEAR,Track,1,0,1,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Other,missing,missing,29,5,29,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Flag,CLEAR,Sector,6,2,6,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Flag,DOUBLE YELLOW,Sector,5,2,5,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,SafetyCar,missing,missing,4,0,4,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Drs,missing,missing,3,1,3,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Flag,BLUE,Driver,2,0,2,2
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Flag,CLEAR,Track,2,0,2,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Flag,YELLOW,Sector,2,0,2,0
+2025-s-o-paulo-grand-prix-r,2025,São Paulo Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Other,missing,missing,44,2,44,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Flag,CLEAR,Sector,7,0,7,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Flag,BLACK AND WHITE,Driver,6,0,6,6
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Flag,DOUBLE YELLOW,Sector,5,0,5,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Flag,BLUE,Driver,5,0,5,5
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Flag,YELLOW,Sector,3,0,3,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Drs,missing,missing,3,1,3,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,SafetyCar,missing,missing,2,0,2,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Flag,GREEN,Track,2,1,2,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Flag,CHEQUERED,Track,1,0,1,0
+2025-united-states-grand-prix-r,2025,United States Grand Prix,Flag,CLEAR,Track,1,0,1,0

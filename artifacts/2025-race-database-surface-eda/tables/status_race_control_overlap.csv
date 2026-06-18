@@ -1,0 +1,304 @@
+session_id,event_name,status_label,start_ms,end_ms,duration_ms,race_control_messages,incident_messages,taxonomies
+2025-australian-grand-prix-r,Australian Grand Prix,clear,24491,1060825.0,1036334.0,4,2,"flags,other"
+2025-australian-grand-prix-r,Australian Grand Prix,yellow,1060825,1065814.0,4989.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,clear,1065814,2060843.0,995029.0,12,9,"flags,other,pit_entry_exit,safety_car"
+2025-australian-grand-prix-r,Australian Grand Prix,yellow,2060843,2154306.0,93463.0,1,1,flags
+2025-australian-grand-prix-r,Australian Grand Prix,clear,2154306,2497243.0,342937.0,4,4,safety_car
+2025-australian-grand-prix-r,Australian Grand Prix,yellow,2497243,2544684.0,47441.0,1,0,drs
+2025-australian-grand-prix-r,Australian Grand Prix,clear,2544684,3216416.0,671732.0,15,9,"flags,other,safety_car"
+2025-australian-grand-prix-r,Australian Grand Prix,yellow,3216416,3474535.0,258119.0,4,4,safety_car
+2025-australian-grand-prix-r,Australian Grand Prix,clear,3474535,4325120.0,850585.0,3,2,"flags,other"
+2025-australian-grand-prix-r,Australian Grand Prix,yellow,4325120,4328954.0,3834.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,safety_car,4328954,5270163.0,941209.0,10,8,"flags,other,safety_car"
+2025-australian-grand-prix-r,Australian Grand Prix,clear,5270163,7646655.0,2376492.0,46,37,"drs,flags,investigations_noted,other,penalties,red_flag,safety_car"
+2025-australian-grand-prix-r,Australian Grand Prix,yellow,7646655,7667268.0,20613.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,safety_car,7667268,8702727.0,1035459.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,clear,8702727,8965516.0,262789.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,yellow,8965516,9051142.0,85626.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,clear,9051142,9194868.0,143726.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,yellow,9194868,9223734.0,28866.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,safety_car,9223734,9835069.0,611335.0,0,0,
+2025-australian-grand-prix-r,Australian Grand Prix,clear,9835069,10632748.0,797679.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,yellow,0,264487.0,264487.0,1,0,pit_entry_exit
+2025-chinese-grand-prix-r,Chinese Grand Prix,clear,264487,1683697.0,1419210.0,17,13,"drs,flags,other"
+2025-chinese-grand-prix-r,Chinese Grand Prix,yellow,1683697,1823766.0,140069.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,clear,1823766,3594203.0,1770437.0,1,0,other
+2025-chinese-grand-prix-r,Chinese Grand Prix,yellow,3594203,3606116.0,11913.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,clear,3606116,3607114.0,998.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,yellow,3607114,3610638.0,3524.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,clear,3610638,3613330.0,2692.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,yellow,3613330,3615411.0,2081.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,clear,3615411,3744512.0,129101.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,yellow,3744512,3770712.0,26200.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,clear,3770712,4107286.0,336574.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,yellow,4107286,4113507.0,6221.0,0,0,
+2025-chinese-grand-prix-r,Chinese Grand Prix,clear,4113507,9243467.0,5129960.0,16,14,"flags,investigations_noted,other,penalties,red_flag"
+2025-japanese-grand-prix-r,Japanese Grand Prix,clear,0,8495802.0,8495802.0,19,9,"drs,flags,investigations_noted,other,pit_entry_exit,red_flag"
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,clear,0,6475160.0,6475160.0,83,39,"drs,flags,investigations_noted,other,penalties,pit_entry_exit,red_flag,safety_car"
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,safety_car,6475160,6940811.0,465651.0,4,4,flags
+2025-bahrain-grand-prix-r,Bahrain Grand Prix,clear,6940811,9913997.0,2973186.0,0,0,
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,clear,8569,3446539.0,3437970.0,41,24,"drs,flags,investigations_noted,other,penalties,pit_entry_exit,safety_car"
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,yellow,3446539,3483483.0,36944.0,0,0,
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,safety_car,3483483,3847987.0,364504.0,2,2,"flags,investigations_noted"
+2025-saudi-arabian-grand-prix-r,Saudi Arabian Grand Prix,clear,3847987,8490361.0,4642374.0,18,18,"flags,investigations_noted,penalties,red_flag"
+2025-miami-grand-prix-r,Miami Grand Prix,yellow,0,571034.0,571034.0,19,16,"drs,flags,other,pit_entry_exit,safety_car"
+2025-miami-grand-prix-r,Miami Grand Prix,clear,571034,1479950.0,908916.0,4,4,investigations_noted
+2025-miami-grand-prix-r,Miami Grand Prix,yellow,1479950,1520127.0,40177.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,clear,1520127,1523138.0,3011.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,yellow,1523138,2304940.0,781802.0,7,4,"investigations_noted,other"
+2025-miami-grand-prix-r,Miami Grand Prix,clear,2304940,3449271.0,1144331.0,13,10,"drs,flags,investigations_noted,other,penalties,safety_car"
+2025-miami-grand-prix-r,Miami Grand Prix,yellow,3449271,3456935.0,7664.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,clear,3456935,3461471.0,4536.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,yellow,3461471,3466655.0,5184.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,clear,3466655,3478833.0,12178.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,yellow,3478833,3524838.0,46005.0,1,1,flags
+2025-miami-grand-prix-r,Miami Grand Prix,clear,3524838,3573272.0,48434.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,yellow,3573272,3576613.0,3341.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,vsc_deployed,3576613,3748176.0,171563.0,1,1,flags
+2025-miami-grand-prix-r,Miami Grand Prix,vsc_ending,3748176,3761221.0,13045.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,clear,3761221,6098098.0,2336877.0,13,13,"flags,investigations_noted,red_flag"
+2025-miami-grand-prix-r,Miami Grand Prix,vsc_deployed,6098098,6224835.0,126737.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,vsc_ending,6224835,6238162.0,13327.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,clear,6238162,6521954.0,283792.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,vsc_deployed,6521954,6604478.0,82524.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,vsc_ending,6604478,6616929.0,12451.0,0,0,
+2025-miami-grand-prix-r,Miami Grand Prix,clear,6616929,8957990.0,2341061.0,0,0,
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,clear,0,5677627.0,5677627.0,38,30,"drs,flags,investigations_noted,other,pit_entry_exit,safety_car"
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,yellow,5677627,5700471.0,22844.0,0,0,
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,vsc_deployed,5700471,5908757.0,208286.0,2,2,"investigations_noted,red_flag"
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,vsc_ending,5908757,5920212.0,11455.0,0,0,
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,clear,5920212,7113346.0,1193134.0,0,0,
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,yellow,7113346,7132940.0,19594.0,0,0,
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,safety_car,7132940,8048275.0,915335.0,0,0,
+2025-emilia-romagna-grand-prix-r,Emilia Romagna Grand Prix,clear,8048275,9001103.0,952828.0,0,0,
+2025-monaco-grand-prix-r,Monaco Grand Prix,clear,0,1466032.0,1466032.0,21,15,"drs,flags,investigations_noted,other,pit_entry_exit,safety_car"
+2025-monaco-grand-prix-r,Monaco Grand Prix,yellow,1466032,1475108.0,9076.0,0,0,
+2025-monaco-grand-prix-r,Monaco Grand Prix,clear,1475108,3420403.0,1945295.0,66,64,"flags,other"
+2025-monaco-grand-prix-r,Monaco Grand Prix,yellow,3420403,3438050.0,17647.0,1,1,flags
+2025-monaco-grand-prix-r,Monaco Grand Prix,clear,3438050,3462459.0,24409.0,0,0,
+2025-monaco-grand-prix-r,Monaco Grand Prix,vsc_deployed,3462459,3734891.0,272432.0,5,4,"flags,other"
+2025-monaco-grand-prix-r,Monaco Grand Prix,vsc_ending,3734891,3747658.0,12767.0,1,1,flags
+2025-monaco-grand-prix-r,Monaco Grand Prix,clear,3747658,4075851.0,328193.0,12,11,"flags,other"
+2025-monaco-grand-prix-r,Monaco Grand Prix,yellow,4075851,4298677.0,222826.0,12,11,"flags,investigations_noted,other,penalties"
+2025-monaco-grand-prix-r,Monaco Grand Prix,clear,4298677,6354608.0,2055931.0,70,63,"flags,investigations_noted,other,penalties,red_flag"
+2025-monaco-grand-prix-r,Monaco Grand Prix,yellow,6354608,6361311.0,6703.0,0,0,
+2025-monaco-grand-prix-r,Monaco Grand Prix,clear,6361311,9560014.0,3198703.0,0,0,
+2025-spanish-grand-prix-r,Spanish Grand Prix,yellow,0,263616.0,263616.0,1,0,pit_entry_exit
+2025-spanish-grand-prix-r,Spanish Grand Prix,clear,263616,277623.0,14007.0,0,0,
+2025-spanish-grand-prix-r,Spanish Grand Prix,yellow,277623,281932.0,4309.0,1,0,drs
+2025-spanish-grand-prix-r,Spanish Grand Prix,clear,281932,417821.0,135889.0,0,0,
+2025-spanish-grand-prix-r,Spanish Grand Prix,yellow,417821,458850.0,41029.0,0,0,
+2025-spanish-grand-prix-r,Spanish Grand Prix,clear,458850,590327.0,131477.0,0,0,
+2025-spanish-grand-prix-r,Spanish Grand Prix,yellow,590327,712805.0,122478.0,1,1,investigations_noted
+2025-spanish-grand-prix-r,Spanish Grand Prix,clear,712805,7962315.0,7249510.0,92,78,"drs,flags,investigations_noted,other,penalties,red_flag,safety_car"
+2025-spanish-grand-prix-r,Spanish Grand Prix,yellow,7962315,7977105.0,14790.0,0,0,
+2025-spanish-grand-prix-r,Spanish Grand Prix,safety_car,7977105,8657036.0,679931.0,0,0,
+2025-spanish-grand-prix-r,Spanish Grand Prix,clear,8657036,9494399.0,837363.0,0,0,
+2025-canadian-grand-prix-r,Canadian Grand Prix,clear,0,388909.0,388909.0,3,0,"drs,other,pit_entry_exit"
+2025-canadian-grand-prix-r,Canadian Grand Prix,yellow,388909,389909.0,1000.0,0,0,
+2025-canadian-grand-prix-r,Canadian Grand Prix,clear,389909,391394.0,1485.0,0,0,
+2025-canadian-grand-prix-r,Canadian Grand Prix,yellow,391394,392909.0,1515.0,0,0,
+2025-canadian-grand-prix-r,Canadian Grand Prix,clear,392909,7158892.0,6765983.0,89,75,"drs,flags,investigations_noted,other,penalties,pit_entry_exit,red_flag,safety_car"
+2025-canadian-grand-prix-r,Canadian Grand Prix,yellow,7158892,7176095.0,17203.0,0,0,
+2025-canadian-grand-prix-r,Canadian Grand Prix,clear,7176095,8519600.0,1343505.0,0,0,
+2025-canadian-grand-prix-r,Canadian Grand Prix,yellow,8519600,8547115.0,27515.0,0,0,
+2025-canadian-grand-prix-r,Canadian Grand Prix,safety_car,8547115,9279834.0,732719.0,0,0,
+2025-canadian-grand-prix-r,Canadian Grand Prix,clear,9279834,10394423.0,1114589.0,0,0,
+2025-austrian-grand-prix-r,Austrian Grand Prix,clear,0,812755.0,812755.0,4,2,"flags,other"
+2025-austrian-grand-prix-r,Austrian Grand Prix,yellow,812755,822942.0,10187.0,0,0,
+2025-austrian-grand-prix-r,Austrian Grand Prix,clear,822942,825567.0,2625.0,0,0,
+2025-austrian-grand-prix-r,Austrian Grand Prix,yellow,825567,832255.0,6688.0,0,0,
+2025-austrian-grand-prix-r,Austrian Grand Prix,clear,832255,3277953.0,2445698.0,26,17,"drs,flags,investigations_noted,other,pit_entry_exit,safety_car"
+2025-austrian-grand-prix-r,Austrian Grand Prix,yellow,3277953,3288254.0,10301.0,1,0,other
+2025-austrian-grand-prix-r,Austrian Grand Prix,clear,3288254,4296126.0,1007872.0,14,11,"drs,flags,investigations_noted,other,penalties"
+2025-austrian-grand-prix-r,Austrian Grand Prix,yellow,4296126,4322849.0,26723.0,0,0,
+2025-austrian-grand-prix-r,Austrian Grand Prix,safety_car,4322849,4569488.0,246639.0,4,4,flags
+2025-austrian-grand-prix-r,Austrian Grand Prix,clear,4569488,6509248.0,1939760.0,54,46,"drs,flags,investigations_noted,other,penalties,pit_entry_exit,red_flag"
+2025-austrian-grand-prix-r,Austrian Grand Prix,yellow,6509248,6512967.0,3719.0,0,0,
+2025-austrian-grand-prix-r,Austrian Grand Prix,clear,6512967,9502527.0,2989560.0,0,0,
+2025-austrian-grand-prix-r,Austrian Grand Prix,yellow,9502527,9679506.0,176979.0,0,0,
+2025-austrian-grand-prix-r,Austrian Grand Prix,clear,9679506,9680006.0,500.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,yellow,0,390062.0,390062.0,9,6,"flags,other,pit_entry_exit,safety_car"
+2025-british-grand-prix-r,British Grand Prix,clear,390062,1422510.0,1032448.0,24,17,"drs,flags,investigations_noted,other,safety_car"
+2025-british-grand-prix-r,British Grand Prix,yellow,1422510,2590428.0,1167918.0,11,8,"flags,other,safety_car"
+2025-british-grand-prix-r,British Grand Prix,clear,2590428,3402108.0,811680.0,14,12,"flags,investigations_noted,other,safety_car"
+2025-british-grand-prix-r,British Grand Prix,yellow,3402108,3418107.0,15999.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,3418107,3422700.0,4593.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,yellow,3422700,3487014.0,64314.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,vsc_deployed,3487014,3757206.0,270192.0,1,1,penalties
+2025-british-grand-prix-r,British Grand Prix,vsc_ending,3757206,3770160.0,12954.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,3770160,3802008.0,31848.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,yellow,3802008,3821088.0,19080.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,3821088,3895334.0,74246.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,yellow,3895334,3958175.0,62841.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,vsc_deployed,3958175,4162963.0,204788.0,1,0,other
+2025-british-grand-prix-r,British Grand Prix,vsc_ending,4162963,4176809.0,13846.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,4176809,4878098.0,701289.0,5,2,"drs,flags,other"
+2025-british-grand-prix-r,British Grand Prix,yellow,4878098,4880598.0,2500.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,4880598,4893748.0,13150.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,safety_car,4893748,5491469.0,597721.0,24,16,"drs,flags,investigations_noted,other,penalties"
+2025-british-grand-prix-r,British Grand Prix,clear,5491469,5600525.0,109056.0,3,1,"investigations_noted,other"
+2025-british-grand-prix-r,British Grand Prix,yellow,5600525,5614741.0,14216.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,safety_car,5614741,6107464.0,492723.0,4,3,"investigations_noted,other,red_flag,safety_car"
+2025-british-grand-prix-r,British Grand Prix,clear,6107464,6177697.0,70233.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,yellow,6177697,6180324.0,2627.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,6180324,7995635.0,1815311.0,2,0,"other,pit_entry_exit"
+2025-british-grand-prix-r,British Grand Prix,yellow,7995635,8005454.0,9819.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,8005454,8307504.0,302050.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,yellow,8307504,8309505.0,2001.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,8309505,8380697.0,71192.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,yellow,8380697,8390537.0,9840.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,8390537,8430581.0,40044.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,yellow,8430581,8441958.0,11377.0,0,0,
+2025-british-grand-prix-r,British Grand Prix,clear,8441958,9434243.0,992285.0,0,0,
+2025-belgian-grand-prix-r,Belgian Grand Prix,yellow,0,202262.0,202262.0,2,1,"other,red_flag"
+2025-belgian-grand-prix-r,Belgian Grand Prix,clear,202262,307967.0,105705.0,0,0,
+2025-belgian-grand-prix-r,Belgian Grand Prix,yellow,307967,393358.0,85391.0,0,0,
+2025-belgian-grand-prix-r,Belgian Grand Prix,clear,393358,3390244.0,2996886.0,6,5,"flags,other"
+2025-belgian-grand-prix-r,Belgian Grand Prix,red_flag,3390244,6562639.0,3172395.0,62,49,"drs,flags,other,pit_entry_exit,safety_car"
+2025-belgian-grand-prix-r,Belgian Grand Prix,clear,6562639,6617767.0,55128.0,0,0,
+2025-belgian-grand-prix-r,Belgian Grand Prix,yellow,6617767,6648524.0,30757.0,0,0,
+2025-belgian-grand-prix-r,Belgian Grand Prix,clear,6648524,6649447.0,923.0,0,0,
+2025-belgian-grand-prix-r,Belgian Grand Prix,yellow,6649447,6657658.0,8211.0,0,0,
+2025-belgian-grand-prix-r,Belgian Grand Prix,clear,6657658,6666322.0,8664.0,0,0,
+2025-belgian-grand-prix-r,Belgian Grand Prix,yellow,6666322,7732652.0,1066330.0,1,0,other
+2025-belgian-grand-prix-r,Belgian Grand Prix,clear,7732652,8182768.0,450116.0,3,1,"flags,other"
+2025-belgian-grand-prix-r,Belgian Grand Prix,safety_car,8182768,8765268.0,582500.0,1,0,other
+2025-belgian-grand-prix-r,Belgian Grand Prix,clear,8765268,13458265.0,4692997.0,10,7,"flags,other,pit_entry_exit,red_flag"
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,yellow,0,90044.0,90044.0,0,0,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,clear,90044,95044.0,5000.0,0,0,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,yellow,95044,154547.0,59503.0,0,0,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,clear,154547,158047.0,3500.0,0,0,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,yellow,158047,177804.0,19757.0,0,0,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,clear,177804,223523.0,45719.0,1,0,pit_entry_exit
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,yellow,223523,633222.0,409699.0,5,2,"drs,investigations_noted,other"
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,clear,633222,1579321.0,946099.0,3,3,"investigations_noted,penalties"
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,yellow,1579321,1630209.0,50888.0,0,0,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,clear,1630209,2522772.0,892563.0,4,0,other
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,yellow,2522772,2547920.0,25148.0,0,0,
+2025-hungarian-grand-prix-r,Hungarian Grand Prix,clear,2547920,9412940.0,6865020.0,66,56,"flags,investigations_noted,other,penalties,pit_entry_exit,red_flag"
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear,0,111509.0,111509.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,yellow,111509,130275.0,18766.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear,130275,503726.0,373451.0,3,0,"drs,other,pit_entry_exit"
+2025-dutch-grand-prix-r,Dutch Grand Prix,yellow,503726,2669238.0,2165512.0,30,24,"drs,flags,investigations_noted,other,safety_car"
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear,2669238,5099711.0,2430473.0,34,28,"drs,flags,investigations_noted,other,penalties,safety_car"
+2025-dutch-grand-prix-r,Dutch Grand Prix,yellow,5099711,5115021.0,15310.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,safety_car,5115021,5500313.0,385292.0,4,4,"flags,penalties,safety_car"
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear,5500313,5867801.0,367488.0,6,5,"flags,other,safety_car"
+2025-dutch-grand-prix-r,Dutch Grand Prix,vsc_deployed,5867801,5937644.0,69843.0,1,0,drs
+2025-dutch-grand-prix-r,Dutch Grand Prix,vsc_ending,5937644,5950440.0,12796.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear,5950440,6151359.0,200919.0,5,2,"investigations_noted,other,red_flag"
+2025-dutch-grand-prix-r,Dutch Grand Prix,yellow,6151359,6166459.0,15100.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear,6166459,7524431.0,1357972.0,6,5,"flags,investigations_noted,pit_entry_exit"
+2025-dutch-grand-prix-r,Dutch Grand Prix,yellow,7524431,7531753.0,7322.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,safety_car,7531753,8044089.0,512336.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear,8044089,8604862.0,560773.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,yellow,8604862,8620609.0,15747.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,safety_car,8620609,9001136.0,380527.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,clear,9001136,9527095.0,525959.0,0,0,
+2025-dutch-grand-prix-r,Dutch Grand Prix,yellow,9527095,10002761.0,475666.0,0,0,
+2025-italian-grand-prix-r,Italian Grand Prix,yellow,0,265233.0,265233.0,1,0,pit_entry_exit
+2025-italian-grand-prix-r,Italian Grand Prix,clear,265233,1499126.0,1233893.0,13,7,"drs,investigations_noted,other,penalties"
+2025-italian-grand-prix-r,Italian Grand Prix,yellow,1499126,2003394.0,504268.0,4,1,"investigations_noted,other"
+2025-italian-grand-prix-r,Italian Grand Prix,clear,2003394,6813012.0,4809618.0,33,19,"flags,investigations_noted,other,penalties,pit_entry_exit,red_flag"
+2025-italian-grand-prix-r,Italian Grand Prix,yellow,6813012,6824950.0,11938.0,0,0,
+2025-italian-grand-prix-r,Italian Grand Prix,clear,6824950,8652942.0,1827992.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,0,239854.0,239854.0,1,0,pit_entry_exit
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,239854,257862.0,18008.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,257862,1441889.0,1184027.0,22,19,"drs,flags,investigations_noted,other,penalties,safety_car"
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,1441889,1911697.0,469808.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,1911697,2458510.0,546813.0,7,6,"flags,investigations_noted,other"
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,2458510,2541090.0,82580.0,1,1,penalties
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,2541090,2543094.0,2004.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,2543094,2571608.0,28514.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,2571608,3501318.0,929710.0,3,2,"flags,other,penalties"
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,3501318,3530517.0,29199.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,safety_car,3530517,4050553.0,520036.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,4050553,4404493.0,353940.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,4404493,4406013.0,1520.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,4406013,5462791.0,1056778.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,5462791,5472819.0,10028.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,5472819,5583830.0,111011.0,1,1,flags
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,5583830,5593805.0,9975.0,1,1,flags
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,5593805,9315387.0,3721582.0,8,5,"drs,flags,pit_entry_exit,red_flag"
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,yellow,9315387,9332892.0,17505.0,0,0,
+2025-azerbaijan-grand-prix-r,Azerbaijan Grand Prix,clear,9332892,9389504.0,56612.0,0,0,
+2025-singapore-grand-prix-r,Singapore Grand Prix,yellow,2064,293525.0,291461.0,1,0,pit_entry_exit
+2025-singapore-grand-prix-r,Singapore Grand Prix,clear,293525,414637.0,121112.0,2,1,"drs,investigations_noted"
+2025-singapore-grand-prix-r,Singapore Grand Prix,yellow,414637,443523.0,28886.0,2,2,investigations_noted
+2025-singapore-grand-prix-r,Singapore Grand Prix,clear,443523,485545.0,42022.0,0,0,
+2025-singapore-grand-prix-r,Singapore Grand Prix,yellow,485545,500733.0,15188.0,0,0,
+2025-singapore-grand-prix-r,Singapore Grand Prix,clear,500733,805834.0,305101.0,2,1,"investigations_noted,other"
+2025-singapore-grand-prix-r,Singapore Grand Prix,yellow,805834,815144.0,9310.0,0,0,
+2025-singapore-grand-prix-r,Singapore Grand Prix,clear,815144,1876427.0,1061283.0,5,2,"drs,flags,other"
+2025-singapore-grand-prix-r,Singapore Grand Prix,yellow,1876427,2065885.0,189458.0,0,0,
+2025-singapore-grand-prix-r,Singapore Grand Prix,clear,2065885,3964422.0,1898537.0,2,0,other
+2025-singapore-grand-prix-r,Singapore Grand Prix,yellow,3964422,3982255.0,17833.0,0,0,
+2025-singapore-grand-prix-r,Singapore Grand Prix,clear,3982255,7613749.0,3631494.0,87,64,"drs,flags,investigations_noted,other,pit_entry_exit,red_flag"
+2025-singapore-grand-prix-r,Singapore Grand Prix,yellow,7613749,7623301.0,9552.0,0,0,
+2025-singapore-grand-prix-r,Singapore Grand Prix,clear,7623301,9642852.0,2019551.0,0,0,
+2025-united-states-grand-prix-r,United States Grand Prix,clear,0,458581.0,458581.0,5,3,"drs,flags,investigations_noted,pit_entry_exit"
+2025-united-states-grand-prix-r,United States Grand Prix,yellow,458581,478436.0,19855.0,0,0,
+2025-united-states-grand-prix-r,United States Grand Prix,clear,478436,531745.0,53309.0,1,1,investigations_noted
+2025-united-states-grand-prix-r,United States Grand Prix,yellow,531745,554062.0,22317.0,0,0,
+2025-united-states-grand-prix-r,United States Grand Prix,clear,554062,1462385.0,908323.0,30,18,"drs,flags,investigations_noted,other,safety_car"
+2025-united-states-grand-prix-r,United States Grand Prix,yellow,1462385,1483270.0,20885.0,0,0,
+2025-united-states-grand-prix-r,United States Grand Prix,clear,1483270,1548430.0,65160.0,1,0,other
+2025-united-states-grand-prix-r,United States Grand Prix,yellow,1548430,2050741.0,502311.0,3,0,other
+2025-united-states-grand-prix-r,United States Grand Prix,clear,2050741,3479804.0,1429063.0,9,1,"flags,other"
+2025-united-states-grand-prix-r,United States Grand Prix,yellow,3479804,3488476.0,8672.0,0,0,
+2025-united-states-grand-prix-r,United States Grand Prix,clear,3488476,3994483.0,506007.0,5,3,"flags,other"
+2025-united-states-grand-prix-r,United States Grand Prix,yellow,3994483,4023394.0,28911.0,4,1,"flags,other"
+2025-united-states-grand-prix-r,United States Grand Prix,clear,4023394,4024956.0,1562.0,0,0,
+2025-united-states-grand-prix-r,United States Grand Prix,yellow,4024956,4059687.0,34731.0,1,1,flags
+2025-united-states-grand-prix-r,United States Grand Prix,vsc_deployed,4059687,4259989.0,200302.0,0,0,
+2025-united-states-grand-prix-r,United States Grand Prix,vsc_ending,4259989,4272616.0,12627.0,1,0,other
+2025-united-states-grand-prix-r,United States Grand Prix,clear,4272616,6888902.0,2616286.0,15,8,"flags,other,pit_entry_exit,red_flag"
+2025-united-states-grand-prix-r,United States Grand Prix,yellow,6888902,6898675.0,9773.0,0,0,
+2025-united-states-grand-prix-r,United States Grand Prix,clear,6898675,9289288.0,2390613.0,0,0,
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,clear,0,3639516.0,3639516.0,39,24,"drs,flags,investigations_noted,other,penalties,pit_entry_exit"
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,yellow,3639516,3671438.0,31922.0,0,0,
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,clear,3671438,3881755.0,210317.0,1,1,flags
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,yellow,3881755,3884818.0,3063.0,0,0,
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,clear,3884818,9125543.0,5240725.0,34,29,"drs,flags,investigations_noted,other,penalties,pit_entry_exit,red_flag,safety_car"
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,yellow,9125543,9187478.0,61935.0,0,0,
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,vsc_deployed,9187478,9275729.0,88251.0,0,0,
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,vsc_ending,9275729,9287646.0,11917.0,0,0,
+2025-mexico-city-grand-prix-r,Mexico City Grand Prix,clear,9287646,9707743.0,420097.0,0,0,
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,clear,0,2792143.0,2792143.0,35,28,"drs,flags,investigations_noted,other,penalties,pit_entry_exit,safety_car"
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,yellow,2792143,2795717.0,3574.0,0,0,
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,clear,2795717,3476247.0,680530.0,5,5,"flags,penalties"
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,yellow,3476247,3518234.0,41987.0,0,0,
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,safety_car,3518234,3922922.0,404688.0,0,0,
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,clear,3922922,3979217.0,56295.0,0,0,
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,yellow,3979217,4032049.0,52832.0,0,0,
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,vsc_deployed,4032049,4206866.0,174817.0,1,1,penalties
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,vsc_ending,4206866,4219151.0,12285.0,0,0,
+2025-s-o-paulo-grand-prix-r,São Paulo Grand Prix,clear,4219151,9158888.0,4939737.0,4,3,"investigations_noted,pit_entry_exit,red_flag"
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,clear,0,178728.0,178728.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,yellow,178728,470117.0,291389.0,15,10,"drs,flags,other,pit_entry_exit,safety_car"
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,clear,470117,1554532.0,1084415.0,14,13,"drs,flags,investigations_noted,safety_car"
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,yellow,1554532,1661743.0,107211.0,1,0,other
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,clear,1661743,3474644.0,1812901.0,13,12,"drs,flags,investigations_noted,penalties,safety_car"
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,yellow,3474644,3487113.0,12469.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,clear,3487113,3546700.0,59587.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,yellow,3546700,3564745.0,18045.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,clear,3564745,3573457.0,8712.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,yellow,3573457,3641129.0,67672.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,vsc_deployed,3641129,3806725.0,165596.0,2,2,flags
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,vsc_ending,3806725,3819511.0,12786.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,clear,3819511,4992954.0,1173443.0,3,3,"flags,penalties"
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,vsc_deployed,4992954,5056310.0,63356.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,vsc_ending,5056310,5069670.0,13360.0,0,0,
+2025-las-vegas-grand-prix-r,Las Vegas Grand Prix,clear,5069670,8571060.0,3501390.0,2,1,"pit_entry_exit,red_flag"
+2025-qatar-grand-prix-r,Qatar Grand Prix,clear,0,4079807.0,4079807.0,50,32,"drs,flags,investigations_noted,other,penalties,pit_entry_exit,safety_car"
+2025-qatar-grand-prix-r,Qatar Grand Prix,yellow,4079807,4096036.0,16229.0,0,0,
+2025-qatar-grand-prix-r,Qatar Grand Prix,safety_car,4096036,4563334.0,467298.0,3,2,"flags,other,penalties"
+2025-qatar-grand-prix-r,Qatar Grand Prix,clear,4563334,8985803.0,4422469.0,21,14,"flags,investigations_noted,other,penalties,pit_entry_exit,red_flag"
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,clear,0,62202.0,62202.0,0,0,
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,yellow,62202,104386.0,42184.0,0,0,
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,clear,104386,345128.0,240742.0,3,1,"drs,investigations_noted,pit_entry_exit"
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,yellow,345128,376112.0,30984.0,0,0,
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,clear,376112,2799231.0,2423119.0,45,23,"flags,investigations_noted,other,penalties"
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,yellow,2799231,2812088.0,12857.0,0,0,
+2025-abu-dhabi-grand-prix-r,Abu Dhabi Grand Prix,clear,2812088,9280200.0,6468112.0,51,32,"flags,investigations_noted,other,penalties,pit_entry_exit,red_flag"
