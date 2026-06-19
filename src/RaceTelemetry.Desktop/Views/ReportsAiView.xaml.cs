@@ -453,17 +453,19 @@ public partial class ReportsAiView : ContentView
             StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 8 },
         };
 
-        // Suggested prompt chips — always visible at the top
-        var promptChips = new VerticalStackLayout
+        // Suggested starter prompts — labelled, wrapping, and shown only before the
+        // conversation begins (empty-state affordance).
+        var promptFlow = new FlexLayout
         {
-            Spacing = 6,
-            Padding = new Thickness(14, 12, 14, 4),
+            Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap,
+            Direction = Microsoft.Maui.Layouts.FlexDirection.Row,
         };
         foreach (var prompt in ReportsAiViewModel.SuggestedPrompts)
         {
             var chip = new Border
             {
-                Padding = new Thickness(14, 8),
+                Margin = new Thickness(0, 0, 8, 8),
+                Padding = new Thickness(12, 7),
                 BackgroundColor = Colors.Transparent,
                 Stroke = Border2,
                 StrokeThickness = 1,
@@ -474,6 +476,7 @@ public partial class ReportsAiView : ContentView
                     FontFamily = "Inter",
                     FontSize = 13,
                     TextColor = TextSec,
+                    LineBreakMode = LineBreakMode.WordWrap,
                 },
             };
             var promptCopy = prompt;
@@ -481,8 +484,27 @@ public partial class ReportsAiView : ContentView
             {
                 Command = new Command(() => _vm?.SendSuggestedCommand.Execute(promptCopy)),
             });
-            promptChips.Children.Add(chip);
+            promptFlow.Children.Add(chip);
         }
+
+        var promptChips = new VerticalStackLayout
+        {
+            Spacing = 8,
+            Padding = new Thickness(14, 12, 14, 4),
+            Children =
+            {
+                new Label
+                {
+                    Text = "TRY ASKING",
+                    FontFamily = "JetBrainsMono",
+                    FontSize = 11,
+                    CharacterSpacing = 1.5,
+                    TextColor = TextMuted,
+                },
+                promptFlow,
+            },
+        };
+        promptChips.SetBinding(IsVisibleProperty, nameof(ReportsAiViewModel.ShowStarterPrompts));
 
         // Bubble list
         var bubbleList = new VerticalStackLayout { Spacing = 12, Padding = new Thickness(14, 12, 14, 12) };
@@ -508,19 +530,49 @@ public partial class ReportsAiView : ContentView
             FontSize = 14,
             TextColor = TextPri,
             PlaceholderColor = TextMuted,
+            VerticalOptions = LayoutOptions.Center,
         };
         entry.SetBinding(Entry.TextProperty, nameof(ReportsAiViewModel.UserInput));
         entry.Completed += (_, _) => _vm?.SendCommand.Execute(null);
 
+        // Visible send affordance — the command's CanExecute (CanSend) auto-disables it
+        // while empty or streaming.
+        var sendBtn = new Button
+        {
+            Text = "↑",
+            FontFamily = "JetBrainsMonoMedium",
+            FontSize = 16,
+            WidthRequest = 34,
+            HeightRequest = 34,
+            Padding = new Thickness(0),
+            BackgroundColor = Accent,
+            TextColor = BgCanvas,
+            CornerRadius = 6,
+            VerticalOptions = LayoutOptions.Center,
+        };
+        sendBtn.SetBinding(Button.CommandProperty, nameof(ReportsAiViewModel.SendCommand));
+
+        var inputGrid = new Grid
+        {
+            ColumnDefinitions =
+            [
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Auto },
+            ],
+            ColumnSpacing = 8,
+        };
+        inputGrid.Add(entry, 0, 0);
+        inputGrid.Add(sendBtn, 1, 0);
+
         var inputBar = new Border
         {
             Margin = new Thickness(14, 0, 14, 12),
-            Padding = new Thickness(14, 10),
+            Padding = new Thickness(10, 6),
             BackgroundColor = BgCanvas,
             Stroke = Border2,
             StrokeThickness = 1,
             StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 6 },
-            Content = entry,
+            Content = inputGrid,
         };
 
         var panelLayout = new Grid
@@ -564,10 +616,10 @@ public partial class ReportsAiView : ContentView
 
         var userBubble = new Border
         {
-            HorizontalOptions = LayoutOptions.Start,
+            HorizontalOptions = LayoutOptions.End,
             MaximumWidthRequest = 460,
-            BackgroundColor = Color.FromArgb("#2A1E08"),
-            Stroke = Color.FromArgb("#FFA60D"),
+            BackgroundColor = Color.FromArgb("#1E1916"),
+            Stroke = Color.FromArgb("#3A3128"),
             StrokeThickness = 1,
             StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 6 },
             Padding = new Thickness(14, 9),
@@ -589,15 +641,22 @@ public partial class ReportsAiView : ContentView
         var cursor = new BlinkingCursor();
         cursor.SetBinding(IsVisibleProperty, nameof(ChatBubble.IsStreaming));
 
-        // Follow-up question chips (populated after streaming finishes)
-        var followUpChips = new HorizontalStackLayout { Spacing = 6, Margin = new Thickness(0, 10, 0, 0) };
-        followUpChips.SetBinding(BindableLayout.ItemsSourceProperty, nameof(ChatBubble.FollowUps));
-        BindableLayout.SetItemTemplate(followUpChips, new DataTemplate(() =>
+        // Follow-up question chips (populated after streaming finishes). Wrap so full
+        // questions are never clipped, and label the group so it reads as the AI
+        // proposing what to ask next.
+        var followUpFlow = new FlexLayout
         {
-            var lbl = new Label { FontFamily = "Inter", FontSize = 12, TextColor = Color.FromArgb("#BCB1A2"), LineBreakMode = LineBreakMode.NoWrap };
+            Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap,
+            Direction = Microsoft.Maui.Layouts.FlexDirection.Row,
+        };
+        followUpFlow.SetBinding(BindableLayout.ItemsSourceProperty, nameof(ChatBubble.FollowUps));
+        BindableLayout.SetItemTemplate(followUpFlow, new DataTemplate(() =>
+        {
+            var lbl = new Label { FontFamily = "Inter", FontSize = 12, TextColor = Color.FromArgb("#BCB1A2"), LineBreakMode = LineBreakMode.WordWrap };
             lbl.SetBinding(Label.TextProperty, ".");
             var chip = new Border
             {
+                Margin = new Thickness(0, 0, 6, 6),
                 Padding = new Thickness(10, 5),
                 BackgroundColor = Colors.Transparent,
                 Stroke = Color.FromArgb("#3A3128"),
@@ -610,6 +669,24 @@ public partial class ReportsAiView : ContentView
             chip.GestureRecognizers.Add(tap);
             return chip;
         }));
+
+        var followUpChips = new VerticalStackLayout
+        {
+            Spacing = 0,
+            Children =
+            {
+                new Label
+                {
+                    Text = "ASK NEXT",
+                    FontFamily = "JetBrainsMono",
+                    FontSize = 11,
+                    CharacterSpacing = 1.5,
+                    TextColor = Color.FromArgb("#7A736B"),
+                    Margin = new Thickness(0, 10, 0, 6),
+                },
+                followUpFlow,
+            },
+        };
         followUpChips.SetBinding(IsVisibleProperty, new Binding(nameof(ChatBubble.FollowUps),
             converter: new ToolListVisibilityConverter()));
 

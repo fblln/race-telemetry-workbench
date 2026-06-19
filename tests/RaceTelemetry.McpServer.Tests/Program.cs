@@ -68,6 +68,32 @@ var metadataResult = await client.CallToolAsync(
 Assert(metadataResult.IsError != true, "get_replay_metadata returned an MCP tool error.");
 Assert(metadataResult.StructuredContent is not null, "get_replay_metadata did not return structured content.");
 
+var lapQualityResult = await client.CallToolAsync(
+    "get_lap_quality",
+    new Dictionary<string, object?>
+    {
+        ["sessionId"] = "2025-italian-grand-prix-r",
+        ["driverCode"] = "LEC",
+        ["lapNumber"] = 1
+    },
+    cancellationToken: cancellation.Token);
+Assert(lapQualityResult.IsError != true, "get_lap_quality returned an MCP tool error.");
+Assert(lapQualityResult.StructuredContent is not null, "get_lap_quality did not return structured content.");
+
+var distanceComparisonResult = await client.CallToolAsync(
+    "compare_laps_by_distance",
+    new Dictionary<string, object?>
+    {
+        ["sessionId"] = "2025-italian-grand-prix-r",
+        ["driverA"] = "LEC",
+        ["lapA"] = 1,
+        ["driverB"] = "VER",
+        ["lapB"] = 1
+    },
+    cancellationToken: cancellation.Token);
+Assert(distanceComparisonResult.IsError != true, "compare_laps_by_distance returned an MCP tool error.");
+Assert(distanceComparisonResult.StructuredContent is not null, "compare_laps_by_distance did not return structured content.");
+
 var raceStoryResult = await client.CallToolAsync(
     "get_race_story",
     new Dictionary<string, object?>

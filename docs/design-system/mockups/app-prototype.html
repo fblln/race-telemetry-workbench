@@ -203,6 +203,8 @@
   .ganttseg{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:#241F1B;border-right:2px solid var(--bg-surface);cursor:pointer;position:relative}
   .ganttseg.sel{outline:2px solid var(--accent);outline-offset:-2px;z-index:2}
   .pitmark{position:absolute;right:-1px;top:0;bottom:0;width:2px;background:var(--accent)}
+  .ganttdnf{background:repeating-linear-gradient(45deg,var(--bg-raised),var(--bg-raised) 5px,var(--bg-canvas) 5px,var(--bg-canvas) 10px);border-right:none;border-left:2px solid var(--danger);cursor:default}
+  .ganttdnf .dnflbl{font-family:var(--mono);font-size:9px;color:var(--danger);letter-spacing:.03em;padding:0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   .selrow td{background:var(--bg-selected)!important;box-shadow:inset 3px 0 0 var(--accent)}
 
@@ -263,7 +265,7 @@
 <body>
 <div class="meta">
   <h1>Race Telemetry Workbench — full-app prototype v2 (Carbon Signal)</h1>
-  <p>Updated per feedback. <b>Left rail</b> or <kbd>0</kbd>–<kbd>8</kbd> switch views; <kbd>⌘K</kbd> opens the command palette. Strategy stints and the new Lap-detail driver are clickable. Charts are illustrative SVG; the Monza outline stands in for the data-derived one (§7.3).</p>
+  <p>Updated per feedback. <b>Left rail</b> or <kbd>0</kbd>–<kbd>7</kbd> switch views; <kbd>⌘K</kbd> opens the command palette. Strategy stints and the new Lap-detail driver are clickable. Charts are illustrative SVG; the Monza circuit outline and lap telemetry are layout-accurate (§7.3).</p>
 </div>
 
 <div class="frame">
@@ -299,8 +301,8 @@
 
 <script>
 /* ============================ DATA ============================ */
-const VIEWS=[{i:0,t:'Home',hk:'0'},{i:1,t:'Overview',hk:'1'},{i:2,t:'Replay',hk:'2'},{i:3,t:'Strategy',hk:'3'},
- {i:4,t:'Field',hk:'4'},{i:5,t:'Incidents',hk:'5'},{i:6,t:'Head to head',hk:'6'},{i:7,t:'Lap detail',hk:'7'},{i:8,t:'Telemetry',hk:'8'},{i:9,t:'Reports & AI',hk:'9'}];
+const VIEWS=[{i:0,t:'Home',hk:'0'},{i:1,t:'Reports & AI',hk:'1'},{i:2,t:'Replay',hk:'2'},{i:3,t:'Strategy',hk:'3'},
+ {i:4,t:'Field',hk:'4'},{i:5,t:'Race control',hk:'5'},{i:6,t:'Head to head',hk:'6'},{i:7,t:'Lap detail',hk:'7'}];
 const HUD=[['drivers','20'],['pit stops','20'],['avg stops','1.1'],['top compound','MED'],['laps','53'],['SC / VSC','0 / 0'],['conditions','Dry 27°C'],['duration','01:14:46']];
 const D=c=>`var(--d-${c.toLowerCase()})`;
 const DRIVERS=[['VER','Max Verstappen','Red Bull Racing'],['NOR','Lando Norris','McLaren'],['PIA','Oscar Piastri','McLaren'],
@@ -311,19 +313,59 @@ const DRIVERS=[['VER','Max Verstappen','Red Bull Racing'],['NOR','Lando Norris',
  ['GAS','Pierre Gasly','Alpine'],['COL','Franco Colapinto','Alpine'],['STR','Lance Stroll','Aston Martin'],
  ['ALO','Fernando Alonso','Aston Martin'],['HUL','Nico Hulkenberg','Kick Sauber']];
 const DNAME=c=>(DRIVERS.find(d=>d[0]===c)||[c,c])[1];
-const MONZA="M70,250 C70,140 95,70 150,60 C210,49 250,70 300,150 L470,415 C500,462 540,470 560,440 C585,402 560,360 505,360 L250,360 C150,360 110,400 110,470 L110,690 C110,760 150,800 215,800 C280,800 312,762 312,700 L312,560 C312,505 345,470 405,470 L150,250 Z";
-const FINISH={x:90,y:340};
-// illustrative corner placements on the stand-in outline
+const MONZA="M180,760 L180,205 L196,172 L238,156 L220,122 L236,98 C298,64 434,72 506,176 C530,210 530,252 508,286 L470,300 L496,332 L544,334 C584,340 594,384 560,412 C540,432 502,438 484,472 L470,494 L338,636 L318,620 L286,654 L308,676 L282,706 L300,734 C334,778 300,820 242,818 C176,816 138,770 162,732 C172,716 180,734 180,760 Z";
+const FINISH={x:169,y:470};
+// corner placements on the Monza layout
 const CORNERS=[
- [150,90,'T1','Variante del Rettifilo'],[330,210,'T3','Curva Grande'],[505,400,'T4','Variante della Roggia'],
- [430,360,'T6','Lesmo 1'],[300,360,'T8','Lesmo 2'],[140,560,'T11','Variante Ascari'],[230,790,'T13','Parabolica']];
+ [232,134,'T1','Variante del Rettifilo'],[470,150,'T3','Curva Grande'],[506,318,'T4','Variante della Roggia'],
+ [576,398,'T6','Lesmo 1'],[492,458,'T7','Lesmo 2'],[300,664,'T8','Variante Ascari'],[176,806,'T11','Parabolica']];
 const CIRCUIT={name:'Autodromo Nazionale Monza',len:'5.793 km',turns:'11',drs:'2 zones',dir:'Clockwise',rec:'1:20.901 (NOR, 2025)'};
 
 /* ============================ HELPERS ============================ */
 function tyTag(c){const m={S:['SOFT','--ty-soft'],M:['MED','--ty-med'],H:['HARD','--ty-hard'],I:['INT','--ty-inter'],W:['WET','--ty-wet']}[c];return `<span class="ty" style="color:var(${m[1]});border-color:var(${m[1]})">${m[0]}</span>`;}
 const tycol={S:'var(--ty-soft)',M:'var(--ty-med)',H:'var(--ty-hard)',I:'var(--ty-inter)',W:'var(--ty-wet)'};
 function trace(v,w,h,p){const n=v.length;return v.map((y,i)=>`${p+(i/(n-1))*(w-2*p)},${p+(1-y)*(h-2*p)}`).join(' ');}
+// step-after path — gear/discrete channels render as a crisp staircase, not a sloped line
+function stepTrace(v,w,h,p){const n=v.length;let pts=[],prev=null;for(let i=0;i<n;i++){const y=p+(1-v[i])*(h-2*p),x=p+(i/(n-1))*(w-2*p);if(prev!==null&&prev!==y)pts.push(`${x},${prev}`);pts.push(`${x},${y}`);prev=y;}return pts.join(' ');}
 function rand(s){let x=s;return ()=>{x=(x*9301+49297)%233280;return x/233280;};}
+// One flying lap of Monza telemetry (channels normalised 0..1).
+// Corners: Rettifilo, Curva Grande, Roggia, Lesmo 1, Lesmo 2, Ascari, Parabolica.
+function lapTelemetry(N,COR,seed){
+  const smooth=a=>a.map((v,i)=>{const p=a[i-1]??v,n=a[i+1]??v;return (p+2*v+n)/4;});
+  let speed=[];
+  for(let i=0;i<N;i++){const t=i/(N-1);let s=1;
+    for(const[c,apex,w]of COR){const d=Math.abs(t-c);if(d<w*3.2){const f=Math.exp(-(d*d)/(2*w*w));s=Math.min(s,apex+(1-apex)*(1-f));}}
+    speed.push(s);}
+  speed=smooth(smooth(speed));
+  const rr=rand(seed);                                       // sensor-like texture
+  speed=smooth(speed.map(v=>Math.min(1,Math.max(0.05,v+(rr()-0.5)*0.03))));
+  let brk=[],thr=[];
+  for(let i=0;i<N;i++){const t=i/(N-1);let br=0,th=1;
+    for(const[c,apex,w]of COR){
+      if(t>c-w*2.4&&t<c){const f=(t-(c-w*2.4))/(w*2.4);br=Math.max(br,f*(1-apex)*1.3);th=Math.min(th,1-f);}
+      else if(t>=c&&t<c+w*2.8){const f=(t-c)/(w*2.8);th=Math.min(th,0.2+f*0.85);}}
+    brk.push(Math.min(1,br));thr.push(Math.max(0.05,Math.min(1,th)));}
+  brk=smooth(brk);thr=smooth(thr);
+  let gear=[],rpm=[];
+  for(let i=0;i<N;i++){const g=Math.max(1,Math.min(8,Math.round(speed[i]*7+1)));gear.push((g-1)/7);
+    const within=speed[i]*7+1-g;rpm.push(Math.max(0.2,Math.min(1,0.62+0.34*speed[i]+within*0.32)));}
+  rpm=smooth(smooth(rpm));
+  return {speed,thr,brk,gear,rpm};
+}
+const MONZA_COR=[[0.105,0.16,0.026],[0.205,0.60,0.020],[0.335,0.22,0.026],[0.430,0.48,0.018],[0.492,0.42,0.018],[0.660,0.40,0.028],[0.895,0.50,0.030]];
+function monzaLap(N){return lapTelemetry(N,MONZA_COR,7);}
+// Reference ("best") lap: carries a touch more apex speed everywhere except Parabolica, where our lap is stronger.
+const REF_COR=MONZA_COR.map(([c,a,w],i)=> i===6?[c,Math.max(0.05,a-0.07),w]:[c,Math.min(0.97,a+0.05),w]);
+function compareData(N){
+  const A=lapTelemetry(N,MONZA_COR,7), B=lapTelemetry(N,REF_COR,23);
+  const kmh=s=>70+s*280, rpmv=r=>Math.round(4200+r*7800), gearv=s=>Math.max(1,Math.min(8,Math.round(s*7+1)));
+  let dt=[],acc=0; for(let i=0;i<N;i++){acc+=1/kmh(A.speed[i])-1/kmh(B.speed[i]);dt.push(acc);}  // A − B, +ve = A slower
+  const M=Math.max(...dt.map(Math.abs))||1, k=0.34/M; dt=dt.map(x=>x*k);
+  return {N,A,B,dt,kmh,rpmv,gearv,dtMax:0.34};
+}
+const CMP=compareData(240);
+const REP=monzaLap(240); REP.drs=REP.speed.map(s=>s>0.9);
+function repVals(i){const s=REP.speed[i];return {SPEED:Math.round(70+s*280),THROTTLE:Math.round(REP.thr[i]*100)+'%',BRAKE:Math.round(REP.brk[i]*100)+'%',GEAR:Math.max(1,Math.min(8,Math.round(s*7+1))),RPM:Math.round(4200+REP.rpm[i]*7800),DRS:REP.drs[i]?'ON':'OFF'};}
 function trackSVG(width,height,withCorners,extra){
   return `<svg viewBox="0 0 640 860" width="${width}" height="${height}">
     <path d="${MONZA}" fill="none" stroke="var(--border-strong)" stroke-width="16" stroke-linejoin="round"/>
@@ -336,8 +378,8 @@ function trackSVG(width,height,withCorners,extra){
 
 /* ===== shared sub-surfaces (from styleguide §3/§4a) ===== */
 function contextStrip(){
-  return `<div class="panel" style="margin-bottom:14px"><div class="panel-h"><span class="tt">Context strip</span><div class="tools"><span class="micro" style="align-self:center">53 laps</span></div></div>
-    <div style="padding:12px 14px"><div class="cstrip">
+  return `<div class="panel" style="margin-bottom:14px"><div class="panel-h"><span class="tt">Context strip</span><div class="tools"><span class="micro" style="align-self:center">drag to window · 53 laps</span></div></div>
+    <div style="padding:12px 14px"><div class="cstrip" id="cstrip" style="cursor:crosshair;user-select:none">
       <div class="band" style="left:0;width:100%;background:rgba(39,217,140,.10)"></div>
       <div class="band" style="left:21%;width:5%;background:var(--flag-yellow)"></div>
       <div class="band" style="left:26%;width:10%;background:var(--flag-sc)"></div>
@@ -347,14 +389,39 @@ function contextStrip(){
       <div class="mk" style="left:36%;background:var(--flag-drs)"></div>
       <div class="mk" style="left:70%;background:var(--flag-red)"></div>
       <div class="cur" style="left:41%"></div>
+      <div id="cstripSel" style="position:absolute;top:0;bottom:0;background:rgba(255,166,13,.16);border-left:2px solid var(--accent);border-right:2px solid var(--accent);display:none;pointer-events:none"></div>
     </div></div></div>`;
 }
 function eventTimeline(){
   const ev=[['14:02.8','#FF8A1F','<b>Safety car</b> deployed — incident at T1','L8'],['19:41.0','#27D98C','<b>Track clear</b> — safety car in this lap','L11'],
     ['21:13.2','#1FE0CE','<b>DRS enabled</b>','L12'],['57:20.1','#FF5A5F','<b>Red flag</b> — session suspended','L38'],['1:08:44','#3E9BF5','<b>Rain</b> reported — sector 2','L44']];
-  return `<div class="panel"><div class="panel-h"><span class="tt">Event timeline</span><div class="tools"><span class="filterbox"><span class="mag">⌕</span><input placeholder="Filter"></span></div></div>
-    <div>${ev.map(([t,c,m,l])=>`<div class="ev"><span class="ts">${t}</span><span class="ic" style="background:${c}"></span><span class="msg">${m}</span><span class="lap">${l}</span></div>`).join('')}</div></div>`;
+  return `<div class="panel"><div class="panel-h"><span class="tt">Event timeline</span><div class="tools"><span class="micro" id="repWin" style="align-self:center">all laps</span><span class="ghostbtn" onclick="clearWindow()">Clear</span><span class="filterbox"><span class="mag">⌕</span><input placeholder="Filter"></span></div></div>
+    <div id="repEvents">${ev.map(([t,c,m,l])=>`<div class="ev" data-lap="${+l.slice(1)}"><span class="ts">${t}</span><span class="ic" style="background:${c}"></span><span class="msg">${m}</span><span class="lap">${l}</span></div>`).join('')}</div></div>`;
 }
+// Context-strip range brush — drag to window the event timeline to a lap range (ELK-style).
+let csBrush=null;
+function drawCsSel(a,b){const s=document.getElementById('cstripSel');if(!s)return;s.style.display='block';s.style.left=(a*100)+'%';s.style.width=((b-a)*100)+'%';}
+function applyWindow(l0,l1){
+  let n=0;document.querySelectorAll('#repEvents .ev').forEach(r=>{const lp=+r.dataset.lap,on=l0==null||(lp>=l0&&lp<=l1);r.style.display=on?'':'none';if(on&&l0!=null)n++;});
+  const w=document.getElementById('repWin');if(w)w.textContent=l0==null?'all laps':`L${l0}–L${l1} · ${n} event${n==1?'':'s'}`;
+}
+function clearWindow(){const s=document.getElementById('cstripSel');if(s)s.style.display='none';applyWindow(null);clearReplayWindow();}
+document.addEventListener('mousedown',e=>{const cs=e.target.closest('#cstrip');if(!cs)return;const r=cs.getBoundingClientRect();csBrush={r,x0:Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),moved:false};e.preventDefault();});
+document.addEventListener('mousemove',e=>{if(!csBrush)return;const x1=Math.min(1,Math.max(0,(e.clientX-csBrush.r.left)/csBrush.r.width));csBrush.moved=true;drawCsSel(Math.min(csBrush.x0,x1),Math.max(csBrush.x0,x1));});
+document.addEventListener('mouseup',e=>{if(!csBrush)return;const x1=Math.min(1,Math.max(0,(e.clientX-csBrush.r.left)/csBrush.r.width)),a=Math.min(csBrush.x0,x1),b=Math.max(csBrush.x0,x1);
+  if(!csBrush.moved||b-a<0.012){clearWindow();}else{const l0=Math.max(1,Math.round(a*53)),l1=Math.max(l0,Math.round(b*53));drawCsSel(a,b);applyWindow(l0,l1);setReplayWindow(a,b);}csBrush=null;});
+// Replay waveform: live cursor → readout, and window band aligned with the brushed range
+function updateReplayCursor(frac){
+  const n=REP.speed.length,i=Math.max(0,Math.min(n-1,Math.round(frac*(n-1)))),v=repVals(i);
+  const cur=document.getElementById('repCur');if(cur){const x=(14+frac*(720-28)).toFixed(1);cur.setAttribute('x1',x);cur.setAttribute('x2',x);}
+  const set=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t;};
+  set('repSPEED',v.SPEED);set('repTHR',v.THROTTLE);set('repBRK',v.BRAKE);set('repGEAR',v.GEAR);set('repRPM',v.RPM);set('repDRS',v.DRS);
+}
+document.addEventListener('mousemove',e=>{const w=e.target.closest('#repWave');if(!w)return;const r=w.getBoundingClientRect();updateReplayCursor(Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)));});
+function setReplayWindow(a,b){const W=720,dl=document.getElementById('repDimL'),dr=document.getElementById('repDimR'),sw=document.getElementById('seekWin');
+  if(dl)dl.setAttribute('width',(a*W).toFixed(1));if(dr){dr.setAttribute('x',(b*W).toFixed(1));dr.setAttribute('width',((1-b)*W).toFixed(1));}
+  if(sw){sw.style.display='block';sw.style.left=(a*100)+'%';sw.style.width=((b-a)*100)+'%';}}
+function clearReplayWindow(){const dl=document.getElementById('repDimL'),dr=document.getElementById('repDimR'),sw=document.getElementById('seekWin');if(dl)dl.setAttribute('width',0);if(dr)dr.setAttribute('width',0);if(sw)sw.style.display='none';}
 function strategyStory(){
   return `<div class="panel"><div class="panel-h"><span class="tt">⌁ Strategy story · LEC</span><div class="tools"><span class="bdg" style="background:var(--accent-muted);color:var(--accent);border:1px solid var(--accent-border)">MCP · strategy_story</span></div></div>
     <div style="padding:16px">
@@ -446,60 +513,19 @@ function homeSelectAll(v){document.querySelectorAll('#homeDrivers .dchip').forEa
 
 /* =========================== VIEW 1 · OVERVIEW =========================== */
 function vOverview(){
-  // pos, code, team, gap, fastest, stints[ [c,laps], ], started, pts
-  const cls=[
-    ['1','VER','Red Bull Racing','1:14:46.657','1:21.003',[['M',36],['H',17]],4,'25'],
-    ['2','NOR','McLaren','+19.206','1:20.901',[['M',45],['S',8]],5,'18','p'],
-    ['3','PIA','McLaren','+21.350','1:21.245',[['M',44],['S',9]],2,'15'],
-    ['4','LEC','Ferrari','+25.624','1:21.294',[['M',31],['H',22]],6,'12'],
-    ['5','RUS','Mercedes','+32.880','1:21.800',[['M',26],['H',27]],3,'10'],
-    ['6','HAM','Ferrari','+37.448','1:21.546',[['M',37],['H',16]],7,'8'],
-    ['7','ALB','Williams','+50.536','1:21.368',[['H',39],['M',14]],9,'6'],
-    ['8','ANT','Mercedes','+54.761','1:21.968',[['M',24],['H',29]],8,'4'],
-    ['9','BOR','Kick Sauber','+58.483','1:22.139',[['M',19],['H',34]],14,'2'],
-    ['10','HAD','Racing Bulls','+63.890','1:22.133',[['H',29],['M',24]],10,'1'],
-    ['11','SAI','Williams','+64.468','1:21.740',[['M',27],['H',26]],11,'—'],
-    ['12','BEA','Haas F1 Team','+69.288','1:21.820',[['M',17],['H',36]],13,'—'],
-    ['13','TSU','Red Bull Racing','+80.700','1:22.712',[['M',18],['H',35]],12,'—'],
-    ['14','LAW','Racing Bulls','+82.350','1:22.777',[['S',8],['H',45]],16,'—'],
-    ['15','OCO','Haas F1 Team','+1 LAP','1:22.892',[['H',53]],15,'—'],
-  ];
-  const stintCell=s=>s.map(([c,l])=>`<span style="color:${tycol[c]}">${c}·${l}</span>`).join(' <span style="color:var(--text-disabled)">›</span> ');
-  const gained=(start,pos)=>{const g=start-pos;return g===0?`<span style="color:var(--text-tertiary)">0</span>`:`<span class="${g>0?'amber':''}" style="color:${g>0?'var(--delta-pos)':'var(--delta-neg)'}">${g>0?'+'+g:g}</span>`;};
-  return `<div class="view" id="view1"><div class="vhead"><h2>Overview</h2><div class="desc">Race result, fastest lap, full classification — with stint sequence and positions gained.</div></div>
-  <div class="vbody">
-    <div class="cards3">
-      <div class="rescard"><div class="tile"><span class="t-lr" style="background:${D('VER')}"></span>VER</div><div><div class="lbl">Winner</div><div class="nm">Max Verstappen</div><div class="val">1:14:46.657</div></div></div>
-      <div class="rescard"><div class="tile" style="color:var(--text-tertiary)">--</div><div><div class="lbl">Pole Position</div><div class="nm">Not imported</div><div class="val muted">Qualifying/grid data unavailable</div></div></div>
-      <div class="rescard"><div class="tile"><span class="t-lr" style="background:${D('NOR')}"></span>NOR</div><div><div class="lbl">Fastest Lap</div><div class="nm">Lando Norris</div><div class="val purple">1:20.901</div></div></div>
-    </div>
-    <div class="seclabel">Full classification</div>
-    <div class="panel" style="overflow:hidden">
-    <table><thead><tr><th>Pos</th><th>Driver</th><th>Team</th><th>Time / Gap</th><th>Fastest Lap</th><th>Stints</th><th class="r">Started</th><th class="r">Gained</th><th class="r">Pts</th></tr></thead><tbody>
-    ${cls.map(r=>`<tr><td>${r[0]}</td><td class="name"><span class="lr" style="background:${D(r[1])}"></span>${r[1]} <span style="color:var(--text-tertiary);font-weight:400">${DNAME(r[1])}</span></td><td>${r[2]}</td><td>${r[3]}</td><td class="${r[8]=='p'?'purple':''}">${r[4]}</td><td style="font-size:11px">${stintCell(r[5])}</td><td class="r">P${r[6]}</td><td class="r">${gained(r[6],+r[0])}</td><td class="r">${r[7]}</td></tr>`).join('')}
-    </tbody></table></div>
-    <div class="micro" style="margin-top:8px">Started = lap-1 classified position (grid not imported). Gained = Started − Finish.</div>
-  </div></div>`;
+  return `<div class="view" id="view1"><div class="vhead" style="display:flex;align-items:flex-end;gap:16px"><div><h2>Reports &amp; AI</h2><div class="desc">Shareable exports and the natural-language assistant — composed over bounded Query API / MCP aggregates.</div></div><div class="spacer"></div>
+    <div class="seg" id="repTabs" style="margin-bottom:2px">${[['debrief','MCP debrief'],['report','Session report'],['assistant','Race story (AI)']].map(([t,l])=>`<span class="${t===repTab?'on':''}" data-t="${t}" onclick="setRep('${t}')">${l}</span>`).join('')}</div></div>
+    <div class="vbody" style="overflow:auto"><div id="repBody">${debriefDoc()}</div></div></div>`;
 }
 
 /* =========================== VIEW 2 · REPLAY =========================== */
 function vReplay(){
-  // realistic, smooth lap telemetry: speed dips at corners, brake pulses on entry, throttle ramps on exit
-  const N=140, COR=[0.13,0.31,0.50,0.68,0.87];
-  const smooth=a=>a.map((v,i)=>{const p=a[i-1]??v,n=a[i+1]??v;return (p+2*v+n)/4;});
-  let speed=[],thr=[],brk=[];
-  for(let i=0;i<N;i++){const t=i/(N-1);
-    let dmin=1;for(const c of COR)dmin=Math.min(dmin,Math.abs(t-c));
-    const fast=Math.min(1,dmin/0.075);                       // 0 at apex, 1 on the straight
-    speed.push(0.33+0.6*Math.pow(fast,0.8));
-    let b=0;for(const c of COR){const dd=c-t;if(dd>0&&dd<0.05)b=Math.max(b,1-dd/0.05);}brk.push(Math.min(0.96,b));
-    thr.push(Math.min(1,Math.max(0.06,fast*1.5-b*1.3)));// eases off as brake comes on, full on the straight
-  }
-  speed=smooth(smooth(speed));thr=smooth(smooth(thr));brk=smooth(smooth(smooth(brk)));
-  const W=720,H=340,pad=14;
+  const {speed,thr,brk,gear,rpm}=REP;
+  const W=720,H=340,pad=14, i0=Math.round(0.41*(REP.speed.length-1)), v0=repVals(i0), pins=fieldState.pinned;
   const dots=[[150,120,'VER'],[300,180,'NOR'],[460,400,'PIA'],[140,470,'LEC'],[140,560,'RUS'],[180,690,'HAM'],[260,780,'ALB'],[300,650,'SAI']];
-  const driverDots=dots.map(([x,y,c],i)=>`<circle cx="${x}" cy="${y}" r="11" fill="${D(c)}" stroke="var(--bg-inset)" stroke-width="3"/>${i==0?`<circle cx="${x}" cy="${y}" r="16" fill="none" stroke="var(--accent)" stroke-width="2"/>`:''}`).join('');
-  return `<div class="view" id="view2"><div class="vhead"><h2>Replay workspace</h2><div class="desc">Track map · waveform · current values, locked to one session-relative timebase.</div></div>
+  const driverDots=dots.map(([x,y,c])=>{const ring=c==='VER'||pins.has(c);return `<circle cx="${x}" cy="${y}" r="11" fill="${D(c)}" stroke="var(--bg-inset)" stroke-width="3"/>${ring?`<circle cx="${x}" cy="${y}" r="16" fill="none" stroke="var(--accent)" stroke-width="2"/>`:''}`;}).join('');
+  const pinChip=pins.size?`<span class="bdg" style="background:var(--accent-muted);color:var(--accent)">Pinned · ${[...pins].join(', ')}</span>`:'';
+  return `<div class="view" id="view2"><div class="vhead" style="display:flex;align-items:flex-end;gap:16px"><div><h2>Replay workspace</h2><div class="desc">Track map · waveform · current values, locked to one session-relative timebase.</div></div><div class="spacer"></div>${pinChip}</div>
   <div class="vbody" style="padding-bottom:0;display:flex;flex-direction:column;overflow:auto">
     <div class="infostrip" style="margin-bottom:12px">
       <div class="c"><div class="k">Circuit</div><div class="v" style="font-size:13px">${CIRCUIT.name}</div></div>
@@ -518,17 +544,20 @@ function vReplay(){
       </div>
       <div class="panel" style="flex:2;display:flex;flex-direction:column;overflow:hidden">
         <div class="panel-h"><span class="tt">Waveform</span><div class="tools"><span class="ghostbtn">R · reference</span><span class="ghostbtn">C · channels</span></div></div>
-        <div style="flex:1;min-height:0;background:var(--bg-inset);border-radius:0 0 var(--r-lg) var(--r-lg);position:relative;padding:6px">
+        <div id="repWave" style="flex:1;min-height:0;background:var(--bg-inset);border-radius:0 0 var(--r-lg) var(--r-lg);position:relative;padding:6px;cursor:crosshair">
           <svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" preserveAspectRatio="none">
             ${[0,1,2,3,4].map(i=>`<line x1="0" y1="${pad+i*(H-2*pad)/4}" x2="${W}" y2="${pad+i*(H-2*pad)/4}" stroke="var(--grid-line)"/>`).join('')}
-            <polyline points="${trace(speed,W,H,pad)}" fill="none" stroke="var(--ch-speed)" stroke-width="2"/>
+            <polyline points="${stepTrace(gear,W,H,pad)}" fill="none" stroke="var(--ch-gear)" stroke-width="1.6" opacity="0.9"/>
+            <polyline points="${trace(rpm,W,H,pad)}" fill="none" stroke="var(--ch-rpm)" stroke-width="1.5" opacity="0.7"/>
             <polyline points="${trace(thr,W,H,pad)}" fill="none" stroke="var(--ch-throttle)" stroke-width="2"/>
             <polyline points="${trace(brk,W,H,pad)}" fill="none" stroke="var(--ch-brake)" stroke-width="2"/>
-            <line x1="${W*0.22}" y1="0" x2="${W*0.22}" y2="${H}" stroke="var(--cursor-ref)" stroke-width="1.5" stroke-dasharray="4 4"/>
-            <line x1="${W*0.41}" y1="0" x2="${W*0.41}" y2="${H}" stroke="var(--accent)" stroke-width="2"/>
-            <polygon points="${W*0.41-5},0 ${W*0.41+5},0 ${W*0.41},8" fill="var(--accent)"/>
+            <polyline points="${trace(speed,W,H,pad)}" fill="none" stroke="var(--ch-speed)" stroke-width="2.5"/>
+            <rect id="repDimL" x="0" y="0" width="0" height="${H}" fill="rgba(8,7,6,0.55)"/>
+            <rect id="repDimR" x="${W}" y="0" width="0" height="${H}" fill="rgba(8,7,6,0.55)"/>
+            <line id="repCur" x1="${W*0.41}" y1="0" x2="${W*0.41}" y2="${H}" stroke="var(--accent)" stroke-width="2"/>
           </svg>
         </div>
+        <div style="display:flex;justify-content:space-between;padding:3px 12px 0" class="mono"><span class="micro">lap start</span><span class="micro">S1</span><span class="micro">S2</span><span class="micro">S3</span><span class="micro">lap end · 5793 m</span></div>
         <div class="legend" style="padding:8px 12px">
           <span><i style="background:var(--ch-speed)"></i>speed_kmh</span><span><i style="background:var(--ch-throttle)"></i>throttle_pct</span>
           <span><i style="background:var(--ch-brake)"></i>brake_pct</span><span><i style="border-top:3px dashed var(--ch-gear);background:none"></i>gear</span>
@@ -536,9 +565,9 @@ function vReplay(){
         </div>
       </div>
       <div class="panel" style="width:150px;display:flex;flex-direction:column">
-        <div class="panel-h"><span class="tt" style="font-size:12px">VER · Current</span></div>
+        <div class="panel-h"><span class="tt" style="font-size:12px">VER · at cursor</span></div>
         <div style="padding:12px;display:flex;flex-direction:column;gap:11px">
-          ${[['SPEED','301','amber'],['THROTTLE','0'],['BRAKE','100'],['GEAR','8'],['RPM','11240'],['DRS','OFF','drs']].map(([k,v,c])=>`<div><div class="micro">${k}</div><div class="mono" style="font-size:22px;color:${c=='amber'?'var(--accent)':c=='drs'?'var(--ch-drs)':'var(--text-primary)'}">${v}</div></div>`).join('')}
+          ${[['SPEED','repSPEED','amber'],['THROTTLE','repTHR'],['BRAKE','repBRK'],['GEAR','repGEAR'],['RPM','repRPM'],['DRS','repDRS','drs']].map(([k,id,c])=>`<div><div class="micro">${k}</div><div class="mono" id="${id}" style="font-size:22px;color:${c=='amber'?'var(--accent)':c=='drs'?'var(--ch-drs)':'var(--text-primary)'}">${v0[k]}</div></div>`).join('')}
         </div>
       </div>
     </div>
@@ -547,7 +576,7 @@ function vReplay(){
     <div class="transport" style="margin-top:14px;position:sticky;bottom:0">
       <button class="tbtn" onclick="this.textContent=this.textContent.includes('Play')?'⏸ Pause':'▶ Play'">▶ Play</button>
       <span class="clock">01:23:11.956</span>
-      <div class="seek"><div class="buf"></div><div class="flagband" style="left:62%;width:5%;background:var(--flag-sc)"></div><div class="fill"></div><div class="head"></div></div>
+      <div class="seek"><div class="buf"></div><div class="flagband" style="left:62%;width:5%;background:var(--flag-sc)"></div><div id="seekWin" style="position:absolute;top:0;bottom:0;background:rgba(255,166,13,.18);display:none;pointer-events:none"></div><div class="fill"></div><div class="head"></div></div>
       <div class="seg"><span>0.25×</span><span class="on">1×</span><span>4×</span><span>20×</span></div>
     </div>
   </div></div>`;
@@ -559,7 +588,7 @@ const STINTS=[
   ['RUS',[['M',1,26],['H',27,53]]],['HAM',[['M',1,37],['H',38,53]]],['ALB',[['H',1,39],['M',40,53]]],['ANT',[['M',1,24],['H',25,53]]],
   ['BOR',[['M',1,19],['H',20,53]]],['HAD',[['H',1,29],['M',30,53]]],['SAI',[['M',1,27],['H',28,53]]],['BEA',[['M',1,17],['H',18,53]]],
   ['TSU',[['M',1,18],['H',19,53]]],['LAW',[['S',1,8],['H',9,53]]],['OCO',[['H',1,53]]],['GAS',[['H',1,53]]],
-  ['COL',[['M',1,30],['H',31,53]]],['STR',[['H',1,53]]],['ALO',[['M',1,53]]]];
+  ['COL',[['M',1,30],['H',31,53]]],['STR',[['H',1,53]]],['ALO',[['M',1,38]]],['HUL',[['H',1,8]]]];
 function stintDetailHTML(di,si){
   if(di<0)return `<div style="padding:18px;color:var(--text-tertiary);font-size:13px">Select a stint bar to inspect compound, pace, degradation, and pit loss.</div>`;
   const [code,stints]=STINTS[di];const [c,from,to]=stints[si];const laps=to-from+1;
@@ -593,8 +622,14 @@ function selectStint(di,si){
 }
 function vStrategy(){
   const total=53;
-  const bar=(di,stints)=>stints.map((st,si)=>{const[c,from,to]=st;const w=(to-from+1)/total*100;
-    return `<div class="ganttseg" data-di="${di}" data-si="${si}" onclick="selectStint(${di},${si})" title="${c} · L${from}-${to}" style="width:${w}%;background:${tycol[c]}">${c}·${to-from+1}${si<stints.length-1?'<span class="pitmark"></span>':''}</div>`;}).join('');
+  const bar=(di,stints)=>{
+    const segs=stints.map((st,si)=>{const[c,from,to]=st;const w=(to-from+1)/total*100;
+      return `<div class="ganttseg" data-di="${di}" data-si="${si}" onclick="selectStint(${di},${si})" title="${c} · L${from}-${to}" style="width:${w}%;background:${tycol[c]}">${c}·${to-from+1}${si<stints.length-1?'<span class="pitmark"></span>':''}</div>`;}).join('');
+    const lastTo=stints[stints.length-1][2];
+    if(lastTo>=total)return segs;
+    const w=(total-lastTo)/total*100;
+    return segs+`<div class="ganttseg ganttdnf" title="Retired after L${lastTo}" style="width:${w}%"><span class="dnflbl">DNF · L${lastTo}</span></div>`;
+  };
   return `<div class="view" id="view3"><div class="vhead"><h2>Tire strategy</h2><div class="desc">Stints per driver on a shared lap axis — pit boundaries are the segment edges. Click a stint for detail.</div></div>
   <div class="vbody" style="overflow:auto"><div class="grid-3-1">
     <div class="panel" style="overflow:hidden">
@@ -656,12 +691,13 @@ function fieldTower(rows){
   const arrow=k=>fieldState.sort===k?`<span class="amber"> ${fieldState.dir>0?'▾':'▴'}</span>`:'';
   const th=(k,l,cls)=>`<th class="${cls||''}" onclick="fieldSetSort('${k}')">${l}${arrow(k)}</th>`;
   return `<div class="panel" style="overflow:hidden"><table><thead><tr>
-    ${th('p','Pos')}${th('c','Driver')}${th('g','Gap')}<th>Int</th>${th('last','Last')}${th('best','Best')}<th>Tyre</th>${th('age','Age','r')}${th('pit','Pit','r')}<th>Pace ·5</th><th>•</th></tr></thead><tbody>
+    ${th('p','Pos')}${th('c','Driver')}<th>Team</th>${th('g','Gap')}<th>Int</th>${th('last','Last')}${th('best','Best')}<th>Tyre</th>${th('age','Age','r')}${th('pit','Pit','r')}<th class="r">Pts</th><th>Pace ·5</th><th>•</th></tr></thead><tbody>
     ${rows.map(d=>{const sb=d.best===SESSION_BEST;const pb=Math.abs(d.last-d.best)<0.12&&d.last>0;const pinned=fieldState.pinned.has(d.c);
       return `<tr class="${pinned?'selrow':''}" onclick="fieldPin('${d.c}')" style="cursor:pointer">
       <td>${d.p}</td><td class="name"><span class="lr" style="background:${D(d.c)}"></span>${d.c} <span style="color:var(--text-tertiary);font-weight:400">${DNAME(d.c)}</span>${pinned?' <span class="amber" style="font-size:11px">📌</span>':''}</td>
+      <td style="color:var(--text-secondary)">${(DRIVERS.find(x=>x[0]===d.c)||[])[2]||''}</td>
       <td>${gapStr(d)}</td><td>${intStr(d)}</td><td class="${sb?'purple':pb?'green':''}">${fmtT(d.last)}</td><td class="${sb?'purple':''}">${fmtT(d.best)}</td>
-      <td>${tyTag(d.ty)}</td><td class="r">${d.age}</td><td class="r">${d.pit}</td><td>${d.st==='out'?'<span style="color:var(--text-disabled)">—</span>':sparkSVG(d.c)}</td>
+      <td>${tyTag(d.ty)}</td><td class="r">${d.age}</td><td class="r">${d.pit}</td><td class="r mono">${d.st==='out'?'—':(d.p<=10?[25,18,15,12,10,8,6,4,2,1][d.p-1]:'—')}</td><td>${d.st==='out'?'<span style="color:var(--text-disabled)">—</span>':sparkSVG(d.c)}</td>
       <td><span class="led" style="display:inline-block;background:${d.st==='out'?'var(--danger)':'var(--success)'}"></span></td></tr>`;}).join('')}
     </tbody></table></div>
     <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--text-tertiary)" class="mono">
@@ -727,7 +763,7 @@ function vIncidents(){
     <g transform="translate(505,400)"><circle r="11" fill="var(--info)"/><text y="5" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="#fff">↻</text></g>
     <g transform="translate(330,210)"><circle r="11" fill="var(--flag-yellow)"/><text y="5" text-anchor="middle" font-family="var(--mono)" font-size="14" fill="#241F1B">!</text></g>
     <g transform="translate(140,560)"><circle r="11" fill="var(--flag-yellow)"/><text y="5" text-anchor="middle" font-family="var(--mono)" font-size="14" fill="#241F1B">!</text></g>`;
-  return `<div class="view" id="view5"><div class="vhead"><h2>Track incidents</h2><div class="desc">Flag and incident markers on the data-derived outline, synced to the list. <kbd>N</kbd> / <kbd>⇧N</kbd> jump between incidents.</div></div>
+  return `<div class="view" id="view5"><div class="vhead"><h2>Race control</h2><div class="desc">Race-control log — flags and incidents on the Monza map, synced to the list and explained by the assistant.</div></div>
   <div class="vbody" style="overflow:auto"><div class="grid-3-1">
     <div class="panel" style="display:flex;flex-direction:column">
       <div class="panel-h"><span class="tt">Track map</span><div class="tools">${['SC','VSC','Yellow','Red','Spin','Off-track'].map(f=>`<span class="ghostbtn tgl on" style="padding:3px 8px;font-size:11px">${f}</span>`).join('')}</div></div>
@@ -753,38 +789,84 @@ function vIncidents(){
       </div>
     </div>
   </div>
+  <div class="panel" style="margin-top:16px"><div class="panel-h"><span class="tt">□ Assistant · race-control summary</span><div class="tools"><span class="bdg" style="background:var(--accent-muted);color:var(--accent)">MCP · LLM</span></div></div>
+    <div style="padding:16px;font-size:14px;color:var(--text-secondary);line-height:1.6">
+      A <b style="color:var(--text-primary)">safety car</b> was scrambled on <b style="color:var(--text-primary)">lap 1</b> for a startline incident at Turn 1, with a parallel yellow in S1 for debris — the field ran neutralised for about <b class="amber">3 laps</b> before going <b style="color:var(--flag-clear)">green on lap 18</b>, which compressed the pack and pulled most cars into the same early-stop window. After that the only on-track moment was <b style="color:var(--text-primary)">STR's lap-24 spin at Turn 4</b> (no contact, waved yellow, no investigation). A brief <b style="color:var(--flag-yellow)">lap-31 yellow in S2</b> for a car off and a <b style="color:var(--flag-red)">lap-40 red-flag investigation</b> both cleared with no penalties. Net: one restart shaped strategy, but the race ran clean — no time penalties, no grid sanctions.
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"><span class="toolpill">race_control_log</span><span class="toolpill">detect_incidents</span><span class="toolpill">track_status_timeline</span></div>
+    </div></div>
   <div style="margin-top:16px">${weatherCorr()}</div>
   </div></div>`;
 }
 
 /* =========================== VIEW 6 · HEAD TO HEAD =========================== */
 function lapCompareSurface(){
-  const rnd=rand(21);const W=1000,H=200,pad=12;
-  const a=Array.from({length:80},(_,i)=>{const t=i/79;return 0.4+0.55*Math.abs(Math.sin(t*7));});
-  const b=a.map(v=>Math.min(1,Math.max(0,v+(rnd()-0.5)*0.18)));
-  const chart=(title,A,B)=>`<div class="panel" style="margin-bottom:12px"><div class="panel-h"><span class="tt" style="font-size:12px">${title}</span></div>
-    <div style="background:var(--bg-inset);padding:6px;border-radius:0 0 var(--r-lg) var(--r-lg)">
-    <svg viewBox="0 0 ${W} ${H}" width="100%" height="120" preserveAspectRatio="none">
-      ${[0,1,2,3].map(i=>`<line x1="0" y1="${pad+i*(H-2*pad)/3}" x2="${W}" y2="${pad+i*(H-2*pad)/3}" stroke="var(--grid-line)"/>`).join('')}
-      <polyline points="${trace(B,W,H,pad)}" fill="none" stroke="var(--drv-b)" stroke-width="2"/>
-      <polyline points="${trace(A,W,H,pad)}" fill="none" stroke="var(--drv-a)" stroke-width="2"/>
-      <line x1="${W*0.52}" y1="0" x2="${W*0.52}" y2="${H}" stroke="var(--accent)" stroke-width="2"/>
-    </svg></div></div>`;
+  const W=1000,H=200,pad=12, N=CMP.N, A=CMP.A, B=CMP.B;
+  const grid=[0,1,2,3].map(i=>`<line x1="0" y1="${pad+i*(H-2*pad)/3}" x2="${W}" y2="${pad+i*(H-2*pad)/3}" stroke="var(--grid-line)"/>`).join('');
+  const chan=(title,inner,hgt=104)=>`<div class="panel" style="margin-bottom:10px"><div class="panel-h"><span class="tt" style="font-size:12px">${title}</span></div>
+    <div style="background:var(--bg-inset);padding:6px;border-radius:0 0 var(--r-lg) var(--r-lg)"><svg viewBox="0 0 ${W} ${H}" width="100%" height="${hgt}" preserveAspectRatio="none">${grid}${inner}</svg></div></div>`;
+  const REF='#E7DECF';                                       // reference lap drawn in white, MoTeC-style
+  const speedChart=chan('Speed (km/h)',
+    `<polyline points="${trace(B.speed,W,H,pad)}" fill="none" stroke="${REF}" stroke-width="1.4" opacity="0.5"/>
+     <polyline points="${trace(A.speed,W,H,pad)}" fill="none" stroke="var(--drv-a)" stroke-width="2"/>`);
+  const dtPlot=CMP.dt.map(d=>0.5+d/(2*CMP.dtMax)), zY=pad+(1-0.5)*(H-2*pad);
+  const deltaChart=chan('Delta – Section [s]   ·   above = losing, below = gaining',
+    `<line x1="0" y1="${zY}" x2="${W}" y2="${zY}" stroke="var(--text-tertiary)" stroke-dasharray="5 4"/>
+     <polyline points="${trace(dtPlot,W,H,pad)}" fill="none" stroke="var(--accent)" stroke-width="2"/>`);
+  const gearChart=chan('Gear',
+    `<polyline points="${stepTrace(B.gear,W,H,pad)}" fill="none" stroke="${REF}" stroke-width="1.2" opacity="0.5"/>
+     <polyline points="${stepTrace(A.gear,W,H,pad)}" fill="none" stroke="var(--ch-gear)" stroke-width="1.6"/>`);
+  const tbChart=chan('Throttle / Brake (%)',
+    `<polyline points="${trace(B.thr,W,H,pad)}" fill="none" stroke="${REF}" stroke-width="1.2" opacity="0.4"/>
+     <polyline points="${trace(A.thr,W,H,pad)}" fill="none" stroke="var(--ch-throttle)" stroke-width="1.8"/>
+     <polyline points="${trace(A.brk,W,H,pad)}" fill="none" stroke="var(--ch-brake)" stroke-width="1.8"/>`);
+  // initial cursor sample
+  const i0=Math.round(0.52*(N-1));
+  const sa=CMP.kmh(A.speed[i0]), sb=CMP.kmh(B.speed[i0]);
+  const ra=CMP.rpmv(A.rpm[i0]), rb=CMP.rpmv(B.rpm[i0]);
+  const ga=CMP.gearv(A.speed[i0]), gb=CMP.gearv(B.speed[i0]);
+  const ta=Math.round(A.thr[i0]*100), tb=Math.round(B.thr[i0]*100);
+  const ba=Math.round(A.brk[i0]*100), bb=Math.round(B.brk[i0]*100);
+  const sg=d=>(d>=0?'+':'')+d;
+  const rrow=(lbl,aId,bId,dId,aV,bV,dV)=>`<tr><td style="color:var(--text-secondary);padding:5px 0">${lbl}</td><td class="r mono" id="${aId}" style="color:var(--drv-a)">${aV}</td><td class="r mono" id="${bId}" style="color:${REF}">${bV}</td><td class="r mono" id="${dId}" style="color:var(--text-tertiary)">${dV}</td></tr>`;
+  // sector + lap deltas from the delta-time curve
+  const a1=Math.round(N/3), a2=Math.round(2*N/3);
+  const sectors=[['S1',CMP.dt[a1]-CMP.dt[0]],['S2',CMP.dt[a2]-CMP.dt[a1]],['S3',CMP.dt[N-1]-CMP.dt[a2]]];
+  const total=CMP.dt[N-1];
+  const dcol=v=>v>0?'var(--delta-neg)':'var(--delta-pos)';
   return `<div class="grid-3-1">
     <div>
-      <div style="display:flex;gap:12px;margin-bottom:14px">
-        <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:var(--drv-a)"></div><div><div class="micro">Driver A</div><div style="font-weight:600;color:var(--text-primary)">LEC · Lap 12</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">1:21.294 · MED</div></div></div>
-        <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:var(--drv-b)"></div><div><div class="micro">Driver B</div><div style="font-weight:600;color:var(--text-primary)">HAM · Lap 14</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">1:21.546 · HARD</div></div></div>
+      <div style="display:flex;gap:12px;margin-bottom:12px">
+        <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:var(--drv-a)"></div><div><div class="micro">Lap A · ours</div><div style="font-weight:600;color:var(--text-primary)">LEC · Lap 12</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">1:21.294 · MED</div></div></div>
+        <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:${REF}"></div><div><div class="micro">Lap B · reference</div><div style="font-weight:600;color:var(--text-primary)">HAM · best</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">1:20.984 · HARD</div></div></div>
       </div>
-      ${chart('Speed (km/h)',a,b)}
-      ${chart('Throttle / Brake (%)',a.map(v=>v>0.6?1:0.15),b.map(v=>v>0.55?1:0.2))}
+      <div id="cmpPlot" style="position:relative">
+        ${speedChart}${deltaChart}${gearChart}${tbChart}
+        <div id="cmpCursor" style="position:absolute;top:0;bottom:0;left:52%;width:2px;background:var(--accent);opacity:0.85;pointer-events:none"></div>
+      </div>
+      <div class="micro" style="margin-top:6px">↔ Move the cursor across the charts to read values, deltas and the matching point on track.</div>
     </div>
     <div class="stack">
-      <div class="panel"><div class="panel-h"><span class="tt">Lap delta</span></div>
-        <div style="padding:16px;text-align:center"><div class="micro">A − B (LEC − HAM)</div><div class="mono" style="font-size:34px;color:var(--delta-pos)">−0.214<span style="font-size:14px;color:var(--text-tertiary)"> s</span></div><div class="micro">LEC faster</div></div></div>
-      <div class="panel"><div class="panel-h"><span class="tt">Sector deltas</span></div>
-        <div style="display:flex;justify-content:space-around;padding:14px 8px">${[['S1','−0.157','pos'],['S2','+0.192','neg'],['S3','−0.249','pos']].map(([s,d,k])=>`<div style="text-align:center"><div class="mono" style="font-size:18px;color:var(--delta-${k})">${d}</div><div class="micro">${s}</div></div>`).join('')}</div></div>
-      <div class="notebox"><b>Cursor 41.220s</b> · LEC 282.4 · HAM 279.1 · Δ <span style="color:var(--delta-pos)">+3.3</span></div>
+      <div class="panel"><div class="panel-h"><span class="tt">Track · cursor</span><div class="tools"><span class="micro" id="cmpDist" style="align-self:center">${Math.round(0.52*5793)} m</span></div></div>
+        <div style="background:var(--bg-inset);padding:8px;border-radius:0 0 var(--r-lg) var(--r-lg);display:flex;justify-content:center">
+          <svg viewBox="0 0 640 860" width="148" height="199">
+            <path id="cmpPath" d="${MONZA}" fill="none" stroke="var(--border-strong)" stroke-width="16" stroke-linejoin="round"/>
+            <path d="${MONZA}" fill="none" stroke="var(--bg-inset)" stroke-width="10" stroke-linejoin="round"/>
+            <circle id="cmpDot" cx="180" cy="470" r="13" fill="var(--drv-a)" stroke="var(--bg-canvas)" stroke-width="3"/>
+          </svg></div></div>
+      <div class="panel"><div class="panel-h"><span class="tt">Readout</span></div>
+        <div style="padding:6px 12px 10px"><table style="width:100%;font-size:12px">
+          <thead><tr><th></th><th class="r">A</th><th class="r" style="color:${REF}">ref</th><th class="r">Δ</th></tr></thead>
+          <tbody>
+            ${rrow('Speed','cmpSpdA','cmpSpdB','cmpSpdD',sa.toFixed(1),sb.toFixed(1),sg((sa-sb).toFixed(1)))}
+            ${rrow('RPM','cmpRpmA','cmpRpmB','cmpRpmD',ra,rb,sg(ra-rb))}
+            ${rrow('Gear','cmpGearA','cmpGearB','cmpGearD',ga,gb,sg(ga-gb))}
+            ${rrow('Throttle','cmpThrA','cmpThrB','cmpThrD',ta+'%',tb+'%',sg(ta-tb))}
+            ${rrow('Brake','cmpBrkA','cmpBrkB','cmpBrkD',ba+'%',bb+'%',sg(ba-bb))}
+          </tbody></table>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-default)"><span class="micro">Δ time @ cursor</span><span class="mono" id="cmpDtV" style="font-size:16px;color:${dcol(CMP.dt[i0])}">${sg(CMP.dt[i0].toFixed(3))} s</span></div></div></div>
+      <div class="panel"><div class="panel-h"><span class="tt">Lap &amp; sector Δ</span></div>
+        <div style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px"><span class="micro">Full lap (A − ref)</span><span class="mono" style="font-size:20px;color:${dcol(total)}">${sg(total.toFixed(3))} s</span></div>
+          <div style="display:flex;justify-content:space-around">${sectors.map(([s,d])=>`<div style="text-align:center"><div class="mono" style="font-size:16px;color:${dcol(d)}">${sg(d.toFixed(3))}</div><div class="micro">${s}</div></div>`).join('')}</div></div></div>
     </div>
   </div>`;
 }
@@ -867,7 +949,7 @@ function lapRows(code){
     const s1=27.2+r()*0.6,s2=26.9+r()*0.7,s3=base-s1-s2<0?26.5+r()*0.6:base-s1-s2;
     const lt=s1+s2+s3;if(lt<best&&!pitLaps.includes(l)&&l>1)best=lt;
     raw.push({l,lt,s1,s2,s3,c:compoundAt(l),life:l-(stints.find(([,f,t])=>l>=f&&l<=t)?.[1]||1)+1,
-      pit:pitLaps.includes(l),trap:Math.round(330+r()*12),top:Math.round(338+r()*8),min:Math.round(72+r()*30),
+      pit:pitLaps.includes(l),trap:Math.round(338+r()*10),top:Math.round(348+r()*11),min:Math.round(76+r()*30),
       thr:Math.round(62+r()*10),brk:Math.round(88+r()*10),drs:r()>0.4});
   }
   const fmt=t=>`${Math.floor(t/60)}:${(t%60).toFixed(3).padStart(6,'0')}`;
@@ -898,26 +980,6 @@ function vLapDetail(){
 }
 
 /* =========================== VIEW 8 · TELEMETRY =========================== */
-function vTelemetry(){
-  const rnd=rand(33);const hist=Array.from({length:22},()=>0.15+rnd()*0.85);const W=460,H=200;
-  const cells=[];for(let g=0;g<8;g++)for(let s=0;s<12;s++){cells.push([s,g,Math.max(0,Math.min(1,1-Math.abs(s/11-g/7)*1.4+rnd()*0.3))]);}
-  const heatRamp=['#221A12','#4A2F0C','#7A4E0B','#A86A0A','#E08A00','#FFA60D','#FFDE7A'];
-  const ramp=v=>heatRamp[Math.min(6,Math.floor(v*7))];
-  return `<div class="view" id="view8"><div class="vhead"><h2>Telemetry — aggregate explorer</h2><div class="desc">Bounded aggregate queries over the visible window — never a full-session client scan.</div></div>
-  <div class="vbody"><div class="grid2">
-    <div class="panel"><div class="panel-h"><span class="tt">Speed histogram</span><div class="tools"><span class="ghostbtn">VER · Lap 18</span></div></div>
-      <div style="padding:10px;background:var(--bg-inset);border-radius:0 0 var(--r-lg) var(--r-lg)">
-        <svg viewBox="0 0 ${W} ${H}" width="100%" height="180">${hist.map((v,i)=>`<rect x="${i*(W/22)+4}" y="${H-v*(H-20)}" width="${W/22-6}" height="${v*(H-20)}" fill="var(--ch-speed)" opacity="0.85"/>`).join('')}<line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="var(--grid-line-major)"/></svg>
-        <div style="display:flex;justify-content:space-between"><span class="micro">120</span><span class="micro">km/h</span><span class="micro">340</span></div></div></div>
-    <div class="panel"><div class="panel-h"><span class="tt">Load map — speed × gear</span><div class="tools"><span class="micro" style="align-self:center">density</span></div></div>
-      <div style="padding:14px;background:var(--bg-inset);border-radius:0 0 var(--r-lg) var(--r-lg)">
-        <svg viewBox="0 0 ${W} ${H}" width="100%" height="180">${cells.map(([s,g,v])=>`<rect x="${s*(W/12)}" y="${(7-g)*(H/8)}" width="${W/12-1}" height="${H/8-1}" fill="${ramp(v)}"/>`).join('')}</svg>
-        <div style="display:flex;justify-content:space-between"><span class="micro">speed →</span><span class="micro">gear ↑ (1–8)</span></div></div></div>
-    <div class="panel" style="grid-column:1/3"><div class="panel-h"><span class="tt">Channels</span></div>
-      <div class="legend" style="padding:12px 14px">${[['speed_kmh','--ch-speed'],['throttle_pct','--ch-throttle'],['brake_pct','--ch-brake'],['gear','--ch-gear'],['rpm','--ch-rpm'],['drs','--ch-drs']].map(([n,c])=>`<span style="font-size:12px"><i style="background:var(${c})"></i>${n}</span>`).join('')}</div>
-      <div style="padding:0 14px 14px;font-size:12px;color:var(--text-tertiary)" class="mono">aggregate · /telemetry/aggregate · bucket=speed,gear · window=visible</div></div>
-  </div></div></div>`;
-}
 
 /* ===== incident × weather correlation (used by Incidents) ===== */
 function weatherCorr(){
@@ -986,25 +1048,20 @@ function sessionReport(){
 let repTab='debrief';
 function setRep(tab){repTab=tab;document.querySelectorAll('#repTabs span').forEach(s=>s.classList.toggle('on',s.dataset.t===tab));
   document.getElementById('repBody').innerHTML={debrief:debriefDoc,report:sessionReport,assistant:raceStory}[tab]();}
-function vReports(){
-  const tabs=[['debrief','MCP debrief'],['report','Session report'],['assistant','Race story (AI)']];
-  return `<div class="view" id="view9"><div class="vhead" style="display:flex;align-items:flex-end;gap:16px"><div><h2>Reports & AI</h2><div class="desc">Shareable exports and the natural-language assistant — all composed over bounded Query API / MCP aggregates.</div></div><div class="spacer"></div>
-    <div class="seg" id="repTabs" style="margin-bottom:2px">${tabs.map(([t,l])=>`<span class="${t===repTab?'on':''}" data-t="${t}" onclick="setRep('${t}')">${l}</span>`).join('')}</div></div>
-    <div class="vbody" style="overflow:auto"><div id="repBody">${debriefDoc()}</div></div></div>`;
-}
 
 /* =========================== WIRING =========================== */
-const BUILDERS=[vLauncher,vOverview,vReplay,vStrategy,vField,vIncidents,vHeadToHead,vLapDetail,vTelemetry,vReports];
+const BUILDERS=[vLauncher,vOverview,vReplay,vStrategy,vField,vIncidents,vHeadToHead,vLapDetail];
 function renderHud(){document.getElementById('hud').innerHTML=HUD.map(([k,v])=>`<div class="hud-cell"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');}
 function renderRail(){document.getElementById('rail').innerHTML=
   `<div class="rail-item" data-i="0" onclick="setView(0)"><div class="bar"></div><div class="t">Home</div><div class="hk">0</div></div><div class="rail-sep"></div>`+
   VIEWS.slice(1).map(v=>`<div class="rail-item" data-i="${v.i}" onclick="setView(${v.i})"><div class="bar"></div><div class="t">${v.t}</div><div class="hk">${v.hk}</div></div>`).join('')+
   `<div class="rail-foot">⌘K palette · 1–8 views<br>Space play · ←/→ step<br>R ref · D driver · ? help</div>`;}
 function renderContent(){document.getElementById('content').innerHTML=BUILDERS.map(b=>b()).join('');}
-const SLUG=['','overview','replay','strategy','field','incidents','head-to-head','lap-detail','telemetry','reports'];
+const SLUG=['','reports','replay','strategy','field','race-control','head-to-head','lap-detail','','reports'];
 function setView(i){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
-  document.getElementById('view'+i).classList.add('on');
+  const ve=document.getElementById('view'+i); if(!ve) return; ve.classList.add('on'); // ponytail: 8 is gone, ignore missing views
+
   document.querySelectorAll('.rail-item').forEach(r=>r.classList.toggle('active',+r.dataset.i===i));
   document.getElementById('crumb').innerHTML = i===0?'2025 / ITA / RACE':`2025 / ITA / RACE / <span class="live">${SLUG[i]}</span>`;
   document.getElementById('hud').style.opacity = i===0?'0.45':'1';
@@ -1013,8 +1070,8 @@ function setView(i){
 const PAL=[
   ['Sessions','◆','2025 · Monza · Race','open',2],['Sessions','◆','2025 · Spa · Race','open',null],['Sessions','◆','2024 · Monza · Race','open',null],
   ['Drivers','▮','VER · Max Verstappen','pin',null],['Drivers','▮','LEC · Charles Leclerc','pin',null],['Drivers','▮','HAM · Lewis Hamilton','pin',null],
-  ['Views','▸','Overview','go',1],['Views','▸','Replay','go',2],['Views','▸','Strategy','go',3],['Views','▸','Field','go',4],['Views','▸','Lap detail','go',7],['Views','▸','Reports & AI','go',9],
-  ['Actions','⚡','Open replay','▶',2],['Actions','⚡','Export session report','9',9],['Actions','⚡','Race story (AI)','9',9],['Actions','⚡','Save current view','S',null],
+  ['Views','▸','Overview','go',1],['Views','▸','Replay','go',2],['Views','▸','Strategy','go',3],['Views','▸','Field','go',4],['Views','▸','Lap detail','go',7],['Views','▸','Reports & AI','go',1],
+  ['Actions','⚡','Open replay','▶',2],['Actions','⚡','Export session report','1',1],['Actions','⚡','Race story (AI)','1',1],['Actions','⚡','Save current view','S',null],
 ];
 let palFiltered=PAL.slice(),palSel=0;
 function renderPalette(){
@@ -1042,6 +1099,30 @@ document.addEventListener('click',e=>{
   if(lg){lg.style.opacity=lg.style.opacity==='0.4'?'1':'0.4';}
   const tg=e.target.closest('.tgl');
   if(tg){tg.classList.toggle('on');}
+});
+/* lap-compare cursor — linked A/ref/Δ readout + position on the Monza map */
+function updateCompareCursor(frac){
+  if(typeof CMP==='undefined') return;
+  const N=CMP.N, idx=Math.max(0,Math.min(N-1,Math.round(frac*(N-1))));
+  const A=CMP.A,B=CMP.B, sg=d=>(d>=0?'+':'')+d;
+  const set=(id,v,col)=>{const el=document.getElementById(id); if(el){el.textContent=v; if(col)el.style.color=col;}};
+  const cur=document.getElementById('cmpCursor'); if(cur) cur.style.left=(frac*100).toFixed(2)+'%';
+  const sa=CMP.kmh(A.speed[idx]), sb=CMP.kmh(B.speed[idx]);
+  set('cmpDist',Math.round(frac*5793)+' m');
+  set('cmpSpdA',sa.toFixed(1)); set('cmpSpdB',sb.toFixed(1)); set('cmpSpdD',sg((sa-sb).toFixed(1)),(sa-sb)>=0?'var(--delta-pos)':'var(--delta-neg)');
+  const ra=CMP.rpmv(A.rpm[idx]), rb=CMP.rpmv(B.rpm[idx]); set('cmpRpmA',ra); set('cmpRpmB',rb); set('cmpRpmD',sg(ra-rb));
+  const ga=CMP.gearv(A.speed[idx]), gb=CMP.gearv(B.speed[idx]); set('cmpGearA',ga); set('cmpGearB',gb); set('cmpGearD',sg(ga-gb));
+  const ta=Math.round(A.thr[idx]*100), tb=Math.round(B.thr[idx]*100); set('cmpThrA',ta+'%'); set('cmpThrB',tb+'%'); set('cmpThrD',sg(ta-tb));
+  const ba=Math.round(A.brk[idx]*100), bb=Math.round(B.brk[idx]*100); set('cmpBrkA',ba+'%'); set('cmpBrkB',bb+'%'); set('cmpBrkD',sg(ba-bb));
+  const dv=CMP.dt[idx]; set('cmpDtV',sg(dv.toFixed(3))+' s', dv>0?'var(--delta-neg)':'var(--delta-pos)');
+  const dot=document.getElementById('cmpDot'), path=document.getElementById('cmpPath');
+  if(dot&&path){const pt=path.getPointAtLength(frac*path.getTotalLength()); dot.setAttribute('cx',pt.x.toFixed(1)); dot.setAttribute('cy',pt.y.toFixed(1));}
+}
+document.addEventListener('mousemove',e=>{
+  const v6=document.getElementById('view6'); if(!v6||!v6.classList.contains('on')||h2hTab!=='compare') return;
+  const plot=document.getElementById('cmpPlot'); if(!plot) return;
+  const r=plot.getBoundingClientRect(); if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom) return;
+  updateCompareCursor(Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)));
 });
 /* init */
 renderHud();renderRail();renderContent();renderPalette();renderField();setView(2);

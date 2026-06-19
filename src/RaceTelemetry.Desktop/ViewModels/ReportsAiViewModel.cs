@@ -42,6 +42,7 @@ public sealed partial class ReportsAiViewModel : ObservableObject
         _agentClient = agentClient;
         _threadIdentity = threadIdentity;
         _appState = appState;
+        ChatHistory.CollectionChanged += (_, _) => OnPropertyChanged(nameof(ShowStarterPrompts));
     }
 
     [ObservableProperty] private ReportsTab _activeTab = ReportsTab.Debrief;
@@ -57,6 +58,9 @@ public sealed partial class ReportsAiViewModel : ObservableObject
 
     public ObservableCollection<ChatBubble> ChatHistory { get; } = new();
     public bool CanSend => !IsChatStreaming && !string.IsNullOrWhiteSpace(UserInput);
+
+    // Starter prompts are an empty-state affordance — hide them once the chat begins.
+    public bool ShowStarterPrompts => ChatHistory.Count == 0;
 
     partial void OnIsChatStreamingChanged(bool value)
     {

@@ -43,6 +43,12 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -r scripts/requirements.txt
 ```
 
+Backfill distance-domain projections for already-imported raw sessions:
+
+```bash
+.venv/bin/python scripts/backfill_distance_alignment.py --year 2025 --session-type R
+```
+
 ## Normal .NET Inner Loop
 
 Restore NuGet packages:
