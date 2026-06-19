@@ -1,0 +1,44 @@
+meta {
+  name: Run – follow-up turn (multi-turn continuity)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/ag-ui
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: text/event-stream
+}
+
+body:json {
+  {
+    "threadId": "{{threadId}}",
+    "messages": [
+      {
+        "id": "msg-001",
+        "role": "user",
+        "content": "Compare lap times for the selected drivers."
+      },
+      {
+        "id": "msg-002",
+        "role": "assistant",
+        "content": "(previous assistant reply)"
+      },
+      {
+        "id": "msg-003",
+        "role": "user",
+        "content": "Which sector was the biggest difference?"
+      }
+    ],
+    "state": {
+      "sessionKey": "{{sessionId}}",
+      "selectedDrivers": ["{{driverA}}", "{{driverB}}"],
+      "activeView": "head-to-head"
+    }
+  }
+}

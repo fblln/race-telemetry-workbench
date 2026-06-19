@@ -932,10 +932,13 @@ public sealed partial class PostgresTelemetryQueryStore
                 a.lap_time_ms,
                 a.location_status,
                 a.quality_flags,
+                a.source_car_time,
+                a.source_location_time,
                 a.car_sample_age_ms,
                 a.location_sample_age_ms,
                 a.is_interpolated_car,
-                a.is_interpolated_location
+                a.is_interpolated_location,
+                a.alignment_method
             FROM aligned_telemetry_10hz a
             JOIN sessions s ON s.session_id = a.session_id
             LEFT JOIN session_drivers d
@@ -990,10 +993,13 @@ public sealed partial class PostgresTelemetryQueryStore
                 GetNullableInt64(reader, 14),
                 GetNullableString(reader, 15),
                 reader.IsDBNull(16) ? null : reader.GetFieldValue<string[]>(16),
-                GetNullableInt32(reader, 17),
-                GetNullableInt32(reader, 18),
-                reader.IsDBNull(19) ? null : reader.GetBoolean(19),
-                reader.IsDBNull(20) ? null : reader.GetBoolean(20)));
+                GetNullableDateTimeOffset(reader, 17),
+                GetNullableDateTimeOffset(reader, 18),
+                GetNullableInt32(reader, 19),
+                GetNullableInt32(reader, 20),
+                reader.IsDBNull(21) ? null : reader.GetBoolean(21),
+                reader.IsDBNull(22) ? null : reader.GetBoolean(22),
+                GetNullableString(reader, 23)));
         }
 
         return new ReplayChunkResponse(

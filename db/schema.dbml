@@ -121,10 +121,66 @@ Table aligned_telemetry_10hz {
   is_interpolated_location boolean [not null]
   quality_flags text[] [not null]
   alignment_version int [not null]
+  alignment_method text [not null]
   created_at timestamptz [not null]
 
   indexes {
     (sample_time_utc, session_key, driver_number) [pk]
+  }
+}
+
+Table lap_telemetry_by_distance {
+  session_id text [not null]
+  session_key int [not null]
+  driver_number int [not null]
+  driver_code text
+  lap_number int [not null]
+  distance_m double [not null]
+  normalized_track_progress double [not null]
+  lap_elapsed_time_ms bigint
+  session_time_ms bigint
+  speed_kmh double
+  throttle_pct double
+  brake_pct double
+  gear int
+  rpm double
+  drs int
+  x double
+  y double
+  z double
+  source_sample_before_time_utc timestamptz
+  source_sample_after_time_utc timestamptz
+  interpolated boolean [not null]
+  quality_flags text[] [not null]
+  alignment_version int [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (session_id, driver_number, lap_number, distance_m) [pk]
+  }
+}
+
+Table lap_telemetry_quality {
+  session_id text [not null]
+  driver_number int [not null]
+  lap_number int [not null]
+  official_lap_duration_ms bigint
+  telemetry_covered_duration_ms bigint
+  first_sample_offset_ms bigint
+  last_sample_offset_ms bigint
+  maximum_car_data_gap_ms bigint
+  maximum_position_gap_ms bigint
+  final_integrated_distance_m double
+  interpolated_car_data_percentage double
+  interpolated_position_percentage double
+  stale_sample_percentage double
+  distance_delta_validation_ms bigint
+  quality_status text [not null]
+  quality_messages text[] [not null]
+  created_at timestamptz [not null]
+
+  indexes {
+    (session_id, driver_number, lap_number) [pk]
   }
 }
 
@@ -234,6 +290,9 @@ Ref: telemetry_samples.(session_id, driver_code) > session_drivers.(session_id, 
 Ref: position_samples.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
 Ref: aligned_telemetry_10hz.session_id > sessions.session_id [delete: cascade]
 Ref: aligned_telemetry_10hz.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
+Ref: lap_telemetry_by_distance.session_id > sessions.session_id [delete: cascade]
+Ref: lap_telemetry_by_distance.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
+Ref: lap_telemetry_quality.session_id > sessions.session_id [delete: cascade]
 Ref: telemetry_ingestion_diagnostics.session_id > sessions.session_id [delete: cascade]
 Ref: telemetry_ingestion_diagnostics.(session_id, driver_code) > session_drivers.(session_id, driver_code) [delete: cascade]
 Ref: circuit_metadata.session_id > sessions.session_id [delete: cascade]

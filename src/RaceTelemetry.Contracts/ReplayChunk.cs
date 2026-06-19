@@ -31,7 +31,10 @@ public sealed record ReplaySample(
     long? LapTimeMs = null,
     string? LocationStatus = null,
     IReadOnlyList<string>? QualityFlags = null,
+    DateTimeOffset? CarSourceTimeUtc = null,
+    DateTimeOffset? LocationSourceTimeUtc = null,
     int? CarSampleAgeMs = null,
     int? LocationSampleAgeMs = null,
     bool? IsInterpolatedCar = null,
-    bool? IsInterpolatedLocation = null);
+    bool? IsInterpolatedLocation = null,
+    string? AlignmentMethod = null);

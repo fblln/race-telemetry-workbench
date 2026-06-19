@@ -40,6 +40,9 @@ EXPECTED_HOT_PATH_INDEXES = {
     "ix_aligned_telemetry_session_driver_time",
     "ix_aligned_telemetry_driver_lap",
     "ix_aligned_telemetry_session_lap",
+    "ix_lap_telemetry_by_distance_session_driver_lap",
+    "ix_lap_telemetry_by_distance_session_lap_distance",
+    "ix_lap_telemetry_quality_session_status",
 }
 EXPECTED_BASE_TABLES = {
     "sessions",
@@ -53,6 +56,8 @@ EXPECTED_BASE_TABLES = {
     "race_control_messages",
     "aligned_telemetry_10hz",
     "telemetry_ingestion_diagnostics",
+    "lap_telemetry_by_distance",
+    "lap_telemetry_quality",
 }
 EXPECTED_TRACK_STATUS_PERIODS = [
     (0, 210000, "track_clear"),
@@ -597,6 +602,69 @@ class DatabaseIntegrationTests(unittest.TestCase):
 
         self.assertTrue(EXPECTED_TELEMETRY_COLUMNS.issubset(columns))
         self.assertFalse(REMOVED_COMPOSED_TELEMETRY_COLUMNS.intersection(columns))
+
+    def test_alignment_projection_tables_expose_domain_columns(self):
+        """Derived time- and distance-domain tables should expose explicit alignment metadata."""
+
+        aligned_columns = {
+            row[0]
+            for row in self.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_schema = %s
+                  AND table_name = 'aligned_telemetry_10hz'
+                """,
+                (self.schema_name,),
+            )
+        }
+        self.assertIn("alignment_method", aligned_columns)
+
+        distance_columns = {
+            row[0]
+            for row in self.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_schema = %s
+                  AND table_name = 'lap_telemetry_by_distance'
+                """,
+                (self.schema_name,),
+            )
+        }
+        self.assertTrue(
+            {
+                "distance_m",
+                "normalized_track_progress",
+                "lap_elapsed_time_ms",
+                "source_sample_before_time_utc",
+                "source_sample_after_time_utc",
+                "quality_flags",
+            }.issubset(distance_columns)
+        )
+
+        quality_columns = {
+            row[0]
+            for row in self.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_schema = %s
+                  AND table_name = 'lap_telemetry_quality'
+                """,
+                (self.schema_name,),
+            )
+        }
+        self.assertTrue(
+            {
+                "official_lap_duration_ms",
+                "maximum_car_data_gap_ms",
+                "final_integrated_distance_m",
+                "distance_delta_validation_ms",
+                "quality_status",
+                "quality_messages",
+            }.issubset(quality_columns)
+        )
 
     def test_hot_path_indexes_exist_for_replay_and_event_queries(self):
         """Replay and telemetry-event query paths should have targeted indexes."""

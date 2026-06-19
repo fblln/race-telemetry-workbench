@@ -31,17 +31,19 @@ high-performance .NET MAUI desktop app.
 | Shared contracts | `src/RaceTelemetry.Contracts/` |
 | Query data abstraction + PostgreSQL store | `src/RaceTelemetry.Data/` |
 | MCP server | `src/RaceTelemetry.McpServer/` |
-| .NET MAUI desktop app slot | `src/RaceTelemetry.Desktop/` |
+| Agent class library | `src/RaceTelemetry.Agent/` |
+| Agent API (AG-UI / SSE) | `src/RaceTelemetry.AgentApi/` |
+| .NET MAUI desktop app | `src/RaceTelemetry.Desktop/` |
 | 2025 bad-lap telemetry EDA | `notebooks/2025_telemetry_bad_lap_eda.ipynb`, `notebooks/telemetry_bad_lap_support.py` |
 | 2025 database-surface EDA | `notebooks/race_database_surface_eda.ipynb`, `notebooks/database_surface_quality_support.py` |
-| Unit + integration tests | `tests/`, `tests/RaceTelemetry.IntegrationTests/`, `tests/RaceTelemetry.McpServer.Tests/` |
+| Unit + integration tests | `tests/`, `tests/RaceTelemetry.IntegrationTests/`, `tests/RaceTelemetry.McpServer.Tests/`, `tests/RaceTelemetry.AgentApi.Tests/` |
+| Bruno collections | `bruno/race-telemetry-query-api/`, `bruno/race-telemetry-agent-api/` |
 | Docs | `docs/`, `db/README.md`, `db/schema.md` |
 
-**Not yet implemented:** .NET MAUI desktop app.
-
-The Query API and MCP server now share the read-only analytical surface through
-`RaceTelemetry.Data` and `RaceTelemetry.Contracts`. Keep API, MCP, and contract
-changes in parity unless a divergence is intentionally documented.
+The Query API, MCP server, Agent API, and desktop app all share the read-only
+analytical surface through `RaceTelemetry.Data` and `RaceTelemetry.Contracts`.
+Keep API, MCP, agent, and contract changes in parity unless a divergence is
+intentionally documented.
 
 Verified local imports include full-context Monza race data for 2024 and 2025.
 Season backfills should start conservatively at `--workers 2` or `--workers 3`;
@@ -67,9 +69,6 @@ documented as a comparison baseline. The current local DB also contains partial
 2. Build the high-performance .NET MAUI desktop replay surface against the Query API
 3. Add deeper performance validation against larger imported datasets
 4. Improve position-aware corner matching for telemetry windows
-
-Keep the next work focused on the Query API data path before starting the
-MAUI desktop UI surface.
 
 ---
 
@@ -112,7 +111,18 @@ dotnet build RaceTelemetryWorkbench.slnx
 dotnet test RaceTelemetryWorkbench.slnx
 dotnet run --project tests/RaceTelemetry.IntegrationTests/RaceTelemetry.IntegrationTests.csproj
 dotnet run --project tests/RaceTelemetry.McpServer.Tests/RaceTelemetry.McpServer.Tests.csproj
+dotnet run --project tests/RaceTelemetry.AgentApi.Tests/RaceTelemetry.AgentApi.Tests.csproj
 aspire start
+
+# Agent API secrets (one-time setup)
+dotnet user-secrets set "Parameters:openai-api-key" "sk-..." --project src/RaceTelemetry.AppHost
+dotnet user-secrets set "Parameters:openai-model" "gpt-4o" --project src/RaceTelemetry.AppHost
+
+# Agent API smoke test (Aspire must be running)
+curl http://127.0.0.1:5124/health/ready
+curl -s -N -X POST http://127.0.0.1:5124/ag-ui \
+  -H "Content-Type: application/json" -H "Accept: text/event-stream" \
+  -d '{"threadId":"00000000-0000-7000-8000-000000000001","messages":[{"id":"1","role":"user","content":"List available sessions"}]}'
 
 # Database
 docker compose up -d timescaledb
@@ -196,9 +206,23 @@ when an agent needs interactive inspection of the running MAUI app.
 - `RaceTelemetry.Data` owns the query-store abstraction and PostgreSQL SQL.
   Keep hot-path analytical and replay queries bounded by explicit time ranges,
   row limits, and requested channels.
-- `RaceTelemetry.Contracts` is the shared DTO boundary for API, MCP, and the
-  future desktop app. Prefer additive DTO changes and open-ended known-value
-  handling for client compatibility.
+- `RaceTelemetry.Agent` owns OpenAI client construction (`GetChatClient().AsIChatClient()`),
+  MCP tool discovery (`HttpClientTransport` + `McpClient.CreateAsync`), and the
+  `AgentInstructions` system prompt. Keep provider-specific code isolated here.
+- `RaceTelemetry.AgentApi` hosts the AG-UI SSE endpoint (`POST /ag-ui`), the
+  in-memory session registry, and the agentic streaming loop. The OpenAI API key
+  is injected by Aspire via user secrets and never leaves this process. Sessions
+  are in-memory, keyed by `threadId`, and lost on restart by design.
+- The desktop sends only the current UI selection (session key, selected drivers,
+  lap, active view) as `TelemetryWorkspaceContext` in the AG-UI `state` field.
+  The agent uses this as natural-language context to form MCP tool call
+  arguments — it does not trust this state as authoritative telemetry data.
+- AG-UI protocol is implemented manually via SSE (no official .NET AG-UI hosting
+  package exists as of this writing). Streaming type is `ChatResponseUpdate`
+  (not `StreamingChatCompletionUpdate`).
+- `RaceTelemetry.Contracts` is the shared DTO boundary for API, MCP, agent, and
+  desktop. Prefer additive DTO changes and open-ended known-value handling for
+  client compatibility.
 - Query API errors should stay aligned with RFC-style problem responses.
 - Replay, analytical, and comparison paths should preserve backend `null`
   values rather than inventing client-friendly defaults.

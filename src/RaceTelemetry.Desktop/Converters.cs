@@ -111,6 +111,83 @@ public sealed class DashIfEmptyConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+/// <summary>
+/// Maps a bool to one of two opacity values. ConverterParameter is "trueValue;falseValue",
+/// e.g. "0.34;1" or "1;0.35". Used for locked rail items and disabled chrome.
+/// </summary>
+public sealed class BoolToOpacityConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        var (trueVal, falseVal) = ParseParam(parameter as string);
+        return value is true ? trueVal : falseVal;
+    }
+
+    private static (double, double) ParseParam(string? param)
+    {
+        var parts = param?.Split(';');
+        var trueVal = parts is { Length: > 0 } && double.TryParse(parts[0], System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out var t) ? t : 1.0;
+        var falseVal = parts is { Length: > 1 } && double.TryParse(parts[1], System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out var f) ? f : 0.34;
+        return (trueVal, falseVal);
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+/// <summary>Returns one of two strings depending on a bool value.</summary>
+public sealed class BoolToStringConverter : IValueConverter
+{
+    private readonly string _trueValue;
+    private readonly string _falseValue;
+
+    public BoolToStringConverter(string trueValue, string falseValue)
+    {
+        _trueValue = trueValue;
+        _falseValue = falseValue;
+    }
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is true ? _trueValue : _falseValue;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+/// <summary>Returns one of two colors depending on a bool value (inline-constructable variant).</summary>
+public sealed class BoolToColorConverter2 : IValueConverter
+{
+    private readonly Color _trueColor;
+    private readonly Color _falseColor;
+
+    public BoolToColorConverter2(string trueHex, string falseHex)
+    {
+        _trueColor = Color.FromArgb(trueHex);
+        _falseColor = Color.FromArgb(falseHex);
+    }
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is true ? _trueColor : _falseColor;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+/// <summary>Returns false (hidden) when a list is null or empty. Works for ToolActivity and string lists.</summary>
+public sealed class ToolListVisibilityConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value switch
+    {
+        IReadOnlyList<RaceTelemetry.Desktop.ViewModels.ToolActivity> list => list.Count > 0,
+        IReadOnlyList<string> strs => strs.Count > 0,
+        System.Collections.ICollection col => col.Count > 0,
+        _ => false,
+    };
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 /// <summary>Formats a session label for the launcher session chips (§2a).</summary>
 public sealed class SessionLabelConverter : IValueConverter
 {

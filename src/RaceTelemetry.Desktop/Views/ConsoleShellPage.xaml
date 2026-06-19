@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RaceTelemetry.Desktop.ViewModels"
+             xmlns:views="clr-namespace:RaceTelemetry.Desktop.Views"
+             xmlns:controls="clr-namespace:RaceTelemetry.Desktop.Controls"
+             x:Class="RaceTelemetry.Desktop.Views.ConsoleShellPage"
+             x:DataType="vm:ConsoleShellViewModel"
+             Shell.NavBarIsVisible="False"
+             Title="Workbench">
+
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="View">
+            <MenuFlyoutItem Text="Home" Command="{Binding SelectIndexCommand}" CommandParameter="0">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="0" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Overview" Command="{Binding SelectIndexCommand}" CommandParameter="1">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="1" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Replay" Command="{Binding SelectIndexCommand}" CommandParameter="2">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="2" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Strategy" Command="{Binding SelectIndexCommand}" CommandParameter="3">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="3" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Field" Command="{Binding SelectIndexCommand}" CommandParameter="4">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="4" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Incidents" Command="{Binding SelectIndexCommand}" CommandParameter="5">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="5" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Head-to-Head" Command="{Binding SelectIndexCommand}" CommandParameter="6">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="6" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Lap Detail" Command="{Binding SelectIndexCommand}" CommandParameter="7">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="7" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Telemetry" Command="{Binding SelectIndexCommand}" CommandParameter="8">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="8" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Reports &amp; AI" Command="{Binding SelectIndexCommand}" CommandParameter="9">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Key="9" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+        <MenuBarItem Text="Go">
+            <MenuFlyoutItem Text="Command palette" Clicked="OnOpenPalette">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Modifiers="Cmd" Key="K" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Home" Command="{Binding GoHomeCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators><KeyboardAccelerator Modifiers="Cmd" Key="[" /></MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- ============ COMMAND BAR ============ -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+              Padding="12,6" BackgroundColor="{StaticResource BgInset}"
+              HeightRequest="{StaticResource CommandBarHeight}">
+            <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                <Button Text="‹" Style="{StaticResource SecondaryButton}" Padding="8,2"
+                        Command="{Binding GoHomeCommand}"
+                        IsEnabled="{Binding IsSessionOpen}"
+                        Opacity="{Binding IsSessionOpen, Converter={StaticResource BoolToOpacity}, ConverterParameter='1;0.35'}" />
+                <Label Text="{Binding Breadcrumb}" FontFamily="JetBrainsMono"
+                       FontSize="{StaticResource FsXs}" TextColor="{StaticResource TextSecondary}"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Border Grid.Column="1" BackgroundColor="{StaticResource BgInset}" Stroke="{StaticResource BorderDefault}"
+                    StrokeThickness="1" StrokeShape="RoundRectangle 5"
+                    Padding="10,4" HorizontalOptions="End" WidthRequest="340">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                    <Label Grid.Column="0" Text="⌕" FontSize="14" TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                    <Entry Grid.Column="1" x:Name="SearchEntry" Text="{Binding SearchQuery}"
+                           Placeholder="{Binding SearchPlaceholder}" BackgroundColor="Transparent" />
+                    <Label Grid.Column="2" Text="⌘K" FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}"
+                           TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center"
+                                   IsEnabled="{Binding IsSessionOpen}"
+                                   Opacity="{Binding IsSessionOpen, Converter={StaticResource BoolToOpacity}, ConverterParameter='1;0.4'}">
+                <Border BackgroundColor="{StaticResource BgRaised}" Stroke="{StaticResource BorderDefault}" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 5" Padding="8,4">
+                    <HorizontalStackLayout Spacing="7">
+                        <Label Text="Export" FontFamily="InterMedium" FontSize="{StaticResource FsXs}" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                        <Label Text="E" FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+                <Border BackgroundColor="{StaticResource BgRaised}" Stroke="{StaticResource BorderDefault}" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 5" Padding="8,4">
+                    <HorizontalStackLayout Spacing="7">
+                        <Label Text="Save view" FontFamily="InterMedium" FontSize="{StaticResource FsXs}" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                        <Label Text="S" FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+                <Border BackgroundColor="{StaticResource BgRaised}" Stroke="{StaticResource BorderDefault}" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 5" Padding="10,4">
+                    <Label Text="?" FontFamily="JetBrainsMono" FontSize="{StaticResource FsSm}" TextColor="{StaticResource TextTertiary}" />
+                </Border>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- ============ HUD STRIP ============ -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never"
+                    BackgroundColor="{StaticResource BgRaised}"
+                    HeightRequest="{StaticResource HudHeight}">
+            <StackLayout Orientation="Horizontal" Spacing="0" Padding="12,5"
+                         BindableLayout.ItemsSource="{Binding Hud}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:HudMetric">
+                        <Grid ColumnDefinitions="Auto,1">
+                            <VerticalStackLayout Grid.Column="0" Spacing="0" Padding="14,0" MinimumWidthRequest="52">
+                                <Label Text="{Binding Label}" FontFamily="JetBrainsMono"
+                                       FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}" />
+                                <Label Text="{Binding Value}" FontFamily="JetBrainsMonoMedium" FontSize="{StaticResource FsSm}"
+                                       TextColor="{Binding IsPlaceholder, Converter={StaticResource BoolColor}, ConverterParameter='#5C544A;#F4EEE6'}" />
+                            </VerticalStackLayout>
+                            <BoxView Grid.Column="1" WidthRequest="1" Color="{StaticResource BorderDefault}" Margin="0,3" />
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </StackLayout>
+        </ScrollView>
+
+        <!-- ============ BODY: rail + content host ============ -->
+        <Grid Grid.Row="2" ColumnDefinitions="176,*">
+
+            <Border Grid.Column="0" BackgroundColor="{StaticResource BgSurface}"
+                    Stroke="{StaticResource BorderDefault}" StrokeThickness="0" Padding="6">
+                <Grid RowDefinitions="*,Auto">
+                    <CollectionView Grid.Row="0" ItemsSource="{Binding Views}" SelectionMode="Single"
+                                    SelectedItem="{Binding ActiveView}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ConsoleView">
+                                <Grid ColumnDefinitions="3,*,Auto" Margin="0,1" Padding="0"
+                                      Opacity="{Binding IsLocked, Converter={StaticResource BoolToOpacity}, ConverterParameter='0.34;1'}"
+                                      InputTransparent="{Binding IsLocked}"
+                                      BackgroundColor="{Binding IsActive, Converter={StaticResource BoolColor}, ConverterParameter='#43320F;#00000000'}">
+                                    <BoxView Grid.Column="0" Color="{StaticResource Accent}" IsVisible="{Binding IsActive}" />
+                                    <Label Grid.Column="1" Text="{Binding Title}" Padding="9,7"
+                                           TextColor="{Binding IsActive, Converter={StaticResource BoolColor}, ConverterParameter='#F4EEE6;#BCB1A2'}"
+                                           FontSize="{StaticResource FsSm}" VerticalOptions="Center" />
+                                    <Border Grid.Column="2" BackgroundColor="{StaticResource BgRaised}" Stroke="{StaticResource BorderDefault}"
+                                            StrokeThickness="1" StrokeShape="RoundRectangle 3" Padding="5,1" Margin="0,0,8,0" VerticalOptions="Center">
+                                        <Label Text="{Binding Hotkey}" FontFamily="JetBrainsMono"
+                                               FontSize="{StaticResource Fs2xs}" TextColor="{StaticResource TextTertiary}" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label Grid.Row="1" IsVisible="{Binding IsPreSession}" Margin="6,8"
+                           Text="Views unlock once a session opens" HorizontalTextAlignment="Center"
+                           FontFamily="JetBrainsMono" FontSize="{StaticResource Fs2xs}"
+                           TextColor="{StaticResource TextDisabled}" />
+                </Grid>
+            </Border>
+
+            <ContentView Grid.Column="1" x:Name="ContentHost" BackgroundColor="{StaticResource BgCanvas}" />
+        </Grid>
+
+        <controls:CommandPalette x:Name="Palette" Grid.Row="0" Grid.RowSpan="3" ZIndex="100" />
+    </Grid>
+</ContentPage>

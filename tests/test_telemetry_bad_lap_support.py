@@ -62,7 +62,9 @@ class TelemetryBadLapClassificationTests(unittest.TestCase):
 
         self.assertFalse(row["bad_lap_any_category"])
         self.assertTrue(row["safe_for_replay"])
+        self.assertTrue(row["safe_for_time_domain_analysis"])
         self.assertTrue(row["safe_for_lap_comparison"])
+        self.assertEqual(row["distance_alignment_status"], "not_evaluated_requires_distance_projection")
         self.assertTrue(row["safe_for_geometry_reference"])
         self.assertEqual(row["product_recommendation"], "keep")
         self.assertEqual(row["reason_set"], "clean")
@@ -73,6 +75,7 @@ class TelemetryBadLapClassificationTests(unittest.TestCase):
         self.assertTrue(row["pit_lane_or_safety_car_influenced"])
         self.assertTrue(row["race_context_flag"])
         self.assertTrue(row["safe_for_replay"])
+        self.assertFalse(row["safe_for_time_domain_analysis"])
         self.assertFalse(row["safe_for_lap_comparison"])
         self.assertEqual(row["product_recommendation"], "keep_with_context_label")
 
@@ -87,6 +90,7 @@ class TelemetryBadLapClassificationTests(unittest.TestCase):
         self.assertEqual(row["primary_category"], "timing_session_boundary_artifact")
         self.assertGreaterEqual(row["reason_count"], 2)
         self.assertFalse(row["safe_for_replay"])
+        self.assertFalse(row["safe_for_time_domain_analysis"])
         self.assertEqual(row["product_recommendation"], "exclude")
 
     def test_shape_only_outlier_is_manual_review_not_replay_exclusion(self):
@@ -99,6 +103,7 @@ class TelemetryBadLapClassificationTests(unittest.TestCase):
         self.assertTrue(row["unknown_needs_inspection"])
         self.assertTrue(row["needs_manual_review"])
         self.assertTrue(row["safe_for_replay"])
+        self.assertFalse(row["safe_for_time_domain_analysis"])
         self.assertFalse(row["safe_for_lap_comparison"])
         self.assertEqual(row["product_recommendation"], "manual_review")
 

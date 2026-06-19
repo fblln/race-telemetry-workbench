@@ -32,6 +32,12 @@ public interface IF1TelemetryQueryStore
         int maxSamples,
         CancellationToken cancellationToken);
 
+    Task<LapQualityResponse?> GetLapQualityAsync(
+        string sessionId,
+        string driverCode,
+        int lapNumber,
+        CancellationToken cancellationToken);
+
     Task<LapStoryResponse?> GetLapStoryAsync(
         string sessionId,
         string driverCode,
@@ -54,6 +60,16 @@ public interface IF1TelemetryQueryStore
         int lapB,
         IReadOnlyList<string> channels,
         int timeStepMs,
+        CancellationToken cancellationToken);
+
+    Task<LapComparisonByDistanceResponse?> CompareLapsByDistanceAsync(
+        string sessionId,
+        string driverA,
+        int lapA,
+        string driverB,
+        int lapB,
+        double? startDistanceM,
+        double? endDistanceM,
         CancellationToken cancellationToken);
 
     Task<LapComparisonStoryResponse?> CompareLapsStoryAsync(

@@ -19,11 +19,16 @@ public sealed partial class CommandPaletteViewModel : ObservableObject
     private IReadOnlyList<SessionSummary> _sessions = Array.Empty<SessionSummary>();
     private IReadOnlyList<PaletteAction> _quickActions = Array.Empty<PaletteAction>();
 
+    private Func<Task>? _openConsole;
+
     public CommandPaletteViewModel(ISessionPrefetchService prefetch, AppState state)
     {
         _prefetch = prefetch;
         _state = state;
     }
+
+    /// <summary>ConsoleShellPage registers this so the palette can open a session without Shell.GoToAsync.</summary>
+    public void SetOpenConsoleAction(Func<Task> action) => _openConsole = action;
 
     public ObservableCollection<PaletteItem> SessionItems { get; } = new();
     public ObservableCollection<PaletteItem> ActionItems { get; } = new();
@@ -136,7 +141,7 @@ public sealed partial class CommandPaletteViewModel : ObservableObject
             _state.EventName = s.EventName;
             _state.Year = s.Year;
             _prefetch.Prime(s.SessionId);
-            return Shell.Current.GoToAsync("console");
+            return _openConsole?.Invoke() ?? Task.CompletedTask;
         });
 
     private static bool Matches(SessionSummary s, string q)

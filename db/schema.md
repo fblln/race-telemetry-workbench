@@ -21,6 +21,7 @@ Apply migrations in filename order:
 | `004_remove_composed_telemetry_columns.sql` | Removes obsolete composed telemetry columns from existing databases. |
 | `005_query_hot_path_indexes.sql` | Adds indexes for bounded replay and analytical hot paths. |
 | `006_aligned_telemetry_10hz.sql` | Adds 10 Hz UI-aligned telemetry and ingestion diagnostics tables. |
+| `007_telemetry_domain_alignment.sql` | Adds explicit replay alignment semantics plus distance-domain lap telemetry and per-lap quality tables. |
 
 When Docker initializes a fresh volume, PostgreSQL applies these files
 automatically from `/docker-entrypoint-initdb.d`.
@@ -52,6 +53,8 @@ erDiagram
     session_drivers ||--o{ telemetry_samples : emits
     session_drivers ||--o{ position_samples : emits
     session_drivers ||--o{ aligned_telemetry_10hz : aligns
+    session_drivers ||--o{ lap_telemetry_by_distance : projects
+    session_drivers ||--o{ lap_telemetry_quality : validates
     session_drivers ||--o{ telemetry_ingestion_diagnostics : diagnoses
     sessions ||--o| circuit_metadata : has
     sessions ||--o{ circuit_markers : annotates
@@ -167,6 +170,53 @@ Important columns:
 | `x`, `y`, `z` | FastF1 track-map coordinates in source units. |
 | `track_status` | FastF1 position status when available. |
 | `sample_source` | Source label when available. |
+
+### `aligned_telemetry_10hz`
+
+This is the replay-oriented time-domain projection. It answers when something
+happened, not where pace was gained or lost.
+
+Important columns:
+
+| Column | Meaning |
+|---|---|
+| `source_car_time`, `source_location_time` | Original source timestamps used for the aligned replay row. |
+| `car_sample_age_ms`, `location_sample_age_ms` | Age of the chosen source sample relative to the replay timestamp. |
+| `is_interpolated_car`, `is_interpolated_location` | Whether replay values were synthesized between source samples. |
+| `quality_flags` | Replay-quality diagnostics for stale or gapped source data. |
+| `alignment_method` | Named replay-alignment strategy used to build the row. |
+
+### `lap_telemetry_by_distance`
+
+This is the distance-domain lap projection. It answers where performance was
+gained or lost by aligning laps onto common derived distance points.
+
+Important columns:
+
+| Column | Meaning |
+|---|---|
+| `distance_m` | Derived analytical lap distance, not surveyed circuit distance. |
+| `normalized_track_progress` | Forward-compatible 0-1 normalized lap progress. |
+| `lap_elapsed_time_ms` | Interpolated lap-elapsed time at the distance point. |
+| `session_time_ms` | Interpolated session-relative time at the distance point. |
+| `source_sample_before_time_utc`, `source_sample_after_time_utc` | Telemetry provenance bounds used for interpolation. |
+| `interpolated` | Whether the point is synthetic between source samples. |
+| `quality_flags` | Distance-domain quality diagnostics for the point. |
+
+### `lap_telemetry_quality`
+
+Objective per-lap distance-domain quality and validation metrics.
+
+Important columns:
+
+| Column | Meaning |
+|---|---|
+| `official_lap_duration_ms` | Authoritative lap time from timing data. |
+| `telemetry_covered_duration_ms` | Covered raw telemetry span inside the lap window. |
+| `maximum_car_data_gap_ms`, `maximum_position_gap_ms` | Largest source gaps seen while building the projection. |
+| `final_integrated_distance_m` | Final derived analytical lap distance. |
+| `distance_delta_validation_ms` | Difference between projected finish timing and official timing. |
+| `quality_status`, `quality_messages` | Persisted validation state and warnings for API/MCP consumers. |
 
 ### `weather_samples`
 

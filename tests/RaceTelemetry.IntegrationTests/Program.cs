@@ -51,11 +51,24 @@ var telemetry = await AssertOk<LapTelemetryResponse>(
 Assert(telemetry.Items.Count > 0, "Expected seeded lap telemetry.");
 Assert(telemetry.Items.All(sample => sample.ThrottlePct is null && sample.BrakePct is null), "Unrequested lap telemetry channels should be null.");
 
+var lapQuality = await AssertOk<LapQualityResponse>(
+    $"/api/sessions/{session.SessionId}/drivers/LEC/laps/1/quality",
+    cancellation.Token);
+
+Assert(lapQuality.QualityStatus.Length > 0, "Expected lap quality status.");
+
 var comparison = await AssertOk<LapComparisonResponse>(
     $"/api/sessions/{session.SessionId}/compare/laps?driverA=LEC&lapA=1&driverB=VER&lapB=1",
     cancellation.Token);
 
 Assert(comparison.Items.Count > 0, "Expected seeded lap comparison points.");
+
+var distanceComparison = await AssertOk<LapComparisonByDistanceResponse>(
+    $"/api/sessions/{session.SessionId}/compare/laps/by-distance?driverA=LEC&lapA=1&driverB=VER&lapB=1",
+    cancellation.Token);
+
+Assert(distanceComparison.Items.Count > 0, "Expected seeded distance-aligned lap comparison points.");
+Assert(distanceComparison.DeltaSignConvention.Length > 0, "Expected distance-comparison sign convention.");
 
 var replayMetadata = await AssertOk<ReplayMetadata>(
     $"/api/sessions/{session.SessionId}/replay/metadata",
@@ -81,6 +94,7 @@ Assert(
         && sample.Y is null
         && sample.Z is null),
     "Unrequested replay channels should be null.");
+Assert(replayChunk.Items.SelectMany(item => item.Samples).All(sample => sample.CarSourceTimeUtc is null || sample.CarSourceTimeUtc <= sample.DateUtc), "Replay provenance should expose source timestamps when available.");
 
 var replayContext = await AssertOk<ReplayContextResponse>(
     $"/api/sessions/{session.SessionId}/replay/context?fromMs=60000&durationMs=300000",

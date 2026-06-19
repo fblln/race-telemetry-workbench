@@ -1,0 +1,35 @@
+meta {
+  name: Run – with workbench context
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/ag-ui
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: text/event-stream
+}
+
+body:json {
+  {
+    "threadId": "{{threadId}}",
+    "messages": [
+      {
+        "id": "msg-001",
+        "role": "user",
+        "content": "Compare lap times for the selected drivers."
+      }
+    ],
+    "state": {
+      "sessionKey": "{{sessionId}}",
+      "selectedDrivers": ["{{driverA}}", "{{driverB}}"],
+      "selectedLap": 10,
+      "activeView": "head-to-head"
+    }
+  }
+}

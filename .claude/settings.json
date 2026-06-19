@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "defaultMode": "auto",
+    "allow": [
+      "mcp__maui-devflow__maui_screenshot",
+      "mcp__maui-devflow__maui_list_agents",
+      "mcp__computer-use__screenshot",
+      "mcp__maui-devflow__maui_tree",
+      "mcp__computer-use__wait",
+      "mcp__maui-devflow__maui_status",
+      "mcp__maui-devflow__maui_display_info",
+      "mcp__maui-devflow__maui_query",
+      "Bash(dotnet package *)"
+    ]
+  }
+}

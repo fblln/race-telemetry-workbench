@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RaceTelemetry.Desktop.ViewModels"
+             x:Class="RaceTelemetry.Desktop.Views.ReportsAiView"
+             x:DataType="vm:ReportsAiViewModel">
+
+    <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource BgCanvas}">
+
+        <!-- Row 0: heading (left) + 3-tab strip (right) -->
+        <Grid ColumnDefinitions="*,Auto" Padding="22,18,22,14">
+            <VerticalStackLayout Grid.Column="0" Spacing="3" VerticalOptions="Center">
+                <Label Text="Reports &amp; AI"
+                       FontFamily="InterSemiBold"
+                       FontSize="{StaticResource FsXl}"
+                       TextColor="{StaticResource TextPrimary}" />
+                <Label Text="Shareable exports and the natural-language assistant — composed over bounded Query API / MCP aggregates."
+                       FontFamily="Inter"
+                       FontSize="{StaticResource FsSm}"
+                       TextColor="{StaticResource TextSecondary}" />
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                <Border x:Name="TabDebrief"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="14,7">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SwitchTabCommand}" CommandParameter="0" />
+                    </Border.GestureRecognizers>
+                    <Label Text="MCP debrief" FontFamily="InterMedium" FontSize="{StaticResource FsSm}"
+                           TextColor="{StaticResource TextPrimary}" />
+                </Border>
+                <Border x:Name="TabSessionReport"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="14,7">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SwitchTabCommand}" CommandParameter="1" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Session report" FontFamily="InterMedium" FontSize="{StaticResource FsSm}"
+                           TextColor="{StaticResource TextPrimary}" />
+                </Border>
+                <Border x:Name="TabRaceStory"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="14,7">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SwitchTabCommand}" CommandParameter="2" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Race story (AI)" FontFamily="InterMedium" FontSize="{StaticResource FsSm}"
+                           TextColor="{StaticResource TextPrimary}" />
+                </Border>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Row 1: content host — swapped by code-behind -->
+        <ContentView Grid.Row="1" x:Name="TabHost" />
+
+    </Grid>
+</ContentView>

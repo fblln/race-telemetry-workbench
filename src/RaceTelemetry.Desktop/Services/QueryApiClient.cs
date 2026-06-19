@@ -19,6 +19,7 @@ public interface IQueryApiClient
     Task<PositionsResponse?> GetPositionsAsync(string sessionId, IEnumerable<string>? drivers = null, CancellationToken ct = default);
     Task<StintAnalysisResponse?> GetStintsAsync(string sessionId, CancellationToken ct = default);
     Task<ReplayChunkResponse?> GetReplayChunkAsync(string sessionId, long fromMs, long durationMs, IEnumerable<string>? drivers = null, IEnumerable<string>? channels = null, int sampleEvery = 1, CancellationToken ct = default);
+    Task<RaceStoryResponse?> GetRaceStoryAsync(string sessionId, CancellationToken ct = default);
 }
 
 public sealed class QueryApiClient : IQueryApiClient
@@ -93,6 +94,9 @@ public sealed class QueryApiClient : IQueryApiClient
             ("sampleEvery", sampleEvery.ToString()));
         return _http.GetFromJsonAsync<ReplayChunkResponse>($"/api/sessions/{Encode(sessionId)}/replay/chunk{query}", JsonOptions, ct);
     }
+
+    public Task<RaceStoryResponse?> GetRaceStoryAsync(string sessionId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<RaceStoryResponse>($"/api/sessions/{Encode(sessionId)}/story", JsonOptions, ct);
 
     private static string Encode(string value) => Uri.EscapeDataString(value);
 

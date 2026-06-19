@@ -19,6 +19,7 @@
             <local:BoolToColorConverter x:Key="BoolColor" />
             <local:StatusColorConverter x:Key="StatusColor" />
             <local:SessionLabelConverter x:Key="SessionLabel" />
+            <local:BoolToOpacityConverter x:Key="BoolToOpacity" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

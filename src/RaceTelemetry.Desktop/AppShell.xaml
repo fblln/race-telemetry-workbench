@@ -6,9 +6,7 @@
        FlyoutBehavior="Disabled"
        BackgroundColor="{StaticResource BgCanvas}">
 
-    <!-- The launcher is the root. Opening a session navigates to the session console,
-         which hosts the left view rail, command bar, and HUD (§8.11). -->
-    <ShellContent Route="launcher"
-                  ContentTemplate="{DataTemplate views:LauncherPage}" />
+    <ShellContent Route="console"
+                  ContentTemplate="{DataTemplate views:ConsoleShellPage}" />
 
 </Shell>

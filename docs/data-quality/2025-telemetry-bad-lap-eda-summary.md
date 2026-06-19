@@ -14,9 +14,9 @@ Scope: 2025 race sessions (`session_type = 'R'`) imported in the local Timescale
 
 - `missing_or_sparse_telemetry`: too few car or position samples for a defensible lap-level trace.
 - `incomplete_lap_window`: missing timing or less than the configured lap-window coverage in raw car telemetry.
-- `distance_reset_or_non_monotonic_distance`: unavailable in the imported schema because raw FastF1 `Distance` is not stored; this is kept explicit instead of inferred.
+- `distance_reset_or_non_monotonic_distance`: unavailable in this time/raw-domain pass because a persisted distance projection is not yet the authority for notebook classification.
 - `implausible_channel_values`: speed, RPM, gear, throttle, or brake outside configured physical/source bounds.
-- `atypical_speed_profile`: equal-lap-time speed profile is a robust outlier versus clean laps from the same race. The compatibility source column remains `shape_mismatch_against_comparable_laps`.
+- `atypical_speed_profile`: equal-lap-time speed profile is a robust outlier versus clean laps from the same race. This is a time-domain shape lens, not authoritative distance-domain lap-comparison truth. The compatibility source column remains `shape_mismatch_against_comparable_laps`.
 - `position_trace_discontinuity`: position path length or segment jumps are inconsistent with clean same-race laps.
 - `pit_lane_or_safety_car_influenced`: pit-in/out, safety car, VSC, or red-flag context overlaps the lap.
 - `timing_session_boundary_artifact`: missing session-relative timing, raw sample ordering issues, lap-time reset, or large raw telemetry gaps.
@@ -49,7 +49,7 @@ Reason columns are not mutually exclusive. The `primary_category` table assigns 
 
 ## Quality lenses and safety flags
 
-The EDA separates data-integrity failures from race context and analytical shape outliers. `safe_for_replay` only excludes replay-blocking integrity failures; context-labeled laps can still be replayed. `safe_for_lap_comparison` and `safe_for_geometry_reference` are stricter because comparison/reference workflows should avoid source, context, and shape-review laps.
+This EDA is the time/raw-domain quality pass. It separates data-integrity failures from race context and analytical shape outliers. `safe_for_replay` only excludes replay-blocking integrity failures; context-labeled laps can still be replayed. `safe_for_time_domain_analysis` is the primary bounded-analysis flag in this notebook. `safe_for_lap_comparison` is retained only as a deprecated compatibility alias for the current time-bucket comparison surface. `distance_alignment_status` remains `not_evaluated_requires_distance_projection` until the distance-domain projection exists. `safe_for_geometry_reference` remains stricter because geometry-reference workflows should avoid source, context, and shape-review laps.
 
 | lens                      |   laps |   pct_of_all_laps |
 |:--------------------------|-------:|------------------:|
@@ -59,12 +59,14 @@ The EDA separates data-integrity failures from race context and analytical shape
 | replay_blocking_integrity |    477 |              1.79 |
 | manual_review             |     58 |              0.22 |
 
-| derived_flag                |   laps |   pct_of_all_laps |
-|:----------------------------|-------:|------------------:|
-| safe_for_replay             |  26212 |             98.21 |
-| safe_for_lap_comparison     |  21192 |             79.40 |
-| safe_for_geometry_reference |  21192 |             79.40 |
-| needs_manual_review         |     58 |              0.22 |
+| derived_flag                  | value                                      |   laps |   pct_of_all_laps |
+|:------------------------------|:-------------------------------------------|-------:|------------------:|
+| safe_for_replay               | true                                       |  26212 |             98.21 |
+| safe_for_time_domain_analysis | true                                       |  21192 |             79.40 |
+| distance_alignment_status     | not_evaluated_requires_distance_projection |  26689 |            100.00 |
+| safe_for_lap_comparison       | true                                       |  21192 |             79.40 |
+| safe_for_geometry_reference   | true                                       |  21192 |             79.40 |
+| needs_manual_review           | true                                       |     58 |              0.22 |
 
 ## Product recommendation buckets
 

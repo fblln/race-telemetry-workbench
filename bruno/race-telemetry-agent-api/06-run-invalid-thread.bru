@@ -1,0 +1,29 @@
+meta {
+  name: Run – invalid thread ID (error handling)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/ag-ui
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: text/event-stream
+}
+
+body:json {
+  {
+    "threadId": "not-a-valid-uuid",
+    "messages": [
+      {
+        "id": "msg-001",
+        "role": "user",
+        "content": "This should return a RUN_ERROR event."
+      }
+    ]
+  }
+}

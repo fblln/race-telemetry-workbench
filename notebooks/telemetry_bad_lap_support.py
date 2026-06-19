@@ -769,11 +769,13 @@ def classify_laps(df: pd.DataFrame, thresholds: QualityThresholds = QualityThres
     ].max(axis=1)
 
     result["safe_for_replay"] = ~result["replay_blocking_integrity_flag"]
-    result["safe_for_lap_comparison"] = ~(
+    result["safe_for_time_domain_analysis"] = ~(
         result["data_integrity_flag"]
         | result["race_context_flag"]
         | result["analytical_shape_flag"]
     )
+    result["distance_alignment_status"] = "not_evaluated_requires_distance_projection"
+    result["safe_for_lap_comparison"] = result["safe_for_time_domain_analysis"]
     result["safe_for_geometry_reference"] = ~(
         result["data_integrity_flag"]
         | result["race_context_flag"]
@@ -862,14 +864,36 @@ def summarize_safety(classified: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for column in [
         "safe_for_replay",
+        "safe_for_time_domain_analysis",
+        "distance_alignment_status",
         "safe_for_lap_comparison",
         "safe_for_geometry_reference",
         "needs_manual_review",
     ]:
+        if column == "distance_alignment_status":
+            summary = (
+                classified.groupby(column, dropna=False)
+                .size()
+                .rename("laps")
+                .reset_index()
+                .rename(columns={column: "value"})
+            )
+            for _, row in summary.iterrows():
+                rows.append(
+                    {
+                        "derived_flag": column,
+                        "value": row["value"],
+                        "laps": int(row["laps"]),
+                        "pct_of_all_laps": row["laps"] / total_laps * 100 if total_laps else 0.0,
+                    }
+                )
+            continue
+
         count = int(classified[column].sum())
         rows.append(
             {
                 "derived_flag": column,
+                "value": "true",
                 "laps": count,
                 "pct_of_all_laps": count / total_laps * 100 if total_laps else 0.0,
             }
@@ -2392,9 +2416,9 @@ def build_markdown_summary(
         "",
         "- `missing_or_sparse_telemetry`: too few car or position samples for a defensible lap-level trace.",
         "- `incomplete_lap_window`: missing timing or less than the configured lap-window coverage in raw car telemetry.",
-        "- `distance_reset_or_non_monotonic_distance`: unavailable in the imported schema because raw FastF1 `Distance` is not stored; this is kept explicit instead of inferred.",
+        "- `distance_reset_or_non_monotonic_distance`: unavailable in this time/raw-domain pass because a persisted distance projection is not yet the authority for notebook classification.",
         "- `implausible_channel_values`: speed, RPM, gear, throttle, or brake outside configured physical/source bounds.",
-        "- `atypical_speed_profile`: equal-lap-time speed profile is a robust outlier versus clean laps from the same race. The compatibility source column remains `shape_mismatch_against_comparable_laps`.",
+        "- `atypical_speed_profile`: equal-lap-time speed profile is a robust outlier versus clean laps from the same race. This is a time-domain shape lens, not authoritative distance-domain lap-comparison truth. The compatibility source column remains `shape_mismatch_against_comparable_laps`.",
         "- `position_trace_discontinuity`: position path length or segment jumps are inconsistent with clean same-race laps.",
         "- `pit_lane_or_safety_car_influenced`: pit-in/out, safety car, VSC, or red-flag context overlaps the lap.",
         "- `timing_session_boundary_artifact`: missing session-relative timing, raw sample ordering issues, lap-time reset, or large raw telemetry gaps.",
@@ -2410,9 +2434,12 @@ def build_markdown_summary(
         "",
         "## Quality lenses and safety flags",
         "",
-        "The EDA separates data-integrity failures from race context and analytical shape outliers. "
+        "This EDA is the time/raw-domain quality pass. It separates data-integrity failures from race context and analytical shape outliers. "
         "`safe_for_replay` only excludes replay-blocking integrity failures; context-labeled laps can still be replayed. "
-        "`safe_for_lap_comparison` and `safe_for_geometry_reference` are stricter because comparison/reference workflows should avoid source, context, and shape-review laps.",
+        "`safe_for_time_domain_analysis` is the primary bounded-analysis flag in this notebook. "
+        "`safe_for_lap_comparison` is retained only as a deprecated compatibility alias for the current time-bucket comparison surface. "
+        "`distance_alignment_status` remains `not_evaluated_requires_distance_projection` until the distance-domain projection exists. "
+        "`safe_for_geometry_reference` remains stricter because geometry-reference workflows should avoid source, context, and shape-review laps.",
         "",
         lens_summary.to_markdown(index=False, floatfmt=".2f"),
         "",

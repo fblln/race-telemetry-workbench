@@ -219,6 +219,28 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
     }
 
     [McpServerTool(
+        Name = "get_lap_quality",
+        Title = "Get Lap Quality",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Get objective lap-level distance-alignment quality metrics and validation status.")]
+    public async Task<LapQualityResponse> GetLapQuality(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Driver abbreviation, for example LEC.")] string driverCode,
+        [Description("Positive lap number.")] int lapNumber,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("get_lap_quality", sessionId, driverCode, lapNumber);
+
+        ValidateSessionDriverLap(sessionId, driverCode, lapNumber);
+
+        return await store.GetLapQualityAsync(sessionId, driverCode, lapNumber, cancellationToken)
+            ?? throw NotFound($"Lap {lapNumber} for driver {driverCode.ToUpperInvariant()} does not exist in session {sessionId}.");
+    }
+
+    [McpServerTool(
         Name = "get_lap_story",
         Title = "Get Lap Story",
         ReadOnly = true,
@@ -317,6 +339,47 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
                 timeStepMs,
                 cancellationToken)
             ?? throw NotFound("One or both requested laps do not exist.");
+    }
+
+    [McpServerTool(
+        Name = "compare_laps_by_distance",
+        Title = "Compare Laps By Distance",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Compare two laps in the distance domain so the response answers where performance was gained or lost.")]
+    public async Task<LapComparisonByDistanceResponse> CompareLapsByDistance(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("First driver abbreviation.")] string driverA,
+        [Description("First lap number.")] int lapA,
+        [Description("Second driver abbreviation.")] string driverB,
+        [Description("Second lap number.")] int lapB,
+        [Description("Optional lower distance bound in metres.")] double? startDistanceM = null,
+        [Description("Optional upper distance bound in metres.")] double? endDistanceM = null,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("compare_laps_by_distance", sessionId, driverA, lapA);
+        activity?.SetTag("race.query.driver_b", driverB.ToUpperInvariant());
+        activity?.SetTag("race.query.lap_b", lapB);
+        activity?.SetTag("race.query.start_distance_m", startDistanceM);
+        activity?.SetTag("race.query.end_distance_m", endDistanceM);
+
+        ValidateSessionDriverLap(sessionId, driverA, lapA);
+        ValidateDriverCode(driverB);
+        ValidateLapNumber(lapB);
+        ValidateDistanceRange(startDistanceM, endDistanceM);
+
+        return await store.CompareLapsByDistanceAsync(
+                sessionId,
+                driverA,
+                lapA,
+                driverB,
+                lapB,
+                startDistanceM,
+                endDistanceM,
+                cancellationToken)
+            ?? throw NotFound("One or both requested laps do not exist, or no distance-aligned telemetry is available.");
     }
 
     [McpServerTool(

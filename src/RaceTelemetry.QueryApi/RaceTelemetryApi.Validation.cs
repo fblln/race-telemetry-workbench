@@ -164,6 +164,32 @@ public static partial class RaceTelemetryApi
         return true;
     }
 
+    private static bool ValidateDistanceRange(double? startDistanceM, double? endDistanceM, out IResult? error)
+    {
+        error = null;
+        if (startDistanceM is < 0 || endDistanceM is < 0)
+        {
+            error = ValidationError(
+                "InvalidDistanceRange",
+                "Distance range values must be greater than or equal to zero.",
+                ("startDistanceM", startDistanceM),
+                ("endDistanceM", endDistanceM));
+            return false;
+        }
+
+        if (startDistanceM is not null && endDistanceM is not null && startDistanceM > endDistanceM)
+        {
+            error = ValidationError(
+                "InvalidDistanceRange",
+                "startDistanceM must be less than or equal to endDistanceM.",
+                ("startDistanceM", startDistanceM),
+                ("endDistanceM", endDistanceM));
+            return false;
+        }
+
+        return true;
+    }
+
     private static bool IsValidSessionId(string sessionId) =>
         SessionIdPattern.IsMatch(sessionId);
 

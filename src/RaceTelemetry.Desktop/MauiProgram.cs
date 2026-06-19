@@ -48,34 +48,37 @@ public static class MauiProgram
             client.Timeout = TimeSpan.FromSeconds(30);
         });
 
-        // Prefetch cache: eagerly loads everything about a session so view
-        // switches are instant (§8.9). Singleton so the cache outlives views.
+        // Agent API base address (AG-UI over SSE).
+        var agentApiBase = Environment.GetEnvironmentVariable("RACE_TELEMETRY_AGENT_API_BASEURL")
+                           ?? "http://localhost:5124";
+
+        builder.Services.AddHttpClient("agent-api", client =>
+        {
+            client.BaseAddress = new Uri(agentApiBase);
+            client.Timeout = TimeSpan.FromMinutes(5);
+        });
+
+        // Prefetch + launcher caches
         builder.Services.AddSingleton<ISessionPrefetchService, SessionPrefetchService>();
         builder.Services.AddSingleton<ILauncherSessionCache, LauncherSessionCache>();
 
-        // View models
+        // Shared app state
         builder.Services.AddSingleton<AppState>();
+
+        // Shell + command palette (singletons — persistent chrome)
+        builder.Services.AddSingleton<ConsoleShellViewModel>();
         builder.Services.AddSingleton<CommandPaletteViewModel>();
-        builder.Services.AddTransient<LauncherViewModel>();
-        builder.Services.AddTransient<SessionConsoleViewModel>();
-        builder.Services.AddTransient<OverviewViewModel>();
-        builder.Services.AddTransient<FieldViewViewModel>();
-        builder.Services.AddTransient<TrackIncidentsViewModel>();
-        builder.Services.AddTransient<ReplayWorkspaceViewModel>();
-        builder.Services.AddTransient<LapComparisonViewModel>();
-        builder.Services.AddTransient<StrategyViewModel>();
 
-        // Pages
-        builder.Services.AddTransient<LauncherPage>();
-        builder.Services.AddTransient<SessionConsolePage>();
+        // AG-UI agent client (stateless HTTP client, thread ID managed separately)
+        builder.Services.AddSingleton<ChatThreadIdentity>();
+        builder.Services.AddSingleton<ITelemetryAgentClient, TelemetryAgentClient>();
 
-        // Views hosted inside the console content area (§8.11)
-        builder.Services.AddTransient<OverviewView>();
-        builder.Services.AddTransient<FieldView>();
-        builder.Services.AddTransient<TrackIncidentsView>();
-        builder.Services.AddTransient<ReplayWorkspaceView>();
-        builder.Services.AddTransient<LapComparisonView>();
-        builder.Services.AddTransient<StrategyView>();
+        // Pages and views (transient — re-created on each navigation)
+        builder.Services.AddTransient<ConsoleShellPage>();
+        builder.Services.AddTransient<LauncherView>();
+        builder.Services.AddTransient<PlaceholderView>();
+        builder.Services.AddTransient<ReportsAiViewModel>();
+        builder.Services.AddTransient<ReportsAiView>();
 
 #if DEBUG
         builder.AddMauiDevFlowAgent(options =>

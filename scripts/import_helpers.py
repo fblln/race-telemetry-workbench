@@ -20,6 +20,8 @@ class ImportSummary:
     position_samples: int
     aligned_samples: int
     telemetry_diagnostics: int
+    distance_alignment_rows: int
+    lap_quality_rows: int
     circuit_markers: int
     weather_samples: int
     track_status_events: int

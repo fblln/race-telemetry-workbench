@@ -67,7 +67,7 @@ class CopyWriter:
         table_name: str,
         columns: Sequence[str],
         batch_size: int,
-        key_indexes: tuple[int, int, int],
+        key_indexes: tuple[int, ...],
     ) -> None:
         self.connection = connection
         self.table_name = table_name
@@ -75,7 +75,7 @@ class CopyWriter:
         self.batch_size = batch_size
         self.key_indexes = key_indexes
         self.buffer: list[tuple[Any, ...]] = []
-        self.seen_keys: set[tuple[Any, Any, Any]] = set()
+        self.seen_keys: set[tuple[Any, ...]] = set()
         self.total = 0
         self.duplicates = 0
         self.write_seconds = 0.0

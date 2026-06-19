@@ -96,13 +96,22 @@ the imported session data instead of free-form model guesses.
 | `get_race_control_timeline` | Searchable race-control timeline with category, flag, and status counts |
 | `get_circuit_context` | Imported circuit rotation, corner markers, marshal lights, and marshal sectors |
 
-These primitives are the bridge between the desktop workbench and the AI layer:
-the Query API serves deterministic UI views, while MCP exposes the same
-analytical surface to the app's small in-process agent and to external clients
-such as Codex or Claude. The Reports & AI view is built around this model: bring
-your own model API key, ask a question in plain language, get an answer grounded
-in bounded telemetry, and jump back to the relevant session, lap, stint,
-incident, or comparison context.
+These primitives are exposed over MCP and consumed by a **server-side agent**
+(`RaceTelemetry.AgentApi`) rather than an in-process model call inside the
+desktop app. The desktop sends the engineer's question together with the current
+UI selection (session key, selected drivers, lap, active view) to the Agent API
+over the AG-UI protocol; the server-side agent calls the MCP tools on the
+engineer's behalf and streams the answer back as SSE. The OpenAI API key never
+touches the desktop process.
+
+The two roles are distinct:
+
+- **Desktop → Agent API (UI selection state):** which session is open, which
+  drivers are selected, which lap and view. Used as natural-language context for
+  the model, not as telemetry data.
+- **Agent → MCP (actual telemetry):** lap times, sector splits, telemetry
+  samples, incidents, pit stops, weather — all fetched live from TimescaleDB via
+  MCP tool calls, grounded in the same query store used by every other view.
 
 ## Backend Architecture
 
@@ -119,13 +128,16 @@ Aspire Dashboard.
 ```mermaid
 flowchart TB
     User["Engineer"]
-    Desktop["Desktop app"]
-    Agent["In-app agent"]
-    Model["LLM provider"]
+    Desktop[".NET MAUI Desktop"]
+    AgentApi["Agent API\n(AG-UI / SSE)"]
+    OpenAI["OpenAI"]
+    McpClients["External MCP clients\n(Codex, Claude, etc.)"]
+    RestClients["REST clients"]
 
     subgraph Aspire["Aspire backend"]
-        QueryApi["Query API"]
-        McpServer["MCP server"]
+        QueryApi["Query API\n:5120"]
+        McpServer["MCP server\n:5122"]
+        AgentApiRes["Agent API\n:5124"]
         Dashboard["Aspire Dashboard"]
     end
 
@@ -136,22 +148,30 @@ flowchart TB
         Scripts["Import scripts"]
     end
 
-    RestClients["REST clients"]
-    McpClients["MCP clients"]
-
     User --> Desktop
     Desktop -->|"REST data"| QueryApi
-    Desktop -->|"questions"| Agent
-    Agent -->|"model calls"| Model
-    Agent -->|"MCP tools"| McpServer
+    Desktop -->|"AG-UI over HTTP/SSE\n(question + UI selection)"| AgentApiRes
+    AgentApiRes -->|"model calls"| OpenAI
+    AgentApiRes -->|"MCP tools\n(actual telemetry)"| McpServer
     McpClients -->|"MCP tools"| McpServer
     RestClients -->|"REST"| QueryApi
     QueryApi -->|"queries"| Database
     McpServer -->|"queries"| Database
     FastF1 --> Scripts -->|"imports"| Database
-    QueryApi -. "OpenTelemetry + DB spans" .-> Dashboard
-    McpServer -. "OpenTelemetry + DB spans" .-> Dashboard
+    QueryApi -. "OpenTelemetry" .-> Dashboard
+    McpServer -. "OpenTelemetry" .-> Dashboard
+    AgentApiRes -. "OpenTelemetry" .-> Dashboard
 ```
+
+**Data flow for a chat question:**
+
+1. Engineer types a question in the Reports & AI view
+2. Desktop sends the question + current UI selection (session, drivers, lap) to `/ag-ui`
+3. Agent API prepends the selection as context text and calls OpenAI
+4. Model requests MCP tool calls (e.g. `compare_laps`, `aggregate_telemetry`)
+5. Agent API executes each tool via the MCP server, which queries TimescaleDB
+6. Model receives tool results and produces a grounded answer
+7. Answer streams back to the desktop as AG-UI SSE events
 
 ### Aspire Observability
 
@@ -175,6 +195,7 @@ URL, and exposes stable HTTP ports:
 |---|---|---|
 | `query-api` | `http://127.0.0.1:5120` | REST surface for replay, analysis, stories, and desktop clients |
 | `mcp-server` | `http://127.0.0.1:5122/mcp` | Streamable HTTP MCP surface for coding-agent and assistant clients |
+| `agent-api` | `http://127.0.0.1:5124` | AG-UI agent endpoint — receives questions from the desktop, calls OpenAI and MCP tools, streams answers |
 
 `src/RaceTelemetry.ServiceDefaults/` wires common .NET service behavior:
 OpenTelemetry tracing and metrics, health checks, service discovery defaults,
@@ -279,6 +300,33 @@ the Query API. Tool calls emit spans such as `mcp.tool.list_sessions`,
 the MCP request, tool execution, shared data-layer call, and PostgreSQL query in
 one trace.
 
+### Agent Library And Agent API
+
+`src/RaceTelemetry.Agent/` is a class library that owns the OpenAI client
+construction, MCP tool discovery, and agent configuration. It exposes a
+singleton `McpToolRegistry` that connects to the MCP server at startup, calls
+`ListToolsAsync` once, and makes the discovered tools available to the chat
+client as `AIFunction` instances.
+
+`src/RaceTelemetry.AgentApi/` is an ASP.NET Core service that hosts the AG-UI
+endpoint. It accepts chat runs from the desktop, resolves or creates an
+in-memory session keyed by `threadId`, serialises concurrent turns on the same
+thread, and drives a streaming agentic loop: model call → tool calls → model
+call → final text. The answer is emitted as a sequence of AG-UI SSE events
+(`RUN_STARTED`, `TOOL_CALL_START`, `TEXT_MESSAGE_CONTENT`, `RUN_FINISHED`, etc.).
+
+Key design points:
+
+- The OpenAI API key lives only in the Agent API process, injected by Aspire
+  from user secrets. The desktop app has no key and no OpenAI dependency.
+- Conversation state is in-memory per `threadId`. Sessions expire after one
+  hour of inactivity; they are lost if the Agent API restarts (by design).
+- The Agent API binds to loopback (`127.0.0.1:5124`) and has no authentication,
+  appropriate for a local desktop tool.
+- The desktop sends only the current UI selection (session key, drivers, lap,
+  active view) as context — not raw telemetry. The agent fetches actual
+  telemetry data via MCP tool calls.
+
 ### Contracts And Client Parity
 
 `src/RaceTelemetry.Contracts/` is the shared DTO boundary for the API, MCP
@@ -323,6 +371,15 @@ dotnet restore RaceTelemetryWorkbench.slnx
 dotnet build RaceTelemetryWorkbench.slnx
 ```
 
+Configure the OpenAI key (once, stored in user secrets):
+
+```bash
+dotnet user-secrets set "Parameters:openai-api-key" "sk-..." \
+  --project src/RaceTelemetry.AppHost
+dotnet user-secrets set "Parameters:openai-model" "gpt-4o" \
+  --project src/RaceTelemetry.AppHost
+```
+
 Run with Aspire:
 
 ```bash
@@ -335,12 +392,20 @@ Stable local ports:
 |---|---|
 | Query API | `http://127.0.0.1:5120` |
 | MCP server | `http://127.0.0.1:5122/mcp` |
+| Agent API | `http://127.0.0.1:5124` |
 | Aspire Dashboard | `https://127.0.0.1:18888` |
 
-Open the Bruno collection:
+Verify agent readiness:
+
+```bash
+curl http://127.0.0.1:5124/health/ready
+```
+
+Open the Bruno collections:
 
 ```text
-bruno/race-telemetry-query-api
+bruno/race-telemetry-query-api   # REST API testing
+bruno/race-telemetry-agent-api   # AG-UI agent testing
 ```
 
 ## Example API Calls
@@ -362,16 +427,14 @@ codex mcp list
 
 ## What Is Coming Next
 
-The design system, view set, and interactive prototype are complete (see
-[What It Will Look Like](#what-it-will-look-like)). The next evolution builds that
-design on the existing API:
+The design system, view set, interactive prototype, and AI agent are complete.
+The next evolution builds the remaining desktop surfaces on the existing API:
 
 - focused real-database tests for analytical Query API endpoints
 - the high-performance .NET MAUI session console and Replay workspace
 - data-derived track map and driver replay
 - timeline overlays for weather, flags, safety car, VSC, and race control
 - lap comparison, strategy, field, and incident views
-- the MCP-backed race-story assistant beside the race data
 
 ## Repository Map
 
@@ -379,12 +442,17 @@ design on the existing API:
 |---|---|
 | `scripts/` | FastF1 download, import, bulk import, and storage estimate scripts |
 | `db/migrations/` | PostgreSQL / TimescaleDB schema, hypertables, indexes, and views |
+| `src/RaceTelemetry.Agent/` | Agent class library — OpenAI client, MCP tool discovery, agent configuration |
+| `src/RaceTelemetry.AgentApi/` | AG-UI agent endpoint — session registry, SSE streaming, loopback-only |
 | `src/RaceTelemetry.QueryApi/` | ASP.NET Core Query API |
 | `src/RaceTelemetry.McpServer/` | HTTP MCP server |
 | `src/RaceTelemetry.Data/` | Query-store abstraction and PostgreSQL implementation |
 | `src/RaceTelemetry.Contracts/` | Shared API/MCP/Desktop DTOs |
 | `src/RaceTelemetry.AppHost/` | Aspire AppHost |
-| `bruno/race-telemetry-query-api/` | Bruno collection for manual API testing |
+| `src/RaceTelemetry.Desktop/` | .NET MAUI desktop app |
+| `bruno/race-telemetry-query-api/` | Bruno collection for Query API manual testing |
+| `bruno/race-telemetry-agent-api/` | Bruno collection for Agent API / AG-UI manual testing |
+| `tests/RaceTelemetry.AgentApi.Tests/` | Session registry unit tests |
 | `docs/` | Development, data, API/MCP, and OpenAPI docs |
 | `docs/design-system/` | Carbon Signal design system, tokens, styleguide, and the interactive app prototype |
 | `docs/images/` | Rendered mockups used in documentation |

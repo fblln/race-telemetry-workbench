@@ -85,10 +85,12 @@ All product endpoints are under `/api`.
 | `GET /api/sessions` | List imported sessions, optionally filtered by `year`, `event`, and `sessionType`. |
 | `GET /api/sessions/{sessionId}/drivers` | List drivers in a session. |
 | `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps` | List non-deleted laps for one driver. |
-| `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/telemetry` | Bounded telemetry samples for one lap. |
+| `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/telemetry` | Raw bounded telemetry samples for one lap. |
+| `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/quality` | Objective distance-alignment quality metrics for one lap. |
 | `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/story` | Compact lap timing, tyre, aggregate telemetry, and insight facts. |
 | `GET /api/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber}/braking-zones` | Contiguous braking windows with corner labels when position/circuit data aligns. |
-| `GET /api/sessions/{sessionId}/compare/laps` | Lap-time-bucketed comparison between two driver/lap pairs. |
+| `GET /api/sessions/{sessionId}/compare/laps` | Time-domain, lap-time-bucketed comparison between two driver/lap pairs. |
+| `GET /api/sessions/{sessionId}/compare/laps/by-distance` | Distance-domain comparison between two driver/lap pairs at common lap-distance points. |
 | `GET /api/sessions/{sessionId}/compare/laps/story` | Total delta, sector deltas, coarse segment comparison, and insight facts. |
 | `GET /api/sessions/{sessionId}/story` | Race-level weather, stints, pits, track status, race-control context, and insight facts. |
 | `POST /api/sessions/{sessionId}/telemetry/aggregate` | Grouped telemetry metrics without raw samples. |
@@ -123,10 +125,12 @@ using the official .NET `ModelContextProtocol` SDK. Tools reuse
 | `get_session_drivers` | List drivers in one session. |
 | `get_driver_laps` | List non-deleted laps for a driver. |
 | `get_replay_metadata` | Get replay bounds, drivers, channels, track markers, overlays, and weather summary. |
-| `get_lap_telemetry` | Get bounded lap telemetry samples. |
+| `get_lap_telemetry` | Get raw bounded lap telemetry samples. |
+| `get_lap_quality` | Get objective lap-level distance-alignment quality metrics. |
 | `get_lap_story` | Get analyst-ready lap timing, sector, tyre, aggregate telemetry, and insight facts. |
 | `get_lap_braking_zones` | Detect contiguous braking windows and nearest corner labels where data supports it. |
-| `compare_laps` | Compare two laps by lap-relative time buckets. |
+| `compare_laps` | Compare two laps in the time domain by lap-relative time buckets. |
+| `compare_laps_by_distance` | Compare two laps in the distance domain at common lap-distance points. |
 | `compare_laps_story` | Compare two laps with total/sector deltas, coarse segment differences, and insight facts. |
 | `get_race_story` | Get weather, tyre stints, pits, track-status periods, race-control highlights, and race insight facts. |
 | `aggregate_telemetry` | Grouped telemetry metrics such as DRS active time, brake time, average speed, max speed, and sample counts. |
@@ -180,6 +184,7 @@ Known `400` validation codes include:
 |---|---|
 | `InvalidBrakeThreshold` | `brakeThresholdPct` is outside the supported percentage range. |
 | `InvalidChannels` | One or more requested telemetry or replay channels are not supported. |
+| `InvalidDistanceRange` | Distance range values are negative or ordered incorrectly. |
 | `InvalidDriver` | A driver code is missing or has an invalid shape. |
 | `InvalidEventType` | A telemetry event type is missing or unsupported. |
 | `InvalidGroupBy` | A telemetry aggregate grouping key is unsupported. |
@@ -217,9 +222,11 @@ Design rules:
 
 - REST endpoints remain bounded; no endpoint exposes arbitrary SQL.
 - Summary endpoints aggregate in SQL instead of application memory.
-- Replay and context endpoints require explicit time windows.
+- Replay and context endpoints require explicit time windows and use the replay-oriented time-domain projection when available.
+- Lap telemetry exposes raw source samples; replay exposes time-aligned derived samples.
 - Lap telemetry supports `sampleEvery` and `maxSamples`.
-- Lap comparison aligns samples by lap-relative time buckets.
+- Time comparison aligns samples by lap-relative time buckets.
+- Distance comparison reads from `lap_telemetry_by_distance` so it answers where performance was gained or lost.
 - Hot-path preflight checks are collapsed into the main SQL query when possible.
 - Independent metadata/context/comparison reads can run concurrently because
   each command gets its own pooled connection from the shared `NpgsqlDataSource`.
@@ -240,10 +247,12 @@ Key database surfaces:
 | Lap telemetry | `telemetry_samples` |
 | Lap story | `lap_summaries` |
 | Lap braking zones | `telemetry_samples`, `position_samples`, `circuit_markers` |
-| Lap comparison | `laps`, `telemetry_samples` |
+| Lap comparison (time domain) | `laps`, `telemetry_samples` |
+| Lap comparison (distance domain) | `laps`, `lap_telemetry_by_distance`, `lap_telemetry_quality` |
+| Lap quality | `lap_telemetry_quality`, `lap_telemetry_by_distance`, `session_drivers` |
 | Race story | `sessions`, `session_drivers`, `laps`, `driver_stint_summaries`, `session_weather_summary`, `track_status_periods`, `race_control_event_index` |
 | Analytical primitives | `telemetry_samples`, `laps`, `track_status_periods`, `weather_samples`, `race_control_event_index`, `circuit_metadata`, `circuit_markers` |
-| Replay | `telemetry_samples`, `position_samples`, `weather_samples`, `track_status_events`, `race_control_messages`, `circuit_metadata`, `circuit_markers` |
+| Replay | `aligned_telemetry_10hz`, `telemetry_samples`, `position_samples`, `weather_samples`, `track_status_events`, `race_control_messages`, `circuit_metadata`, `circuit_markers` |
 | Event search | `telemetry_event_candidates` |
 
 ## Run And Test

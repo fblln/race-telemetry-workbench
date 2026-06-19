@@ -1,0 +1,15 @@
+meta {
+  name: Delete session (new conversation)
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/api/agent/sessions/{{threadId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}

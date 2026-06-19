@@ -158,6 +158,39 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             ]));
     }
 
+    public Task<LapQualityResponse?> GetLapQualityAsync(
+        string sessionId,
+        string driverCode,
+        int lapNumber,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId) || !LapsByDriver.TryGetValue(driverCode, out var laps)
+            || !laps.Any(lap => lap.LapNumber == lapNumber))
+        {
+            return Task.FromResult<LapQualityResponse?>(null);
+        }
+
+        return Task.FromResult<LapQualityResponse?>(new LapQualityResponse(
+            sessionId,
+            driverCode.ToUpperInvariant(),
+            lapNumber,
+            85_120,
+            84_760,
+            110,
+            250,
+            420,
+            680,
+            5_786.4,
+            97.1,
+            88.4,
+            7.5,
+            36,
+            "valid_with_warnings",
+            ["WARNING_PIT_OUT_LAP"]));
+    }
+
     public Task<LapComparisonResponse?> CompareLapsAsync(
         string sessionId,
         string driverA,
@@ -195,6 +228,58 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
                     new TelemetryChannelValues(17, 5, 0, 150, 0))
             ],
             new LapComparisonSummary(-430, [-200, -100, -130], 17, 8.5)));
+    }
+
+    public Task<LapComparisonByDistanceResponse?> CompareLapsByDistanceAsync(
+        string sessionId,
+        string driverA,
+        int lapA,
+        string driverB,
+        int lapB,
+        double? startDistanceM,
+        double? endDistanceM,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId)
+            || !LapsByDriver.TryGetValue(driverA, out var lapsA)
+            || !LapsByDriver.TryGetValue(driverB, out var lapsB)
+            || !lapsA.Any(lap => lap.LapNumber == lapA)
+            || !lapsB.Any(lap => lap.LapNumber == lapB))
+        {
+            return Task.FromResult<LapComparisonByDistanceResponse?>(null);
+        }
+
+        return Task.FromResult<LapComparisonByDistanceResponse?>(new LapComparisonByDistanceResponse(
+            sessionId,
+            driverA.ToUpperInvariant(),
+            lapA,
+            driverB.ToUpperInvariant(),
+            lapB,
+            5,
+            "positive means driverA is slower",
+            [
+                new LapComparisonByDistancePoint(
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    new DistanceTelemetryChannelValues(282.4, 100, 0, 11_700, 8, 10),
+                    new DistanceTelemetryChannelValues(279.1, 100, 0, 11_630, 8, 10),
+                    new DistanceTelemetryChannelValues(3.3, 0, 0, 70, 0, 0)),
+                new LapComparisonByDistancePoint(
+                    500,
+                    0.086,
+                    6_820,
+                    6_640,
+                    180,
+                    new DistanceTelemetryChannelValues(301.2, 99, 0, 11_910, 8, 12),
+                    new DistanceTelemetryChannelValues(304.8, 100, 0, 11_980, 8, 12),
+                    new DistanceTelemetryChannelValues(-3.6, -1, 0, -70, 0, 0))
+            ],
+            new LapComparisonByDistanceSummary(-430, -401, 29, "valid_with_warnings", "valid")));
     }
 
     public Task<LapStoryResponse?> GetLapStoryAsync(

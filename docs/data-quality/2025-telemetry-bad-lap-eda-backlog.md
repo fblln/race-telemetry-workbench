@@ -39,9 +39,11 @@ shape anomalies.
     versus comparable laps
 - [x] Add explicit derived booleans for intended use:
   - `safe_for_replay`
-  - `safe_for_lap_comparison`
+  - `safe_for_time_domain_analysis`
+  - `distance_alignment_status`
   - `safe_for_geometry_reference`
   - `needs_manual_review`
+  - keep `safe_for_lap_comparison` only as a deprecated compatibility alias for the current time-bucket comparison surface
 - [x] Rename or document `shape_mismatch_against_comparable_laps` as
   `atypical_speed_profile` unless another integrity signal supports a telemetry
   defect.
@@ -109,8 +111,7 @@ shape anomalies.
   - stint number
   - early/mid/late race phase
   - clean green-flag laps only
-- [ ] Evaluate whether equal-time bins over-flag legitimate slow laps. Compare
-  against lap-progress bins if distance becomes available.
+- [ ] Evaluate whether equal-time bins over-flag legitimate slow laps. Keep this framed as a time-domain check, then compare against lap-progress or distance bins once the persisted distance projection is available.
 - [x] Add shape-cluster exemplars:
   - nearest-to-centroid lap
   - highest-severity lap

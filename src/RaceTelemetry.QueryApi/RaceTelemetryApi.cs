@@ -163,9 +163,11 @@ public static partial class RaceTelemetryApi
                     "laps",
                     "replay-metadata",
                     "lap-telemetry",
+                    "lap-quality",
                     "lap-story",
                     "lap-braking-zones",
                     "lap-comparison",
+                    "lap-comparison-distance",
                     "lap-comparison-story",
                     "race-story",
                     "replay-chunks",
@@ -342,6 +344,25 @@ public static partial class RaceTelemetryApi
             })
             .WithName("GetLapBrakingZones");
 
+        api.MapGet("/sessions/{sessionId}/drivers/{driverCode}/laps/{lapNumber:int}/quality", async (
+                string sessionId,
+                string driverCode,
+                int lapNumber,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!ValidateSessionDriverLap(sessionId, driverCode, lapNumber, out var error))
+                {
+                    return error;
+                }
+
+                var quality = await store.GetLapQualityAsync(sessionId, driverCode, lapNumber, cancellationToken);
+                return quality is null
+                    ? NotFoundError("LapNotFound", $"Lap {lapNumber} for driver {driverCode.ToUpperInvariant()} does not exist in session {sessionId}.", ("sessionId", sessionId), ("driverCode", driverCode.ToUpperInvariant()), ("lapNumber", lapNumber))
+                    : Results.Ok(quality);
+            })
+            .WithName("GetLapQuality");
+
         api.MapGet("/sessions/{sessionId}/compare/laps", async (
                 string sessionId,
                 string driverA,
@@ -395,6 +416,53 @@ public static partial class RaceTelemetryApi
                     : Results.Ok(comparison);
             })
             .WithName("CompareLaps");
+
+        api.MapGet("/sessions/{sessionId}/compare/laps/by-distance", async Task<IResult> (
+                string sessionId,
+                string driverA,
+                int lapA,
+                string driverB,
+                int lapB,
+                double? startDistanceM,
+                double? endDistanceM,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                if (!IsValidDriverCode(driverA) || !IsValidDriverCode(driverB))
+                {
+                    return ValidationError("InvalidDriver", "Driver codes must contain 2 to 4 letters.", ("driverA", driverA), ("driverB", driverB));
+                }
+
+                if (lapA < 1 || lapB < 1)
+                {
+                    return ValidationError("InvalidLapNumber", "Lap numbers must be positive.", ("lapA", lapA), ("lapB", lapB));
+                }
+
+                if (!ValidateDistanceRange(startDistanceM, endDistanceM, out var error))
+                {
+                    return error;
+                }
+
+                var comparison = await store.CompareLapsByDistanceAsync(
+                    sessionId,
+                    driverA,
+                    lapA,
+                    driverB,
+                    lapB,
+                    startDistanceM,
+                    endDistanceM,
+                    cancellationToken);
+
+                return comparison is null
+                    ? NotFoundError("LapComparisonNotFound", "One or both requested laps do not exist, or no distance-aligned telemetry is available.", ("sessionId", sessionId), ("driverA", driverA.ToUpperInvariant()), ("lapA", lapA), ("driverB", driverB.ToUpperInvariant()), ("lapB", lapB))
+                    : Results.Ok(comparison);
+            })
+            .WithName("CompareLapsByDistance");
 
         api.MapGet("/sessions/{sessionId}/compare/laps/story", async Task<IResult> (
                 string sessionId,

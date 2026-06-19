@@ -87,6 +87,24 @@ public sealed partial class RaceTelemetryMcpTools
         }
     }
 
+    private static void ValidateDistanceRange(double? startDistanceM, double? endDistanceM)
+    {
+        if (startDistanceM is < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(startDistanceM), "startDistanceM must be greater than or equal to zero.");
+        }
+
+        if (endDistanceM is < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(endDistanceM), "endDistanceM must be greater than or equal to zero.");
+        }
+
+        if (startDistanceM is not null && endDistanceM is not null && startDistanceM > endDistanceM)
+        {
+            throw new ArgumentException("startDistanceM must be less than or equal to endDistanceM.");
+        }
+    }
+
     private static void ValidateTelemetryEventType(string eventType)
     {
         if (string.IsNullOrWhiteSpace(eventType) || !TelemetryEventTypes.Contains(eventType))

@@ -1,5 +1,7 @@
-derived_flag,laps,pct_of_all_laps
-safe_for_replay,26212,98.21274682453445
-safe_for_lap_comparison,21192,79.40349956911086
-safe_for_geometry_reference,21192,79.40349956911086
-needs_manual_review,58,0.21731799617820077
+derived_flag,value,laps,pct_of_all_laps
+safe_for_replay,true,26212,98.21274682453445
+safe_for_time_domain_analysis,true,21192,79.40349956911086
+distance_alignment_status,not_evaluated_requires_distance_projection,26689,100.0
+safe_for_lap_comparison,true,21192,79.40349956911086
+safe_for_geometry_reference,true,21192,79.40349956911086
+needs_manual_review,true,58,0.21731799617820077

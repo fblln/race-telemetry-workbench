@@ -233,7 +233,7 @@ An `overlay`-surface card with `e2` shadow showing the hovered timestamp (mono) 
 
 **Replay workspace.** A fixed docked grid of independent panels — Track Map, Waveform, Current Values, Lap Summary, Event Timeline, Context Strip, Pit Summary — all locked to one session-relative timebase. The transport bar spans the bottom. Structure panels independently now so saved/rearrangeable layouts can land later without reshaping the UI.
 
-**Lap comparison.** Two laps aligned by lap-relative time: driver A (blue) over driver B (orange) on overlaid charts, with a lap-time delta hero, three sector deltas, and a cursor tooltip — all under the `A − B` convention where negative means A was faster.
+**Lap comparison.** This surface now has two explicit modes. `Time Overlay` aligns two laps by lap-relative time for synchronized waveform/cursor reading: driver A (blue) over driver B (orange) on overlaid charts, with a lap-time delta hero, three sector deltas, and a cursor tooltip — all under the `A − B` convention where negative means A was faster. `Distance Delta` is the primary gained/lost view and must read from distance-aligned telemetry so it answers where pace changed at common circuit positions rather than when events happened.
 
 **Session browser.** A virtualized table (season, event, type, imported, drivers, laps, context flags) beside a detail property panel, filtered to race sessions by default.
 
