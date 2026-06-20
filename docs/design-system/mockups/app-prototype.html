@@ -297,6 +297,19 @@
       <div class="pfoot"><span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span><span style="margin-left:auto"><b>/</b> focus search · <b>⌘K</b> palette</span></div>
     </div>
   </div>
+  <div class="overlay" id="help" onclick="if(event.target===this)toggleHelp(false)">
+    <div class="palette" style="max-width:440px">
+      <div class="pin"><span style="font-weight:500;color:var(--text-primary)">Keyboard shortcuts</span><span class="kbd" style="margin-left:auto;color:var(--text-tertiary);font-size:11px">esc</span></div>
+      <div class="pbody" style="padding:12px 16px;display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--text-secondary)">
+        <div style="display:flex;justify-content:space-between"><span>Switch views</span><span class="kbd">0–7</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Command palette</span><span class="kbd">⌘K</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Window events to a lap range</span><span class="kbd">drag context strip</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Read telemetry at a point</span><span class="kbd">hover waveform / charts</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Pin a driver → Replay / Compare</span><span class="kbd">click row, then →</span></div>
+        <div style="display:flex;justify-content:space-between"><span>This help</span><span class="kbd">?</span></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -687,6 +700,7 @@ function fieldSetSort(k){if(fieldState.sort===k)fieldState.dir*=-1;else{fieldSta
 function fieldFilterInput(v){fieldState.filter=v;renderField();}
 function fieldPin(code){fieldState.pinned.has(code)?fieldState.pinned.delete(code):fieldState.pinned.add(code);
   document.getElementById('fieldPinCount').textContent=fieldState.pinned.size;renderField();}
+function gotoPinned(i){renderContent();renderField();setView(i);} // re-render so Replay dots / Compare cards pick up the pinned set
 function fieldTower(rows){
   const arrow=k=>fieldState.sort===k?`<span class="amber"> ${fieldState.dir>0?'▾':'▴'}</span>`:'';
   const th=(k,l,cls)=>`<th class="${cls||''}" onclick="fieldSetSort('${k}')">${l}${arrow(k)}</th>`;
@@ -743,6 +757,7 @@ function vField(){
       <span class="bdg" style="background:var(--bg-raised);color:var(--text-secondary)"><span class="led" style="background:var(--success)"></span>Running ${running}</span>
       <span class="bdg" style="background:var(--bg-raised);color:var(--text-secondary)"><span class="led" style="background:var(--danger)"></span>Out ${out}</span>
       <span class="spacer"></span><span class="micro">Pinned <span id="fieldPinCount" class="amber">0</span></span>
+      <span class="ghostbtn" onclick="gotoPinned(2)">→ Replay</span><span class="ghostbtn" onclick="gotoPinned(6)">→ Compare</span>
     </div>
     <div id="fieldBody"></div>
   </div></div>`;
@@ -833,11 +848,12 @@ function lapCompareSurface(){
   const sectors=[['S1',CMP.dt[a1]-CMP.dt[0]],['S2',CMP.dt[a2]-CMP.dt[a1]],['S3',CMP.dt[N-1]-CMP.dt[a2]]];
   const total=CMP.dt[N-1];
   const dcol=v=>v>0?'var(--delta-neg)':'var(--delta-pos)';
+  const pin=[...fieldState.pinned], cA=pin[0]||'LEC', cB=pin[1]||'HAM';
   return `<div class="grid-3-1">
     <div>
       <div style="display:flex;gap:12px;margin-bottom:12px">
-        <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:var(--drv-a)"></div><div><div class="micro">Lap A · ours</div><div style="font-weight:600;color:var(--text-primary)">LEC · Lap 12</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">1:21.294 · MED</div></div></div>
-        <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:${REF}"></div><div><div class="micro">Lap B · reference</div><div style="font-weight:600;color:var(--text-primary)">HAM · best</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">1:20.984 · HARD</div></div></div>
+        <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:${D(cA)}"></div><div><div class="micro">Lap A · ours</div><div style="font-weight:600;color:var(--text-primary)">${cA} · Lap 12</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">${DNAME(cA)} · MED</div></div></div>
+        <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:${REF}"></div><div><div class="micro">Lap B · reference</div><div style="font-weight:600;color:var(--text-primary)">${cB} · best</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">${DNAME(cB)} · HARD</div></div></div>
       </div>
       <div id="cmpPlot" style="position:relative">
         ${speedChart}${deltaChart}${gearChart}${tbChart}
@@ -1081,11 +1097,13 @@ function renderPalette(){
 }
 function filterPalette(q){q=q.toLowerCase();palFiltered=PAL.filter(p=>(p[0]+' '+p[2]).toLowerCase().includes(q));palSel=0;renderPalette();}
 function palGo(idx){const p=palFiltered[idx];togglePalette(false);if(p&&p[4]!=null)setView(p[4]);}
+function toggleHelp(on){document.getElementById('help').classList.toggle('on',on);}
 function togglePalette(on){document.getElementById('overlay').classList.toggle('on',on);if(on){palFiltered=PAL.slice();palSel=0;renderPalette();setTimeout(()=>{const el=document.getElementById('palInput');el.value='';el.focus();},30);}}
 document.addEventListener('keydown',e=>{
   const open=document.getElementById('overlay').classList.contains('on');
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();togglePalette(!open);return;}
-  if(e.key==='Escape'){togglePalette(false);return;}
+  if(e.key==='?'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();toggleHelp(!document.getElementById('help').classList.contains('on'));return;}
+  if(e.key==='Escape'){togglePalette(false);toggleHelp(false);return;}
   if(open){if(e.key==='ArrowDown'){e.preventDefault();palSel=Math.min(palFiltered.length-1,palSel+1);renderPalette();}
     if(e.key==='ArrowUp'){e.preventDefault();palSel=Math.max(0,palSel-1);renderPalette();}
     if(e.key==='Enter'){e.preventDefault();palGo(palSel);}return;}
