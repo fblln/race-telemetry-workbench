@@ -173,7 +173,7 @@ The Aspire Dashboard provides a single local view of the running backend topolog
 and its end-to-end traces. The resource graph shows the Query API, Agent API, MCP
 server, and the OpenAI configuration injected into the agent process.
 
-![Aspire trace Resource Graph](docs/images/aspire-resourc![img.png](img.png)e-graph.png)
+![Aspire trace Resource Graph](docs/images/aspire-resource-graph.png)
 
 A real POST /ag-ui trace follows the complete agentic request. The Agent API
 calls OpenAI, executes get_race_story through the MCP server, queries
