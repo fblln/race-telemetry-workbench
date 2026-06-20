@@ -200,8 +200,8 @@ public sealed partial class PostgresTelemetryQueryStore
             ? SummarizeStrategyAsync(sessionId, new StrategySummaryRequest(request.Drivers, true), cancellationToken)
             : Task.FromResult<StrategySummaryResponse?>(null);
         var incidentsTask = sections.Contains("incidents")
-            ? GetIncidentsAsync(sessionId, null, 2.5, 100, cancellationToken)
-            : Task.FromResult<IncidentsResponse?>(null);
+            ? GetRaceControlAsync(sessionId, null, 2.5, 100, cancellationToken)
+            : Task.FromResult<RaceControlResponse?>(null);
 
         await Task.WhenAll(storyTask, standingsTask, strategyTask, incidentsTask);
         var story = await storyTask;

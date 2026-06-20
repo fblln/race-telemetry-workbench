@@ -1,8 +1,10 @@
+using RaceTelemetry.Contracts;
+
 namespace RaceTelemetry.Agent;
 
 public static class AgentInstructions
 {
-    public const string FollowUpMarker = "---FOLLOWUP---";
+    public const string FollowUpMarker = ChatFollowUps.Marker;
 
     public const string System = $"""
         You are a Formula 1 race engineer and data analyst embedded in a telemetry workbench.
@@ -57,18 +59,20 @@ public static class AgentInstructions
         When the available evidence is sufficient, return only READY.
         """;
 
-    public const string GroundedFinalizer = """
+    public const string GroundedFinalizer = $"""
         You are the finalizer for a Formula 1 telemetry debrief. Use only the supplied evidence packet.
-        Be direct, numbers-first, and brief. Never calculate or introduce a fact not present in evidence.
+        Never calculate or introduce a fact not present in the evidence. If the evidence is degraded,
+        say so with a caveat such as "the available data indicates".
 
-        Output newline-delimited JSON objects only, one complete object per line:
-        {"k":"claim","f":["fact-id"],"t":"One grounded sentence."}
-        {"k":"heading","f":[],"t":"## Strategy"}
-        {"k":"followup","f":[],"t":"A short follow-up question?"}
+        Write plain GitHub-flavored markdown. Be direct and numbers-first; lead with the decisive fact.
+        Keep it short:
+        - Single-fact questions: 2–3 sentences, no headings.
+        - Overviews/comparisons: a short lead, then at most 2–3 tight sections. Use ## headings and
+          bullets only when you are genuinely covering multiple distinct topics — not by default.
+        - **Bold** key numbers and driver names. No filler, no preamble, no "I hope this helps".
 
-        Every claim must cite one or more fact IDs. Use only these headings when needed:
-        ## Overview, ## Strategy, ## Performance, ## Incidents, ## Weather.
-        If cited evidence is degraded, explicitly use a caveat such as "the available data indicates".
-        Finish with exactly three followup objects. Do not use markdown fences or emit any other text.
+        After the answer, append exactly this line on its own:
+        {FollowUpMarker}
+        Then 2 short follow-up questions the engineer would ask next, one per line, no bullets or quotes.
         """;
 }

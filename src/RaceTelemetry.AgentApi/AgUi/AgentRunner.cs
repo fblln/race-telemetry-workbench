@@ -19,20 +19,17 @@ public sealed class AgentRunner
     private readonly IChatClient _chatClient;
     private readonly McpToolRegistry _mcpTools;
     private readonly TelemetryAgentOptions _options;
-    private readonly GroundedFrameVerifier _frameVerifier;
     private readonly ILogger<AgentRunner> _logger;
 
     public AgentRunner(
         IChatClient chatClient,
         McpToolRegistry mcpTools,
         IOptions<TelemetryAgentOptions> options,
-        GroundedFrameVerifier frameVerifier,
         ILogger<AgentRunner> logger)
     {
         _chatClient = chatClient;
         _mcpTools = mcpTools;
         _options = options.Value;
-        _frameVerifier = frameVerifier;
         _logger = logger;
     }
 
@@ -367,9 +364,6 @@ public sealed class AgentRunner
 
         var messageId = Guid.NewGuid().ToString();
         var messageStarted = false;
-        var emittedClaim = false;
-        var followups = 0;
-        var buffer = new StringBuilder();
         var finalText = new StringBuilder();
 
         AgentTelemetry.LlmCalls.Add(1);
@@ -377,92 +371,22 @@ public sealed class AgentRunner
         {
             foreach (var text in update.Contents.OfType<TextContent>())
             {
-                buffer.Append(text.Text);
-                while (TryTakeLine(buffer, out var line))
+                if (text.Text.Length > 0)
                 {
-                    ProcessFrame(line, ledger, writer, messageId, ref messageStarted, ref emittedClaim, ref followups, finalText);
+                    EmitText(writer, messageId, text.Text, ref messageStarted, finalText);
                 }
             }
         }
 
-        if (buffer.Length > 0)
-        {
-            ProcessFrame(buffer.ToString(), ledger, writer, messageId, ref messageStarted, ref emittedClaim, ref followups, finalText);
-        }
-
-        if (!emittedClaim)
+        if (!messageStarted)
         {
             var fallback = ledger.Facts.Values.FirstOrDefault(fact => fact.NarrationPolicy != "omit")?.Text
                 ?? "The requested telemetry evidence is unavailable.";
-            EmitText(writer, messageId, fallback + " ", ref messageStarted, finalText);
+            EmitText(writer, messageId, fallback, ref messageStarted, finalText);
         }
 
-        if (followups < 3)
-        {
-            if (followups == 0)
-            {
-                EmitText(writer, messageId, "\n\n---FOLLOWUP---\n", ref messageStarted, finalText);
-            }
-            var defaults = new[]
-            {
-                "Which driver's strategy should we inspect next?",
-                "Should we compare the decisive laps?",
-                "Do you want the incident and weather timeline?"
-            };
-            for (; followups < 3; followups++)
-            {
-                EmitText(writer, messageId, $"- {defaults[followups]}\n", ref messageStarted, finalText);
-            }
-        }
-
-        if (messageStarted)
-        {
-            writer.TryWrite(AgUiEvent.TextMessageEnd(messageId));
-        }
+        writer.TryWrite(AgUiEvent.TextMessageEnd(messageId));
         return finalText.ToString();
-    }
-
-    private void ProcessFrame(
-        string line,
-        GroundedEvidenceLedger ledger,
-        ChannelWriter<AgUiEvent> writer,
-        string messageId,
-        ref bool messageStarted,
-        ref bool emittedClaim,
-        ref int followups,
-        StringBuilder finalText)
-    {
-        if (string.IsNullOrWhiteSpace(line))
-        {
-            return;
-        }
-
-        if (!_frameVerifier.TryVerify(line.Trim(), ledger, out var frame, out var error) || frame is null)
-        {
-            AgentTelemetry.ClaimsRejected.Add(1);
-            _logger.LogWarning("Rejected grounded stream frame: {Reason}", error);
-            return;
-        }
-
-        switch (frame.Kind)
-        {
-            case "claim":
-                AgentTelemetry.ClaimsVerified.Add(1);
-                emittedClaim = true;
-                EmitText(writer, messageId, frame.Text + " ", ref messageStarted, finalText);
-                break;
-            case "heading":
-                EmitText(writer, messageId, $"\n\n{frame.Text}\n\n", ref messageStarted, finalText);
-                break;
-            case "followup" when followups < 3:
-                if (followups == 0)
-                {
-                    EmitText(writer, messageId, "\n\n---FOLLOWUP---\n", ref messageStarted, finalText);
-                }
-                EmitText(writer, messageId, $"- {frame.Text}\n", ref messageStarted, finalText);
-                followups++;
-                break;
-        }
     }
 
     private static void EmitText(
@@ -479,22 +403,6 @@ public sealed class AgentRunner
         }
         writer.TryWrite(AgUiEvent.TextMessageContent(messageId, text));
         finalText.Append(text);
-    }
-
-    private static bool TryTakeLine(StringBuilder buffer, out string line)
-    {
-        for (var index = 0; index < buffer.Length; index++)
-        {
-            if (buffer[index] != '\n')
-            {
-                continue;
-            }
-            line = buffer.ToString(0, index).TrimEnd('\r');
-            buffer.Remove(0, index + 1);
-            return true;
-        }
-        line = string.Empty;
-        return false;
     }
 
     private static async Task<ToolExecutionResult> RebindInvocationAsync(

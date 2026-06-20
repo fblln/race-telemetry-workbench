@@ -80,7 +80,7 @@ public static partial class RaceTelemetryApi
         "pit_count"
     };
 
-    private static readonly HashSet<string> IncidentTypes = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> RaceControlTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "safety_car",
         "vsc",
@@ -1025,7 +1025,7 @@ public static partial class RaceTelemetryApi
             })
             .WithName("GetPositions");
 
-        api.MapGet("/sessions/{sessionId}/incidents", async Task<IResult> (
+        api.MapGet("/sessions/{sessionId}/race-control", async Task<IResult> (
                 string sessionId,
                 string? types,
                 double? minBrakingG,
@@ -1045,10 +1045,10 @@ public static partial class RaceTelemetryApi
                         .Select(type => type.ToLowerInvariant())
                         .Distinct()
                         .ToArray();
-                    var unknown = parsed.Where(type => !IncidentTypes.Contains(type)).ToArray();
+                    var unknown = parsed.Where(type => !RaceControlTypes.Contains(type)).ToArray();
                     if (unknown.Length > 0)
                     {
-                        return ValidationError("InvalidIncidentType", "Unknown incident type.", ("unknown", unknown), ("allowed", IncidentTypes.Order().ToArray()));
+                        return ValidationError("InvalidIncidentType", "Unknown incident type.", ("unknown", unknown), ("allowed", RaceControlTypes.Order().ToArray()));
                     }
 
                     selectedTypes = parsed;
@@ -1061,12 +1061,12 @@ public static partial class RaceTelemetryApi
                 }
 
                 var limit = Math.Clamp(maxResults ?? 200, 1, 1_000);
-                var incidents = await store.GetIncidentsAsync(sessionId, selectedTypes, braking, limit, cancellationToken);
+                var incidents = await store.GetRaceControlAsync(sessionId, selectedTypes, braking, limit, cancellationToken);
                 return incidents is null
                     ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
                     : Results.Ok(incidents);
             })
-            .WithName("GetIncidents");
+            .WithName("GetRaceControl");
 
         return api;
     }

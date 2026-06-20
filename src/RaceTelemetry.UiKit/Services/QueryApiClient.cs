@@ -15,7 +15,7 @@ public interface IQueryApiClient
     Task<IReadOnlyList<LapSummary>> GetLapsAsync(string sessionId, string driverCode, CancellationToken ct = default);
     Task<ReplayMetadata?> GetReplayMetadataAsync(string sessionId, CancellationToken ct = default);
     Task<StandingsResponse?> GetStandingsAsync(string sessionId, int? atLap = null, string sortBy = "position", CancellationToken ct = default);
-    Task<IncidentsResponse?> GetIncidentsAsync(string sessionId, IEnumerable<string>? types = null, double minBrakingG = 4.0, int maxResults = 200, CancellationToken ct = default);
+    Task<RaceControlResponse?> GetRaceControlAsync(string sessionId, IEnumerable<string>? types = null, double minBrakingG = 4.0, int maxResults = 200, CancellationToken ct = default);
     Task<PositionsResponse?> GetPositionsAsync(string sessionId, IEnumerable<string>? drivers = null, CancellationToken ct = default);
     Task<StintAnalysisResponse?> GetStintsAsync(string sessionId, CancellationToken ct = default);
     Task<ReplayChunkResponse?> GetReplayChunkAsync(string sessionId, long fromMs, long durationMs, IEnumerable<string>? drivers = null, IEnumerable<string>? channels = null, int sampleEvery = 1, CancellationToken ct = default);
@@ -58,13 +58,13 @@ public sealed class QueryApiClient : IQueryApiClient
         return _http.GetFromJsonAsync<StandingsResponse>($"/api/sessions/{Encode(sessionId)}/standings{query}", JsonOptions, ct);
     }
 
-    public Task<IncidentsResponse?> GetIncidentsAsync(string sessionId, IEnumerable<string>? types = null, double minBrakingG = 4.0, int maxResults = 200, CancellationToken ct = default)
+    public Task<RaceControlResponse?> GetRaceControlAsync(string sessionId, IEnumerable<string>? types = null, double minBrakingG = 4.0, int maxResults = 200, CancellationToken ct = default)
     {
         var query = BuildQuery(
             ("types", types is null ? null : string.Join(',', types)),
             ("minBrakingG", minBrakingG.ToString(System.Globalization.CultureInfo.InvariantCulture)),
             ("maxResults", maxResults.ToString()));
-        return _http.GetFromJsonAsync<IncidentsResponse>($"/api/sessions/{Encode(sessionId)}/incidents{query}", JsonOptions, ct);
+        return _http.GetFromJsonAsync<RaceControlResponse>($"/api/sessions/{Encode(sessionId)}/race-control{query}", JsonOptions, ct);
     }
 
     public Task<PositionsResponse?> GetPositionsAsync(string sessionId, IEnumerable<string>? drivers = null, CancellationToken ct = default)

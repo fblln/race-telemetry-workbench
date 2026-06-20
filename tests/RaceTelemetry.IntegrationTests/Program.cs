@@ -177,14 +177,14 @@ Assert(
     positions.Items.Single(item => item.DriverCode == "LEC").Positions.Count == 5,
     "Position arrays should align to the requested lap range.");
 
-var incidents = await AssertOk<IncidentsResponse>(
-    $"/api/sessions/{session.SessionId}/incidents?maxResults=50",
+var incidents = await AssertOk<RaceControlResponse>(
+    $"/api/sessions/{session.SessionId}/race-control?maxResults=50",
     cancellation.Token);
 
 Assert(incidents.Summary is not null, "Expected an incident summary.");
 Assert(
     incidents.Items.All(item => item.Type is "safety_car" or "vsc" or "yellow" or "red" or "hard_braking" or "off_track" or "spin"),
-    "Incident types should be from the documented set.");
+    "RaceControlItem types should be from the documented set.");
 
 var invalidSort = await http.GetAsync($"/api/sessions/{session.SessionId}/standings?sortBy=bogus", cancellation.Token);
 Assert(invalidSort.StatusCode == HttpStatusCode.BadRequest, "Unknown standings sort keys should return 400.");

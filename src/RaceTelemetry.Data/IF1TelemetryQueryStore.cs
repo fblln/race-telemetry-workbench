@@ -159,7 +159,7 @@ public interface IF1TelemetryQueryStore
         string sortBy,
         CancellationToken cancellationToken);
 
-    Task<IncidentsResponse?> GetIncidentsAsync(
+    Task<RaceControlResponse?> GetRaceControlAsync(
         string sessionId,
         IReadOnlyList<string>? types,
         double minBrakingG,

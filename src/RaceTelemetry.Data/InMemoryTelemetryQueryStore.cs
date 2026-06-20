@@ -630,7 +630,7 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             sections.Contains("overview") ? new RaceDebriefOverview("VER", "VER won the Italian Grand Prix.", 53) : null,
             strategy,
             sections.Contains("incidents")
-                ? [new Incident("safety_car", 20, 1_820_000, "Safety car deployed", null, null, null, null, "high", null)]
+                ? [new RaceControlItem("safety_car", 20, 1_820_000, "Safety car deployed", null, null, null, null, "high", null)]
                 : [],
             sections.Contains("weather") ? new RaceDebriefWeather("No rainfall was observed during the session.", 32.2, 34.1, 43.5, 54.6, false) : null,
             facts,
@@ -803,7 +803,7 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             ]));
     }
 
-    public Task<IncidentsResponse?> GetIncidentsAsync(
+    public Task<RaceControlResponse?> GetRaceControlAsync(
         string sessionId,
         IReadOnlyList<string>? types,
         double minBrakingG,
@@ -814,16 +814,16 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
 
         if (!IsKnownSession(sessionId))
         {
-            return Task.FromResult<IncidentsResponse?>(null);
+            return Task.FromResult<RaceControlResponse?>(null);
         }
 
-        return Task.FromResult<IncidentsResponse?>(new IncidentsResponse(
+        return Task.FromResult<RaceControlResponse?>(new RaceControlResponse(
             sessionId,
             [
-                new Incident("safety_car", null, 1_820_000, "Safety car deployed", null, null, null, null, "high", null),
-                new Incident("hard_braking", 5, 320_000, "LEC hard braking into Turn 1/2, Variante del Rettifilo", new NearestCorner(1, "Turn 1/2, Variante del Rettifilo"), -569.58, 8153.72, "LEC", "info", new IncidentMetrics(5.1, 342, 132))
+                new RaceControlItem("safety_car", null, 1_820_000, "Safety car deployed", null, null, null, null, "high", null),
+                new RaceControlItem("hard_braking", 5, 320_000, "LEC hard braking into Turn 1/2, Variante del Rettifilo", new NearestCorner(1, "Turn 1/2, Variante del Rettifilo"), -569.58, 8153.72, "LEC", "info", new RaceControlMetrics(5.1, 342, 132))
             ],
-            new IncidentSummary(2, 5.1, 1)));
+            new RaceControlListSummary(2, 5.1, 1)));
     }
 
     public Task<PositionsResponse?> GetPositionsAsync(

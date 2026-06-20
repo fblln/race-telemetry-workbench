@@ -1,4 +1,6 @@
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using RaceTelemetry.Agent;
 using RaceTelemetry.Agent.Options;
@@ -150,61 +152,6 @@ try
 }
 catch (Exception ex) { Fail("TurnCount increments on CompleteTurn", ex.Message); failed++; }
 
-// ---- Grounded frame verifier ----
-// One ledger shared by the verifier cases. fact-1 supported, fact-2 degraded, fact-3 omit.
-static GroundedEvidenceLedger MakeLedger()
-{
-    var ledger = new GroundedEvidenceLedger();
-    ledger.AddToolResult("summarize_strategy", 0,
-        """
-        {"facts":[
-          {"id":"fact-1","text":"LEC gained 1 position through the lap 24 undercut","qualityStatus":"supported","narrationPolicy":"assert"},
-          {"id":"fact-2","text":"LEC tyre wear was high (estimated)","qualityStatus":"degraded","narrationPolicy":"assert"},
-          {"id":"fact-3","text":"internal marker 999","qualityStatus":"supported","narrationPolicy":"omit"}
-        ]}
-        """);
-    return ledger;
-}
-
-static void VerifierCase(string name, string frame, bool expectAccept, ref int passed, ref int failed)
-{
-    try
-    {
-        var ok = new GroundedFrameVerifier().TryVerify(frame, MakeLedger(), out var parsed, out var error);
-        if (ok != expectAccept) throw new Exception(expectAccept ? $"expected accept, rejected: {error}" : $"expected reject, accepted");
-        if (ok && parsed is null) throw new Exception("accepted but null frame");
-        Pass(name); passed++;
-    }
-    catch (Exception ex) { Fail(name, ex.Message); failed++; }
-}
-
-VerifierCase("Verifier accepts valid grounded claim",
-    """{"k":"claim","f":["fact-1"],"t":"LEC gained 1 position through the lap 24 undercut."}""", true, ref passed, ref failed);
-VerifierCase("Verifier rejects altered number",
-    """{"k":"claim","f":["fact-1"],"t":"LEC gained 3 positions through the lap 24 undercut."}""", false, ref passed, ref failed);
-VerifierCase("Verifier rejects unknown fact id",
-    """{"k":"claim","f":["fact-99"],"t":"LEC gained 1 position."}""", false, ref passed, ref failed);
-VerifierCase("Verifier rejects omit fact",
-    """{"k":"claim","f":["fact-3"],"t":"Marker 999 noted."}""", false, ref passed, ref failed);
-VerifierCase("Verifier rejects claim with no fact ids",
-    """{"k":"claim","f":[],"t":"Something happened."}""", false, ref passed, ref failed);
-VerifierCase("Verifier rejects degraded fact without caveat",
-    """{"k":"claim","f":["fact-2"],"t":"LEC tyre wear was high."}""", false, ref passed, ref failed);
-VerifierCase("Verifier accepts degraded fact with caveat",
-    """{"k":"claim","f":["fact-2"],"t":"Available data indicates LEC tyre wear was high."}""", true, ref passed, ref failed);
-VerifierCase("Verifier rejects unsupported entity token",
-    """{"k":"claim","f":["fact-1"],"t":"VER gained 1 position on lap 24."}""", false, ref passed, ref failed);
-VerifierCase("Verifier accepts allow-listed heading",
-    """{"k":"heading","t":"## Strategy"}""", true, ref passed, ref failed);
-VerifierCase("Verifier rejects unknown heading",
-    """{"k":"heading","t":"## Secrets"}""", false, ref passed, ref failed);
-VerifierCase("Verifier accepts follow-up question",
-    """{"k":"followup","t":"Should we compare the decisive laps?"}""", true, ref passed, ref failed);
-VerifierCase("Verifier rejects non-question follow-up",
-    """{"k":"followup","t":"Compare the decisive laps."}""", false, ref passed, ref failed);
-VerifierCase("Verifier rejects malformed frame",
-    """not json""", false, ref passed, ref failed);
-
 // ---- Tool-bundle routing ----
 static IReadOnlyList<AITool> AllTools() => new[]
 {
@@ -244,6 +191,176 @@ RouteCase("Router defaults vague questions to the race bundle",
     new[] { "get_race_story", "generate_race_debrief", "list_sessions" },
     new[] { "get_replay_chunk" }, ref passed, ref failed);
 
+// ---- Agent runner driven by a mocked LLM (no API key, no DB, no MCP) ----
+
+// Drive the real AgentRunner with a fake IChatClient + canned tools, collecting every SSE event.
+static async Task<List<AgUiEvent>> RunAgent(
+    FakeChatClient chat, IEnumerable<AITool> tools, string question, TelemetryAgentOptions opts)
+{
+    var runner = new AgentRunner(
+        chat,
+        McpToolRegistry.ForTesting(tools),
+        Options.Create(opts),
+        NullLogger<AgentRunner>.Instance);
+    var request = new AgUiRequest
+    {
+        ThreadId = "00000000-0000-7000-8000-000000000001",
+        Messages = new[] { new AgUiMessage { Id = "1", Role = "user", Content = question } }
+    };
+    var session = new SessionEntry();
+    var events = new List<AgUiEvent>();
+    await foreach (var evt in runner.RunAsync(request.ThreadId, "run-1", request, session))
+        events.Add(evt);
+    return events;
+}
+
+static ChatResponseUpdate ToolCall(string callId, string name) =>
+    new() { Role = ChatRole.Assistant, Contents = new List<AIContent> { new FunctionCallContent(callId, name, new Dictionary<string, object?>()) } };
+static ChatResponseUpdate TextDelta(string text) =>
+    new() { Role = ChatRole.Assistant, Contents = new List<AIContent> { new TextContent(text) } };
+static AITool CannedTool(string name, string resultJson) =>
+    AIFunctionFactory.Create(() => resultJson, name);
+
+// Single tool call cap so the planner runs exactly once before the final answer.
+var oneToolOpts = new TelemetryAgentOptions { MaximumToolCalls = 1, MaximumToolRounds = 2 };
+
+// 11. Full happy path: plan -> tool exec -> grounded streamed answer, correct event order
+try
+{
+    var toolResult = "{\"facts\":[{\"id\":\"f1\",\"text\":\"LEC set the fastest lap, 1:21.046\"}]}";
+    var chat = new FakeChatClient(
+        new[] { ToolCall("call-1", "get_driver_laps") },                                   // planning
+        new[] { TextDelta("LEC was "), TextDelta("fastest "), TextDelta("at 1:21.046.") }); // final answer
+    var events = await RunAgent(chat, new[] { CannedTool("get_driver_laps", toolResult), CannedTool("list_sessions", "{}") },
+        "Who set the fastest lap?", oneToolOpts);
+
+    var types = events.Select(e => e.Type).ToList();
+    string[] expected = { "RUN_STARTED", "TOOL_CALL_START", "TOOL_CALL_ARGS", "TOOL_CALL_END",
+        "TEXT_MESSAGE_START", "TEXT_MESSAGE_CONTENT", "TEXT_MESSAGE_END", "RUN_FINISHED" };
+    foreach (var t in expected) if (!types.Contains(t)) throw new Exception($"missing event {t} (got: {string.Join(",", types)})");
+    if (types[0] != "RUN_STARTED" || types[^1] != "RUN_FINISHED") throw new Exception("run not bracketed by STARTED/FINISHED");
+    if (types.IndexOf("TOOL_CALL_START") > types.IndexOf("TEXT_MESSAGE_START")) throw new Exception("tool calls must precede the answer");
+    var calledTool = events.First(e => e.Type == "TOOL_CALL_START").ToolCallName;
+    if (calledTool != "get_driver_laps") throw new Exception($"wrong tool routed/called: {calledTool}");
+    Pass("Agent run emits ordered plan/tool/answer events");
+    passed++;
+}
+catch (Exception ex) { Fail("Agent run emits ordered plan/tool/answer events", ex.Message); failed++; }
+
+// 12. Streaming is incremental: multiple TEXT_MESSAGE_CONTENT deltas that concatenate to the answer
+try
+{
+    var chat = new FakeChatClient(
+        new[] { ToolCall("call-1", "get_driver_laps") },
+        new[] { TextDelta("LEC was "), TextDelta("fastest "), TextDelta("at 1:21.046.") });
+    var events = await RunAgent(chat, new[] { CannedTool("get_driver_laps", "{}"), CannedTool("list_sessions", "{}") },
+        "Who set the fastest lap?", oneToolOpts);
+    var deltas = events.Where(e => e.Type == "TEXT_MESSAGE_CONTENT").Select(e => e.Delta).ToList();
+    if (deltas.Count < 2) throw new Exception($"expected streamed deltas, got {deltas.Count}");
+    var answer = string.Concat(deltas);
+    if (answer != "LEC was fastest at 1:21.046.") throw new Exception($"reassembled answer wrong: '{answer}'");
+    Pass("Streaming yields multiple deltas that reassemble the answer");
+    passed++;
+}
+catch (Exception ex) { Fail("Streaming yields multiple deltas that reassemble the answer", ex.Message); failed++; }
+
+// 13. Grounding: the tool result is fed into the final-answer LLM prompt (evidence packet)
+try
+{
+    var toolResult = "{\"facts\":[{\"id\":\"f1\",\"text\":\"TOP_SPEED_362_KMH_BY_LEC\"}]}";
+    var chat = new FakeChatClient(
+        new[] { ToolCall("call-1", "aggregate_telemetry") },
+        new[] { TextDelta("Top speed was 362 km/h.") });
+    await RunAgent(chat, new[] { CannedTool("aggregate_telemetry", toolResult), CannedTool("list_sessions", "{}") },
+        "What was the top speed?", oneToolOpts);
+    // Last LLM call is the finalizer; its user message must carry the tool's evidence.
+    var finalPrompt = string.Concat(chat.Received[^1].Select(m => m.Text));
+    if (!finalPrompt.Contains("TOP_SPEED_362_KMH_BY_LEC"))
+        throw new Exception("tool result did not reach the finalizer evidence packet");
+    Pass("Tool evidence is grounded into the final answer prompt");
+    passed++;
+}
+catch (Exception ex) { Fail("Tool evidence is grounded into the final answer prompt", ex.Message); failed++; }
+
+// 14. No-tool path: planner asks for nothing -> still produces a streamed answer
+try
+{
+    var chat = new FakeChatClient(
+        Array.Empty<ChatResponseUpdate>(),                 // planning: no tool calls
+        new[] { TextDelta("I don't have telemetry for that.") });
+    var events = await RunAgent(chat, new[] { CannedTool("list_sessions", "{}") },
+        "Hello", new TelemetryAgentOptions());
+    var types = events.Select(e => e.Type).ToList();
+    if (types.Contains("TOOL_CALL_START")) throw new Exception("no tool should have been called");
+    if (!types.Contains("TEXT_MESSAGE_CONTENT") || types[^1] != "RUN_FINISHED") throw new Exception("expected a finished streamed answer");
+    Pass("No-tool path still streams a grounded answer");
+    passed++;
+}
+catch (Exception ex) { Fail("No-tool path still streams a grounded answer", ex.Message); failed++; }
+
+// 15. Error path: LLM throws -> run surfaces RUN_ERROR, no crash
+try
+{
+    var chat = new FakeChatClient(new InvalidOperationException("boom"));
+    var events = await RunAgent(chat, new[] { CannedTool("list_sessions", "{}") },
+        "Who won?", new TelemetryAgentOptions());
+    var err = events.LastOrDefault(e => e.Type == "RUN_ERROR");
+    if (err is null) throw new Exception($"expected RUN_ERROR (got: {string.Join(",", events.Select(e => e.Type))})");
+    if (string.IsNullOrEmpty(err.Code)) throw new Exception("RUN_ERROR missing code");
+    Pass("LLM failure surfaces RUN_ERROR with a code");
+    passed++;
+}
+catch (Exception ex) { Fail("LLM failure surfaces RUN_ERROR with a code", ex.Message); failed++; }
+
+// ---- Follow-up block parsing (chat UI consumes the marker the finalizer emits) ----
+static void FollowUpCase(string name, string content, string expectBody, string[] expectFollowUps, ref int passed, ref int failed)
+{
+    try
+    {
+        var (body, ups) = RaceTelemetry.Contracts.ChatFollowUps.Split(content);
+        if (body != expectBody) throw new Exception($"body was '{body}'");
+        if (!ups.SequenceEqual(expectFollowUps)) throw new Exception($"follow-ups were [{string.Join(" | ", ups)}]");
+        Pass(name); passed++;
+    }
+    catch (Exception ex) { Fail(name, ex.Message); failed++; }
+}
+
+FollowUpCase("Follow-ups: no marker leaves content untouched",
+    "Just the answer, no marker.", "Just the answer, no marker.", Array.Empty<string>(), ref passed, ref failed);
+FollowUpCase("Follow-ups: marker splits body from plain questions",
+    "LEC was fastest.\n---FOLLOWUP---\nCompare the top three?\nWho led lap one?",
+    "LEC was fastest.", new[] { "Compare the top three?", "Who led lap one?" }, ref passed, ref failed);
+FollowUpCase("Follow-ups: bullets and quotes are stripped, blanks dropped",
+    "Body here.\n---FOLLOWUP---\n- \"First question?\"\n\n* Second question?\n",
+    "Body here.", new[] { "First question?", "Second question?" }, ref passed, ref failed);
+
 Console.WriteLine();
 Console.WriteLine($"Results: {passed} passed, {failed} failed");
 if (failed > 0) Environment.Exit(1);
+
+// Scripted IChatClient: each GetStreamingResponseAsync call replays the next turn of updates,
+// or throws if constructed with an exception. Records the messages it received per call.
+sealed class FakeChatClient : IChatClient
+{
+    private readonly Queue<IReadOnlyList<ChatResponseUpdate>> _turns;
+    private readonly Exception? _throw;
+    public List<IReadOnlyList<ChatMessage>> Received { get; } = new();
+
+    public FakeChatClient(params IReadOnlyList<ChatResponseUpdate>[] turns) => _turns = new(turns);
+    public FakeChatClient(Exception toThrow) { _turns = new(); _throw = toThrow; }
+
+    public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
+        IEnumerable<ChatMessage> messages, ChatOptions? options = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        Received.Add(messages.ToList());
+        if (_throw is not null) throw _throw;
+        var turn = _turns.Count > 0 ? _turns.Dequeue() : Array.Empty<ChatResponseUpdate>();
+        foreach (var update in turn) { await Task.Yield(); yield return update; }
+    }
+
+    public Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+    public object? GetService(Type serviceType, object? serviceKey = null) => null;
+    public void Dispose() { }
+}

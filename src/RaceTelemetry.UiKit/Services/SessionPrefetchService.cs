@@ -13,7 +13,7 @@ public sealed class SessionSnapshot
     public IReadOnlyList<DriverSummary> Drivers { get; init; } = Array.Empty<DriverSummary>();
     public ReplayMetadata? ReplayMetadata { get; init; }
     public StandingsResponse? Standings { get; init; }
-    public IncidentsResponse? Incidents { get; init; }
+    public RaceControlResponse? Incidents { get; init; }
     public PositionsResponse? Positions { get; init; }
     public StintAnalysisResponse? Stints { get; init; }
 
@@ -104,7 +104,7 @@ public sealed class SessionPrefetchService : ISessionPrefetchService
         var driversTask = Safe(() => _api.GetDriversAsync(sessionId), (IReadOnlyList<DriverSummary>)Array.Empty<DriverSummary>());
         var metaTask = Safe(() => _api.GetReplayMetadataAsync(sessionId), (ReplayMetadata?)null);
         var standingsTask = Safe(() => _api.GetStandingsAsync(sessionId), (StandingsResponse?)null);
-        var incidentsTask = Safe(() => _api.GetIncidentsAsync(sessionId), (IncidentsResponse?)null);
+        var incidentsTask = Safe(() => _api.GetRaceControlAsync(sessionId), (RaceControlResponse?)null);
         var positionsTask = Safe(() => _api.GetPositionsAsync(sessionId), (PositionsResponse?)null);
         var stintsTask = Safe(() => _api.GetStintsAsync(sessionId), (StintAnalysisResponse?)null);
         var outlineTask = Safe(() => GetTrackOutlineAsync(sessionId, metaTask), Array.Empty<TrackPoint>() as IReadOnlyList<TrackPoint>);

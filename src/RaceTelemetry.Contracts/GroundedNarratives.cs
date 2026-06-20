@@ -64,7 +64,7 @@ public sealed record RaceDebriefResponse(
     string SessionId,
     RaceDebriefOverview? Overview,
     StrategySummaryResponse? Strategy,
-    IReadOnlyList<Incident> Incidents,
+    IReadOnlyList<RaceControlItem> Incidents,
     RaceDebriefWeather? Weather,
     IReadOnlyList<NarrativeFact> Facts,
     StoryQuality Quality);

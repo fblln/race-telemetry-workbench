@@ -11,6 +11,7 @@ public sealed class McpToolRegistry : IAsyncDisposable
 {
     private McpClient? _client;
     private IList<McpClientTool>? _tools;
+    private readonly IReadOnlyList<AITool>? _injectedTools;
     private readonly TelemetryAgentOptions _options;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<McpToolRegistry> _logger;
@@ -26,10 +27,21 @@ public sealed class McpToolRegistry : IAsyncDisposable
         _logger = logger;
     }
 
-    public bool IsReady => _tools is not null;
+    // ponytail: test seam — drive AgentRunner with canned tools, no live MCP server.
+    private McpToolRegistry(IEnumerable<AITool> tools)
+    {
+        _injectedTools = tools.ToList();
+        _options = new TelemetryAgentOptions();
+        _httpClientFactory = null!;
+        _logger = null!;
+    }
+
+    public static McpToolRegistry ForTesting(IEnumerable<AITool> tools) => new(tools);
+
+    public bool IsReady => _injectedTools is not null || _tools is not null;
 
     public IReadOnlyList<AITool> GetTools() =>
-        (_tools ?? []).Cast<AITool>().ToList();
+        _injectedTools ?? (_tools ?? []).Cast<AITool>().ToList();
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {

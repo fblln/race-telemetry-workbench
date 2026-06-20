@@ -12,7 +12,6 @@ builder.AddServiceDefaults();
 builder.Services.AddRaceTelemetryAgent(builder.Configuration);
 
 builder.Services.AddSingleton<AgentSessionRegistry>();
-builder.Services.AddSingleton<GroundedFrameVerifier>();
 builder.Services.AddHostedService<SessionCleanupService>();
 builder.Services.AddScoped<AgentRunner>();
 

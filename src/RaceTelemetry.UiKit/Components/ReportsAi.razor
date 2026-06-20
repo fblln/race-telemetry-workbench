@@ -114,16 +114,16 @@
                             </div>
                         </div>
                         <div>
-                            <div class="lbl">Key incidents</div>
-                            @if (KeyIncidents.Count == 0)
+                            <div class="lbl">Race control</div>
+                            @if (KeyRaceControl.Count == 0)
                             {
                                 <div class="micro" style="text-transform:none">No safety cars or flags recorded.</div>
                             }
-                            @foreach (var inc in KeyIncidents)
+                            @foreach (var inc in KeyRaceControl)
                             {
                                 <div style="display:grid;grid-template-columns:30px 12px 1fr;gap:8px;align-items:center;font-size:12px;margin-bottom:4px">
                                     <span class="mono" style="color:var(--text-tertiary)">@(inc.LapNumber is int l ? "L" + l : "—")</span>
-                                    <span class="led" style="background:@IncidentColor(inc)"></span>
+                                    <span class="led" style="background:@RaceControlColor(inc)"></span>
                                     <span style="color:var(--text-secondary)">@inc.Message</span>
                                 </div>
                             }
@@ -138,15 +138,16 @@
 
 @code {
     static readonly System.Globalization.CultureInfo Inv = System.Globalization.CultureInfo.InvariantCulture;
-    const string FollowUpMarker = "---FOLLOWUP---";
 
-    static readonly string[] FollowUps =
+    static readonly string[] DefaultFollowUps =
     {
         "Compare the pit strategies of the top 3",
         "Who had the strongest final stint?",
-        "Where did the lead change hands?",
-        "Who set the fastest lap, and on what tyre?",
+        "Where did the lead change hands?"
     };
+
+    // Shows the model's real follow-ups after a reply; defaults before the first message.
+    string[] FollowUps = DefaultFollowUps;
 
     sealed class Bubble
     {
@@ -166,7 +167,7 @@
     string? _loadedSession;
     StandingsResponse? _standings;
     RaceStoryResponse? _story;
-    IncidentsResponse? _incidents;
+    RaceControlResponse? _incidents;
 
     string EventName => State.Session?.EventName ?? "this session";
 
@@ -197,7 +198,7 @@
             // summary as soon as the fast pair lands, then fill incidents in when it arrives.
             var standings = Api.GetStandingsAsync(id);
             var story = Api.GetRaceStoryAsync(id);
-            var incidents = Api.GetIncidentsAsync(id);
+            var incidents = Api.GetRaceControlAsync(id);
             await Task.WhenAll(standings, story);
             _standings = standings.Result; _story = story.Result;
             await InvokeAsync(StateHasChanged);
@@ -238,7 +239,7 @@
         }
     }
 
-    List<Incident> KeyIncidents => _incidents?.Items
+    List<RaceControlItem> KeyRaceControl => _incidents?.Items
         .Where(i => !i.Type.Contains("brak", StringComparison.OrdinalIgnoreCase))
         .Take(6).ToList() ?? new();
 
@@ -293,7 +294,7 @@
         _ => "var(--border-strong)",
     };
 
-    static string IncidentColor(Incident i)
+    static string RaceControlColor(RaceControlItem i)
     {
         var t = (i.Type + " " + i.Message).ToLowerInvariant();
         if (t.Contains("red")) return "var(--flag-red)";
@@ -365,10 +366,11 @@
         }
     }
 
-    static void StripFollowUpMarker(Bubble b)
+    void StripFollowUpMarker(Bubble b)
     {
-        var idx = b.Content.IndexOf(FollowUpMarker, StringComparison.Ordinal);
-        if (idx >= 0) b.Content = b.Content[..idx].TrimEnd();
+        var (body, parsed) = RaceTelemetry.Contracts.ChatFollowUps.Split(b.Content);
+        if (parsed.Count > 0) FollowUps = parsed.ToArray();
+        b.Content = body;
     }
 
     void Cancel() => _cts?.Cancel();

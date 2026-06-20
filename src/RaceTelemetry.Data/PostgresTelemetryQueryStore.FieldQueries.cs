@@ -243,7 +243,7 @@ public sealed partial class PostgresTelemetryQueryStore
         return new PositionsResponse(sessionId, from, to, items);
     }
 
-    public async Task<IncidentsResponse?> GetIncidentsAsync(
+    public async Task<RaceControlResponse?> GetRaceControlAsync(
         string sessionId,
         IReadOnlyList<string>? types,
         double minBrakingG,
@@ -287,11 +287,11 @@ public sealed partial class PostgresTelemetryQueryStore
             .Max();
         var lapsUnderSafetyCar = trackStatus.Count(i => i.Type is "safety_car" or "vsc");
 
-        var summary = new IncidentSummary(all.Count, hardestG, lapsUnderSafetyCar);
-        return new IncidentsResponse(sessionId, all, summary);
+        var summary = new RaceControlListSummary(all.Count, hardestG, lapsUnderSafetyCar);
+        return new RaceControlResponse(sessionId, all, summary);
     }
 
-    private async Task<IReadOnlyList<Incident>> GetTrackStatusIncidentsAsync(
+    private async Task<IReadOnlyList<RaceControlItem>> GetTrackStatusIncidentsAsync(
         string sessionId,
         CancellationToken cancellationToken)
     {
@@ -305,7 +305,7 @@ public sealed partial class PostgresTelemetryQueryStore
         await using var command = _dataSource.CreateCommand(sql);
         command.Parameters.AddWithValue("sessionId", sessionId);
 
-        var incidents = new List<Incident>();
+        var incidents = new List<RaceControlItem>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
@@ -320,7 +320,7 @@ public sealed partial class PostgresTelemetryQueryStore
                 "5" => ("red", "high"),
                 _ => ("vsc", "info"),
             };
-            incidents.Add(new Incident(
+            incidents.Add(new RaceControlItem(
                 type,
                 LapNumber: null,
                 SessionTimeMs: startMs,
@@ -336,7 +336,7 @@ public sealed partial class PostgresTelemetryQueryStore
         return incidents;
     }
 
-    private async Task<IReadOnlyList<Incident>> GetHardBrakingIncidentsAsync(
+    private async Task<IReadOnlyList<RaceControlItem>> GetHardBrakingIncidentsAsync(
         string sessionId,
         double minBrakingG,
         int maxResults,
@@ -418,7 +418,7 @@ public sealed partial class PostgresTelemetryQueryStore
         command.Parameters.AddWithValue("sessionId", sessionId);
         command.Parameters.AddWithValue("scanLimit", Math.Max(maxResults, 50) * 3);
 
-        var incidents = new List<Incident>();
+        var incidents = new List<RaceControlItem>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
@@ -444,7 +444,7 @@ public sealed partial class PostgresTelemetryQueryStore
                 ? null
                 : new NearestCorner(markerNumber.Value, FormatCornerLabel(sessionId, markerNumber, markerLetter) ?? $"Turn {markerNumber}");
 
-            incidents.Add(new Incident(
+            incidents.Add(new RaceControlItem(
                 "hard_braking",
                 lapNumber,
                 sessionTimeMs,
@@ -454,7 +454,7 @@ public sealed partial class PostgresTelemetryQueryStore
                 markerY ?? carY,
                 driverCode,
                 "info",
-                new IncidentMetrics(peakG, entrySpeed, minSpeed)));
+                new RaceControlMetrics(peakG, entrySpeed, minSpeed)));
         }
 
         return incidents
@@ -463,13 +463,13 @@ public sealed partial class PostgresTelemetryQueryStore
             .ToList();
     }
 
-    private async Task<IReadOnlyList<Incident>> GetRaceControlIncidentsAsync(
+    private async Task<IReadOnlyList<RaceControlItem>> GetRaceControlIncidentsAsync(
         string sessionId,
         int maxResults,
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT rci.session_time_ms, rci.lap_number, rci.message, sd.driver_code
+            SELECT rci.session_time_ms, rci.lap_number, rci.message, sd.driver_code, rci.cluster_terms
             FROM race_control_event_index rci
             LEFT JOIN session_drivers sd
                 ON sd.session_id = rci.session_id
@@ -490,13 +490,13 @@ public sealed partial class PostgresTelemetryQueryStore
         command.Parameters.AddWithValue("sessionId", sessionId);
         command.Parameters.AddWithValue("maxResults", maxResults);
 
-        var incidents = new List<Incident>();
+        var incidents = new List<RaceControlItem>();
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
             var message = reader.GetString(2);
             var type = message.Contains("spin", StringComparison.OrdinalIgnoreCase) ? "spin" : "off_track";
-            incidents.Add(new Incident(
+            incidents.Add(new RaceControlItem(
                 type,
                 GetNullableInt32(reader, 1),
                 GetNullableInt64(reader, 0),
@@ -506,7 +506,8 @@ public sealed partial class PostgresTelemetryQueryStore
                 Y: null,
                 DriverCode: GetNullableString(reader, 3),
                 Severity: "info",
-                Metrics: null));
+                Metrics: null,
+                ClusterTerms: GetNullableString(reader, 4)));
         }
 
         return incidents;
