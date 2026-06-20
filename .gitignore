@@ -11,3 +11,4 @@ obj/
 **/obj/
 .vs/
 .aspire/
+tests/ui/node_modules
