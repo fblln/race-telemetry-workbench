@@ -173,7 +173,7 @@ The Aspire Dashboard provides a single local view of the running backend topolog
 and its end-to-end traces. The resource graph shows the Query API, Agent API, MCP
 server, and the OpenAI configuration injected into the agent process.
 
-![Aspire trace Resource Graph](docs/images/aspire-resource-graph.png)
+![Aspire trace Resource Graph](docs/images/aspire-resourc![img.png](img.png)e-graph.png)
 
 A real POST /ag-ui trace follows the complete agentic request. The Agent API
 calls OpenAI, executes get_race_story through the MCP server, queries
@@ -181,6 +181,15 @@ TimescaleDB through the shared query store, and then calls the model again to
 produce the final streamed answer.
 
 ![Aspire trace for Agent call](docs/images/aspire-agent-trace.png)
+
+The trace below was produced by asking **“Compare the pit strategies of the top
+3.”** The first model call resolves the analysis plan, after which the agent
+executes `analyze_driver_stints` three times through MCP for each of the
+top-three finishers. Each tool call is visible through the MCP server, shared
+query store, and PostgreSQL spans before a final OpenAI call synthesizes the
+comparison.
+
+![Aspire trace for comparing the pit strategies of the top three finishers](docs/images/aspire-top-three-pit-strategies-trace.png)
 
 ## Backend Deep Dive
 
