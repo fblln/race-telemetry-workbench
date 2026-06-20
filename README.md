@@ -11,75 +11,69 @@ or manually inspect thousands of samples.
 
 ## What It Will Look Like
 
-The end state is a high-performance .NET MAUI **desktop workbench** for race
-engineers — keyboard-first, information-dense, and built on a project-owned
-design system called **Carbon Signal**.
+The target experience is a high-performance .NET MAUI **desktop workbench** for
+race engineers — keyboard-first, information-dense, and built on the
+project-owned **Carbon Signal** design system.
 
-Rather than a generic dashboard with horizontal tabs, the app is a **session
-console** with three persistent regions that never lose context: a monospace
-command bar (breadcrumb + always-on query input), an instrument **HUD** strip of
-session metrics, and a left **view rail** switched by number keys `0`–`9`. A
-single signal-amber accent is reserved for action, selection, focus, and the
-replay cursor; an original, colorblind-safe palette carries the telemetry
-channels so data never competes with chrome.
+The current full-app prototype uses a persistent session-console shell: a
+monospace command bar, an always-visible session HUD, and a left view rail.
+Views are switched with the rail or number keys `0`–`7`; `⌘K` opens the command
+palette. The signal-amber accent is reserved for action, selection, focus, and
+replay position, while telemetry, tyres, flags, and drivers use dedicated
+colorblind-safe channel colors.
 
 ![Race Telemetry Workbench — Home](docs/images/view-home.png)
 
-*Home: the entry point into the console. A circuit → season → session funnel on
-the left, a live preview of the selected circuit (length, turns, DRS zones, lap
-record) on the right, and a driver grid to pick the field before opening a replay
-— all inside the same command bar / HUD / rail shell used by every other view.*
+*Home: select a circuit, season, session, and driver field before opening the
+workspace. The circuit preview, metadata, and driver selection all live inside
+the same shell used by the analysis views.*
 
-Once a session is open, the same shell carries you through ten purpose-built
-surfaces — from second-by-second replay to strategy, timing, incidents, lap
-comparison, and an AI-assisted race story.
+Once a session is open, the prototype exposes seven analysis surfaces without
+losing session context.
 
-![Race Telemetry Workbench — Replay workspace](docs/images/app-overview.png)
+![Race Telemetry Workbench — Replay workspace](docs/images/view-replay.png)
 
-*Replay: a data-derived Monza track map, a synchronized telemetry waveform with a
-primary (amber) and reference (cool) cursor, a live current-values readout, the
-seekable context strip, an event timeline of race-control messages (safety car,
-track clear, DRS, red flag), and the playback transport — all locked to one
-session-relative timebase.*
+*Replay: a data-derived Monza track map, synchronized telemetry waveform, live
+channel readout, context strip, event timeline, and playback transport, all
+locked to one session-relative timebase.*
 
-The workbench is organized into ten surfaces:
+The current prototype contains eight views:
 
-| View | What it shows |
-|---|---|
-| **Home** | Circuit → session → driver funnel to open a session |
-| **Overview** | Result cards, full classification, stint sequence, positions gained |
-| **Replay** | Track map, telemetry waveform, current values, context strip, transport |
-| **Strategy** | Tyre-stint gantt, pit-loss narrative, degradation & pit-window predictor |
-| **Field** | Sortable, filterable timing tower with pace sparklines (Tower / Grid / Gaps) |
-| **Incidents** | Flag and incident markers on the track outline + incident × weather correlation |
-| **Head to head** | Lap comparison, corner-level index, multi-season diff, ghost-car overlay |
-| **Lap detail** | Full lap-by-lap log for one driver — every sector, tyre, trap, and channel |
-| **Telemetry** | Bounded-aggregate explorer: histograms and load maps |
-| **Reports & AI** | One-page race debrief / session report export and the MCP race-story assistant |
+| Key | View | What it shows |
+|---:|---|---|
+| `0` | **Home** | Circuit → season → session → driver selection and session launcher |
+| `1` | **Reports & AI** | Exportable race summary and MCP-backed assistant grounded in session data |
+| `2` | **Replay** | Track map, telemetry waveform, live values, context strip, events, and transport |
+| `3` | **Strategy** | Per-driver tyre stints, selectable stint detail, pit boundaries, and strategy narrative |
+| `4` | **Field** | Sortable and filterable timing tower with Tower, Grid, and Gaps presentations |
+| `5` | **Race control** | Flags and incidents on the circuit, synchronized race-control log, and assistant explanation |
+| `6` | **Head to head** | Lap, corner, and cross-season comparison with linked telemetry and delta cursor |
+| `7` | **Lap detail** | Full lap-by-lap driver log with sectors, tyres, speed traps, and channel summaries |
 
-### More Views
+### Current Prototype Views
 
 | | |
 |---|---|
-| ![Strategy — tire stint gantt](docs/images/view-strategy.png) **Strategy** — per-driver stint gantt on a shared lap axis, with an MCP-generated strategy story (undercut/overcut narrative) underneath. | ![Incidents — track map and correlation timeline](docs/images/view-incidents.png) **Incidents** — flag and incident markers on the data-derived track outline, correlated against track status, race control, rainfall, and track temperature. |
-| ![Head to head — lap comparison](docs/images/view-head-to-head.png) **Head to head** — lap-relative speed and throttle/brake overlays for two drivers, with lap delta and sector-by-sector deltas. | ![Reports & AI — race story assistant](docs/images/view-reports-ai.png) **Reports & AI** — the MCP-backed race-story assistant: ask a question in plain language and get an answer grounded in the same `list_drivers` / `compare_laps` / `aggregate_telemetry` / `analyze_driver_stints` tools exposed to MCP clients. |
+| ![Reports & AI — race summary and assistant](docs/images/view-reports-ai.png) **Reports & AI** — a one-page race summary beside the MCP-backed assistant, including grounded tool traces and export actions. | ![Strategy — tyre stint analysis](docs/images/view-strategy.png) **Strategy** — every driver's stint sequence on a shared lap axis; stints are clickable and expose degradation and pit-stop detail. |
+| ![Field — timing tower](docs/images/view-field.png) **Field** — sortable, filterable whole-field timing with selectable Tower, Grid, and Gaps modes and driver pinning. | ![Race control — incidents and flags](docs/images/view-race-control.png) **Race control** — circuit markers and a synchronized race-control log for flags, incidents, weather, and session events. |
+| ![Head to head — lap comparison](docs/images/view-head-to-head.png) **Head to head** — linked lap telemetry, cumulative delta, circuit cursor, corner analysis, and cross-season comparison. | ![Lap detail — lap-by-lap log](docs/images/view-lap-detail.png) **Lap detail** — a dense driver-specific lap table with sectors, compounds, traps, validity, and telemetry summaries. |
 
 **Explore the design now:**
 
-- Interactive clickable prototype — [`docs/design-system/mockups/app-prototype.html`](docs/design-system/mockups/app-prototype.html) (open in a browser; use the rail or keys `0`–`9`, and `⌘K`)
+- Interactive clickable prototype — [`docs/design-system/mockups/app-prototype.html`](docs/design-system/mockups/app-prototype.html) (open in a browser; use the rail or keys `0`–`7`, and `⌘K`)
 - Design system — [`docs/design-system/DESIGN_SYSTEM.md`](docs/design-system/DESIGN_SYSTEM.md)
 - Live styleguide and tokens — [`docs/design-system/styleguide.html`](docs/design-system/styleguide.html)
 
-The backend below already powers this design: every view maps to a bounded Query
-API route and an MCP tool, so the desktop UI reads from the same contracts as any
-other client.
+The backend below is intended to power these surfaces. Each view should consume
+bounded Query API contracts, while the Reports & AI assistant obtains telemetry
+through the same MCP tools available to external clients.
 
 ## AI-First Analysis Primitives
 
 AI is a first-class analysis surface in Race Telemetry Workbench, not a sidecar
 chat box. The app is designed so an engineer can inspect telemetry visually,
 then ask natural-language questions against the same bounded data primitives
-that drive the replay, strategy, incidents, comparison, and report views.
+that drive the replay, strategy, race-control, comparison, and report views.
 
 The Query API and MCP server expose compact analytical primitives so AI clients
 do not need to download full race telemetry for every question. Each primitive is

@@ -16,7 +16,7 @@ public partial class App : Application
     {
         // Carbon Signal density target: 15-inch MacBook Pro Retina
         // (2880x1800 physical pixels, 1440x900 logical points at 2x).
-        return new Window(new AppShell())
+        return new Window(new MainPage())
         {
             Title = "Race Telemetry Workbench",
             Width = 1440,

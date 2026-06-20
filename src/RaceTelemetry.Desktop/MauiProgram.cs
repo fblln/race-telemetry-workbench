@@ -1,12 +1,9 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 #if DEBUG
 using Microsoft.Maui.DevFlow.Agent;
 #endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RaceTelemetry.Desktop.Services;
-using RaceTelemetry.Desktop.ViewModels;
-using RaceTelemetry.Desktop.Views;
 
 namespace RaceTelemetry.Desktop;
 
@@ -24,6 +21,14 @@ public static class MauiProgram
             handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
             handler.PlatformView.BackgroundColor = UIKit.UIColor.Clear;
         });
+
+        // Make the BlazorWebView's WKWebView inspectable so DevFlow/Safari can attach (debug only).
+        Microsoft.AspNetCore.Components.WebView.Maui.BlazorWebViewHandler.BlazorWebViewMapper.AppendToMapping(
+            "Inspectable", (handler, _) =>
+            {
+                if (OperatingSystem.IsMacCatalystVersionAtLeast(16, 4))
+                    handler.PlatformView.Inspectable = true;
+            });
 #endif
 
         builder
@@ -37,6 +42,12 @@ public static class MauiProgram
                 fonts.AddFont("JetBrainsMono-Regular.ttf", "JetBrainsMono");
                 fonts.AddFont("JetBrainsMono-Medium.ttf", "JetBrainsMonoMedium");
             });
+
+        // Blazor Hybrid: the whole UI is a BlazorWebView hosting Razor components.
+        builder.Services.AddMauiBlazorWebView();
+#if DEBUG
+        builder.Services.AddBlazorWebViewDeveloperTools();
+#endif
 
         // Query API base address. AppHost exposes the Query API on http://localhost:5120 (§11).
         var apiBase = Environment.GetEnvironmentVariable("RACE_TELEMETRY_QUERY_API_BASEURL")
@@ -62,23 +73,15 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISessionPrefetchService, SessionPrefetchService>();
         builder.Services.AddSingleton<ILauncherSessionCache, LauncherSessionCache>();
 
-        // Shared app state
-        builder.Services.AddSingleton<AppState>();
-
-        // Shell + command palette (singletons — persistent chrome)
-        builder.Services.AddSingleton<ConsoleShellViewModel>();
-        builder.Services.AddSingleton<CommandPaletteViewModel>();
+        // Single source of truth for the open session + selected drivers + active view.
+        builder.Services.AddSingleton<SessionState>();
 
         // AG-UI agent client (stateless HTTP client, thread ID managed separately)
         builder.Services.AddSingleton<ChatThreadIdentity>();
         builder.Services.AddSingleton<ITelemetryAgentClient, TelemetryAgentClient>();
 
-        // Pages and views (transient — re-created on each navigation)
-        builder.Services.AddTransient<ConsoleShellPage>();
-        builder.Services.AddTransient<LauncherView>();
-        builder.Services.AddTransient<PlaceholderView>();
-        builder.Services.AddTransient<ReportsAiViewModel>();
-        builder.Services.AddTransient<ReportsAiView>();
+        // Host page for the BlazorWebView.
+        builder.Services.AddTransient<MainPage>();
 
 #if DEBUG
         builder.AddMauiDevFlowAgent(options =>
@@ -93,22 +96,4 @@ public static class MauiProgram
 
         return builder.Build();
     }
-}
-
-/// <summary>
-/// Lightweight shared application state: the open session and the selected drivers.
-/// Views observe this so the console keeps one source of truth across the view rail (§8.11).
-/// </summary>
-public sealed partial class AppState : ObservableObject
-{
-    [ObservableProperty]
-    private string? _sessionId;
-
-    [ObservableProperty]
-    private string? _eventName;
-
-    [ObservableProperty]
-    private int _year;
-
-    public List<string> SelectedDrivers { get; } = new();
 }

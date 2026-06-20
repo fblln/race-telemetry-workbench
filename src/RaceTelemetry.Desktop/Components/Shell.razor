@@ -1,0 +1,215 @@
+@implements IDisposable
+@inject SessionState State
+@inject IJSRuntime JS
+
+<div class="frame">
+    <div class="cmdbar">
+        <div class="cmd-back" @onclick="() => State.SetView(0)" title="Home">‹</div>
+        <div class="crumb">@((MarkupString)Breadcrumb)</div>
+        <div class="spacer"></div>
+        <div class="searchbox" @onclick="OpenPalette" title="Open command palette (⌘K)">
+            <span class="mag">⌕</span>
+            <input placeholder="Search / query  ·  brake &gt; 80 in S2" readonly />
+            <span class="kbd">⌘K</span>
+        </div>
+        <div class="actions">
+            <div class="pill"><span class="lbl">Export</span><span class="key">E</span></div>
+            <div class="pill"><span class="lbl">Save view</span><span class="key">S</span></div>
+            <div class="pill" @onclick="ToggleHelp"><span class="key">?</span></div>
+        </div>
+    </div>
+
+    <div class="hud" style="opacity:@(State.ActiveView == 0 ? "0.45" : "1")">
+        @foreach (var (k, v) in Hud)
+        {
+            <div class="hud-cell"><span class="k">@k</span><span class="v">@v</span></div>
+        }
+    </div>
+
+    <div class="body">
+        <div class="rail">
+            <div class="rail-item @(State.ActiveView == 0 ? "active" : "")" @onclick="() => State.SetView(0)">
+                <div class="bar"></div><div class="t">Home</div><div class="hk">0</div>
+            </div>
+            <div class="rail-sep"></div>
+            @for (var i = 1; i < Views.Length; i++)
+            {
+                var idx = i;
+                var locked = !State.IsSessionOpen;
+                <div class="rail-item @(State.ActiveView == idx ? "active" : "")"
+                     style="@(locked ? "opacity:.4;cursor:default" : "")"
+                     @onclick="() => { if (!locked) State.SetView(idx); }">
+                    <div class="bar"></div><div class="t">@Views[idx]</div><div class="hk">@idx</div>
+                </div>
+            }
+            <div class="rail-foot">⌘K palette · 0–7 views<br />Space play · ←/→ step<br />R ref · D driver · ? help</div>
+        </div>
+
+        <div class="content">
+            @switch (State.ActiveView)
+            {
+                case 0: <Launcher /> break;
+                case 1: <ReportsAi /> break;
+                default:
+                    <div class="view on"><div class="vhead"><h2>@Views[State.ActiveView]</h2>
+                        <div class="desc">Not part of the current migration slice yet.</div></div></div>
+                    break;
+            }
+        </div>
+
+        @if (_palette)
+        {
+            <div class="overlay on" @onclick="CloseOverlays">
+                <div class="palette" @onclick:stopPropagation="true">
+                    <div class="pin">
+                        <span class="mag" style="color:var(--text-tertiary);font-size:16px">⌕</span>
+                        <input id="palInput" placeholder="Jump to a session, driver, view, or action…"
+                               @bind="_q" @bind:event="oninput" @onkeydown="PaletteKey" />
+                        <span class="kbd" style="color:var(--text-tertiary);font-size:11px">esc</span>
+                    </div>
+                    <div class="pbody">
+                        @{ var rows = Filtered(); var grp = ""; }
+                        @if (rows.Count == 0)
+                        {
+                            <div style="padding:18px;color:var(--text-tertiary);font-size:13px">No matches.</div>
+                        }
+                        @for (var i = 0; i < rows.Count; i++)
+                        {
+                            var idx = i; var r = rows[idx];
+                            if (r.Group != grp)
+                            {
+                                grp = r.Group;
+                                <div class="pgroup"><span>@grp</span></div>
+                            }
+                            <div class="prow @(idx == _sel ? "sel" : "")" @onclick="() => Run(r)">
+                                <div class="pi"></div><div class="pico">@r.Icon</div>
+                                <div class="ptxt">@r.Text</div><div class="phint">@r.Hint</div><div class="ret">↵</div>
+                            </div>
+                        }
+                    </div>
+                    <div class="pfoot"><span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span></div>
+                </div>
+            </div>
+        }
+
+        @if (_help)
+        {
+            <div class="overlay on" @onclick="CloseOverlays">
+                <div class="palette" style="max-width:440px" @onclick:stopPropagation="true">
+                    <div class="pin"><span style="font-weight:500;color:var(--text-primary)">Keyboard shortcuts</span>
+                        <span class="kbd" style="margin-left:auto;color:var(--text-tertiary);font-size:11px">esc</span></div>
+                    <div class="pbody" style="padding:12px 16px;display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--text-secondary)">
+                        <div style="display:flex;justify-content:space-between"><span>Switch views</span><span class="kbd">0–7</span></div>
+                        <div style="display:flex;justify-content:space-between"><span>Command palette</span><span class="kbd">⌘K</span></div>
+                        <div style="display:flex;justify-content:space-between"><span>This help</span><span class="kbd">?</span></div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    static readonly string[] Views =
+        { "Home", "Reports & AI", "Replay", "Strategy", "Field", "Race control", "Head to head", "Lap detail" };
+    static readonly string[] Slug =
+        { "", "reports", "replay", "strategy", "field", "race-control", "head-to-head", "lap-detail" };
+
+    record PaletteItem(string Group, string Icon, string Text, string Hint, int? View);
+
+    bool _palette, _help;
+    string _q = "";
+    int _sel;
+    DotNetObjectReference<Shell>? _ref;
+
+    protected override void OnInitialized() => State.Changed += OnStateChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _ref = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("rtw.registerKeys", _ref);
+        }
+    }
+
+    public void Dispose() { State.Changed -= OnStateChanged; _ref?.Dispose(); }
+    void OnStateChanged() => InvokeAsync(StateHasChanged);
+
+    // --- JS-invoked global shortcuts ---
+    [JSInvokable] public Task TogglePalette() { _palette = !_palette; _help = false; _q = ""; _sel = 0; return Focus(); }
+    [JSInvokable] public Task CloseOverlays() { _palette = false; _help = false; return InvokeAsync(StateHasChanged); }
+    [JSInvokable] public Task ToggleHelpJs() { _help = !_help; _palette = false; return InvokeAsync(StateHasChanged); }
+    [JSInvokable] public Task GoView(int i) { if (i == 0 || State.IsSessionOpen) State.SetView(i); return Task.CompletedTask; }
+
+    void ToggleHelp() { _help = !_help; _palette = false; }
+    void OpenPalette() { _palette = true; _q = ""; _sel = 0; _ = Focus(); }
+    async Task Focus() { await InvokeAsync(StateHasChanged); await JS.InvokeVoidAsync("rtw.focus", "#palInput"); }
+
+    List<PaletteItem> AllItems()
+    {
+        var items = new List<PaletteItem>();
+        for (var i = 0; i < Views.Length; i++) items.Add(new("Views", "▸", Views[i], "go", i));
+        items.Add(new("Actions", "⚡", "Open replay", "▶", 2));
+        items.Add(new("Actions", "⚡", "Reports & AI", "1", 1));
+        items.Add(new("Actions", "⚡", "Back to Home", "0", 0));
+        return items;
+    }
+
+    List<PaletteItem> Filtered() =>
+        AllItems().Where(p => string.IsNullOrEmpty(_q) ||
+            (p.Group + " " + p.Text).Contains(_q, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    void PaletteKey(KeyboardEventArgs e)
+    {
+        var rows = Filtered();
+        switch (e.Key)
+        {
+            case "Escape": _palette = false; break;
+            case "ArrowDown": _sel = Math.Min(rows.Count - 1, _sel + 1); break;
+            case "ArrowUp": _sel = Math.Max(0, _sel - 1); break;
+            case "Enter": if (_sel < rows.Count) Run(rows[_sel]); break;
+        }
+    }
+
+    void Run(PaletteItem p)
+    {
+        _palette = false;
+        if (p.View is int v && (v == 0 || State.IsSessionOpen)) State.SetView(v);
+    }
+
+    string Breadcrumb
+    {
+        get
+        {
+            var year = State.Year?.ToString() ?? "—";
+            var code = State.Session is not null ? CountryMeta.Of(State.Session.Country).Code
+                     : State.CircuitName ?? "—";
+            var type = (State.SessionType ?? "—").ToUpperInvariant();
+            var head = $"{year} / {code} / {type}";
+            return State.ActiveView == 0 || State.ActiveView >= Slug.Length
+                ? head
+                : $"{head} / <span class=\"live\">{Slug[State.ActiveView]}</span>";
+        }
+    }
+
+    (string, string)[] Hud
+    {
+        get
+        {
+            string dash = "—";
+            var open = State.IsSessionOpen;
+            return new[]
+            {
+                ("drivers", open ? $"{State.SelectedDrivers.Count}" : dash),
+                ("pit stops", dash),
+                ("avg stops", dash),
+                ("top compound", dash),
+                ("laps", open ? State.Session!.LapCount.ToString() : dash),
+                ("SC / VSC", dash),
+                ("conditions", dash),
+                ("duration", dash),
+            };
+        }
+    }
+}

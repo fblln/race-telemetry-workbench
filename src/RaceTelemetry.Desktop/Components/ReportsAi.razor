@@ -1,0 +1,380 @@
+@implements IDisposable
+@inject IQueryApiClient Api
+@inject ITelemetryAgentClient Agent
+@inject ChatThreadIdentity Thread
+@inject SessionState State
+@inject IJSRuntime JS
+
+<div class="view on">
+    <div class="vhead">
+        <h2>Reports &amp; AI</h2>
+        <div class="desc">Ask anything about the race — answers are grounded in the session data.</div>
+    </div>
+    <div class="vbody" style="overflow:hidden">
+        <div class="grid-3-1" style="height:100%">
+
+            @* ---------------- Assistant chat (left) ---------------- *@
+            <div class="panel" style="display:flex;flex-direction:column;min-height:0">
+                <div class="panel-h"><span class="tt">▢ Assistant</span>
+                    <div class="tools">
+                        <span class="bdg" style="background:var(--accent-muted);color:var(--accent);border:1px solid var(--accent-border)">MCP · LLM</span>
+                        <span class="btn-ghost" @onclick="NewConversation">↺ New</span>
+                    </div>
+                </div>
+                <div id="chatLog" style="flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+                    <div class="bubble-a">@((MarkupString)Greeting)</div>
+
+                    @foreach (var b in _chat)
+                    {
+                        if (b.IsUser)
+                        {
+                            <div class="bubble-q" style="align-self:flex-end;max-width:80%">@b.Content</div>
+                        }
+                        else
+                        {
+                            <div class="bubble-a">
+                                @if (string.IsNullOrEmpty(b.Content) && b.Streaming)
+                                {
+                                    <span class="micro">thinking…</span>
+                                }
+                                else
+                                {
+                                    @((MarkupString)Markdig.Markdown.ToHtml(b.Content))
+                                }
+                                @if (b.Tools.Count > 0)
+                                {
+                                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">
+                                        @foreach (var t in b.Tools) { <span class="toolpill">@t.Name</span> }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+
+                    @if (!_streaming)
+                    {
+                        <div>
+                            <div class="micro" style="margin-bottom:6px">Suggested follow-ups</div>
+                            <div style="display:flex;flex-wrap:wrap;gap:6px">
+                                @foreach (var q in FollowUps)
+                                {
+                                    var prompt = q;
+                                    <span class="ghostbtn" @onclick="() => SendSuggested(prompt)">@prompt</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div style="padding:12px 14px;border-top:1px solid var(--border-default);display:flex;gap:8px">
+                    <span class="filterbox" style="flex:1">
+                        <span class="mag">⌕</span>
+                        <input id="chatInput" placeholder="Ask about this race…" @bind="_input" @bind:event="oninput" @onkeydown="OnKey" disabled="@_streaming" />
+                    </span>
+                    @if (_streaming)
+                    {
+                        <span class="btn-pri-sm" style="background:var(--bg-raised);color:var(--text-secondary)" @onclick="Cancel">Stop</span>
+                    }
+                    else
+                    {
+                        <span class="btn-pri-sm" @onclick="Send">Send</span>
+                    }
+                </div>
+            </div>
+
+            @* ---------------- Race summary (right, real data) ---------------- *@
+            <div class="stack" style="overflow:auto">
+                <div class="panel">
+                    <div class="panel-h"><span class="tt">▤ Race summary</span>
+                        <div class="tools"><span class="btn-ghost">.md</span><span class="btn-pri-sm">↓ Export PDF</span></div>
+                    </div>
+                    <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
+                        <div class="grid3">
+                            <div class="ro"><div class="k">Winner</div><div class="v" style="font-size:18px">@(Winner?.DriverCode ?? "—")</div></div>
+                            <div class="ro"><div class="k">Fastest lap</div><div class="v" style="font-size:18px">@FastestLapTime</div></div>
+                            <div class="ro"><div class="k">Strategy</div><div class="v" style="font-size:18px">@WinnerStrategy</div></div>
+                        </div>
+                        <div>
+                            <div class="lbl">What happened</div>
+                            <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin:0">@((MarkupString)Narrative)</p>
+                        </div>
+                        <div>
+                            <div class="lbl">Tyre strategy · @(Winner?.DriverCode ?? "winner")</div>
+                            <div class="ganttbar" style="height:22px">
+                                @if (WinnerStints.Any())
+                                {
+                                    @foreach (var seg in WinnerStints)
+                                    {
+                                        <div class="ganttseg" style="width:@(seg.Pct.ToString(Inv))%;background:@CompoundColor(seg.Compound)">@seg.Label</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="ganttseg" style="width:100%;background:var(--border-strong)">—</div>
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            <div class="lbl">Key incidents</div>
+                            @if (KeyIncidents.Count == 0)
+                            {
+                                <div class="micro" style="text-transform:none">No safety cars or flags recorded.</div>
+                            }
+                            @foreach (var inc in KeyIncidents)
+                            {
+                                <div style="display:grid;grid-template-columns:30px 12px 1fr;gap:8px;align-items:center;font-size:12px;margin-bottom:4px">
+                                    <span class="mono" style="color:var(--text-tertiary)">@(inc.LapNumber is int l ? "L" + l : "—")</span>
+                                    <span class="led" style="background:@IncidentColor(inc)"></span>
+                                    <span style="color:var(--text-secondary)">@inc.Message</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    static readonly System.Globalization.CultureInfo Inv = System.Globalization.CultureInfo.InvariantCulture;
+    const string FollowUpMarker = "---FOLLOWUP---";
+
+    static readonly string[] FollowUps =
+    {
+        "Compare the pit strategies of the top 3",
+        "Who had the strongest final stint?",
+        "Where did the lead change hands?",
+        "Who set the fastest lap, and on what tyre?",
+    };
+
+    sealed class Bubble
+    {
+        public bool IsUser { get; init; }
+        public string Content { get; set; } = "";
+        public bool Streaming { get; set; }
+        public List<(string Name, bool Running)> Tools { get; } = new();
+    }
+
+    readonly List<Bubble> _chat = new();
+    string _input = "";
+    bool _streaming;
+    int _lastCount = -1;
+    CancellationTokenSource? _cts;
+
+    // --- real aggregates ---
+    string? _loadedSession;
+    StandingsResponse? _standings;
+    RaceStoryResponse? _story;
+    IncidentsResponse? _incidents;
+
+    string EventName => State.Session?.EventName ?? "this session";
+
+    protected override async Task OnInitializedAsync()
+    {
+        State.Changed += OnStateChanged;
+        await LoadAggregates();
+    }
+
+    public void Dispose() { State.Changed -= OnStateChanged; _cts?.Cancel(); }
+
+    async void OnStateChanged()
+    {
+        if (State.Session?.SessionId != _loadedSession) await LoadAggregates();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task LoadAggregates()
+    {
+        var id = State.Session?.SessionId;
+        if (id is null || id == _loadedSession) return;
+        _loadedSession = id;
+        _standings = null; _story = null; _incidents = null;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            var standings = Api.GetStandingsAsync(id);
+            var story = Api.GetRaceStoryAsync(id);
+            var incidents = Api.GetIncidentsAsync(id);
+            await Task.WhenAll(standings, story, incidents);
+            _standings = standings.Result; _story = story.Result; _incidents = incidents.Result;
+        }
+        catch { /* leave nulls → summary shows dashes */ }
+        finally { await InvokeAsync(StateHasChanged); }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_chat.Count != _lastCount || _streaming)
+        {
+            _lastCount = _chat.Count;
+            await JS.InvokeVoidAsync("rtw.scrollEnd", "chatLog");
+        }
+    }
+
+    // --- derived (real) ---
+    StandingRow? Winner => _standings?.Items.FirstOrDefault(r => r.Position == 1);
+    StandingRow? FastestRow => _standings?.Items.Where(r => r.BestLapMs is not null).OrderBy(r => r.BestLapMs).FirstOrDefault();
+    string FastestLapTime => Fmt(FastestRow?.BestLapMs);
+
+    List<RaceStintSummary> WinnerStintList => _story?.Stints.Where(s => s.DriverCode == Winner?.DriverCode)
+        .OrderBy(s => s.StintNumber).ToList() ?? new();
+    string WinnerStrategy => WinnerStintList.Count > 0 ? $"{WinnerStintList.Count - 1}-stop" : "—";
+
+    record Seg(double Pct, string Label, string? Compound);
+    IEnumerable<Seg> WinnerStints
+    {
+        get
+        {
+            var stints = WinnerStintList;
+            var total = stints.Sum(s => s.Laps);
+            if (total == 0) yield break;
+            foreach (var s in stints)
+                yield return new Seg(Math.Round(100.0 * s.Laps / total, 1), (s.Compound ?? "").ToUpperInvariant(), s.Compound);
+        }
+    }
+
+    List<Incident> KeyIncidents => _incidents?.Items
+        .Where(i => !i.Type.Contains("brak", StringComparison.OrdinalIgnoreCase))
+        .Take(6).ToList() ?? new();
+
+    string Greeting
+    {
+        get
+        {
+            if (Winner is null) return $"Ask me anything about <b>{EventName}</b> — a strategy call, a single lap, an overtake, or a head-to-head.";
+            return $"Here's the short version of <b>{EventName}</b>: {Narrative} Ask me anything — a strategy call, a single lap, an overtake, or a head-to-head.";
+        }
+    }
+
+    string Narrative
+    {
+        get
+        {
+            if (Winner is null) return "Session aggregates unavailable.";
+            var w = Winner;
+            var sb = new System.Text.StringBuilder();
+            sb.Append($"<b>{w.FullName ?? w.DriverCode}</b> won");
+            var stints = WinnerStintList;
+            if (stints.Count > 1)
+            {
+                var compounds = stints.Select(s => (s.Compound ?? "").ToUpperInvariant()).Where(c => c.Length > 0).Distinct();
+                sb.Append($" on a {stints.Count - 1}-stop {string.Join("→", compounds)} strategy");
+            }
+            sb.Append('.');
+            var sc = _incidents?.Summary;
+            if (sc is { LapsUnderSafetyCar: > 0 }) sb.Append($" {sc.LapsUnderSafetyCar} lap(s) ran under safety car.");
+            var second = _standings?.Items.FirstOrDefault(r => r.Position == 2);
+            if (second is not null) sb.Append($" {second.DriverCode} finished P2, +{Gap(second.GapToLeaderMs)}.");
+            return sb.ToString();
+        }
+    }
+
+    // --- formatting ---
+    static string Fmt(long? ms)
+    {
+        if (ms is null) return "—";
+        var t = TimeSpan.FromMilliseconds(ms.Value);
+        return t.TotalMinutes >= 1 ? $"{(int)t.TotalMinutes}:{t.Seconds:00}.{t.Milliseconds:000}" : $"{t.Seconds}.{t.Milliseconds:000}";
+    }
+    static string Gap(long ms) => $"{ms / 1000.0:0.000}s";
+
+    static string CompoundColor(string? c) => (c ?? "").ToUpperInvariant() switch
+    {
+        var x when x.StartsWith("S") => "var(--ty-soft)",
+        var x when x.StartsWith("M") => "var(--ty-med)",
+        var x when x.StartsWith("H") => "var(--ty-hard)",
+        var x when x.StartsWith("I") => "var(--ty-inter)",
+        var x when x.StartsWith("W") => "var(--ty-wet)",
+        _ => "var(--border-strong)",
+    };
+
+    static string IncidentColor(Incident i)
+    {
+        var t = (i.Type + " " + i.Message).ToLowerInvariant();
+        if (t.Contains("red")) return "var(--flag-red)";
+        if (t.Contains("virtual") || t.Contains("vsc")) return "var(--flag-vsc)";
+        if (t.Contains("safety") || t.Contains("sc")) return "var(--flag-sc)";
+        if (t.Contains("rain") || t.Contains("wet")) return "var(--flag-rain)";
+        if (t.Contains("yellow")) return "var(--flag-yellow)";
+        return "var(--accent)";
+    }
+
+    // --- live assistant ---
+    Task OnKey(KeyboardEventArgs e) => e.Key == "Enter" && !_streaming ? Send() : Task.CompletedTask;
+    async Task SendSuggested(string prompt) { _input = prompt; await Send(); }
+
+    async Task Send()
+    {
+        var question = _input.Trim();
+        if (string.IsNullOrEmpty(question) || _streaming) return;
+        _input = "";
+
+        _chat.Add(new Bubble { IsUser = true, Content = question });
+        var reply = new Bubble { Streaming = true };
+        _chat.Add(reply);
+
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        _streaming = true;
+
+        var threadId = Thread.GetOrCreate();
+        var context = State.WorkspaceContext();
+
+        try
+        {
+            string? activeTool = null;
+            await foreach (var evt in Agent.RunAsync(threadId, question, context, _cts.Token))
+            {
+                switch (evt.Type)
+                {
+                    case "TEXT_MESSAGE_CONTENT":
+                        if (!string.IsNullOrEmpty(evt.Delta)) reply.Content += evt.Delta;
+                        break;
+                    case "TOOL_CALL_START":
+                        activeTool = evt.ToolCallName;
+                        if (!string.IsNullOrEmpty(activeTool)) reply.Tools.Add((activeTool, true));
+                        break;
+                    case "TOOL_CALL_END":
+                        if (activeTool is not null)
+                        {
+                            var i = reply.Tools.FindLastIndex(t => t.Name == activeTool && t.Running);
+                            if (i >= 0) reply.Tools[i] = (activeTool, false);
+                            activeTool = null;
+                        }
+                        break;
+                    case "RUN_ERROR":
+                        reply.Content = $"Error: {evt.Message ?? evt.Code ?? "Unknown error"}";
+                        break;
+                }
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) { reply.Content = $"Error: {ex.Message}"; }
+        finally
+        {
+            reply.Streaming = false;
+            _streaming = false;
+            StripFollowUpMarker(reply);
+            StateHasChanged();
+        }
+    }
+
+    static void StripFollowUpMarker(Bubble b)
+    {
+        var idx = b.Content.IndexOf(FollowUpMarker, StringComparison.Ordinal);
+        if (idx >= 0) b.Content = b.Content[..idx].TrimEnd();
+    }
+
+    void Cancel() => _cts?.Cancel();
+
+    async Task NewConversation()
+    {
+        _cts?.Cancel();
+        var threadId = Thread.GetOrCreate();
+        await Agent.ResetAsync(threadId, CancellationToken.None);
+        Thread.Replace();
+        _chat.Clear();
+    }
+}

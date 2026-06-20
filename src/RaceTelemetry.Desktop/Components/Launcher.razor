@@ -1,0 +1,131 @@
+@implements IDisposable
+@inject SessionState State
+
+<div class="view on">
+    <div class="vhead">
+        <h2>Open a session</h2>
+        <div class="desc">Race Telemetry Workbench — circuit → session → drivers.</div>
+    </div>
+    <div class="vbody" style="padding-top:26px">
+
+        <div style="display:flex;align-items:flex-end;gap:24px;margin-bottom:20px">
+            <div>
+                <div class="seclabel">Season</div>
+                <div class="chiprow">
+                    @foreach (var y in Seasons)
+                    {
+                        var year = y;
+                        <span class="selchip @(State.Year == year ? "on" : "")" @onclick="() => State.SelectYear(year)">
+                            @year <span class="sub">@SessionCountFor(year) sessions</span>
+                        </span>
+                    }
+                </div>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <div class="seclabel">Selected circuit</div>
+                <div class="infostrip">
+                    <div class="c"><div class="k">Circuit</div><div class="v">@(State.CircuitName ?? "—")</div></div>
+                    <div class="c"><div class="k">Country</div><div class="v">@(SelectedCountry ?? "—")</div></div>
+                    <div class="c"><div class="k">Drivers</div><div class="v">@(State.IsSessionOpen ? State.Drivers.Count.ToString() : "—")</div></div>
+                    <div class="c"><div class="k">Laps</div><div class="v">@(State.Session?.LapCount.ToString() ?? "—")</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seclabel">Step 1 · Circuit</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px">
+            @foreach (var c in CircuitCards)
+            {
+                var card = c;
+                <div class="ccard @(State.CircuitName == card.Circuit ? "sel" : "")" @onclick="() => Pick(card.Circuit)">
+                    <div style="font-size:16px">@card.Flag</div>
+                    <div>
+                        <div style="font-size:14px;color:var(--text-primary)">@card.Circuit</div>
+                        <div class="micro" style="margin-top:2px">@State.Year</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="seclabel">Step 2 · Session</div>
+        <div class="chiprow" style="margin-bottom:14px">
+            @foreach (var t in SessionTypes)
+            {
+                var type = t;
+                <span class="selchip @(State.SessionType == type ? "on" : "")" @onclick="() => State.SelectSessionType(type)">@type</span>
+            }
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:9px">
+            <div class="seclabel" style="margin:0">Step 3 · Drivers</div>
+            <div class="micro" style="text-transform:none">@State.SelectedDrivers.Count of @State.Drivers.Count selected</div>
+            <div class="spacer"></div>
+            <div class="btn-sec" style="padding:5px 12px;font-size:12px" @onclick="() => State.SelectAllDrivers(true)">Select all</div>
+            <div class="btn-sec" style="padding:5px 12px;font-size:12px" @onclick="() => State.SelectAllDrivers(false)">Clear</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+            @foreach (var d in State.Drivers)
+            {
+                var dc = d.DriverCode;
+                <div @key="dc" class="dchip @(State.SelectedDrivers.Contains(dc) ? "sel" : "")" @onclick="() => State.ToggleDriver(dc)">
+                    <div class="lr" style="height:34px;background:@DriverColor(dc)"></div>
+                    <div style="flex:1;min-width:0">
+                        <div class="mono" style="font-size:16px;color:var(--text-primary)">@dc</div>
+                        <div style="font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">@(d.FullName ?? d.TeamName ?? "")</div>
+                    </div>
+                    <div class="chk amber">✓</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="transport" style="background:var(--bg-surface)">
+        <span class="mono" style="color:var(--text-tertiary);font-size:13px">
+            @State.Year · @(State.CircuitName ?? "—") · @State.SessionType · @State.SelectedDrivers.Count drivers
+        </span>
+        <div class="spacer"></div>
+        <button class="btn-primary"
+                style="@(State.IsSessionOpen && State.SelectedDrivers.Count > 0 ? "" : "opacity:.4")"
+                @onclick="OpenReport">
+            ▶  Open report (@State.SelectedDrivers.Count)
+        </button>
+    </div>
+</div>
+
+@code {
+    static readonly int[] Seasons = { 2025, 2024 };
+    static readonly string[] SessionTypes = { "Practice", "Qualifying", "Race" };
+
+    record Card(string Circuit, string Flag);
+
+    protected override async Task OnInitializedAsync()
+    {
+        State.Changed += OnStateChanged;
+        if (State.Sessions.Count == 0)
+        {
+            if (State.Year is null) { State.SelectYear(Seasons[0]); }
+            await State.LoadSessionsAsync();
+        }
+    }
+
+    public void Dispose() => State.Changed -= OnStateChanged;
+    void OnStateChanged() => InvokeAsync(StateHasChanged);
+
+    Task Pick(string circuit) => State.SelectCircuitAsync(circuit);
+    void OpenReport() { if (State.IsSessionOpen && State.SelectedDrivers.Count > 0) State.SetView(1); }
+
+    int SessionCountFor(int year) => State.Sessions.Count(s => s.Year == year);
+
+    string? SelectedCountry =>
+        State.Session?.Country
+        ?? State.FilteredSessions.FirstOrDefault(s => (s.CircuitName ?? s.EventName) == State.CircuitName)?.Country;
+
+    IEnumerable<Card> CircuitCards =>
+        State.FilteredSessions
+            .GroupBy(s => s.CircuitName ?? s.EventName)
+            .Select(g => new Card(g.Key, CountryMeta.Of(g.First().Country).Flag));
+
+    static string DriverColor(string code) => $"var(--d-{code.ToLowerInvariant()}, var(--text-secondary))";
+}
