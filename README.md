@@ -169,13 +169,18 @@ flowchart TB
 
 ### Aspire Observability
 
-The screenshots below were captured from the local Aspire Dashboard after a real
-REST query and a real MCP tool call. They show the backend entrypoints, shared
-query-store spans, and PostgreSQL work in one trace waterfall.
+The Aspire Dashboard provides a single local view of the running backend topology
+and its end-to-end traces. The resource graph shows the Query API, Agent API, MCP
+server, and the OpenAI configuration injected into the agent process.
 
-![Aspire trace for Query API GET /api/sessions](docs/images/aspire-query-api-trace.jpg)
+![Aspire trace Resource Graph](docs/images/aspire-resource-graph.png)
 
-![Aspire trace for MCP list_sessions tool call](docs/images/aspire-mcp-tool-trace.jpg)
+A real POST /ag-ui trace follows the complete agentic request. The Agent API
+calls OpenAI, executes get_race_story through the MCP server, queries
+TimescaleDB through the shared query store, and then calls the model again to
+produce the final streamed answer.
+
+![Aspire trace for Agent call](docs/images/aspire-agent-trace.png)
 
 ## Backend Deep Dive
 
