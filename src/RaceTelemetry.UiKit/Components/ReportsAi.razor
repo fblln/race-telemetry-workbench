@@ -1,7 +1,7 @@
 @implements IDisposable
 @inject IQueryApiClient Api
 @inject ITelemetryAgentClient Agent
-@inject ChatThreadIdentity Thread
+@inject IChatThreadIdentity Thread
 @inject SessionState State
 @inject IJSRuntime JS
 
@@ -193,11 +193,15 @@
         await InvokeAsync(StateHasChanged);
         try
         {
+            // Standings + story are fast (~0.1s); incidents aggregates slowly (~6s). Render the
+            // summary as soon as the fast pair lands, then fill incidents in when it arrives.
             var standings = Api.GetStandingsAsync(id);
             var story = Api.GetRaceStoryAsync(id);
             var incidents = Api.GetIncidentsAsync(id);
-            await Task.WhenAll(standings, story, incidents);
-            _standings = standings.Result; _story = story.Result; _incidents = incidents.Result;
+            await Task.WhenAll(standings, story);
+            _standings = standings.Result; _story = story.Result;
+            await InvokeAsync(StateHasChanged);
+            _incidents = await incidents;
         }
         catch { /* leave nulls → summary shows dashes */ }
         finally { await InvokeAsync(StateHasChanged); }

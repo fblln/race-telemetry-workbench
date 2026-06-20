@@ -1,0 +1,11 @@
+{
+  "name": "rtw-ui-harness-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "shot": "node screenshot.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

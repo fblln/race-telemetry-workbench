@@ -1,6 +1,6 @@
 namespace RaceTelemetry.Desktop.Services;
 
-public sealed class ChatThreadIdentity
+public sealed class ChatThreadIdentity : IChatThreadIdentity
 {
     private const string PreferenceKey = "race-telemetry.agui.thread-id";
 

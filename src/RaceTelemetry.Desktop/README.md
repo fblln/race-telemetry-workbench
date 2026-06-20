@@ -70,18 +70,11 @@ dotnet build src/RaceTelemetry.Desktop -t:Run -f net10.0-maccatalyst
 dotnet build src/RaceTelemetry.Desktop -t:Run -f net10.0-windows10.0.19041.0
 ```
 
-## DevFlow
+## UI testing
 
-Debug builds register the experimental .NET MAUI DevFlow agent. Install the
-matching prerelease CLI once, run the app, then inspect it from another shell:
-
-```bash
-dotnet tool install -g Microsoft.Maui.Cli --prerelease
-
-maui devflow ui tree
-maui devflow ui screenshot --output screenshot.png --overwrite
-maui devflow mcp
-```
+The UI is Blazor Hybrid, so the MAUI DevFlow agent can't drive it. Use the Playwright harness
+instead — see **UI Testing** in the repo-root `AGENTS.md` (`src/RaceTelemetry.UiHarness` +
+`tests/ui/screenshot.mjs`).
 
 ## Prefetch / snappiness (§8.9)
 

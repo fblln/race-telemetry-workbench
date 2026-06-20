@@ -40,12 +40,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
-    <PackageReference Include="Markdig" Version="0.41.3" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <PackageReference Include="Microsoft.Maui.DevFlow.Agent" Version="0.1.0-preview.10.26274.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Debug' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
@@ -54,6 +48,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RaceTelemetry.Contracts\RaceTelemetry.Contracts.csproj" />
+    <ProjectReference Include="..\RaceTelemetry.UiKit\RaceTelemetry.UiKit.csproj" />
   </ItemGroup>
 
 </Project>

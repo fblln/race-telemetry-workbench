@@ -1,6 +1,3 @@
-#if DEBUG
-using Microsoft.Maui.DevFlow.Agent;
-#endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RaceTelemetry.Desktop.Services;
@@ -22,7 +19,7 @@ public static class MauiProgram
             handler.PlatformView.BackgroundColor = UIKit.UIColor.Clear;
         });
 
-        // Make the BlazorWebView's WKWebView inspectable so DevFlow/Safari can attach (debug only).
+        // Make the BlazorWebView's WKWebView inspectable so Safari Web Inspector can attach (debug only).
         Microsoft.AspNetCore.Components.WebView.Maui.BlazorWebViewHandler.BlazorWebViewMapper.AppendToMapping(
             "Inspectable", (handler, _) =>
             {
@@ -77,20 +74,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<SessionState>();
 
         // AG-UI agent client (stateless HTTP client, thread ID managed separately)
-        builder.Services.AddSingleton<ChatThreadIdentity>();
+        builder.Services.AddSingleton<IChatThreadIdentity, ChatThreadIdentity>();
         builder.Services.AddSingleton<ITelemetryAgentClient, TelemetryAgentClient>();
 
         // Host page for the BlazorWebView.
         builder.Services.AddTransient<MainPage>();
 
 #if DEBUG
-        builder.AddMauiDevFlowAgent(options =>
-        {
-            options.Enabled = true;
-            options.Port = 9223;
-            options.EnableFileLogging = true;
-            options.CaptureILogger = true;
-        });
         builder.Logging.AddDebug();
 #endif
 

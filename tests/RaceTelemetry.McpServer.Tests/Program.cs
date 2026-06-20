@@ -44,6 +44,8 @@ AssertContains(toolNames, "aggregate_telemetry");
 AssertContains(toolNames, "detect_telemetry_windows");
 AssertContains(toolNames, "analyze_driver_stints");
 AssertContains(toolNames, "analyze_pit_stops");
+AssertContains(toolNames, "summarize_strategy");
+AssertContains(toolNames, "generate_race_debrief");
 AssertContains(toolNames, "get_weather_trend");
 AssertContains(toolNames, "get_race_control_timeline");
 AssertContains(toolNames, "get_circuit_context");
@@ -118,6 +120,28 @@ var aggregateResult = await client.CallToolAsync(
     cancellationToken: cancellation.Token);
 Assert(aggregateResult.IsError != true, "aggregate_telemetry returned an MCP tool error.");
 Assert(aggregateResult.StructuredContent is not null, "aggregate_telemetry did not return structured content.");
+
+var strategyResult = await client.CallToolAsync(
+    "summarize_strategy",
+    new Dictionary<string, object?>
+    {
+        ["sessionId"] = "2025-italian-grand-prix-r",
+        ["drivers"] = "LEC"
+    },
+    cancellationToken: cancellation.Token);
+Assert(strategyResult.IsError != true, "summarize_strategy returned an MCP tool error.");
+Assert(strategyResult.StructuredContent is not null, "summarize_strategy did not return structured content.");
+
+var debriefResult = await client.CallToolAsync(
+    "generate_race_debrief",
+    new Dictionary<string, object?>
+    {
+        ["sessionId"] = "2025-italian-grand-prix-r",
+        ["sections"] = "overview,strategy,weather"
+    },
+    cancellationToken: cancellation.Token);
+Assert(debriefResult.IsError != true, "generate_race_debrief returned an MCP tool error.");
+Assert(debriefResult.StructuredContent is not null, "generate_race_debrief did not return structured content.");
 
 Console.WriteLine("RaceTelemetry.McpServer HTTP protocol smoke checks passed.");
 Console.WriteLine($"Tools: {string.Join(", ", toolNames)}");

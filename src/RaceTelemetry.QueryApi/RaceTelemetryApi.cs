@@ -93,6 +93,14 @@ public static partial class RaceTelemetryApi
         "spin"
     };
 
+    private static readonly HashSet<string> DebriefSections = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "overview",
+        "strategy",
+        "incidents",
+        "weather"
+    };
+
     public static WebApplication CreateApp(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -177,6 +185,8 @@ public static partial class RaceTelemetryApi
                     "telemetry-windows",
                     "stint-analysis",
                     "pit-stop-analysis",
+                    "strategy-summary",
+                    "race-debrief",
                     "weather-trend",
                     "race-control-timeline",
                     "circuit-context",
@@ -804,6 +814,65 @@ public static partial class RaceTelemetryApi
                     : Results.Ok(response);
             })
             .WithName("AnalyzePitStops");
+
+        api.MapPost("/sessions/{sessionId}/strategy/summarize", async Task<IResult> (
+                string sessionId,
+                StrategySummaryRequest? request,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                request ??= new StrategySummaryRequest(null, true);
+                if (!ValidateDrivers(request.Drivers, out var error))
+                {
+                    return error!;
+                }
+
+                if (request.Drivers is { Count: > 10 })
+                {
+                    return ValidationError("InvalidDrivers", "strategy summary accepts at most 10 drivers.", ("count", request.Drivers.Count));
+                }
+
+                var response = await store.SummarizeStrategyAsync(sessionId, request, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("SummarizeStrategy");
+
+        api.MapPost("/sessions/{sessionId}/debrief", async Task<IResult> (
+                string sessionId,
+                RaceDebriefRequest? request,
+                IF1TelemetryQueryStore store,
+                CancellationToken cancellationToken) =>
+            {
+                if (!IsValidSessionId(sessionId))
+                {
+                    return ValidationError("InvalidSessionId", "Session id must contain only lowercase letters, numbers, and hyphens.", ("sessionId", sessionId));
+                }
+
+                request ??= new RaceDebriefRequest(null, null);
+                if (!ValidateDrivers(request.Drivers, out var error)
+                    || !ValidateAllowedValues(request.Sections, DebriefSections, "InvalidSections", "Unknown debrief section.", out error))
+                {
+                    return error!;
+                }
+
+                if (request.Drivers is { Count: > 10 })
+                {
+                    return ValidationError("InvalidDrivers", "race debrief accepts at most 10 drivers.", ("count", request.Drivers.Count));
+                }
+
+                var response = await store.GenerateRaceDebriefAsync(sessionId, request, cancellationToken);
+                return response is null
+                    ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
+                    : Results.Ok(response);
+            })
+            .WithName("GenerateRaceDebrief");
 
         api.MapPost("/sessions/{sessionId}/weather/trend", async Task<IResult> (
                 string sessionId,

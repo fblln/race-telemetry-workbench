@@ -486,6 +486,8 @@ def build_lap_rows(laps: Any, session_id: str) -> list[tuple[Any, ...]]:
                 int_or_none(lap.get("TyreLife")),
                 timedelta_to_ms(lap.get("PitOutTime")) is not None,
                 timedelta_to_ms(lap.get("PitInTime")) is not None,
+                timedelta_to_ms(lap.get("PitOutTime")),
+                timedelta_to_ms(lap.get("PitInTime")),
                 bool_or_none(lap.get("Deleted")) or False,
                 bool_or_none(lap.get("IsAccurate")),
                 json_metadata({"team": str_or_none(lap.get("Team"))}),
@@ -1982,10 +1984,11 @@ def insert_parent_rows(
             INSERT INTO laps (
                 lap_id, session_id, driver_code, lap_number, stint_number, lap_start_utc,
                 lap_end_utc, lap_time_ms, sector_1_ms, sector_2_ms, sector_3_ms,
-                compound, tyre_life, is_pit_out_lap, is_pit_in_lap, is_deleted,
+                compound, tyre_life, is_pit_out_lap, is_pit_in_lap,
+                pit_out_session_time_ms, pit_in_session_time_ms, is_deleted,
                 is_accurate, metadata
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (session_id, driver_code, lap_number) DO UPDATE SET
                 lap_start_utc = EXCLUDED.lap_start_utc,
                 lap_end_utc = EXCLUDED.lap_end_utc,
@@ -1997,6 +2000,8 @@ def insert_parent_rows(
                 tyre_life = EXCLUDED.tyre_life,
                 is_pit_out_lap = EXCLUDED.is_pit_out_lap,
                 is_pit_in_lap = EXCLUDED.is_pit_in_lap,
+                pit_out_session_time_ms = EXCLUDED.pit_out_session_time_ms,
+                pit_in_session_time_ms = EXCLUDED.pit_in_session_time_ms,
                 is_deleted = EXCLUDED.is_deleted,
                 is_accurate = EXCLUDED.is_accurate,
                 metadata = EXCLUDED.metadata

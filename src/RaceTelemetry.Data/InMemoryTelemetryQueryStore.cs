@@ -558,6 +558,85 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             ]));
     }
 
+    public Task<StrategySummaryResponse?> SummarizeStrategyAsync(
+        string sessionId,
+        StrategySummaryRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<StrategySummaryResponse?>(null);
+        }
+
+        var fact = new NarrativeFact(
+            "strategy-lec-24",
+            "strategy_stop",
+            "LEC stopped on lap 24 for HARD in 23.800s; the undercut on VER changed track position.",
+            23_800,
+            "ms",
+            [
+                new EvidenceReference("strategy/summarize", "LEC", 24, 1, 2_060_000, 2_083_800),
+                new EvidenceReference("positions", "LEC", 23),
+                new EvidenceReference("positions", "LEC", 27)
+            ]);
+        return Task.FromResult<StrategySummaryResponse?>(new StrategySummaryResponse(
+            sessionId,
+            [
+                new DriverStrategySummary(
+                    "LEC",
+                    [new StrategyStopSummary(24, "MEDIUM", "HARD", 2_060_000, 2_083_800, 23_800, 24_100,
+                        "track_clear", "undercut", "VER", 2, 1, 1, "supported")],
+                    [fact.Id])
+            ],
+            [fact],
+            new StoryQuality("supported", 1, 0, 0, [])));
+    }
+
+    public async Task<RaceDebriefResponse?> GenerateRaceDebriefAsync(
+        string sessionId,
+        RaceDebriefRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!IsKnownSession(sessionId))
+        {
+            return null;
+        }
+
+        var sections = new HashSet<string>(
+            request.Sections is { Count: > 0 } ? request.Sections : ["overview", "strategy", "incidents", "weather"],
+            StringComparer.OrdinalIgnoreCase);
+        var strategy = sections.Contains("strategy")
+            ? await SummarizeStrategyAsync(sessionId, new StrategySummaryRequest(request.Drivers, true), cancellationToken)
+            : null;
+        var facts = new List<NarrativeFact>
+        {
+            new("debrief-winner", "winner", "VER was classified first after 53 laps.", 1, "position",
+                [new EvidenceReference("standings", "VER", 53)])
+        };
+        if (strategy is not null)
+        {
+            facts.AddRange(strategy.Facts);
+        }
+        if (sections.Contains("weather"))
+        {
+            facts.Add(new NarrativeFact("debrief-weather", "weather", "No rainfall was observed during the session.",
+                0, "boolean", [new EvidenceReference("weather/trend")]));
+        }
+
+        return new RaceDebriefResponse(
+            sessionId,
+            sections.Contains("overview") ? new RaceDebriefOverview("VER", "VER won the Italian Grand Prix.", 53) : null,
+            strategy,
+            sections.Contains("incidents")
+                ? [new Incident("safety_car", 20, 1_820_000, "Safety car deployed", null, null, null, null, "high", null)]
+                : [],
+            sections.Contains("weather") ? new RaceDebriefWeather("No rainfall was observed during the session.", 32.2, 34.1, 43.5, 54.6, false) : null,
+            facts,
+            new StoryQuality("supported", facts.Count, 0, 0, []));
+    }
+
     public Task<WeatherTrendResponse?> GetWeatherTrendAsync(
         string sessionId,
         WeatherTrendRequest request,

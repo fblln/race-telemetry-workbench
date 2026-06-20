@@ -23,4 +23,20 @@ public sealed class TelemetryAgentOptions
     /// tool call pairs add 2 more. Default 20 = ~10 turns.
     /// </summary>
     public int MaxContextMessages { get; init; } = 20;
+
+    public int ToolPlanningMaxOutputTokens { get; init; } = 600;
+
+    public int FinalAnswerMaxOutputTokens { get; init; } = 300;
+
+    public int MaximumToolRounds { get; init; } = 4;
+
+    public int MaximumToolCalls { get; init; } = 12;
+
+    public int MaximumConcurrentToolCalls { get; init; } = 4;
+
+    public TimeSpan ToolCallTimeout { get; init; } = TimeSpan.FromSeconds(15);
+
+    public int MaximumToolResultCharacters { get; init; } = 20_000;
+
+    public int MaximumEvidenceCharacters { get; init; } = 60_000;
 }

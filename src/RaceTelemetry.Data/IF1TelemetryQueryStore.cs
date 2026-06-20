@@ -106,6 +106,16 @@ public interface IF1TelemetryQueryStore
         PitStopAnalysisRequest request,
         CancellationToken cancellationToken);
 
+    Task<StrategySummaryResponse?> SummarizeStrategyAsync(
+        string sessionId,
+        StrategySummaryRequest request,
+        CancellationToken cancellationToken);
+
+    Task<RaceDebriefResponse?> GenerateRaceDebriefAsync(
+        string sessionId,
+        RaceDebriefRequest request,
+        CancellationToken cancellationToken);
+
     Task<WeatherTrendResponse?> GetWeatherTrendAsync(
         string sessionId,
         WeatherTrendRequest request,

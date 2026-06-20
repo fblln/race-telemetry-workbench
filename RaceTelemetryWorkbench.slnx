@@ -9,6 +9,8 @@
     <Project Path="src/RaceTelemetry.McpServer/RaceTelemetry.McpServer.csproj" />
     <Project Path="src/RaceTelemetry.QueryApi/RaceTelemetry.QueryApi.csproj" />
     <Project Path="src/RaceTelemetry.ServiceDefaults/RaceTelemetry.ServiceDefaults.csproj" />
+    <Project Path="src/RaceTelemetry.UiKit/RaceTelemetry.UiKit.csproj" />
+    <Project Path="src/RaceTelemetry.UiHarness/RaceTelemetry.UiHarness.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/RaceTelemetry.AgentApi.Tests/RaceTelemetry.AgentApi.Tests.csproj" />

@@ -169,30 +169,38 @@ fixture data, verify hypertables and views, then drop the schema.
 
 ---
 
-## Application Testing
+## UI Testing — use Playwright
 
-Use the .NET MAUI DevFlow agent for desktop UI smoke tests and visual
-verification. Debug builds of `src/RaceTelemetry.Desktop` register
-`Microsoft.Maui.DevFlow.Agent` on port `9223`; the project-local config lives at
-`src/RaceTelemetry.Desktop/.mauidevflow`.
+The desktop UI is **Blazor Hybrid**: the entire UI is one `BlazorWebView` hosting Razor
+components (`src/RaceTelemetry.UiKit`). The .NET MAUI DevFlow agent only inspects the *native*
+visual tree, so the WebView is a single opaque element — it cannot click DOM elements or expose
+CDP. **Do not use maui-devflow for UI testing** (its MCP server is disabled in this repo).
 
-When testing the app end to end, start the distributed backend with Aspire
-first, run the Mac Catalyst debug app, then inspect the live UI from another
-shell:
+Instead, the shared components are also hosted by a Blazor Server harness
+(`src/RaceTelemetry.UiHarness`) that **Playwright** drives in headless Chromium against the same
+backend. This is the canonical way to drive and screenshot the real UI.
 
 ```bash
-aspire start --non-interactive
-aspire wait query-api
-dotnet build src/RaceTelemetry.Desktop -t:Run -f net10.0-maccatalyst
+# 1. Backend up (Query API 5120, Agent API 5124)
+aspire start --non-interactive && aspire wait query-api
 
-maui devflow ui tree
-maui devflow ui screenshot --output screenshot.png --overwrite
-maui devflow mcp
+# 2. Run the UI harness — ASPNETCORE_ENVIRONMENT=Development is REQUIRED, or the RCL's
+#    _content/* CSS/JS 404 and the UI renders unstyled.
+ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/RaceTelemetry.UiHarness \
+  --urls http://localhost:5170
+
+# 3. Drive + screenshot the real DOM (launcher → pick circuit → Reports & AI)
+cd tests/ui && npm install && npx playwright install chromium   # first time
+node screenshot.mjs Budapest        # → tests/ui/shots/{launcher,launcher-selected,reports}.png
 ```
 
-Prefer DevFlow screenshots and UI-tree inspection for launcher/console/replay
-layout checks instead of relying only on code review. Use `maui devflow mcp`
-when an agent needs interactive inspection of the running MAUI app.
+`tests/ui/screenshot.mjs` is the harness script — extend it with new flows/assertions. Because
+the harness renders the exact same `RaceTelemetry.UiKit` components the MAUI app hosts, a
+Playwright pass validates layout/behaviour faithfully without launching Mac Catalyst.
+
+To visually check the packaged Mac Catalyst app itself, build and run it
+(`dotnet build src/RaceTelemetry.Desktop -t:Run -f net10.0-maccatalyst`) and look at the window
+directly — but prefer the Playwright harness for anything interactive.
 
 ---
 

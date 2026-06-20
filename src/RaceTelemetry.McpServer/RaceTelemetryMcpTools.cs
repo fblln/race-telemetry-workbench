@@ -86,6 +86,14 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         "worst_lap_time_ms"
     };
 
+    private static readonly HashSet<string> DebriefSections = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "overview",
+        "strategy",
+        "incidents",
+        "weather"
+    };
+
     [McpServerTool(
         Name = "list_sessions",
         Title = "List Sessions",
@@ -599,6 +607,69 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
 
         var request = new PitStopAnalysisRequest(ParseDrivers(drivers), nearbyLapWindow, limit);
         return await store.AnalyzePitStopsAsync(sessionId, request, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "summarize_strategy",
+        Title = "Summarize Strategy",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Return measured pit timing, conservative undercut/overcut labels, position changes, evidence, and deterministic strategy facts.")]
+    public async Task<StrategySummaryResponse> SummarizeStrategy(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Optional comma-separated driver list, maximum 10, for example LEC,VER.")] string? drivers = null,
+        [Description("Compare measured pit-lane time with the session field average.")] bool compareToFieldAverage = true,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("summarize_strategy", sessionId);
+        ValidateSessionId(sessionId);
+        var selectedDrivers = ParseDrivers(drivers);
+        if (selectedDrivers is { Count: > 10 })
+        {
+            throw new ArgumentException("At most 10 drivers may be requested.", nameof(drivers));
+        }
+
+        return await store.SummarizeStrategyAsync(
+                sessionId,
+                new StrategySummaryRequest(selectedDrivers, compareToFieldAverage),
+                cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "generate_race_debrief",
+        Title = "Generate Race Debrief",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Compose a bounded race debrief skeleton with overview, strategy, incidents, weather, evidence, and quality status.")]
+    public async Task<RaceDebriefResponse> GenerateRaceDebrief(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Optional comma-separated driver list, maximum 10.")] string? drivers = null,
+        [Description("Comma-separated sections: overview,strategy,incidents,weather.")] string sections = "overview,strategy,incidents,weather",
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("generate_race_debrief", sessionId);
+        ValidateSessionId(sessionId);
+        var selectedDrivers = ParseDrivers(drivers);
+        if (selectedDrivers is { Count: > 10 })
+        {
+            throw new ArgumentException("At most 10 drivers may be requested.", nameof(drivers));
+        }
+
+        var selectedSections = ParseAllowedList(
+            sections,
+            DebriefSections,
+            ["overview", "strategy", "incidents", "weather"],
+            nameof(sections));
+        return await store.GenerateRaceDebriefAsync(
+                sessionId,
+                new RaceDebriefRequest(selectedDrivers, selectedSections),
+                cancellationToken)
             ?? throw NotFound($"Session {sessionId} does not exist.");
     }
 

@@ -18,6 +18,9 @@ public static class AgentTelemetry
     public static readonly Counter<long> ToolCalls     = Meter.CreateCounter<long>("agent.tool.calls");
     public static readonly Counter<long> ToolFailures  = Meter.CreateCounter<long>("agent.tool.failures");
     public static readonly Counter<long> LlmCalls      = Meter.CreateCounter<long>("agent.llm.calls");
+    public static readonly Counter<long> ParallelToolBatches = Meter.CreateCounter<long>("agent.tool.parallel_batches");
+    public static readonly Counter<long> ClaimsVerified = Meter.CreateCounter<long>("agent.claims.verified");
+    public static readonly Counter<long> ClaimsRejected = Meter.CreateCounter<long>("agent.claims.rejected");
 
     // Histograms
     public static readonly Histogram<double> RunDuration      = Meter.CreateHistogram<double>("agent.run.duration_ms",   "ms");
