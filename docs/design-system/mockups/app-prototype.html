@@ -849,17 +849,25 @@ function lapCompareSurface(){
   const total=CMP.dt[N-1];
   const dcol=v=>v>0?'var(--delta-neg)':'var(--delta-pos)';
   const pin=[...fieldState.pinned], cA=pin[0]||'LEC', cB=pin[1]||'HAM';
+  // automatic segment extraction from the distance-domain delta — biggest gain/loss stretches
+  const dist=i=>Math.round(i/(N-1)*5793), win=Math.round(N*0.10);
+  let loss={d:0,i0:0,i1:win}, gain={d:0,i0:0,i1:win};
+  for(let i=0;i+win<N;i++){const d=CMP.dt[i+win]-CMP.dt[i];if(d>loss.d)loss={d,i0:i,i1:i+win};if(d<gain.d)gain={d,i0:i,i1:i+win};}
   return `<div class="grid-3-1">
     <div>
       <div style="display:flex;gap:12px;margin-bottom:12px">
         <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:${D(cA)}"></div><div><div class="micro">Lap A · ours</div><div style="font-weight:600;color:var(--text-primary)">${cA} · Lap 12</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">${DNAME(cA)} · MED</div></div></div>
         <div class="rescard" style="flex:1;padding:12px"><div class="lr" style="height:30px;background:${REF}"></div><div><div class="micro">Lap B · reference</div><div style="font-weight:600;color:var(--text-primary)">${cB} · best</div><div class="mono" style="font-size:12px;color:var(--text-secondary)">${DNAME(cB)} · HARD</div></div></div>
       </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="bdg" style="background:rgba(39,217,140,.14);color:var(--success)"><span class="led" style="background:var(--success)"></span>Both laps valid · safe to compare</span>
+        <span class="bdg" style="background:var(--bg-raised);color:var(--text-secondary)">Finish Δ validated · ${sg(total.toFixed(3))} s vs +0.251 official</span>
+      </div>
       <div id="cmpPlot" style="position:relative">
         ${speedChart}${deltaChart}${gearChart}${tbChart}
         <div id="cmpCursor" style="position:absolute;top:0;bottom:0;left:52%;width:2px;background:var(--accent);opacity:0.85;pointer-events:none"></div>
       </div>
-      <div class="micro" style="margin-top:6px">↔ Move the cursor across the charts to read values, deltas and the matching point on track.</div>
+      <div class="micro" style="margin-top:6px">↔ Move the cursor across the charts to read values, deltas and track position · distance-domain delta from <span class="mono">/compare/laps/by-distance</span></div>
     </div>
     <div class="stack">
       <div class="panel"><div class="panel-h"><span class="tt">Track · cursor</span><div class="tools"><span class="micro" id="cmpDist" style="align-self:center">${Math.round(0.52*5793)} m</span></div></div>
@@ -883,6 +891,13 @@ function lapCompareSurface(){
       <div class="panel"><div class="panel-h"><span class="tt">Lap &amp; sector Δ</span></div>
         <div style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px"><span class="micro">Full lap (A − ref)</span><span class="mono" style="font-size:20px;color:${dcol(total)}">${sg(total.toFixed(3))} s</span></div>
           <div style="display:flex;justify-content:space-around">${sectors.map(([s,d])=>`<div style="text-align:center"><div class="mono" style="font-size:16px;color:${dcol(d)}">${sg(d.toFixed(3))}</div><div class="micro">${s}</div></div>`).join('')}</div></div></div>
+      <div class="panel"><div class="panel-h"><span class="tt">Biggest segments</span><div class="tools"><span class="micro" style="align-self:center">by distance</span></div></div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="micro">Largest loss</span><span class="mono" style="color:var(--delta-neg)">${sg(loss.d.toFixed(3))} s</span></div>
+          <div class="micro" style="margin-top:-7px">${dist(loss.i0)}–${dist(loss.i1)} m</div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="micro">Largest gain</span><span class="mono" style="color:var(--delta-pos)">${sg(gain.d.toFixed(3))} s</span></div>
+          <div class="micro" style="margin-top:-7px">${dist(gain.i0)}–${dist(gain.i1)} m</div>
+        </div></div>
     </div>
   </div>`;
 }
@@ -1043,6 +1058,9 @@ function raceStory(){
       <div class="bubble-q">Where did LEC lose the place to HAM, and why?</div>
       <div class="bubble-a">LEC lost <b>P2</b> to HAM around <b>lap 32</b>. From lap 28 his medium tyres dropped <b>~0.4 s/lap in sector 2</b> — the Ascari–Parabolica stretch — while HAM, two laps fresher, held pace. HAM closed into DRS on lap 31 and completed the move into Turn 1 on lap 32. Pitting LEC one lap earlier would have cleared the undercut but exposed him to the lap-22 VSC traffic.
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"><span class="toolpill">list_drivers</span><span class="toolpill">compare_laps</span><span class="toolpill">aggregate_telemetry · sector</span><span class="toolpill">analyze_driver_stints</span><span class="toolpill">detect_telemetry_windows · drs</span></div></div>
+      <div class="bubble-q">Where did LEC gain on VER in lap 12 — and is the lap trustworthy?</div>
+      <div class="bubble-a">By distance, LEC's biggest gain was <b>+0.18 s</b> through the <b>Lesmo–Serraglio stretch (1,650–2,400 m)</b> — earlier throttle pick-up and higher minimum speed — then he gave most of it back braking into <b>Ascari (≈3,300 m, −0.21 s)</b>. Both laps are <b>valid</b> with full distance coverage and a matching finish-delta, so the gained/lost split is safe to trust.
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"><span class="toolpill">compare_laps_by_distance</span><span class="toolpill">get_lap_quality</span></div></div>
       <div class="filterbox" style="width:auto"><span class="mag">⌕</span><input placeholder="Ask about this race…"></div>
     </div></div>`;
 }
