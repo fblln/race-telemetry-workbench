@@ -1,6 +1,0 @@
-.DS_Store
-.venv/
-__pycache__/
-*.py[cod]
-data/fastf1-cache/
-/tmp/

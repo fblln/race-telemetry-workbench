@@ -497,7 +497,7 @@ def build_notebook():
             if apexline_summary.empty:
                 callout(
                     "Apexline cross-check unavailable",
-                    "No Apexline summary was loaded in this environment, so geometry-reference comparison is not shown here.",
+                    "No Apexline summary was loaded in this environment, so geometry-reference comparison is not shown here. Apexline now lives at https://github.com/fblln/apexline — run it and drop lap-diagnostics-2025.json into data/apexline/ to restore this cross-check.",
                     accent="#8d2b0b",
                 )
             else:

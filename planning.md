@@ -2,7 +2,7 @@
 
 This file is the single planning surface for implementation status, next work,
 backlog, and durable project decisions. The architecture source of truth remains
-`f1_telemetry_architecture_spec_focused.md`.
+`docs/f1_telemetry_architecture_spec_focused.md`.
 
 ## Current Status
 
@@ -128,10 +128,13 @@ text clusters and per-race weather trend panels for rainfall or large-shift
 races. The implementation backlog for backend and desktop changes is tracked in
 `docs/data-quality/eda-driven-product-change-backlog.md`.
 
-The standalone Apexline geometry-validation work is ready to be extracted into
-its own sibling repository at `/Users/fabio/Workspace/apexline`. The migration
-handoff backlog lives in
-`docs/data-quality/apexline-repo-migration-backlog.md`.
+The Apexline geometry-validation work has been extracted into its own repository
+at https://github.com/fblln/apexline and removed from this repo. The only
+remaining hook is the 2025 bad-lap EDA notebook, which can cross-check against
+Apexline's `lap-diagnostics-2025.json`. To refresh it: clone Apexline, run
+`python scripts/analyze_f1_circuit_gps.py --year 2025 --lap-diagnostics-output data/lap-diagnostics-2025.json`,
+and copy that file to `data/apexline/` here (or point `APEXLINE_DIAGNOSTICS` at
+it). The notebook skips the cross-check gracefully when the file is absent.
 
 ## Next Recommended Work
 

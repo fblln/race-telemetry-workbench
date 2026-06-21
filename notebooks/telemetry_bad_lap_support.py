@@ -2320,7 +2320,14 @@ def plot_shape_cluster_stability(stability: pd.DataFrame) -> Path:
 
 
 def load_apexline_summary() -> tuple[pd.DataFrame, pd.DataFrame]:
-    path = REPO_ROOT / "standalone" / "apexline" / "data" / "lap-diagnostics-2025.json"
+    # Apexline now lives in its own repo: https://github.com/fblln/apexline
+    # To regenerate this geometry cross-check, clone it and run:
+    #   python scripts/analyze_f1_circuit_gps.py --year 2025 \
+    #       --lap-diagnostics-output data/lap-diagnostics-2025.json
+    # then copy that file to data/apexline/ here (or point APEXLINE_DIAGNOSTICS at it).
+    # Missing file is fine — the notebook just skips the cross-check section.
+    override = os.environ.get("APEXLINE_DIAGNOSTICS")
+    path = Path(override) if override else REPO_ROOT / "data" / "apexline" / "lap-diagnostics-2025.json"
     if not path.exists():
         return pd.DataFrame(), pd.DataFrame()
     data = json.loads(path.read_text(encoding="utf-8"))

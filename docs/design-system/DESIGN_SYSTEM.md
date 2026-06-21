@@ -5,7 +5,7 @@
 **Version:** 1.2.0
 **Status:** Foundation release
 
-Carbon Signal is the original visual language for the desktop telemetry workbench described in the [architecture spec](../../f1_telemetry_architecture_spec_focused.md). It satisfies §8.8 *Display Styling and Assets*: an original dark analysis theme, dense but legible, using only project-owned names, palettes, and generated assets.
+Carbon Signal is the original visual language for the desktop telemetry workbench described in the [architecture spec](../f1_telemetry_architecture_spec_focused.md). It satisfies §8.8 *Display Styling and Assets*: an original dark analysis theme, dense but legible, using only project-owned names, palettes, and generated assets.
 
 This document is the authority for *what* the system is. The companion files carry the *values* and a live rendering:
 

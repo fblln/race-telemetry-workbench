@@ -6,7 +6,7 @@ TimescaleDB, exposes it via a .NET Query API and MCP server, replays it in a
 high-performance .NET MAUI desktop app.
 
 **Authoritative references:**
-- `f1_telemetry_architecture_spec_focused.md` — architecture spec
+- `docs/f1_telemetry_architecture_spec_focused.md` — architecture spec
 - `planning.md`
 - `docs/design-system/DESIGN_SYSTEM.md` — Carbon Signal UI rules and component patterns
 - `docs/design-system/design-tokens.json` — design-token source of truth
