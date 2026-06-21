@@ -26,7 +26,17 @@ public static class AgentServiceCollectionExtensions
         {
             var opts = sp.GetRequiredService<IOptions<OpenAiOptions>>().Value;
             var openAiClient = new OpenAIClient(new ApiKeyCredential(opts.ApiKey));
-            return openAiClient.GetChatClient(opts.Model).AsIChatClient();
+            var inner = openAiClient.GetChatClient(opts.Model).AsIChatClient();
+
+            // Log every LLM call's full input/output. UseOpenTelemetry emits a gen_ai span per call
+            // (under our already-traced "RaceTelemetry.Agent" source, so it shows in the Aspire
+            // dashboard); EnableSensitiveData attaches the prompt messages and completion to that span.
+            // UseLogging mirrors the same to ILogger for grepping the console. Both carry prompt text,
+            // so keep them to debug builds — gate before shipping if prompts are sensitive.
+            return inner.AsBuilder()
+                .UseOpenTelemetry(sourceName: AgentTelemetry.SourceName, configure: o => o.EnableSensitiveData = true)
+                .UseLogging()
+                .Build(sp);
         });
 
         services.AddSingleton<McpToolRegistry>();

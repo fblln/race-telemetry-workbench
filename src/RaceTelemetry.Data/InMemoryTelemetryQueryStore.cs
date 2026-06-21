@@ -104,6 +104,35 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             IsKnownSession(sessionId) ? Drivers : null);
     }
 
+    public Task<SessionFactsResponse?> GetSessionFactsAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<SessionFactsResponse?>(null);
+        }
+
+        var fastest = LapsByDriver.SelectMany(kv => kv.Value)
+            .OrderBy(l => l.LapTimeMs).First();
+        return Task.FromResult<SessionFactsResponse?>(new SessionFactsResponse(
+            SessionId: Monza2025.SessionId,
+            CircuitName: Monza2025.CircuitName ?? "Monza",
+            Country: Monza2025.Country,
+            DriverCount: Drivers.Length,
+            TotalLaps: LapsByDriver.Values.SelectMany(l => l).Max(l => l.LapNumber),
+            SafetyCarDeployments: 1,
+            RedFlagCount: 0,
+            VirtualSafetyCarDeployments: 0,
+            FastestLapDriver: fastest.DriverCode,
+            FastestLapMs: fastest.LapTimeMs,
+            TopSpeedDriver: "VER",
+            TopSpeedKmh: 358.0,
+            PeakTrackTempC: 43.5,
+            RainObserved: false));
+    }
+
     public Task<IReadOnlyList<LapSummary>?> GetLapsAsync(
         string sessionId,
         string driverCode,
@@ -585,6 +614,7 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             [
                 new DriverStrategySummary(
                     "LEC",
+                    1,
                     [new StrategyStopSummary(24, "MEDIUM", "HARD", 2_060_000, 2_083_800, 23_800, 24_100,
                         "track_clear", "undercut", "VER", 2, 1, 1, "supported")],
                     [fact.Id])
@@ -630,7 +660,7 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             sections.Contains("overview") ? new RaceDebriefOverview("VER", "VER won the Italian Grand Prix.", 53) : null,
             strategy,
             sections.Contains("incidents")
-                ? [new RaceControlItem("safety_car", 20, 1_820_000, "Safety car deployed", null, null, null, null, "high", null)]
+                ? [new RaceControlItem("safety_car", 20, 1_820_000, "Safety car deployed", null, null, null, null, "high")]
                 : [],
             sections.Contains("weather") ? new RaceDebriefWeather("No rainfall was observed during the session.", 32.2, 34.1, 43.5, 54.6, false) : null,
             facts,
@@ -806,7 +836,6 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
     public Task<RaceControlResponse?> GetRaceControlAsync(
         string sessionId,
         IReadOnlyList<string>? types,
-        double minBrakingG,
         int maxResults,
         CancellationToken cancellationToken)
     {
@@ -820,10 +849,9 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
         return Task.FromResult<RaceControlResponse?>(new RaceControlResponse(
             sessionId,
             [
-                new RaceControlItem("safety_car", null, 1_820_000, "Safety car deployed", null, null, null, null, "high", null),
-                new RaceControlItem("hard_braking", 5, 320_000, "LEC hard braking into Turn 1/2, Variante del Rettifilo", new NearestCorner(1, "Turn 1/2, Variante del Rettifilo"), -569.58, 8153.72, "LEC", "info", new RaceControlMetrics(5.1, 342, 132))
+                new RaceControlItem("safety_car", null, 1_820_000, "Safety car deployed", null, null, null, null, "high")
             ],
-            new RaceControlListSummary(2, 5.1, 1)));
+            new RaceControlListSummary(1, 1)));
     }
 
     public Task<PositionsResponse?> GetPositionsAsync(

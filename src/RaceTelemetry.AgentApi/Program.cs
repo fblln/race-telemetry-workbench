@@ -12,6 +12,7 @@ builder.AddServiceDefaults();
 builder.Services.AddRaceTelemetryAgent(builder.Configuration);
 
 builder.Services.AddSingleton<AgentSessionRegistry>();
+builder.Services.AddSingleton<ToolResultCache>();
 builder.Services.AddHostedService<SessionCleanupService>();
 builder.Services.AddScoped<AgentRunner>();
 

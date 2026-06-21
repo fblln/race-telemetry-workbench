@@ -413,15 +413,25 @@ svg .axt{fill:var(--rt-text-tertiary);font-family:var(--rt-font-mono);font-size:
 .gbar .seg.dark{color:#F4EEE6}
 
 /* race story (MCP chat) */
-.story{display:flex;flex-direction:column;gap:12px}
+/* Conversational surface: bubble the user only; the assistant answer runs as plain prose (ChatGPT-style). */
+.story{display:flex;flex-direction:column;gap:14px}
 .story .q{align-self:flex-end;max-width:78%;background:var(--rt-accent-muted);border:1px solid var(--rt-accent-border);
-  color:var(--rt-text-primary);border-radius:10px 10px 2px 10px;padding:9px 13px;font-size:13px}
-.story .a{align-self:flex-start;max-width:88%;background:var(--rt-bg-raised);border:1px solid var(--rt-border-default);
-  border-radius:10px 10px 10px 2px;padding:12px 14px;font-size:13px;color:var(--rt-text-secondary);line-height:1.55}
-.story .a b{color:var(--rt-text-primary);font-weight:500}
+  color:var(--rt-text-primary);border-radius:18px 18px 4px 18px;padding:10px 15px;font-size:15px}
+.story .a{align-self:flex-start;max-width:100%;background:transparent;border:0;
+  border-radius:0;padding:2px 0;font-size:15px;color:var(--rt-text-primary);line-height:1.7}
+.story .a b{color:var(--rt-text-primary);font-weight:600}
+.story .usedsrc{font-family:var(--rt-font-mono);font-size:10px;color:var(--rt-text-tertiary);margin-top:10px}
 .story .tools{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
 .toolpill{font-family:var(--rt-font-mono);font-size:10px;color:var(--rt-text-tertiary);background:var(--rt-bg-inset);
   border:1px solid var(--rt-border-subtle);border-radius:var(--rt-radius-pill);padding:2px 8px}
+/* ChatGPT-style composer */
+.composer{display:flex;align-items:flex-end;gap:8px;background:var(--rt-bg-inset);border:1px solid var(--rt-border-default);
+  border-radius:24px;padding:8px 8px 8px 18px}
+.composer textarea{flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--rt-text-primary);
+  font:15px var(--rt-font-sans);line-height:1.5;max-height:160px;padding:6px 0}
+.composer textarea::placeholder{color:var(--rt-text-tertiary)}
+.composer-send{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:var(--rt-accent);color:var(--rt-text-on-accent);font-size:16px;cursor:pointer;user-select:none}
 
 /* correlation timeline lanes */
 .corr{display:flex;flex-direction:column;gap:1px}
@@ -1567,8 +1577,9 @@ table.tower tr.pin td:first-child{box-shadow:inset 2px 0 0 var(--rt-accent)}
     <section id="racestory">
       <div class="sec-head"><h2>Race story — natural language (MCP)</h2>
         <p>The AI Assistant Panel (§8.10): the MCP server chains telemetry, stint, and event queries
-        and an LLM composes a narrative briefing — not just charts. Tool calls are shown as quiet
-        pills so the answer stays auditable.</p></div>
+        and an LLM composes a narrative briefing — not just charts. The user's question sits in an
+        amber bubble; the answer runs as plain prose (conversational, not boxed), with a quiet
+        "Used N sources" line so the reasoning stays auditable.</p></div>
       <div class="panel" style="max-width:680px">
         <div class="panel-hd"><div class="t"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>Assistant</div></div>
         <div class="panel-bd">
@@ -1578,14 +1589,10 @@ table.tower tr.pin td:first-child{box-shadow:inset 2px 0 0 var(--rt-accent)}
               dropped <b>~0.4 s/lap in sector 2</b> — the high-speed Ascari–Parabolica stretch — while HAM,
               two laps fresher, held pace. HAM closed into DRS on lap 31 and completed the move into Turn 1 on lap 32.
               Pitting LEC one lap earlier would have cleared the undercut but exposed him to the lap-22 VSC traffic.
-              <div class="tools">
-                <span class="toolpill">list_drivers</span><span class="toolpill">compare_laps</span>
-                <span class="toolpill">aggregate_telemetry · sector</span><span class="toolpill">analyze_driver_stints</span>
-                <span class="toolpill">detect_telemetry_windows · drs</span>
-              </div>
+              <div class="usedsrc">Used 5 sources</div>
             </div>
           </div>
-          <div class="search" style="margin-top:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="input" placeholder="Ask about this race…"></div>
+          <div class="composer" style="margin-top:14px"><textarea rows="1" placeholder="Ask about this race…"></textarea><span class="composer-send">↑</span></div>
         </div>
       </div>
     </section>

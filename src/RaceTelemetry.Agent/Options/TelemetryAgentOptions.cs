@@ -24,17 +24,34 @@ public sealed class TelemetryAgentOptions
     /// </summary>
     public int MaxContextMessages { get; init; } = 20;
 
-    public int ToolPlanningMaxOutputTokens { get; init; } = 600;
+    // Reasoning models (gpt-5*) spend reasoning tokens out of this same budget before any
+    // visible text. Too small and the completion is all-reasoning, zero output. Keep headroom.
+    public int ToolPlanningMaxOutputTokens { get; init; } = 1500;
 
-    public int FinalAnswerMaxOutputTokens { get; init; } = 300;
+    public int FinalAnswerMaxOutputTokens { get; init; } = 2500;
 
-    public int MaximumToolRounds { get; init; } = 4;
+    public int MaximumToolRounds { get; init; } = 6;
 
-    public int MaximumToolCalls { get; init; } = 12;
+    public int MaximumToolCalls { get; init; } = 16;
 
-    public int MaximumConcurrentToolCalls { get; init; } = 4;
+    /// <summary>
+    /// How many times the evaluator may reject the gathered evidence and force another targeted
+    /// tool round before the answer is finalized. 0 disables the evaluator. Each nudge costs one
+    /// evaluator LLM call plus one acquisition round.
+    /// </summary>
+    public int MaximumEvaluatorNudges { get; init; } = 2;
+
+    public int MaximumConcurrentToolCalls { get; init; } = 8;
 
     public TimeSpan ToolCallTimeout { get; init; } = TimeSpan.FromSeconds(15);
+
+    /// <summary>
+    /// Process-local lifetime for successful read-only MCP tool results. Set to zero to disable
+    /// cross-run caching; duplicate calls are still deduplicated within a single run.
+    /// </summary>
+    public TimeSpan ToolResultCacheTtl { get; init; } = TimeSpan.FromMinutes(2);
+
+    public int MaximumCachedToolResults { get; init; } = 1_000;
 
     public int MaximumToolResultCharacters { get; init; } = 20_000;
 

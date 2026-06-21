@@ -246,12 +246,10 @@ public sealed partial class PostgresTelemetryQueryStore
     public async Task<RaceControlResponse?> GetRaceControlAsync(
         string sessionId,
         IReadOnlyList<string>? types,
-        double minBrakingG,
         int maxResults,
         CancellationToken cancellationToken)
     {
         using var activity = StartStoreActivity("query_store.get_incidents", sessionId);
-        activity?.SetTag("race.query.min_braking_g", minBrakingG);
         activity?.SetTag("race.query.max_results", maxResults);
 
         if (!await SessionExistsAsync(sessionId, cancellationToken))
@@ -260,34 +258,27 @@ public sealed partial class PostgresTelemetryQueryStore
         }
 
         var trackStatusTask = GetTrackStatusIncidentsAsync(sessionId, cancellationToken);
-        var hardBrakingTask = GetHardBrakingIncidentsAsync(sessionId, minBrakingG, maxResults, cancellationToken);
         var raceControlTask = GetRaceControlIncidentsAsync(sessionId, maxResults, cancellationToken);
 
-        await Task.WhenAll(trackStatusTask, hardBrakingTask, raceControlTask);
+        await Task.WhenAll(trackStatusTask, raceControlTask);
 
         var trackStatus = await trackStatusTask;
-        var hardBraking = await hardBrakingTask;
         var raceControl = await raceControlTask;
 
         var typeFilter = types is { Count: > 0 }
             ? new HashSet<string>(types, StringComparer.OrdinalIgnoreCase)
             : null;
 
-        var all = trackStatus.Concat(hardBraking).Concat(raceControl)
+        var all = trackStatus.Concat(raceControl)
             .Where(i => typeFilter is null || typeFilter.Contains(i.Type))
             .OrderBy(i => i.SessionTimeMs is null)
             .ThenBy(i => i.SessionTimeMs ?? long.MaxValue)
             .Take(maxResults)
             .ToList();
 
-        var hardestG = hardBraking
-            .Select(i => i.Metrics?.PeakBrakingG)
-            .Where(g => g is not null)
-            .DefaultIfEmpty(null)
-            .Max();
         var lapsUnderSafetyCar = trackStatus.Count(i => i.Type is "safety_car" or "vsc");
 
-        var summary = new RaceControlListSummary(all.Count, hardestG, lapsUnderSafetyCar);
+        var summary = new RaceControlListSummary(all.Count, lapsUnderSafetyCar);
         return new RaceControlResponse(sessionId, all, summary);
     }
 
@@ -329,138 +320,10 @@ public sealed partial class PostgresTelemetryQueryStore
                 X: null,
                 Y: null,
                 DriverCode: null,
-                Severity: severity,
-                Metrics: null));
+                Severity: severity));
         }
 
         return incidents;
-    }
-
-    private async Task<IReadOnlyList<RaceControlItem>> GetHardBrakingIncidentsAsync(
-        string sessionId,
-        double minBrakingG,
-        int maxResults,
-        CancellationToken cancellationToken)
-    {
-        // Detect contiguous hard-braking windows from the telemetry stream so the
-        // speed drop and duration (and thus braking g) are measured, never invented.
-        // Position is a separate stream, so x/y is matched by nearest timestamp
-        // within a bounded range and the dot is anchored to the nearest corner.
-        const string sql = """
-            WITH ordered AS (
-                SELECT
-                    t.sample_time_utc,
-                    t.driver_code,
-                    t.lap_number,
-                    t.session_time_ms::bigint AS session_time_ms,
-                    t.speed_kmh,
-                    (t.brake_pct >= 80) AS is_event,
-                    row_number() OVER (PARTITION BY t.driver_code ORDER BY t.session_time_ms NULLS LAST, t.sample_time_utc)
-                    - row_number() OVER (PARTITION BY t.driver_code, (t.brake_pct >= 80) ORDER BY t.session_time_ms NULLS LAST, t.sample_time_utc) AS group_id
-                FROM telemetry_samples t
-                WHERE t.session_id = @sessionId AND t.session_time_ms IS NOT NULL
-            ),
-            windows AS (
-                SELECT
-                    driver_code,
-                    min(lap_number) AS lap_number,
-                    min(sample_time_utc) AS start_sample_time_utc,
-                    min(session_time_ms) AS start_session_time_ms,
-                    greatest(max(session_time_ms) - min(session_time_ms), 0)::bigint AS duration_ms,
-                    (array_agg(speed_kmh ORDER BY session_time_ms, sample_time_utc))[1] AS entry_speed_kmh,
-                    min(speed_kmh) AS min_speed_kmh
-                FROM ordered
-                WHERE is_event
-                GROUP BY driver_code, group_id
-                HAVING greatest(max(session_time_ms) - min(session_time_ms), 0) >= 200
-            ),
-            with_pos AS (
-                SELECT w.*, pos.x, pos.y
-                FROM windows w
-                LEFT JOIN LATERAL (
-                    SELECT p.x, p.y
-                    FROM position_samples p
-                    WHERE p.session_id = @sessionId
-                      AND p.driver_code = w.driver_code
-                      AND p.sample_time_utc BETWEEN w.start_sample_time_utc - interval '1 second'
-                                               AND w.start_sample_time_utc + interval '1 second'
-                    ORDER BY abs(extract(epoch FROM (p.sample_time_utc - w.start_sample_time_utc)))
-                    LIMIT 1
-                ) pos ON true
-            )
-            SELECT
-                w.driver_code,
-                w.lap_number,
-                w.start_session_time_ms,
-                w.duration_ms,
-                w.entry_speed_kmh,
-                w.min_speed_kmh,
-                marker.marker_number,
-                marker.marker_letter,
-                marker.mx,
-                marker.my,
-                w.x,
-                w.y
-            FROM with_pos w
-            LEFT JOIN LATERAL (
-                SELECT cm.marker_number, cm.marker_letter, cm.x AS mx, cm.y AS my
-                FROM circuit_markers cm
-                WHERE cm.session_id = @sessionId AND cm.marker_type = 'corner'
-                  AND w.x IS NOT NULL AND w.y IS NOT NULL
-                ORDER BY sqrt(power(cm.x - w.x, 2) + power(cm.y - w.y, 2))
-                LIMIT 1
-            ) marker ON true
-            ORDER BY (w.entry_speed_kmh - w.min_speed_kmh) DESC NULLS LAST
-            LIMIT @scanLimit
-            """;
-
-        await using var command = _dataSource.CreateCommand(sql);
-        command.Parameters.AddWithValue("sessionId", sessionId);
-        command.Parameters.AddWithValue("scanLimit", Math.Max(maxResults, 50) * 3);
-
-        var incidents = new List<RaceControlItem>();
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        while (await reader.ReadAsync(cancellationToken))
-        {
-            var driverCode = reader.GetString(0);
-            var lapNumber = GetNullableInt32(reader, 1);
-            var sessionTimeMs = GetNullableInt64(reader, 2);
-            var durationMs = reader.GetInt64(3);
-            var entrySpeed = GetNullableDouble(reader, 4);
-            var minSpeed = GetNullableDouble(reader, 5);
-            var markerNumber = GetNullableInt32(reader, 6);
-            var markerLetter = GetNullableString(reader, 7);
-            var markerX = GetNullableDouble(reader, 8);
-            var markerY = GetNullableDouble(reader, 9);
-            var carX = GetNullableDouble(reader, 10);
-            var carY = GetNullableDouble(reader, 11);
-
-            // Braking g is a window-averaged estimate (entry->apex), which runs
-            // well below an instantaneous peak; minBrakingG is therefore treated as
-            // an advisory floor and not used to drop hotspots from the heat map.
-            var peakG = EstimateBrakingG(entrySpeed, minSpeed, durationMs);
-
-            var corner = markerNumber is null
-                ? null
-                : new NearestCorner(markerNumber.Value, FormatCornerLabel(sessionId, markerNumber, markerLetter) ?? $"Turn {markerNumber}");
-
-            incidents.Add(new RaceControlItem(
-                "hard_braking",
-                lapNumber,
-                sessionTimeMs,
-                corner is null ? $"{driverCode} hard braking" : $"{driverCode} hard braking into {corner.Label}",
-                corner,
-                markerX ?? carX,
-                markerY ?? carY,
-                driverCode,
-                "info",
-                new RaceControlMetrics(peakG, entrySpeed, minSpeed)));
-        }
-
-        return incidents
-            .OrderByDescending(i => i.Metrics?.PeakBrakingG ?? 0)
-            .Take(maxResults)
-            .ToList();
     }
 
     private async Task<IReadOnlyList<RaceControlItem>> GetRaceControlIncidentsAsync(
@@ -506,7 +369,6 @@ public sealed partial class PostgresTelemetryQueryStore
                 Y: null,
                 DriverCode: GetNullableString(reader, 3),
                 Severity: "info",
-                Metrics: null,
                 ClusterTerms: GetNullableString(reader, 4)));
         }
 
@@ -520,23 +382,6 @@ public sealed partial class PostgresTelemetryQueryStore
         command.Parameters.AddWithValue("sessionId", sessionId);
         var value = await command.ExecuteScalarAsync(cancellationToken);
         return value is int i ? i : Convert.ToInt32(value ?? 0);
-    }
-
-    private static double? EstimateBrakingG(double? entrySpeedKmh, double? minSpeedKmh, long durationMs)
-    {
-        if (entrySpeedKmh is null || minSpeedKmh is null || durationMs <= 0)
-        {
-            return null;
-        }
-
-        var deltaMs = (entrySpeedKmh.Value - minSpeedKmh.Value) / 3.6; // km/h -> m/s
-        if (deltaMs <= 0)
-        {
-            return null;
-        }
-
-        var deceleration = deltaMs / (durationMs / 1000.0); // m/s^2
-        return Math.Round(deceleration / 9.81, 2);
     }
 
     private static string HumanizeStatus(string status) =>

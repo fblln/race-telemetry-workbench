@@ -143,6 +143,43 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
     }
 
     [McpServerTool(
+        Name = "get_session_facts",
+        Title = "Get Session Facts",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = false)]
+    [Description("Headline pre-counted facts for a session: driver count, total laps, safety-car/red-flag/VSC deployments, fastest lap, top speed, peak track temp, and whether it rained. Prefer this for 'how many / who / what was the' questions instead of counting other tools' arrays. Returns a plain-text sentence.")]
+    public async Task<string> GetSessionFacts(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("get_session_facts", sessionId);
+
+        ValidateSessionId(sessionId);
+
+        var f = await store.GetSessionFactsAsync(sessionId, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+
+        return FormatSessionFacts(f);
+    }
+
+    // Plain prose (not JSON) so small finalizer models can read or pass it through cleanly.
+    private static string FormatSessionFacts(SessionFactsResponse f)
+    {
+        var fastest = f.FastestLapDriver is null ? "unavailable" : $"{f.FastestLapDriver} {f.FastestLapDisplay}";
+        var top = f.TopSpeedDriver is null ? "unavailable"
+            : string.Create(CultureInfo.InvariantCulture, $"{f.TopSpeedDriver} {f.TopSpeedKmh:0.#} km/h");
+        var temp = f.PeakTrackTempC is { } t ? string.Create(CultureInfo.InvariantCulture, $"{t:0.#}°C") : "unavailable";
+        return string.Create(CultureInfo.InvariantCulture,
+            $"{f.CircuitName}, {f.Country}. {f.DriverCount} drivers took part over {f.TotalLaps} laps. " +
+            $"Fastest lap: {fastest}. Top speed: {top}. " +
+            $"Safety car deployments: {f.SafetyCarDeployments}. Red flags: {f.RedFlagCount}. " +
+            $"Virtual safety car deployments: {f.VirtualSafetyCarDeployments}. " +
+            $"Peak track temperature: {temp}. Rain observed: {(f.RainObserved ? "yes" : "no")}.");
+    }
+
+    [McpServerTool(
         Name = "get_driver_laps",
         Title = "Get Driver Laps",
         ReadOnly = true,

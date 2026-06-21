@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -18,6 +19,7 @@ public sealed class GroundedEvidenceLedger
 
     public void AddToolResult(string toolName, int callIndex, string result)
     {
+        result = UnwrapMcpEnvelope(result);
         var syntheticId = $"tool-{callIndex + 1}-{NormalizeId(toolName)}";
         _facts[syntheticId] = new GroundedEvidenceFact(syntheticId, result, "supported", "assert", result);
 
@@ -34,14 +36,17 @@ public sealed class GroundedEvidenceLedger
 
     public string BuildPrompt(int maximumCharacters)
     {
-        var payload = _facts.Values.Select(fact => new
+        // Plain-text, not JSON: a JSON evidence blob invites small models to echo it back as the
+        // "answer". Numbered text lines read as source material to summarise, not output to copy.
+        var builder = new StringBuilder();
+        var index = 1;
+        foreach (var fact in _facts.Values)
         {
-            id = fact.Id,
-            text = Truncate(fact.Text, 8_000),
-            qualityStatus = fact.QualityStatus,
-            narrationPolicy = fact.NarrationPolicy
-        });
-        return Truncate(JsonSerializer.Serialize(payload), maximumCharacters);
+            var quality = fact.QualityStatus is "supported" or "" ? "" : $" ({fact.QualityStatus})";
+            builder.Append("Evidence ").Append(index++).Append(quality).Append(": ")
+                .AppendLine(Truncate(fact.Text, 16_000));
+        }
+        return Truncate(builder.ToString(), maximumCharacters);
     }
 
     private void AddNarrativeFacts(JsonElement element)
@@ -89,6 +94,52 @@ public sealed class GroundedEvidenceLedger
 
         value = property.GetString() ?? string.Empty;
         return value.Length > 0;
+    }
+
+    // MCP tool results arrive wrapped as {"content":[{"type":"text","text":"<json>"}]}. Store the inner
+    // payload so the evidence packet is clean data — easier to ground on and less likely to be echoed verbatim.
+    private static string UnwrapMcpEnvelope(string result)
+    {
+        if (string.IsNullOrEmpty(result) || !result.Contains("\"text\""))
+        {
+            return result;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(result);
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                return result;
+            }
+
+            // {"content":[{"type":"text","text":"..."}]}
+            if (root.TryGetProperty("content", out var content) && content.ValueKind == JsonValueKind.Array)
+            {
+                var texts = content.EnumerateArray()
+                    .Where(item => item.ValueKind == JsonValueKind.Object
+                        && item.TryGetProperty("type", out var type) && type.GetString() == "text"
+                        && item.TryGetProperty("text", out _))
+                    .Select(item => item.GetProperty("text").GetString() ?? string.Empty)
+                    .ToArray();
+                var joined = string.Concat(texts);
+                if (joined.Length > 0) return joined;
+            }
+
+            // {"text":"..."} (single text-content tool result)
+            if (root.TryGetProperty("text", out var single) && single.ValueKind == JsonValueKind.String)
+            {
+                var inner = single.GetString();
+                if (!string.IsNullOrEmpty(inner)) return inner;
+            }
+
+            return result;
+        }
+        catch (JsonException)
+        {
+            return result;
+        }
     }
 
     private static string NormalizeId(string value) =>

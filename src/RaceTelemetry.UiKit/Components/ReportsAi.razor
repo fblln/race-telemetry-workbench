@@ -17,7 +17,6 @@
             <div class="panel" style="display:flex;flex-direction:column;min-height:0">
                 <div class="panel-h"><span class="tt">▢ Assistant</span>
                     <div class="tools">
-                        <span class="bdg" style="background:var(--accent-muted);color:var(--accent);border:1px solid var(--accent-border)">MCP · LLM</span>
                         <span class="btn-ghost" @onclick="NewConversation">↺ New</span>
                     </div>
                 </div>
@@ -37,14 +36,24 @@
                                 {
                                     <span class="micro">thinking…</span>
                                 }
+                                else if (b.Streaming)
+                                {
+                                    @* Plain text while streaming — parsing markdown on every delta is O(n²) and freezes the UI. *@
+                                    <div style="white-space:pre-wrap">@b.Content</div>
+                                }
                                 else
                                 {
                                     @((MarkupString)Markdig.Markdown.ToHtml(b.Content))
                                 }
-                                @if (b.Tools.Count > 0)
+                                @{ var sources = b.Tools.Select(t => t.Name).Distinct().ToList(); }
+                                @if (sources.Count > 0)
                                 {
-                                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">
-                                        @foreach (var t in b.Tools) { <span class="toolpill">@t.Name</span> }
+                                    <div class="micro" style="margin-top:10px;text-transform:none;color:var(--text-tertiary)">Sources</div>
+                                    <div class="chiprow" style="margin-top:4px">
+                                        @foreach (var name in sources)
+                                        {
+                                            <span class="badge" style="border-color:var(--border-default);color:var(--text-secondary)">@SourceLabel(name)</span>
+                                        }
                                     </div>
                                 }
                             </div>
@@ -65,19 +74,19 @@
                         </div>
                     }
                 </div>
-                <div style="padding:12px 14px;border-top:1px solid var(--border-default);display:flex;gap:8px">
-                    <span class="filterbox" style="flex:1">
-                        <span class="mag">⌕</span>
-                        <input id="chatInput" placeholder="Ask about this race…" @bind="_input" @bind:event="oninput" @onkeydown="OnKey" disabled="@_streaming" />
-                    </span>
-                    @if (_streaming)
-                    {
-                        <span class="btn-pri-sm" style="background:var(--bg-raised);color:var(--text-secondary)" @onclick="Cancel">Stop</span>
-                    }
-                    else
-                    {
-                        <span class="btn-pri-sm" @onclick="Send">Send</span>
-                    }
+                <div style="padding:12px 14px;border-top:1px solid var(--border-default)">
+                    <div class="composer">
+                        <textarea id="chatInput" rows="1" placeholder="Ask about this race…"
+                                  @bind="_input" @bind:event="oninput" @onkeydown="OnKey" disabled="@_streaming"></textarea>
+                        @if (_streaming)
+                        {
+                            <span class="composer-send stop" @onclick="Cancel" title="Stop">■</span>
+                        }
+                        else
+                        {
+                            <span class="composer-send" @onclick="Send" title="Send">↑</span>
+                        }
+                    </div>
                 </div>
             </div>
 
@@ -97,6 +106,26 @@
                             <div class="lbl">What happened</div>
                             <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin:0">@((MarkupString)Narrative)</p>
                         </div>
+                        @if (LargestGain is { Delta: > 0 } || LargestLoss is { Delta: < 0 })
+                        {
+                            <div>
+                                <div class="lbl">Gained / lost</div>
+                                @if (LargestGain is { Delta: > 0 } g)
+                                {
+                                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                                        <span style="color:var(--text-secondary)">Largest net gain</span>
+                                        <span class="mono" style="color:var(--success)">@g.Driver +@g.Delta pos</span>
+                                    </div>
+                                }
+                                @if (LargestLoss is { Delta: < 0 } l)
+                                {
+                                    <div style="display:flex;justify-content:space-between;font-size:12px">
+                                        <span style="color:var(--text-secondary)">Largest net loss</span>
+                                        <span class="mono" style="color:var(--danger)">@l.Driver @l.Delta pos</span>
+                                    </div>
+                                }
+                            </div>
+                        }
                         <div>
                             <div class="lbl">Tyre strategy · @(Winner?.DriverCode ?? "winner")</div>
                             <div class="ganttbar" style="height:22px">
@@ -139,14 +168,17 @@
 @code {
     static readonly System.Globalization.CultureInfo Inv = System.Globalization.CultureInfo.InvariantCulture;
 
+    // User-voiced example questions shown before the first reply; replaced by the model's
+    // dynamic follow-ups (same style) after each answer.
     static readonly string[] DefaultFollowUps =
     {
+        "What was the fastest lap?",
+        "What was the weather?",
         "Compare the pit strategies of the top 3",
         "Who had the strongest final stint?",
         "Where did the lead change hands?"
     };
 
-    // Shows the model's real follow-ups after a reply; defaults before the first message.
     string[] FollowUps = DefaultFollowUps;
 
     sealed class Bubble
@@ -161,11 +193,13 @@
     string _input = "";
     bool _streaming;
     int _lastCount = -1;
+    long _lastRenderTick;
     CancellationTokenSource? _cts;
 
     // --- real aggregates ---
     string? _loadedSession;
     StandingsResponse? _standings;
+    StandingsResponse? _grid;        // order after lap 1 — baseline for net position change
     RaceStoryResponse? _story;
     RaceControlResponse? _incidents;
 
@@ -190,17 +224,18 @@
         var id = State.Session?.SessionId;
         if (id is null || id == _loadedSession) return;
         _loadedSession = id;
-        _standings = null; _story = null; _incidents = null;
+        _standings = null; _grid = null; _story = null; _incidents = null;
         await InvokeAsync(StateHasChanged);
         try
         {
             // Standings + story are fast (~0.1s); incidents aggregates slowly (~6s). Render the
             // summary as soon as the fast pair lands, then fill incidents in when it arrives.
             var standings = Api.GetStandingsAsync(id);
+            var grid = Api.GetStandingsAsync(id, atLap: 1);
             var story = Api.GetRaceStoryAsync(id);
             var incidents = Api.GetRaceControlAsync(id);
-            await Task.WhenAll(standings, story);
-            _standings = standings.Result; _story = story.Result;
+            await Task.WhenAll(standings, grid, story);
+            _standings = standings.Result; _grid = grid.Result; _story = story.Result;
             await InvokeAsync(StateHasChanged);
             _incidents = await incidents;
         }
@@ -239,6 +274,22 @@
         }
     }
 
+    // Net position change since the end of lap 1 (no grid data available). Positive = places gained.
+    record Move(string Driver, int Delta);
+    IEnumerable<Move> Moves
+    {
+        get
+        {
+            if (_standings is null || _grid is null) yield break;
+            var start = _grid.Items.ToDictionary(r => r.DriverCode, r => r.Position);
+            foreach (var r in _standings.Items)
+                if (start.TryGetValue(r.DriverCode, out var p0))
+                    yield return new Move(r.DriverCode, p0 - r.Position);
+        }
+    }
+    Move? LargestGain => Moves.OrderByDescending(m => m.Delta).FirstOrDefault();
+    Move? LargestLoss => Moves.OrderBy(m => m.Delta).FirstOrDefault();
+
     List<RaceControlItem> KeyRaceControl => _incidents?.Items
         .Where(i => !i.Type.Contains("brak", StringComparison.OrdinalIgnoreCase))
         .Take(6).ToList() ?? new();
@@ -271,6 +322,8 @@
             if (sc is { LapsUnderSafetyCar: > 0 }) sb.Append($" {sc.LapsUnderSafetyCar} lap(s) ran under safety car.");
             var second = _standings?.Items.FirstOrDefault(r => r.Position == 2);
             if (second is not null) sb.Append($" {second.DriverCode} finished P2, +{Gap(second.GapToLeaderMs)}.");
+            if (LargestGain is { Delta: >= 3 } g)
+                sb.Append($" <b>{g.Driver}</b> was the biggest mover, climbing {g.Delta} places.");
             return sb.ToString();
         }
     }
@@ -283,6 +336,13 @@
         return t.TotalMinutes >= 1 ? $"{(int)t.TotalMinutes}:{t.Seconds:00}.{t.Milliseconds:000}" : $"{t.Seconds}.{t.Milliseconds:000}";
     }
     static string Gap(long ms) => $"{ms / 1000.0:0.000}s";
+
+    // Tool name → readable source label, e.g. "get_session_facts" → "Session facts".
+    static string SourceLabel(string tool)
+    {
+        var s = tool.Replace("get_", "").Replace('_', ' ').Trim();
+        return s.Length == 0 ? tool : char.ToUpperInvariant(s[0]) + s[1..];
+    }
 
     static string CompoundColor(string? c) => (c ?? "").ToUpperInvariant() switch
     {
@@ -306,7 +366,7 @@
     }
 
     // --- live assistant ---
-    Task OnKey(KeyboardEventArgs e) => e.Key == "Enter" && !_streaming ? Send() : Task.CompletedTask;
+    Task OnKey(KeyboardEventArgs e) => e.Key == "Enter" && !e.ShiftKey && !_streaming ? Send() : Task.CompletedTask;
     async Task SendSuggested(string prompt) { _input = prompt; await Send(); }
 
     async Task Send()
@@ -352,7 +412,14 @@
                         reply.Content = $"Error: {evt.Message ?? evt.Code ?? "Unknown error"}";
                         break;
                 }
-                StateHasChanged();
+                // Throttle re-renders during streaming: coalesce text deltas to ~12 fps so the UI
+                // thread isn't re-rendering on every token. Tool/error events always render.
+                var now = Environment.TickCount64;
+                if (evt.Type != "TEXT_MESSAGE_CONTENT" || now - _lastRenderTick >= 80)
+                {
+                    _lastRenderTick = now;
+                    StateHasChanged();
+                }
             }
         }
         catch (OperationCanceledException) { }
@@ -366,6 +433,7 @@
         }
     }
 
+    // Split the model's answer from its follow-up block; show those as the next chips (user-voiced).
     void StripFollowUpMarker(Bubble b)
     {
         var (body, parsed) = RaceTelemetry.Contracts.ChatFollowUps.Split(b.Content);
@@ -382,5 +450,6 @@
         await Agent.ResetAsync(threadId, CancellationToken.None);
         Thread.Replace();
         _chat.Clear();
+        FollowUps = DefaultFollowUps;
     }
 }

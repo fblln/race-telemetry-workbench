@@ -2,8 +2,7 @@ namespace RaceTelemetry.Contracts;
 
 /// <summary>
 /// Unified, location-aware race-control list for the Race Control view (§6.13,
-/// §8.14). Composes track-status periods, race-control messages, and the
-/// hard-braking helper view with corner attribution.
+/// §8.14). Composes track-status periods and race-control messages.
 /// </summary>
 public sealed record RaceControlResponse(
     string SessionId,
@@ -20,11 +19,8 @@ public sealed record RaceControlItem(
     double? Y,
     string? DriverCode,
     string Severity,
-    RaceControlMetrics? Metrics,
     string? ClusterTerms = null);
 
 public sealed record NearestCorner(int Number, string Label);
 
-public sealed record RaceControlMetrics(double? PeakBrakingG, double? EntrySpeedKmh, double? MinSpeedKmh);
-
-public sealed record RaceControlListSummary(int IncidentCount, double? HardestBrakingG, int LapsUnderSafetyCar);
+public sealed record RaceControlListSummary(int IncidentCount, int LapsUnderSafetyCar);

@@ -1,3 +1,12 @@
+// Scale the fixed 1440x900 prototype canvas (.frame) to fit the native window — see app.css.
+// Both sides are in the same CSS-px space, so the Mac Catalyst 77% interface squish cancels out.
+function rtwScaleFrame() {
+    const s = Math.min(window.innerWidth / 1440, window.innerHeight / 900);
+    document.documentElement.style.setProperty('--frame-scale', s);
+}
+window.addEventListener('resize', rtwScaleFrame);
+rtwScaleFrame();
+
 // Global keyboard shortcuts, mirroring the prototype's document-level keydown wiring.
 window.rtw = {
     registerKeys: function (dotnetRef) {
@@ -6,6 +15,8 @@ window.rtw = {
         document.addEventListener('keydown', function (e) {
             const tag = document.activeElement && document.activeElement.tagName;
             const inInput = tag === 'INPUT' || tag === 'TEXTAREA';
+            // Chat composer: Enter sends (Blazor's @onkeydown handles it); stop the textarea inserting a newline.
+            if (e.target && e.target.id === 'chatInput' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); }
             if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
                 e.preventDefault(); dotnetRef.invokeMethodAsync('TogglePalette'); return;
             }

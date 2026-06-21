@@ -235,11 +235,17 @@
   .filterbox input{flex:1;background:transparent;border:0;outline:0;color:var(--text-primary);font-size:12px;font-family:var(--sans)}
   .filterbox .mag{color:var(--text-tertiary);font-size:12px}
 
-  /* race story / assistant */
+  /* race story / assistant — conversational surface: bubble the user only, assistant runs as plain prose */
   .toolpill{font-family:var(--mono);font-size:10px;background:var(--bg-inset);border:1px solid var(--border-default);border-radius:999px;padding:2px 9px;color:var(--text-tertiary)}
-  .bubble-q{background:var(--accent-muted);border:1px solid var(--accent-border);color:var(--text-primary);border-radius:var(--r-lg);padding:10px 14px;font-size:13px;align-self:flex-start;max-width:80%}
-  .bubble-a{background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--r-lg);padding:14px;font-size:13px;color:var(--text-secondary);line-height:1.55}
-  .bubble-a b{color:var(--text-primary)}
+  .usedsrc{font-family:var(--mono);font-size:10px;color:var(--text-tertiary);margin-top:10px}
+  .bubble-q{background:var(--accent-muted);border:1px solid var(--accent-border);color:var(--text-primary);border-radius:18px 18px 4px 18px;padding:10px 16px;font-size:15px;align-self:flex-end;max-width:80%}
+  .bubble-a{background:transparent;border:0;border-radius:0;padding:2px 0;font-size:15px;color:var(--text-primary);line-height:1.7;max-width:100%}
+  .bubble-a b{color:var(--text-primary);font-weight:600}
+  /* ChatGPT-style composer */
+  .composer{display:flex;align-items:flex-end;gap:8px;background:var(--bg-inset);border:1px solid var(--border-default);border-radius:24px;padding:8px 8px 8px 18px}
+  .composer textarea,.composer input{flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--text-primary);font:15px var(--sans);line-height:1.5;max-height:160px;padding:6px 0}
+  .composer textarea::placeholder,.composer input::placeholder{color:var(--text-tertiary)}
+  .composer-send{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--text-on-accent);cursor:pointer;font-size:16px;user-select:none}
 
   /* correlation lanes */
   .lane{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:10px;margin-bottom:8px}
@@ -1057,11 +1063,11 @@ function raceStory(){
     <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
       <div class="bubble-q">Where did LEC lose the place to HAM, and why?</div>
       <div class="bubble-a">LEC lost <b>P2</b> to HAM around <b>lap 32</b>. From lap 28 his medium tyres dropped <b>~0.4 s/lap in sector 2</b> — the Ascari–Parabolica stretch — while HAM, two laps fresher, held pace. HAM closed into DRS on lap 31 and completed the move into Turn 1 on lap 32. Pitting LEC one lap earlier would have cleared the undercut but exposed him to the lap-22 VSC traffic.
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"><span class="toolpill">list_drivers</span><span class="toolpill">compare_laps</span><span class="toolpill">aggregate_telemetry · sector</span><span class="toolpill">analyze_driver_stints</span><span class="toolpill">detect_telemetry_windows · drs</span></div></div>
+        <div class="usedsrc">Used 5 sources</div></div>
       <div class="bubble-q">Where did LEC gain on VER in lap 12 — and is the lap trustworthy?</div>
       <div class="bubble-a">By distance, LEC's biggest gain was <b>+0.18 s</b> through the <b>Lesmo–Serraglio stretch (1,650–2,400 m)</b> — earlier throttle pick-up and higher minimum speed — then he gave most of it back braking into <b>Ascari (≈3,300 m, −0.21 s)</b>. Both laps are <b>valid</b> with full distance coverage and a matching finish-delta, so the gained/lost split is safe to trust.
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"><span class="toolpill">compare_laps_by_distance</span><span class="toolpill">get_lap_quality</span></div></div>
-      <div class="filterbox" style="width:auto"><span class="mag">⌕</span><input placeholder="Ask about this race…"></div>
+        <div class="usedsrc">Used 2 sources</div></div>
+      <div class="composer" style="margin-top:14px"><textarea rows="1" placeholder="Ask about this race…"></textarea><span class="composer-send">↑</span></div>
     </div></div>`;
 }
 function sessionReport(){

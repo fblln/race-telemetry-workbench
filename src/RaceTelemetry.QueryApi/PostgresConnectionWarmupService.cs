@@ -6,7 +6,7 @@ public sealed class PostgresConnectionWarmupService(
     NpgsqlDataSource dataSource,
     ILogger<PostgresConnectionWarmupService> logger) : IHostedService
 {
-    private const int ConnectionsToWarm = 2;
+    private const int ConnectionsToWarm = 8;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {

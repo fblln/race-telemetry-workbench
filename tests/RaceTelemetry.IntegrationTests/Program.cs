@@ -183,7 +183,7 @@ var incidents = await AssertOk<RaceControlResponse>(
 
 Assert(incidents.Summary is not null, "Expected an incident summary.");
 Assert(
-    incidents.Items.All(item => item.Type is "safety_car" or "vsc" or "yellow" or "red" or "hard_braking" or "off_track" or "spin"),
+    incidents.Items.All(item => item.Type is "safety_car" or "vsc" or "yellow" or "red" or "off_track" or "spin"),
     "RaceControlItem types should be from the documented set.");
 
 var invalidSort = await http.GetAsync($"/api/sessions/{session.SessionId}/standings?sortBy=bogus", cancellation.Token);

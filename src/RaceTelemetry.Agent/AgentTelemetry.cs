@@ -17,6 +17,8 @@ public static class AgentTelemetry
     public static readonly Counter<long> RunsFailed    = Meter.CreateCounter<long>("agent.runs.failed");
     public static readonly Counter<long> ToolCalls     = Meter.CreateCounter<long>("agent.tool.calls");
     public static readonly Counter<long> ToolFailures  = Meter.CreateCounter<long>("agent.tool.failures");
+    public static readonly Counter<long> ToolCacheHits = Meter.CreateCounter<long>("agent.tool.cache_hits");
+    public static readonly Counter<long> ToolCacheMisses = Meter.CreateCounter<long>("agent.tool.cache_misses");
     public static readonly Counter<long> LlmCalls      = Meter.CreateCounter<long>("agent.llm.calls");
     public static readonly Counter<long> ParallelToolBatches = Meter.CreateCounter<long>("agent.tool.parallel_batches");
     public static readonly Counter<long> ClaimsVerified = Meter.CreateCounter<long>("agent.claims.verified");

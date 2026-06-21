@@ -102,6 +102,10 @@ public sealed partial class PostgresTelemetryQueryStore
         var positions = await GetPositionsAsync(sessionId, null, 1, null, cancellationToken);
         var positionMap = positions?.Items.ToDictionary(item => item.DriverCode, StringComparer.OrdinalIgnoreCase)
             ?? new Dictionary<string, DriverPositions>(StringComparer.OrdinalIgnoreCase);
+        // Finishing classification so a strategy comparison can name "the top 3" without a second tool call.
+        var standings = await GetStandingsAsync(sessionId, null, "position", cancellationToken);
+        var finishPositions = standings?.Items.ToDictionary(item => item.DriverCode, item => item.Position, StringComparer.OrdinalIgnoreCase)
+            ?? new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var fieldAverage = request.CompareToFieldAverage == false
             ? null
             : AverageMilliseconds(rawStops.Select(stop => stop.PitLaneTimeMs));
@@ -177,8 +181,15 @@ public sealed partial class PostgresTelemetryQueryStore
                     quality == "supported" ? "assert" : "caveat"));
             }
 
-            driverItems.Add(new DriverStrategySummary(driverGroup.Key, stops, factIds));
+            var finish = finishPositions.TryGetValue(driverGroup.Key, out var pos) ? pos : (int?)null;
+            driverItems.Add(new DriverStrategySummary(driverGroup.Key, finish, stops, factIds));
         }
+
+        // Order by finishing position (classified drivers first) so "the top N" is obvious in the evidence.
+        driverItems = driverItems
+            .OrderBy(item => item.FinishPosition ?? int.MaxValue)
+            .ThenBy(item => item.DriverCode, StringComparer.Ordinal)
+            .ToList();
 
         return new StrategySummaryResponse(sessionId, driverItems, facts, BuildStoryQuality(facts));
     }
@@ -200,7 +211,7 @@ public sealed partial class PostgresTelemetryQueryStore
             ? SummarizeStrategyAsync(sessionId, new StrategySummaryRequest(request.Drivers, true), cancellationToken)
             : Task.FromResult<StrategySummaryResponse?>(null);
         var incidentsTask = sections.Contains("incidents")
-            ? GetRaceControlAsync(sessionId, null, 2.5, 100, cancellationToken)
+            ? GetRaceControlAsync(sessionId, null, 100, cancellationToken)
             : Task.FromResult<RaceControlResponse?>(null);
 
         await Task.WhenAll(storyTask, standingsTask, strategyTask, incidentsTask);

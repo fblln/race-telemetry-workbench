@@ -18,17 +18,20 @@ public sealed class AgentRunner
 
     private readonly IChatClient _chatClient;
     private readonly McpToolRegistry _mcpTools;
+    private readonly ToolResultCache _toolResultCache;
     private readonly TelemetryAgentOptions _options;
     private readonly ILogger<AgentRunner> _logger;
 
     public AgentRunner(
         IChatClient chatClient,
         McpToolRegistry mcpTools,
+        ToolResultCache toolResultCache,
         IOptions<TelemetryAgentOptions> options,
         ILogger<AgentRunner> logger)
     {
         _chatClient = chatClient;
         _mcpTools = mcpTools;
+        _toolResultCache = toolResultCache;
         _options = options.Value;
         _logger = logger;
     }
@@ -117,9 +120,14 @@ public sealed class AgentRunner
         var planningOptions = new ChatOptions
         {
             Tools = tools.ToList(),
-            ToolMode = ChatToolMode.Auto,
+            // Force a tool call on round one so the ledger always has grounded evidence. Left on Auto,
+            // gpt-5-mini sometimes returns READY with zero tools, emptying the ledger and producing the
+            // "no usable telemetry evidence" fallback. Switched to Auto after round one (see loop).
+            ToolMode = ChatToolMode.RequireAny,
             AllowMultipleToolCalls = true,
             MaxOutputTokens = _options.ToolPlanningMaxOutputTokens,
+            // This client version has no Minimal enum value; Low is the lowest effort that
+            // both the client and reasoning models such as gpt-5-mini support.
             Reasoning = new ReasoningOptions { Effort = ReasoningEffort.Low }
         };
 
@@ -127,6 +135,8 @@ public sealed class AgentRunner
         var deduplicatedCalls = new Dictionary<string, Task<ToolExecutionResult>>(StringComparer.Ordinal);
         var totalToolCalls = 0;
         var llmCalls = 0;
+        var evaluatorNudges = 0;
+        var usedTools = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         try
         {
@@ -134,6 +144,7 @@ public sealed class AgentRunner
             {
                 llmCalls++;
                 var response = await CollectPlanningResponseAsync(acquisitionMessages, planningOptions, cancellationToken);
+                planningOptions.ToolMode = ChatToolMode.Auto; // only round one is forced
                 if (response.Contents.Count > 0)
                 {
                     acquisitionMessages.Add(new ChatMessage(ChatRole.Assistant, response.Contents.ToList()));
@@ -141,7 +152,25 @@ public sealed class AgentRunner
 
                 if (response.ToolCalls.Count == 0)
                 {
-                    break;
+                    // The acquisition model thinks it's done. Before accepting, let the evaluator judge
+                    // whether the evidence actually answers the question — if not, inject the gap as a
+                    // hint and force one more targeted tool round. This catches wrong/missing tool picks
+                    // (e.g. answering "final positions" without ever calling get_standings).
+                    if (evaluatorNudges >= _options.MaximumEvaluatorNudges || ledger.Facts.Count == 0)
+                    {
+                        break;
+                    }
+                    llmCalls++;
+                    var (sufficient, gap) = await EvaluateEvidenceAsync(newUserMessage, ledger, tools, usedTools, cancellationToken);
+                    if (sufficient)
+                    {
+                        break;
+                    }
+                    evaluatorNudges++;
+                    acquisitionMessages.Add(new ChatMessage(ChatRole.User,
+                        $"That evidence is not enough to fully answer the question. {gap} Call the specific tool(s) needed now."));
+                    planningOptions.ToolMode = ChatToolMode.RequireAny;
+                    continue;
                 }
 
                 var invocations = response.ToolCalls.Select((call, index) => new ToolInvocation(
@@ -165,6 +194,7 @@ public sealed class AgentRunner
                     acquisitionMessages.Add(new ChatMessage(ChatRole.Tool,
                         [new FunctionResultContent(result.Invocation.CallId, result.Result)]));
                     ledger.AddToolResult(result.Invocation.ToolName, totalToolCalls - invocations.Length + result.Invocation.Index, result.Result);
+                    usedTools.Add(result.Invocation.ToolName);
                 }
 
                 if (totalToolCalls >= _options.MaximumToolCalls)
@@ -236,6 +266,52 @@ public sealed class AgentRunner
         return new PlanningResponse(contents, toolCalls);
     }
 
+    // LLM-as-judge: given the question, the evidence gathered, and the catalog of available tools,
+    // decide whether the evidence actually answers the question and, if not, name the gap + the tool
+    // that would fill it. The caller feeds the gap back to the acquisition model to fetch more.
+    private async Task<(bool Sufficient, string Gap)> EvaluateEvidenceAsync(
+        string question,
+        GroundedEvidenceLedger ledger,
+        IReadOnlyList<AITool> tools,
+        IReadOnlySet<string> usedTools,
+        CancellationToken cancellationToken)
+    {
+        // Mark which tools were already called so the evaluator can recommend the unused ones.
+        var toolCatalog = string.Join("\n", tools.OfType<AIFunction>()
+            .Select(tool => $"- {tool.Name}{(usedTools.Contains(tool.Name) ? " (already used)" : "")}: {Truncate(tool.Description ?? string.Empty, 160)}"));
+        var evidence = ledger.BuildPrompt(_options.MaximumEvidenceCharacters);
+        var messages = new List<ChatMessage>
+        {
+            new(ChatRole.System, AgentInstructions.Evaluator),
+            new(ChatRole.User,
+                $"Question:\n{question}\n\nEvidence collected so far:\n{evidence}\n\nAvailable tools:\n{toolCatalog}")
+        };
+        var options = new ChatOptions
+        {
+            MaxOutputTokens = 200,
+            Reasoning = new ReasoningOptions { Effort = ReasoningEffort.Low }
+        };
+
+        var verdict = new StringBuilder();
+        AgentTelemetry.LlmCalls.Add(1);
+        await foreach (var update in _chatClient.GetStreamingResponseAsync(messages, options, cancellationToken))
+        {
+            foreach (var text in update.Contents.OfType<TextContent>())
+            {
+                verdict.Append(text.Text);
+            }
+        }
+
+        var line = verdict.ToString().Trim();
+        var sufficient = line.StartsWith("SUFFICIENT", StringComparison.OrdinalIgnoreCase);
+        if (sufficient)
+        {
+            return (true, string.Empty);
+        }
+        var gap = line.Replace("INSUFFICIENT:", string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
+        return (false, gap.Length > 0 ? gap : "The value the question asks for is not present in the evidence.");
+    }
+
     private async Task<IReadOnlyList<ToolExecutionResult>> ExecuteToolBatchAsync(
         IReadOnlyList<ToolInvocation> invocations,
         IReadOnlyList<AITool> tools,
@@ -267,6 +343,15 @@ public sealed class AgentRunner
             else if (deduplicatedCalls.TryGetValue(invocation.CanonicalKey, out var existing))
             {
                 task = RebindInvocationAsync(existing, invocation);
+            }
+            else if (_toolResultCache.TryGet(invocation.CanonicalKey, out var cachedResult))
+            {
+                task = Task.FromResult(new ToolExecutionResult(
+                    invocation,
+                    cachedResult,
+                    true,
+                    0));
+                deduplicatedCalls[invocation.CanonicalKey] = task;
             }
             else
             {
@@ -318,6 +403,10 @@ public sealed class AgentRunner
                     new AIFunctionArguments(invocation.Call.Arguments ?? new Dictionary<string, object?>()),
                     timeout.Token);
                 var result = SerializeToolResult(raw, _options.MaximumToolResultCharacters);
+                if (!IsErrorToolResult(result))
+                {
+                    _toolResultCache.Set(invocation.CanonicalKey, result);
+                }
                 return new ToolExecutionResult(invocation, result, true, stopwatch.Elapsed.TotalMilliseconds);
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
@@ -380,9 +469,11 @@ public sealed class AgentRunner
 
         if (!messageStarted)
         {
-            var fallback = ledger.Facts.Values.FirstOrDefault(fact => fact.NarrationPolicy != "omit")?.Text
-                ?? "The requested telemetry evidence is unavailable.";
-            EmitText(writer, messageId, fallback, ref messageStarted, finalText);
+            // Don't dump a raw fact verbatim — it masquerades as a real answer to the question asked.
+            // An empty completion means the model ran out of token budget on reasoning (see options).
+            EmitText(writer, messageId,
+                "I couldn't compose an answer from the available evidence. Please try rephrasing the question.",
+                ref messageStarted, finalText);
         }
 
         writer.TryWrite(AgUiEvent.TextMessageEnd(messageId));
@@ -438,8 +529,60 @@ public sealed class AgentRunner
         return result.Length <= maximumCharacters ? result : result[..maximumCharacters];
     }
 
-    private static string BuildCallKey(FunctionCallContent call) =>
-        $"{call.Name}:{JsonSerializer.Serialize(call.Arguments ?? new Dictionary<string, object?>(), ToolJsonOptions)}";
+    private static string BuildCallKey(FunctionCallContent call)
+    {
+        var arguments = JsonSerializer.SerializeToElement(
+            call.Arguments ?? new Dictionary<string, object?>(),
+            ToolJsonOptions);
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream))
+        {
+            WriteCanonicalJson(writer, arguments);
+        }
+        return $"{call.Name}:{Encoding.UTF8.GetString(stream.ToArray())}";
+    }
+
+    private static bool IsErrorToolResult(string result)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(result);
+            return document.RootElement.ValueKind == JsonValueKind.Object
+                && document.RootElement.TryGetProperty("isError", out var isError)
+                && isError.ValueKind == JsonValueKind.True;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static void WriteCanonicalJson(Utf8JsonWriter writer, JsonElement element)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                writer.WriteStartObject();
+                foreach (var property in element.EnumerateObject().OrderBy(property => property.Name, StringComparer.Ordinal))
+                {
+                    writer.WritePropertyName(property.Name);
+                    WriteCanonicalJson(writer, property.Value);
+                }
+                writer.WriteEndObject();
+                break;
+            case JsonValueKind.Array:
+                writer.WriteStartArray();
+                foreach (var item in element.EnumerateArray())
+                {
+                    WriteCanonicalJson(writer, item);
+                }
+                writer.WriteEndArray();
+                break;
+            default:
+                element.WriteTo(writer);
+                break;
+        }
+    }
 
     private void CompactSession(SessionEntry session)
     {

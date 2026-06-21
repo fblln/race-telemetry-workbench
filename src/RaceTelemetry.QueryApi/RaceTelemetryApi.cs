@@ -88,7 +88,6 @@ public static partial class RaceTelemetryApi
         "red",
         "clear",
         "drs",
-        "hard_braking",
         "off_track",
         "spin"
     };
@@ -144,7 +143,7 @@ public static partial class RaceTelemetryApi
             var connectionString = PostgresConnectionString.Normalize(databaseUrl);
             var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString)
             {
-                MinPoolSize = 2,
+                MinPoolSize = 8,
                 MaxPoolSize = 50,
                 MaxAutoPrepare = 100,
                 AutoPrepareMinUsages = 2
@@ -1028,7 +1027,6 @@ public static partial class RaceTelemetryApi
         api.MapGet("/sessions/{sessionId}/race-control", async Task<IResult> (
                 string sessionId,
                 string? types,
-                double? minBrakingG,
                 int? maxResults,
                 IF1TelemetryQueryStore store,
                 CancellationToken cancellationToken) =>
@@ -1054,14 +1052,8 @@ public static partial class RaceTelemetryApi
                     selectedTypes = parsed;
                 }
 
-                var braking = minBrakingG ?? 4.0;
-                if (braking is < 0 or > 10)
-                {
-                    return ValidationError("InvalidMinBrakingG", "minBrakingG must be between 0 and 10.", ("minBrakingG", braking));
-                }
-
                 var limit = Math.Clamp(maxResults ?? 200, 1, 1_000);
-                var incidents = await store.GetRaceControlAsync(sessionId, selectedTypes, braking, limit, cancellationToken);
+                var incidents = await store.GetRaceControlAsync(sessionId, selectedTypes, limit, cancellationToken);
                 return incidents is null
                     ? NotFoundError("SessionNotFound", $"Session {sessionId} does not exist.", ("sessionId", sessionId))
                     : Results.Ok(incidents);

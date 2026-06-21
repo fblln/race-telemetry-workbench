@@ -14,6 +14,10 @@ public interface IF1TelemetryQueryStore
         string sessionId,
         CancellationToken cancellationToken);
 
+    Task<SessionFactsResponse?> GetSessionFactsAsync(
+        string sessionId,
+        CancellationToken cancellationToken);
+
     Task<IReadOnlyList<LapSummary>?> GetLapsAsync(
         string sessionId,
         string driverCode,
@@ -162,7 +166,6 @@ public interface IF1TelemetryQueryStore
     Task<RaceControlResponse?> GetRaceControlAsync(
         string sessionId,
         IReadOnlyList<string>? types,
-        double minBrakingG,
         int maxResults,
         CancellationToken cancellationToken);
 

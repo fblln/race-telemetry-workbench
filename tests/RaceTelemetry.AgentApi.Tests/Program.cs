@@ -155,10 +155,10 @@ catch (Exception ex) { Fail("TurnCount increments on CompleteTurn", ex.Message);
 // ---- Tool-bundle routing ----
 static IReadOnlyList<AITool> AllTools() => new[]
 {
-    "list_sessions","get_session_drivers","get_race_story","get_standings","generate_race_debrief",
+    "list_sessions","get_session_drivers","get_session_facts","get_race_story","get_standings","generate_race_debrief",
     "summarize_strategy","analyze_driver_stints","analyze_pit_stops","get_positions",
     "compare_laps_story","compare_laps_by_distance","get_lap_braking_zones","get_driver_laps","get_lap_story","get_lap_quality",
-    "list_incidents","get_race_control_timeline","get_weather_trend",
+    "get_race_control_timeline","get_weather_trend",
     "aggregate_telemetry","detect_telemetry_windows","get_lap_telemetry","get_replay_chunk","get_replay_context","search_telemetry_events"
 }.Select(n => (AITool)AIFunctionFactory.Create((string s) => s, n)).ToList();
 
@@ -184,22 +184,69 @@ RouteCase("Router routes comparison questions to the comparison bundle",
     new[] { "generate_race_debrief" }, ref passed, ref failed);
 RouteCase("Router routes incident/weather questions",
     "When did the safety car come out and did it rain?",
-    new[] { "list_incidents", "get_weather_trend" },
+    new[] { "get_race_control_timeline", "get_weather_trend" },
     new[] { "get_replay_chunk" }, ref passed, ref failed);
 RouteCase("Router defaults vague questions to the race bundle",
     "Tell me about it",
     new[] { "get_race_story", "generate_race_debrief", "list_sessions" },
     new[] { "get_replay_chunk" }, ref passed, ref failed);
+RouteCase("Router always exposes get_session_facts for headline counts",
+    "How many drivers and safety cars were there?",
+    new[] { "get_session_facts" },
+    Array.Empty<string>(), ref passed, ref failed);
+RouteCase("get_session_facts is available even for a narrow telemetry question",
+    "What was the top speed?",
+    new[] { "get_session_facts" },
+    Array.Empty<string>(), ref passed, ref failed);
+
+// ---- F1 time formatting ----
+try
+{
+    (long ms, string want)[] cases = { (73481, "1:13.481"), (84_870, "1:24.870"), (60_000, "1:00.000"), (5_009, "0:05.009") };
+    foreach (var (ms, want) in cases)
+    {
+        var got = RaceTelemetry.Contracts.RaceTime.LapTime(ms);
+        if (got != want) throw new Exception($"{ms}ms -> '{got}', expected '{want}'");
+    }
+    var display = new RaceTelemetry.Contracts.SessionFactsResponse("s", "Monza", "Italy", 20, 53, 1, 0, 0, "LEC", 73481, "VER", 358, 43.5, false).FastestLapDisplay;
+    if (display != "1:13.481") throw new Exception($"FastestLapDisplay was '{display}'");
+    Pass("Lap times format the F1 way (m:ss.sss)");
+    passed++;
+}
+catch (Exception ex) { Fail("Lap times format the F1 way (m:ss.sss)", ex.Message); failed++; }
+
+// ---- Evidence ledger unwraps MCP envelopes ----
+try
+{
+    var ledger = new GroundedEvidenceLedger();
+    ledger.AddToolResult("get_session_facts", 0,
+        "{\"content\":[{\"type\":\"text\",\"text\":\"{\\\"driverCount\\\":22}\"}]}");
+    var stored = ledger.Facts.Values.First().Text;
+    if (stored != "{\"driverCount\":22}") throw new Exception($"not unwrapped: '{stored}'");
+    // Single text-content shape {"text":"..."} (string-returning tools).
+    var ledgerT = new GroundedEvidenceLedger();
+    ledgerT.AddToolResult("get_session_facts", 0, "{\"text\":\"22 drivers took part.\"}");
+    if (ledgerT.Facts.Values.First().Text != "22 drivers took part.") throw new Exception("text-shape not unwrapped");
+    // A plain (non-envelope) result is left untouched.
+    var ledger2 = new GroundedEvidenceLedger();
+    ledger2.AddToolResult("x", 0, "{\"topSpeedKmh\":292}");
+    if (ledger2.Facts.Values.First().Text != "{\"topSpeedKmh\":292}") throw new Exception("plain result altered");
+    Pass("Evidence ledger unwraps MCP content envelopes");
+    passed++;
+}
+catch (Exception ex) { Fail("Evidence ledger unwraps MCP content envelopes", ex.Message); failed++; }
 
 // ---- Agent runner driven by a mocked LLM (no API key, no DB, no MCP) ----
 
 // Drive the real AgentRunner with a fake IChatClient + canned tools, collecting every SSE event.
 static async Task<List<AgUiEvent>> RunAgent(
-    FakeChatClient chat, IEnumerable<AITool> tools, string question, TelemetryAgentOptions opts)
+    FakeChatClient chat, IEnumerable<AITool> tools, string question, TelemetryAgentOptions opts,
+    ToolResultCache? toolResultCache = null)
 {
     var runner = new AgentRunner(
         chat,
         McpToolRegistry.ForTesting(tools),
+        toolResultCache ?? new ToolResultCache(Options.Create(opts)),
         Options.Create(opts),
         NullLogger<AgentRunner>.Instance);
     var request = new AgUiRequest
@@ -281,6 +328,56 @@ try
     passed++;
 }
 catch (Exception ex) { Fail("Tool evidence is grounded into the final answer prompt", ex.Message); failed++; }
+
+// 13b. Focused get_session_facts: counts flow from the tool into the grounded answer
+try
+{
+    var facts = "{\"driverCount\":22,\"safetyCarDeployments\":3,\"redFlagCount\":1,\"topSpeedDriver\":\"BOR\",\"topSpeedKmh\":292}";
+    var chat = new FakeChatClient(
+        new[] { ToolCall("call-1", "get_session_facts") },
+        new[] { TextDelta("22 drivers, 3 safety cars.") });
+    await RunAgent(chat, new[] { CannedTool("get_session_facts", facts), CannedTool("list_sessions", "{}") },
+        "How many drivers and safety cars?", oneToolOpts);
+    // Evidence packet JSON-escapes the tool's inner JSON, so match on key names + values.
+    var finalPrompt = string.Concat(chat.Received[^1].Select(m => m.Text));
+    if (!finalPrompt.Contains("driverCount") || !finalPrompt.Contains("22")
+        || !finalPrompt.Contains("safetyCarDeployments") || !finalPrompt.Contains("3"))
+        throw new Exception("session facts did not reach the finalizer evidence packet");
+    Pass("get_session_facts counts are grounded into the answer");
+    passed++;
+}
+catch (Exception ex) { Fail("get_session_facts counts are grounded into the answer", ex.Message); failed++; }
+
+// 13c. Successful tool results are reused across separate agent runs.
+try
+{
+    var invocationCount = 0;
+    var cachedTool = AIFunctionFactory.Create(
+        () =>
+        {
+            invocationCount++;
+            return "{\"driverCount\":22}";
+        },
+        "get_session_facts");
+    var sharedCache = new ToolResultCache(Options.Create(oneToolOpts));
+
+    var firstChat = new FakeChatClient(
+        new[] { ToolCall("call-cache-1", "get_session_facts") },
+        new[] { TextDelta("There were 22 drivers.") });
+    await RunAgent(firstChat, new[] { cachedTool, CannedTool("list_sessions", "{}") },
+        "How many drivers?", oneToolOpts, sharedCache);
+
+    var secondChat = new FakeChatClient(
+        new[] { ToolCall("call-cache-2", "get_session_facts") },
+        new[] { TextDelta("There were 22 drivers.") });
+    await RunAgent(secondChat, new[] { cachedTool, CannedTool("list_sessions", "{}") },
+        "How many drivers?", oneToolOpts, sharedCache);
+
+    if (invocationCount != 1) throw new Exception($"tool executed {invocationCount} times");
+    Pass("Successful tool results are cached across runs");
+    passed++;
+}
+catch (Exception ex) { Fail("Successful tool results are cached across runs", ex.Message); failed++; }
 
 // 14. No-tool path: planner asks for nothing -> still produces a streamed answer
 try

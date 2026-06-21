@@ -37,6 +37,7 @@ public sealed record StrategySummaryResponse(
 
 public sealed record DriverStrategySummary(
     string DriverCode,
+    int? FinishPosition,
     IReadOnlyList<StrategyStopSummary> Stops,
     IReadOnlyList<string> NarrativeFactIds);
 

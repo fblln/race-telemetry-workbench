@@ -4,7 +4,7 @@ namespace RaceTelemetry.Agent;
 
 public static class ToolBundleRouter
 {
-    private static readonly string[] Common = ["list_sessions", "get_session_drivers"];
+    private static readonly string[] Common = ["list_sessions", "get_session_drivers", "get_session_facts"];
 
     private static readonly IReadOnlyDictionary<string, string[]> Bundles =
         new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
@@ -12,7 +12,7 @@ public static class ToolBundleRouter
             ["race"] = ["get_race_story", "get_standings", "generate_race_debrief"],
             ["strategy"] = ["summarize_strategy", "analyze_driver_stints", "analyze_pit_stops", "get_standings", "get_positions"],
             ["comparison"] = ["get_driver_laps", "get_lap_story", "get_lap_quality", "compare_laps_story", "compare_laps_by_distance", "get_lap_braking_zones"],
-            ["incident"] = ["list_incidents", "get_race_control_timeline", "get_weather_trend", "get_race_story"],
+            ["incident"] = ["get_race_control_timeline", "get_weather_trend", "get_race_story"],
             ["raw"] = ["aggregate_telemetry", "detect_telemetry_windows", "get_lap_telemetry", "get_replay_chunk", "get_replay_context", "search_telemetry_events"]
         };
 

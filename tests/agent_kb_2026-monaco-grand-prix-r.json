@@ -32,7 +32,9 @@
   "fastest_lap_ms": 73481,
   "top_speed_driver": "BOR",
   "top_speed_kmh": 292.0,
-  "safety_car_count": 4,
+  "safety_car_count": 3,
+  "red_flag_count": 1,
+  "vsc_count": 0,
   "peak_track_temp_c": 46.0,
   "rained": false
 }

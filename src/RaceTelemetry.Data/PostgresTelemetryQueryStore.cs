@@ -236,6 +236,78 @@ public sealed partial class PostgresTelemetryQueryStore(NpgsqlDataSource dataSou
         return drivers;
     }
 
+    public async Task<SessionFactsResponse?> GetSessionFactsAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.get_session_facts", sessionId);
+
+        var cacheKey = CacheKey("session_facts", sessionId);
+        if (_cache.TryGetValue<SessionFactsResponse>(cacheKey, out var cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        // Track-status codes: 4=SC deployed, 5=red flag, 6=VSC deployed (stored as text).
+        const string sql = """
+            SELECT
+                s.circuit_name,
+                s.country,
+                (SELECT count(DISTINCT driver_code) FROM laps WHERE session_id = @sessionId AND NOT is_deleted)::int,
+                (SELECT coalesce(max(lap_number), 0) FROM laps WHERE session_id = @sessionId AND NOT is_deleted)::int,
+                (SELECT count(*) FROM track_status_events WHERE session_id = @sessionId AND status_code = '4')::int,
+                (SELECT count(*) FROM track_status_events WHERE session_id = @sessionId AND status_code = '5')::int,
+                (SELECT count(*) FROM track_status_events WHERE session_id = @sessionId AND status_code = '6')::int,
+                fl.driver_code, fl.lap_time_ms::bigint,
+                ts.driver_code, ts.top_speed,
+                w.peak_temp, coalesce(w.rained, false)
+            FROM sessions s
+            LEFT JOIN LATERAL (
+                SELECT driver_code, lap_time_ms FROM laps
+                WHERE session_id = @sessionId AND lap_time_ms IS NOT NULL AND NOT is_deleted
+                ORDER BY lap_time_ms ASC LIMIT 1
+            ) fl ON true
+            LEFT JOIN LATERAL (
+                SELECT driver_code, max(speed_kmh) AS top_speed FROM telemetry_samples
+                WHERE session_id = @sessionId AND speed_kmh IS NOT NULL
+                GROUP BY driver_code ORDER BY max(speed_kmh) DESC LIMIT 1
+            ) ts ON true
+            LEFT JOIN LATERAL (
+                SELECT max(track_temp_c) AS peak_temp, bool_or(rainfall) AS rained
+                FROM weather_samples WHERE session_id = @sessionId
+            ) w ON true
+            WHERE s.session_id = @sessionId
+            """;
+
+        await using var command = _dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return null;
+        }
+
+        var facts = new SessionFactsResponse(
+            SessionId: sessionId,
+            CircuitName: reader.GetString(0),
+            Country: GetNullableString(reader, 1),
+            DriverCount: reader.GetInt32(2),
+            TotalLaps: reader.GetInt32(3),
+            SafetyCarDeployments: reader.GetInt32(4),
+            RedFlagCount: reader.GetInt32(5),
+            VirtualSafetyCarDeployments: reader.GetInt32(6),
+            FastestLapDriver: GetNullableString(reader, 7),
+            FastestLapMs: GetNullableInt64(reader, 8),
+            TopSpeedDriver: GetNullableString(reader, 9),
+            TopSpeedKmh: GetNullableDouble(reader, 10),
+            PeakTrackTempC: GetNullableDouble(reader, 11),
+            RainObserved: reader.GetBoolean(12));
+
+        _cache.Set(cacheKey, facts, MetadataCacheOptions);
+        return facts;
+    }
+
     public async Task<IReadOnlyList<LapSummary>?> GetLapsAsync(
         string sessionId,
         string driverCode,
