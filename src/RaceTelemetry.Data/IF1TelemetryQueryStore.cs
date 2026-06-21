@@ -163,6 +163,10 @@ public interface IF1TelemetryQueryStore
         string sortBy,
         CancellationToken cancellationToken);
 
+    Task<PositionChangesResponse?> GetPositionChangesAsync(
+        string sessionId,
+        CancellationToken cancellationToken);
+
     Task<RaceControlResponse?> GetRaceControlAsync(
         string sessionId,
         IReadOnlyList<string>? types,

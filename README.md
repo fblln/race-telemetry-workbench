@@ -11,8 +11,8 @@ or manually inspect thousands of samples.
 
 ## What It Will Look Like
 
-The target experience is a high-performance .NET MAUI **desktop workbench** for
-race engineers — keyboard-first, information-dense, and built on the
+The target experience is a high-performance .NET MAUI Blazor Hybrid **desktop workbench** for
+engineers — information-dense, and built on the
 project-owned **Carbon Signal** design system.
 
 The current full-app prototype uses a persistent session-console shell: a
@@ -107,6 +107,58 @@ The two roles are distinct:
   samples, incidents, pit stops, weather — all fetched live from TimescaleDB via
   MCP tool calls, grounded in the same query store used by every other view.
 
+## Desktop Application
+
+The desktop app is a **.NET MAUI Blazor Hybrid** application (`net10.0-maccatalyst`
+/ `net10.0-windows`). MAUI provides only the native window, fonts, and a single
+`BlazorWebView`; the entire UI is Razor components running in the WebView's
+`#app` root (`Shell`). All views, styling, and services live in the
+`RaceTelemetry.UiKit` Razor Class Library, so the same UI could be hosted by any
+Blazor host. The app talks to the backend purely over HTTP — typed REST to the
+Query API and AG-UI/SSE to the Agent API — and holds no database or model credentials.
+
+```mermaid
+flowchart TB
+    subgraph Native["MAUI native shell"]
+        App["App.xaml → MainPage\nBlazorWebView · Inter + JetBrains Mono fonts"]
+        Prog["MauiProgram\nDI registration · HttpClient base URLs"]
+    end
+
+    subgraph WebView["BlazorWebView (WKWebView) · #app"]
+        Shell["Shell.razor\n8-view rail · ⌘K command palette\nswitch on State.ActiveView"]
+        subgraph Views["Views"]
+            Launcher["Launcher (Home)"]
+            Reports["ReportsAi (Reports & AI)"]
+            Other["Replay · Strategy · Field ·\nRace control · Head to head · Lap detail"]
+        end
+        Assets["wwwroot/index.html\n_content/UiKit/css/app.css · js/app.js"]
+    end
+
+    subgraph Services["UiKit services (DI)"]
+        State["SessionState (singleton)\nopen session · drivers · active view"]
+        QClient["QueryApiClient\ntyped HttpClient"]
+        AClient["TelemetryAgentClient\nnamed 'agent-api' · SSE"]
+        Thread["ChatThreadIdentity"]
+        Caches["SessionPrefetchService ·\nLauncherSessionCache"]
+    end
+
+    Contracts["RaceTelemetry.Contracts\nshared DTOs"]
+    QueryApi["Query API :5120 (REST)"]
+    AgentApi["Agent API :5124 (AG-UI/SSE)"]
+
+    App --> Shell
+    Prog -.->|"registers"| Services
+    Shell --> Views
+    Shell --> State
+    Reports --> AClient
+    Views --> QClient
+    Views --> State
+    QClient -->|"REST"| QueryApi
+    AClient -->|"AG-UI/SSE"| AgentApi
+    QClient -. "DTOs" .-> Contracts
+    Shell --- Assets
+```
+
 ## Backend Architecture
 
 Race Telemetry Workbench uses **.NET Aspire** for the local backend loop. Aspire
@@ -157,6 +209,51 @@ flowchart TB
     AgentApiRes -. "OpenTelemetry" .-> Dashboard
 ```
 
+### Agent Pipeline
+
+Zooming into the Agent API, a chat question flows through a keyword tool router,
+a two-phase acquire-then-ground loop, and a streamed finalizer. The full
+breakdown — sequence diagram, components, and optimizations — is in
+[`docs/AGENT_PIPELINE.md`](docs/AGENT_PIPELINE.md).
+
+```mermaid
+flowchart LR
+    subgraph Desktop["Desktop (MAUI + Blazor WebView)"]
+        UI["ReportsAi.razor\nchat bubbles · thinking indicator\n~12fps throttled render"]
+        Client["TelemetryAgentClient\nPOST /ag-ui · SSE reader"]
+    end
+
+    subgraph AgentApi["Agent API :5124"]
+        EP["AgUiEndpoints\n/ag-ui · SSE headers · flush per event"]
+        Reg["AgentSessionRegistry\nin-memory sessions · TurnLock"]
+        Runner["AgentRunner\nproducer/consumer channel\ntwo-phase loop"]
+        Router["ToolBundleRouter\nkeyword tool filter"]
+        Cache["ToolResultCache\nTTL 2m · bounded 1000"]
+        Ledger["GroundedEvidenceLedger\nplain-text evidence packet"]
+        Mcp["McpToolRegistry\ndiscovered tools (singleton)"]
+    end
+
+    OpenAI["OpenAI\ngpt-5-mini · effort Low"]
+    McpServer["MCP server :5122"]
+    DB["TimescaleDB"]
+
+    UI --> Client
+    Client -->|"AG-UI over HTTP/SSE"| EP
+    EP --> Reg
+    EP --> Runner
+    Runner --> Router
+    Runner -->|"plan + finalize"| OpenAI
+    Runner -->|"execute tool"| Mcp
+    Runner <--> Cache
+    Runner --> Ledger
+    Ledger -->|"evidence packet"| OpenAI
+    Mcp -->|"MCP tool call"| McpServer
+    McpServer --> DB
+    Runner -->|"SSE events"| EP
+    EP -->|"text/event-stream"| Client
+    Client -->|"token deltas"| UI
+```
+
 **Data flow for a chat question:**
 
 1. Engineer types a question in the Reports & AI view
@@ -167,6 +264,11 @@ flowchart TB
 6. Model receives tool results and produces a grounded answer
 7. Answer streams back to the desktop as AG-UI SSE events
 
+The assistant answers beside the live race summary, streaming a grounded
+response with the tool sources it used and suggested follow-ups.
+
+![Reports & AI — assistant comparing pit strategies beside the race summary](docs/images/chat-interaction.png)
+
 ### Aspire Observability
 
 The Aspire Dashboard provides a single local view of the running backend topology
@@ -175,21 +277,23 @@ server, and the OpenAI configuration injected into the agent process.
 
 ![Aspire trace Resource Graph](docs/images/aspire-resource-graph.png)
 
-A real POST /ag-ui trace follows the complete agentic request. The Agent API
-calls OpenAI, executes get_race_story through the MCP server, queries
-TimescaleDB through the shared query store, and then calls the model again to
-produce the final streamed answer.
-
-![Aspire trace for Agent call](docs/images/aspire-agent-trace.png)
 
 The trace below was produced by asking **“Compare the pit strategies of the top
-3.”** The first model call resolves the analysis plan, after which the agent
+3.”** 
+
+A real POST /ag-ui trace follows the complete agentic request. The first model call resolves the analysis plan, after which the agent
 executes `analyze_driver_stints` three times through MCP for each of the
 top-three finishers. Each tool call is visible through the MCP server, shared
 query store, and PostgreSQL spans before a final OpenAI call synthesizes the
 comparison.
 
 ![Aspire trace for comparing the pit strategies of the top three finishers](docs/images/aspire-top-three-pit-strategies-trace.png)
+
+Drilling into a single `chat gpt-5-mini` LLM span shows the full system/user/assistant
+exchange, token usage, and duration for that model call — the per-call detail behind
+the trace tree above.
+
+![Aspire trace detail — gpt-5-mini LLM span input, output, and token usage](docs/images/aspire-agent-llm-span.png)
 
 ## Backend Deep Dive
 
@@ -322,6 +426,8 @@ in-memory session keyed by `threadId`, serialises concurrent turns on the same
 thread, and drives a streaming agentic loop: model call → tool calls → model
 call → final text. The answer is emitted as a sequence of AG-UI SSE events
 (`RUN_STARTED`, `TOOL_CALL_START`, `TEXT_MESSAGE_CONTENT`, `RUN_FINISHED`, etc.).
+The loop and its optimizations are documented in detail in
+[`docs/AGENT_PIPELINE.md`](docs/AGENT_PIPELINE.md).
 
 Key design points:
 
@@ -442,29 +548,7 @@ The next evolution builds the remaining desktop surfaces on the existing API:
 - the high-performance .NET MAUI session console and Replay workspace
 - data-derived track map and driver replay
 - timeline overlays for weather, flags, safety car, VSC, and race control
-- lap comparison, strategy, field, and incident views
-
-## Repository Map
-
-| Path | Purpose |
-|---|---|
-| `scripts/` | FastF1 download, import, bulk import, and storage estimate scripts |
-| `db/migrations/` | PostgreSQL / TimescaleDB schema, hypertables, indexes, and views |
-| `src/RaceTelemetry.Agent/` | Agent class library — OpenAI client, MCP tool discovery, agent configuration |
-| `src/RaceTelemetry.AgentApi/` | AG-UI agent endpoint — session registry, SSE streaming, loopback-only |
-| `src/RaceTelemetry.QueryApi/` | ASP.NET Core Query API |
-| `src/RaceTelemetry.McpServer/` | HTTP MCP server |
-| `src/RaceTelemetry.Data/` | Query-store abstraction and PostgreSQL implementation |
-| `src/RaceTelemetry.Contracts/` | Shared API/MCP/Desktop DTOs |
-| `src/RaceTelemetry.AppHost/` | Aspire AppHost |
-| `src/RaceTelemetry.Desktop/` | .NET MAUI desktop app |
-| `bruno/race-telemetry-query-api/` | Bruno collection for Query API manual testing |
-| `bruno/race-telemetry-agent-api/` | Bruno collection for Agent API / AG-UI manual testing |
-| `tests/RaceTelemetry.AgentApi.Tests/` | Session registry unit tests |
-| `docs/` | Development, data, API/MCP, and OpenAPI docs |
-| `docs/design-system/` | Carbon Signal design system, tokens, styleguide, and the interactive app prototype |
-| `docs/images/` | Rendered mockups used in documentation |
-| `planning.md` | Backlog, decisions, and progress tracking |
+- lap comparison, strategy, field, and race-control views
 
 ## License
 

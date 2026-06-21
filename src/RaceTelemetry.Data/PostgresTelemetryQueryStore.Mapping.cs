@@ -192,7 +192,7 @@ public sealed partial class PostgresTelemetryQueryStore
     {
         var insights = new List<AnalysisInsight>
         {
-            new("session_scope", $"{session.EventName} {session.Year} {session.SessionType}: {session.DriverCount} drivers and {session.LapCount} imported laps.")
+            new("session_scope", $"{session.EventName} {session.Year} {session.SessionType}: {session.DriverCount} drivers over {session.LapCount} laps.")
         };
 
         if (weather is not null)

@@ -475,7 +475,7 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
     [Description("Get compact race-level context for natural-language analysis: weather, tyre stints, pit markers, track-status periods, race-control highlights, and insights.")]
     public async Task<RaceStoryResponse> GetRaceStory(
         [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
-        [Description("Maximum race-control messages to include. Range: 0 to 1000.")] int raceControlLimit = 100,
+        [Description("Maximum race-control messages to include (most significant first). Range: 0 to 1000.")] int raceControlLimit = 12,
         CancellationToken cancellationToken = default)
     {
         using var activity = StartToolActivity("get_race_story", sessionId);
@@ -485,6 +485,82 @@ public sealed partial class RaceTelemetryMcpTools(IF1TelemetryQueryStore store)
         ValidateRange(raceControlLimit, 0, 1_000, nameof(raceControlLimit));
 
         return await store.GetRaceStoryAsync(sessionId, raceControlLimit, cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "get_standings",
+        Title = "Get Standings / Podium",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Get the official finishing classification (or the order as of a given lap): position, "
+        + "driver, gap to leader, interval, and status. This is the source of truth for podium, winner, "
+        + "top-N, and finishing-order questions — use it instead of inferring positions from other data.")]
+    public async Task<StandingsResponse> GetStandings(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Order as of this lap number. Omit or 0 for the final classification.")] int atLap = 0,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("get_standings", sessionId);
+        activity?.SetTag("race.query.at_lap", atLap);
+
+        ValidateSessionId(sessionId);
+
+        return await store.GetStandingsAsync(sessionId, atLap > 0 ? atLap : null, "position", cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "get_positions",
+        Title = "Get Position Progression",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Get each driver's track position lap by lap. Use this for lead changes, overtakes, "
+        + "and how the order evolved. Scope with drivers and/or a lap range to keep the result small.")]
+    public async Task<PositionsResponse> GetPositions(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        [Description("Driver codes to include, e.g. [\"VER\",\"NOR\"]. Omit for all drivers.")] string[]? drivers = null,
+        [Description("First lap to include. Omit or 0 for the start.")] int fromLap = 0,
+        [Description("Last lap to include. Omit or 0 for the end.")] int toLap = 0,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("get_positions", sessionId);
+
+        ValidateSessionId(sessionId);
+
+        return await store.GetPositionsAsync(
+                sessionId,
+                drivers is { Length: > 0 } ? drivers : null,
+                fromLap > 0 ? fromLap : null,
+                toLap > 0 ? toLap : null,
+                cancellationToken)
+            ?? throw NotFound($"Session {sessionId} does not exist.");
+    }
+
+    [McpServerTool(
+        Name = "get_position_changes",
+        Title = "Get Position Changes (Biggest Mover)",
+        ReadOnly = true,
+        Idempotent = true,
+        OpenWorld = false,
+        UseStructuredContent = true)]
+    [Description("Net track positions gained or lost per driver across the race, sorted biggest gainer "
+        + "first. Use this for 'biggest mover', 'who climbed/dropped the most', or 'who gained/lost "
+        + "positions'. The first item is the biggest gainer, the last is the biggest loser. Delta is "
+        + "positive for places gained; start position is the order after lap 1 (grid is not imported).")]
+    public async Task<PositionChangesResponse> GetPositionChanges(
+        [Description("Session id, for example 2025-italian-grand-prix-r.")] string sessionId,
+        CancellationToken cancellationToken = default)
+    {
+        using var activity = StartToolActivity("get_position_changes", sessionId);
+
+        ValidateSessionId(sessionId);
+
+        return await store.GetPositionChangesAsync(sessionId, cancellationToken)
             ?? throw NotFound($"Session {sessionId} does not exist.");
     }
 

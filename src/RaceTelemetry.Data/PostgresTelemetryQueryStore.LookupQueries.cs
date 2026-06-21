@@ -535,9 +535,10 @@ public sealed partial class PostgresTelemetryQueryStore
                 GROUP BY session_id
             ),
             lap_counts AS (
-                SELECT session_id, count(*)::int AS lap_count
+                -- Race distance (highest lap number reached), not the count of all drivers' lap rows.
+                SELECT session_id, coalesce(max(lap_number), 0)::int AS lap_count
                 FROM laps
-                WHERE session_id = @sessionId
+                WHERE session_id = @sessionId AND NOT is_deleted
                 GROUP BY session_id
             )
             SELECT

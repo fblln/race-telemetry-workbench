@@ -9,7 +9,9 @@ public static class ToolBundleRouter
     private static readonly IReadOnlyDictionary<string, string[]> Bundles =
         new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
-            ["race"] = ["get_race_story", "get_standings", "generate_race_debrief"],
+            // get_race_story (slimmed) + standings cover overviews. generate_race_debrief is the
+            // everything-at-once mega-tool; leave it out so the model composes from focused tools.
+            ["race"] = ["get_race_story", "get_standings", "get_positions", "get_position_changes"],
             ["strategy"] = ["summarize_strategy", "analyze_driver_stints", "analyze_pit_stops", "get_standings", "get_positions"],
             ["comparison"] = ["get_driver_laps", "get_lap_story", "get_lap_quality", "compare_laps_story", "compare_laps_by_distance", "get_lap_braking_zones"],
             ["incident"] = ["get_race_control_timeline", "get_weather_trend", "get_race_story"],
@@ -21,7 +23,8 @@ public static class ToolBundleRouter
         var requested = new HashSet<string>(Common, StringComparer.Ordinal);
         var text = question.ToLowerInvariant();
 
-        AddWhen(text, requested, "race", "race", "overview", "debrief", "summary", "winner", "result");
+        AddWhen(text, requested, "race", "race", "overview", "debrief", "summary", "winner", "result",
+            "podium", "standing", "finish", "position", "order", "mover", "gained", "lost", "climbed", "dropped", "lead change", "overtake");
         AddWhen(text, requested, "strategy", "strategy", "pit", "stint", "tyre", "tire", "undercut", "overcut", "degradation");
         AddWhen(text, requested, "comparison", "compare", "comparison", "lap", "sector", "corner", "braking");
         AddWhen(text, requested, "incident", "incident", "safety car", "vsc", "yellow", "red flag", "rain", "weather", "race control");

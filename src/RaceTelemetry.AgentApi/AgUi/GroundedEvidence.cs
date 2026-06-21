@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace RaceTelemetry.AgentApi.AgUi;
@@ -21,7 +22,11 @@ public sealed class GroundedEvidenceLedger
     {
         result = UnwrapMcpEnvelope(result);
         var syntheticId = $"tool-{callIndex + 1}-{NormalizeId(toolName)}";
-        _facts[syntheticId] = new GroundedEvidenceFact(syntheticId, result, "supported", "assert", result);
+
+        // Store the structured result as one fact, but strip its `facts` array first — those are
+        // re-extracted below as their own facts, so leaving them in the raw doubles the payload.
+        var rawForPrompt = StripFactsArray(result);
+        _facts[syntheticId] = new GroundedEvidenceFact(syntheticId, rawForPrompt, "supported", "assert", rawForPrompt);
 
         try
         {
@@ -47,6 +52,25 @@ public sealed class GroundedEvidenceLedger
                 .AppendLine(Truncate(fact.Text, 16_000));
         }
         return Truncate(builder.ToString(), maximumCharacters);
+    }
+
+    // Remove the top-level "facts" array from a tool result so it isn't duplicated in the evidence
+    // (it is re-added as individual facts). Structured fields the model needs are untouched.
+    private static string StripFactsArray(string json)
+    {
+        try
+        {
+            if (JsonNode.Parse(json) is JsonObject obj && obj.ContainsKey("facts"))
+            {
+                obj.Remove("facts");
+                return obj.ToJsonString();
+            }
+        }
+        catch (JsonException)
+        {
+            // Non-JSON or unparseable — keep the original text.
+        }
+        return json;
     }
 
     private void AddNarrativeFacts(JsonElement element)

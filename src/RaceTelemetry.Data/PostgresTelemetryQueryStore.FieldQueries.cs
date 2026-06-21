@@ -166,6 +166,68 @@ public sealed partial class PostgresTelemetryQueryStore
         return new StandingsResponse(sessionId, (int)atLapValue, sorted);
     }
 
+    public async Task<PositionChangesResponse?> GetPositionChangesAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        using var activity = StartStoreActivity("query_store.get_position_changes", sessionId);
+
+        var finish = await GetStandingsAsync(sessionId, null, "position", cancellationToken);
+        if (finish is null)
+        {
+            return null;
+        }
+
+        // Prefer the real starting grid; fall back per-driver to the order after lap 1 where grid is unknown.
+        var grid = await GetGridPositionsAsync(sessionId, cancellationToken);
+        var lapOne = await GetStandingsAsync(sessionId, 1, "position", cancellationToken);
+        var lapOnePositions = lapOne?.Items.ToDictionary(r => r.DriverCode, r => r.Position, StringComparer.OrdinalIgnoreCase)
+            ?? new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        int? StartPosition(string code)
+        {
+            if (grid.TryGetValue(code, out var g) && g > 0)
+            {
+                return g;
+            }
+            return lapOnePositions.TryGetValue(code, out var l) ? l : null;
+        }
+
+        var changes = finish.Items
+            .Select(row => new { row, start = StartPosition(row.DriverCode) })
+            .Where(x => x.start is not null)
+            .Select(x => new PositionChange(
+                x.row.DriverCode,
+                x.row.FullName,
+                x.start!.Value,
+                x.row.Position,
+                x.start!.Value - x.row.Position))
+            .OrderByDescending(change => change.Delta)
+            .ThenBy(change => change.FinishPosition)
+            .ToList();
+
+        return new PositionChangesResponse(sessionId, changes);
+    }
+
+    private async Task<Dictionary<string, int>> GetGridPositionsAsync(string sessionId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT driver_code, grid_position
+            FROM session_drivers
+            WHERE session_id = @sessionId AND grid_position IS NOT NULL
+            """;
+        await using var command = _dataSource.CreateCommand(sql);
+        command.Parameters.AddWithValue("sessionId", sessionId);
+
+        var map = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            map[reader.GetString(0)] = reader.GetInt32(1);
+        }
+        return map;
+    }
+
     public async Task<PositionsResponse?> GetPositionsAsync(
         string sessionId,
         IReadOnlyList<string>? drivers,

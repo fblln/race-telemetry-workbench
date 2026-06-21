@@ -34,15 +34,17 @@
                             <div class="bubble-a">
                                 @if (string.IsNullOrEmpty(b.Content) && b.Streaming)
                                 {
-                                    <span class="micro">thinking…</span>
-                                }
-                                else if (b.Streaming)
-                                {
-                                    @* Plain text while streaming — parsing markdown on every delta is O(n²) and freezes the UI. *@
-                                    <div style="white-space:pre-wrap">@b.Content</div>
+                                    var running = b.Tools.LastOrDefault(t => t.Running).Name;
+                                    <div class="thinking">
+                                        <span class="thinking-dot"></span>
+                                        <span>@(running is not null ? $"Looking up {SourceLabel(running).ToLowerInvariant()}…" : "Thinking…")</span>
+                                    </div>
                                 }
                                 else
                                 {
+                                    @* Render markdown live (including while streaming) so the bubble grows continuously
+                                       instead of swapping plain text for HTML at the end. Markdig on a few-KB string at
+                                       the throttled ~12fps render rate is cheap. *@
                                     @((MarkupString)Markdig.Markdown.ToHtml(b.Content))
                                 }
                                 @{ var sources = b.Tools.Select(t => t.Name).Distinct().ToList(); }
@@ -98,7 +100,7 @@
                     </div>
                     <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
                         <div class="grid3">
-                            <div class="ro"><div class="k">Winner</div><div class="v" style="font-size:18px">@(Winner?.DriverCode ?? "—")</div></div>
+                            <div class="ro"><div class="k">Winner</div><div class="v" style="font-size:18px">@(Winner?.FullName ?? Winner?.DriverCode ?? "—")</div></div>
                             <div class="ro"><div class="k">Fastest lap</div><div class="v" style="font-size:18px">@FastestLapTime</div></div>
                             <div class="ro"><div class="k">Strategy</div><div class="v" style="font-size:18px">@WinnerStrategy</div></div>
                         </div>
@@ -114,20 +116,20 @@
                                 {
                                     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
                                         <span style="color:var(--text-secondary)">Largest net gain</span>
-                                        <span class="mono" style="color:var(--success)">@g.Driver +@g.Delta pos</span>
+                                        <span class="mono" style="color:var(--success)">@DriverName(g.Driver) +@g.Delta pos</span>
                                     </div>
                                 }
                                 @if (LargestLoss is { Delta: < 0 } l)
                                 {
                                     <div style="display:flex;justify-content:space-between;font-size:12px">
                                         <span style="color:var(--text-secondary)">Largest net loss</span>
-                                        <span class="mono" style="color:var(--danger)">@l.Driver @l.Delta pos</span>
+                                        <span class="mono" style="color:var(--danger)">@DriverName(l.Driver) @l.Delta pos</span>
                                     </div>
                                 }
                             </div>
                         }
                         <div>
-                            <div class="lbl">Tyre strategy · @(Winner?.DriverCode ?? "winner")</div>
+                            <div class="lbl">Tyre strategy · @(Winner?.FullName ?? Winner?.DriverCode ?? "winner")</div>
                             <div class="ganttbar" style="height:22px">
                                 @if (WinnerStints.Any())
                                 {
@@ -253,6 +255,10 @@
     }
 
     // --- derived (real) ---
+    // Full name for a driver code (from standings), falling back to the code itself.
+    string DriverName(string code) =>
+        _standings?.Items.FirstOrDefault(r => string.Equals(r.DriverCode, code, StringComparison.OrdinalIgnoreCase))?.FullName ?? code;
+
     StandingRow? Winner => _standings?.Items.FirstOrDefault(r => r.Position == 1);
     StandingRow? FastestRow => _standings?.Items.Where(r => r.BestLapMs is not null).OrderBy(r => r.BestLapMs).FirstOrDefault();
     string FastestLapTime => Fmt(FastestRow?.BestLapMs);
@@ -321,9 +327,9 @@
             var sc = _incidents?.Summary;
             if (sc is { LapsUnderSafetyCar: > 0 }) sb.Append($" {sc.LapsUnderSafetyCar} lap(s) ran under safety car.");
             var second = _standings?.Items.FirstOrDefault(r => r.Position == 2);
-            if (second is not null) sb.Append($" {second.DriverCode} finished P2, +{Gap(second.GapToLeaderMs)}.");
+            if (second is not null) sb.Append($" {second.FullName ?? second.DriverCode} finished P2, +{Gap(second.GapToLeaderMs)}.");
             if (LargestGain is { Delta: >= 3 } g)
-                sb.Append($" <b>{g.Driver}</b> was the biggest mover, climbing {g.Delta} places.");
+                sb.Append($" <b>{DriverName(g.Driver)}</b> was the biggest mover, climbing {g.Delta} places.");
             return sb.ToString();
         }
     }
@@ -382,6 +388,9 @@
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
         _streaming = true;
+
+        // Paint the question + thinking indicator immediately, before we await the first event.
+        StateHasChanged();
 
         var threadId = Thread.GetOrCreate();
         var context = State.WorkspaceContext();

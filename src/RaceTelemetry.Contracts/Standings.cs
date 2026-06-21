@@ -25,3 +25,19 @@ public sealed record StandingRow(
     int PitCount,
     string Status,
     IReadOnlyList<long>? RecentLapMs);
+
+/// <summary>
+/// Net track-position change per driver across the race, sorted biggest gainer first.
+/// Start position is the starting grid where imported, otherwise the order after lap 1.
+/// Delta is positive when the driver gained places (StartPosition - FinishPosition).
+/// </summary>
+public sealed record PositionChangesResponse(
+    string SessionId,
+    IReadOnlyList<PositionChange> Items);
+
+public sealed record PositionChange(
+    string DriverCode,
+    string? FullName,
+    int StartPosition,
+    int FinishPosition,
+    int Delta);

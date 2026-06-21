@@ -95,8 +95,13 @@
 </div>
 
 @code {
-    static readonly int[] Seasons = { 2025, 2024 };
+    const int DefaultYear = 2025;
     static readonly string[] SessionTypes = { "Practice", "Qualifying", "Race" };
+
+    // Seasons present in the catalogue (newest first); a single default before sessions have loaded.
+    IEnumerable<int> Seasons => State.Sessions.Count > 0
+        ? State.Sessions.Select(s => s.Year).Distinct().OrderByDescending(y => y)
+        : new[] { DefaultYear };
 
     record Card(string Circuit, string Flag);
 
@@ -105,8 +110,11 @@
         State.Changed += OnStateChanged;
         if (State.Sessions.Count == 0)
         {
-            if (State.Year is null) { State.SelectYear(Seasons[0]); }
             await State.LoadSessionsAsync();
+        }
+        if (State.Year is null)
+        {
+            State.SelectYear(Seasons.Contains(DefaultYear) ? DefaultYear : Seasons.First());
         }
     }
 

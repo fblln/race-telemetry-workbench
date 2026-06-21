@@ -83,8 +83,8 @@
   .seclabel{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--text-secondary);text-transform:uppercase;margin:0 0 9px}
   .panel{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-lg)}
   .panel-h{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--bg-raised);border-bottom:1px solid var(--border-default);border-radius:var(--r-lg) var(--r-lg) 0 0}
-  .panel-h .tt{font-size:13px;font-weight:600;color:var(--text-primary)}
-  .panel-h .tools{margin-left:auto;display:flex;gap:6px}
+  .panel-h .tt{font-size:13px;font-weight:600;color:var(--text-primary);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .panel-h .tools{margin-left:auto;display:flex;gap:6px;flex-shrink:0}
   .ghostbtn{font-size:12px;color:var(--text-secondary);background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--r-md);padding:5px 10px;cursor:pointer}
   .ghostbtn:hover{border-color:var(--border-strong);color:var(--text-primary)}
   .ghostbtn.on{background:var(--accent-muted);border-color:var(--accent);color:var(--accent)}
@@ -233,6 +233,15 @@
   .bubble-q{background:var(--accent-muted);border:1px solid var(--accent-border);color:var(--text-primary);border-radius:18px 18px 4px 18px;padding:10px 16px;font-size:15px;align-self:flex-end;max-width:80%}
   .bubble-a{background:transparent;border:0;border-radius:0;padding:2px 0;font-size:15px;color:var(--text-primary);line-height:1.7;max-width:100%}
   .bubble-a b{color:var(--text-primary);font-weight:600}
+  .bubble-a p{margin:0 0 10px}
+  .bubble-a p:last-child{margin-bottom:0}
+  .bubble-a ul,.bubble-a ol{margin:0 0 10px;padding-left:22px}
+  .bubble-a li{margin:2px 0}
+  .bubble-a h2,.bubble-a h3{font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--text-secondary);margin:14px 0 6px}
+  .bubble-a h2:first-child,.bubble-a h3:first-child{margin-top:0}
+  .thinking{display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:14px}
+  .thinking-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:thinking-pulse 1.2s ease-in-out infinite}
+  @keyframes thinking-pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
   /* ChatGPT-style composer: rounded pill, auto-grow textarea, round send */
   .composer{display:flex;align-items:flex-end;gap:8px;background:var(--bg-inset);border:1px solid var(--border-default);border-radius:24px;padding:8px 8px 8px 18px}
   .composer textarea{flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--text-primary);font:15px var(--sans);line-height:1.5;max-height:160px;padding:6px 0}
@@ -257,8 +266,8 @@
   .doc .sub{font-family:var(--mono);font-size:11px;color:var(--text-tertiary);margin:2px 0 14px}
   .doc .lbl{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
   .doc p{font-size:13px;color:var(--text-secondary);line-height:1.55;margin-bottom:12px}
-  .btn-ghost{background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--r-md);padding:6px 12px;font-size:12px;color:var(--text-secondary);cursor:pointer}
-  .btn-pri-sm{background:var(--accent);color:var(--text-on-accent);border:0;border-radius:var(--r-md);padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer}
+  .btn-ghost{background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--r-md);padding:6px 12px;font-size:12px;color:var(--text-secondary);cursor:pointer;white-space:nowrap}
+  .btn-pri-sm{background:var(--accent);color:var(--text-on-accent);border:0;border-radius:var(--r-md);padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
 /* --- Blazor Hybrid host: render the fixed 1440x900 prototype canvas centered in the native
    window and scale it as one unit to fit. transform:scale preserves the prototype's proportions
    exactly; `zoom` would distort them (it multiplies px against the viewport, so the fixed-width

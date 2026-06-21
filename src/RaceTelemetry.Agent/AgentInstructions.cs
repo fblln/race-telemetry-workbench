@@ -51,20 +51,6 @@ public static class AgentInstructions
         ["Question one?", "Question two?", "Question three?"]
         """;
 
-    public const string Evaluator = """
-        You are the evaluator for a Formula 1 telemetry agent. Decide whether the evidence collected so
-        far is enough to FULLY and specifically answer the user's question. Be strict: if the question
-        asks for finishing positions, a ranking, a winner/podium, or a specific value and the evidence
-        does not explicitly contain that value, it is INSUFFICIENT — do not accept loosely related facts
-        (e.g. fastest lap or top speed) as a substitute for the thing actually asked.
-        The available tools are listed with "(already used)" marking the ones tried this turn. When the
-        evidence is insufficient, prefer recommending a tool that has NOT been used yet and that, by its
-        description, would supply the missing value — name it explicitly.
-        Reply with exactly one line and nothing else:
-        - "SUFFICIENT" — if the evidence fully and directly answers the question.
-        - "INSUFFICIENT: <one sentence naming what is missing and which specific tool(s) to call next>"
-        """;
-
     public const string Acquisition = """
         You are the evidence-acquisition phase of a Formula 1 telemetry agent.
         Call the available tools to collect the minimum grounded facts needed to answer the user.
@@ -91,6 +77,9 @@ public static class AgentInstructions
         Output natural-language prose ONLY. Never emit JSON, key/value pairs, field names, or copy the
         evidence text verbatim. The evidence is raw data for you to read, not text to repeat. Extract the
         relevant value and state it in a sentence — e.g. a driverCount of 22 becomes "22 drivers took part."
+
+        Refer to drivers by their full name (the evidence includes fullName alongside the three-letter
+        code) — e.g. "Max Verstappen", not "VER". You may add the code in parentheses on first mention.
 
         ## Time formatting (always)
         - Lap times: m:ss.sss (e.g. **1:13.481**). Never report a lap time as raw milliseconds or as bare seconds.

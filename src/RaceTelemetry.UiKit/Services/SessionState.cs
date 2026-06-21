@@ -42,10 +42,11 @@ public sealed class SessionState
         Changed?.Invoke();
     }
 
-    /// <summary>Load the session catalogue for the funnel (year + type filter applied client-side).</summary>
+    /// <summary>Load the full session catalogue once; year + type filters are applied client-side
+    /// (so every season's count is known without reloading when the user switches year).</summary>
     public async Task LoadSessionsAsync(CancellationToken ct = default)
     {
-        Sessions = await _api.GetSessionsAsync(Year, ct: ct);
+        Sessions = await _api.GetSessionsAsync(null, ct: ct);
         Changed?.Invoke();
     }
 
@@ -66,7 +67,8 @@ public sealed class SessionState
         _ => string.Equals(code, label, StringComparison.OrdinalIgnoreCase),
     };
 
-    public void SelectYear(int year) { Year = year; Changed?.Invoke(); _ = LoadSessionsAsync(); }
+    // All seasons are already loaded; switching year is just a client-side filter change.
+    public void SelectYear(int year) { Year = year; Changed?.Invoke(); }
     public void SelectSessionType(string type) { SessionType = type; Changed?.Invoke(); }
 
     public async Task SelectCircuitAsync(string circuit)

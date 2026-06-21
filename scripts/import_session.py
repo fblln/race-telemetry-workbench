@@ -453,6 +453,7 @@ def build_driver_rows(session: Any, session_id: str, driver_codes: Sequence[str]
                 int_or_none(driver_info.get("DriverNumber")),
                 str_or_none(driver_info.get("FullName")),
                 str_or_none(driver_info.get("TeamName")),
+                int_or_none(driver_info.get("GridPosition")),
                 json_metadata({"driver_ref": str(driver_ref)}),
             )
         )
@@ -1967,12 +1968,13 @@ def insert_parent_rows(
     execute_many(
         connection,
         """
-            INSERT INTO session_drivers (session_id, driver_code, driver_number, full_name, team_name, metadata)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO session_drivers (session_id, driver_code, driver_number, full_name, team_name, grid_position, metadata)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (session_id, driver_code) DO UPDATE SET
                 driver_number = EXCLUDED.driver_number,
                 full_name = EXCLUDED.full_name,
                 team_name = EXCLUDED.team_name,
+                grid_position = EXCLUDED.grid_position,
                 metadata = EXCLUDED.metadata
             """,
         driver_rows,

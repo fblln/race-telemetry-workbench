@@ -833,6 +833,25 @@ public sealed class InMemoryTelemetryQueryStore : IF1TelemetryQueryStore
             ]));
     }
 
+    public Task<PositionChangesResponse?> GetPositionChangesAsync(
+        string sessionId,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!IsKnownSession(sessionId))
+        {
+            return Task.FromResult<PositionChangesResponse?>(null);
+        }
+
+        return Task.FromResult<PositionChangesResponse?>(new PositionChangesResponse(
+            sessionId,
+            [
+                new PositionChange("LEC", "Charles Leclerc", 4, 2, 2),
+                new PositionChange("VER", "Max Verstappen", 1, 1, 0)
+            ]));
+    }
+
     public Task<RaceControlResponse?> GetRaceControlAsync(
         string sessionId,
         IReadOnlyList<string>? types,

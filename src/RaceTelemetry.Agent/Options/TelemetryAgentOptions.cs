@@ -34,13 +34,6 @@ public sealed class TelemetryAgentOptions
 
     public int MaximumToolCalls { get; init; } = 16;
 
-    /// <summary>
-    /// How many times the evaluator may reject the gathered evidence and force another targeted
-    /// tool round before the answer is finalized. 0 disables the evaluator. Each nudge costs one
-    /// evaluator LLM call plus one acquisition round.
-    /// </summary>
-    public int MaximumEvaluatorNudges { get; init; } = 2;
-
     public int MaximumConcurrentToolCalls { get; init; } = 8;
 
     public TimeSpan ToolCallTimeout { get; init; } = TimeSpan.FromSeconds(15);

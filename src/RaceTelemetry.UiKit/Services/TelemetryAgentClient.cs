@@ -77,7 +77,10 @@ public sealed class TelemetryAgentClient : ITelemetryAgentClient
         await using var stream = await response!.Content.ReadAsStreamAsync(cancellationToken);
         using var reader = new System.IO.StreamReader(stream);
 
-        while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
+        // Loop on ReadLineAsync returning null, NOT reader.EndOfStream — EndOfStream is a
+        // synchronous blocking read on the socket, which freezes the BlazorWebView UI thread
+        // until the whole SSE response arrives. ReadLineAsync yields the thread between events.
+        while (!cancellationToken.IsCancellationRequested)
         {
             var line = await reader.ReadLineAsync(cancellationToken);
             if (line is null) break;

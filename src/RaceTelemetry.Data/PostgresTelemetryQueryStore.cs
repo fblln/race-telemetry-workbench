@@ -103,8 +103,10 @@ public sealed partial class PostgresTelemetryQueryStore(NpgsqlDataSource dataSou
                 GROUP BY session_id
             ),
             lap_counts AS (
-                SELECT session_id, count(*)::int AS lap_count
+                -- Race distance (highest lap number reached), not the count of all drivers' lap rows.
+                SELECT session_id, coalesce(max(lap_number), 0)::int AS lap_count
                 FROM laps
+                WHERE NOT is_deleted
                 GROUP BY session_id
             )
             SELECT
