@@ -267,7 +267,7 @@ flowchart LR
 The assistant answers beside the live race summary, streaming a grounded
 response with the tool sources it used and suggested follow-ups.
 
-![Reports & AI — assistant comparing pit strategies beside the race summary](docs/images/chat-interaction.png)
+![Reports & AI — assistant comparing pit strategies beside the race summary](docs/images/chat-interaction-3-half-trim.gif)
 
 ### Aspire Observability
 
